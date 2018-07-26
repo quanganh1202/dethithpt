@@ -7,7 +7,7 @@ module.exports = {
     }
   },{
     name      : 'BACKEND1',
-    script    : 'index.js',
+    script    : 'backend/index.js',
     env_production : {
       NODE_ENV: 'production'
     }
