@@ -20,7 +20,8 @@ module.exports = {
       ref  : 'origin/master',
       repo : 'git@github.com:nguoiran2000/dethithpt.git',
       path : '/var/www/production',
-      "pre-setup" : "rm -rf /var/www/production/current/source",
+      "pre-setup" : "rm -rf current/source",
+      "post-setup": "ls -la",
       'post-deploy' : './resources/pre-deployment.sh && pm2 reload ecosystem.config.js --env production'
     }
   }
