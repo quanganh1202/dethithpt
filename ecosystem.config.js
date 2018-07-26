@@ -1,7 +1,7 @@
 module.exports = {
   apps : [{
     name      : 'FRONTEND1',
-    script    : 'server',
+    script    : 'frontend/server',
     env_production : {
       NODE_ENV: 'production'
     }
