@@ -19,8 +19,8 @@ module.exports = {
       host : 'localhost',
       ref  : 'origin/master',
       repo : 'git@github.com:nguoiran2000/dethithpt.git',
-      path : './',
-      'post-deploy' : 'resources/pre-deployment.sh && pm2 startOrRestart ecosystem.config.js --env production'
+      path : '/var/www/production',
+      'post-deploy' : './resources/pre-deployment.sh && pm2 startOrRestart ecosystem.config.js --env production'
     }
   }
 };
