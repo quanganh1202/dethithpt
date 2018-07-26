@@ -21,7 +21,7 @@ module.exports = {
       repo : 'git@github.com:nguoiran2000/dethithpt.git',
       path : '/var/www/production',
       "post-setup": './resources/pre-deployment.sh',
-      'post-deploy' : 'npm install && pm2 reload ecosystem.config.js --env production'
+      'post-deploy' : 'pm2 reload ecosystem.config.js --env production'
     }
   }
 };
