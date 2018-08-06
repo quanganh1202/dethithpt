@@ -1,3 +1,5 @@
 # Don't check auto-generated stuff into git
-build
 node_modules
+dist
+build
+log
