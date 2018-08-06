@@ -10,6 +10,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet';
 import styled from 'styled-components';
 import { Switch, Route } from 'react-router-dom';
+import { ThemeProvider } from 'styled-components';
 
 import HomePage from 'containers/HomePage/Loadable';
 import FeaturePage from 'containers/FeaturePage/Loadable';
@@ -24,22 +25,29 @@ const AppWrapper = styled.div`
   flex-direction: column;
 `;
 
+const theme = {
+  headerMenu: '#6668a9',
+  linkColor: '#295496',
+};
+
 export default function App() {
   return (
-    <AppWrapper>
-      <Helmet
-        titleTemplate="%s - DethiTHPT"
-        defaultTitle="DethiTHPT"
-      >
-        <meta name="description" content="DethiTHPT" />
-      </Helmet>
-      <Header />
-      <Switch>
-        <Route exact path="/" component={HomePage} />
-        <Route path="/features" component={FeaturePage} />
-        <Route path="" component={NotFoundPage} />
-      </Switch>
-      <Footer />
-    </AppWrapper>
+    <ThemeProvider theme={theme}>
+      <AppWrapper>
+        <Helmet
+          titleTemplate="%s - DethiTHPT"
+          defaultTitle="DethiTHPT"
+        >
+          <meta name="description" content="DethiTHPT" />
+        </Helmet>
+        <Header />
+        <Switch>
+          <Route exact path="/" component={HomePage} />
+          <Route path="/features" component={FeaturePage} />
+          <Route path="" component={NotFoundPage} />
+        </Switch>
+        <Footer />
+      </AppWrapper>
+    </ThemeProvider>
   );
 }

@@ -14,6 +14,7 @@ import { createStructuredSelector } from 'reselect';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
+import { LIST_COLOR } from 'utils/constants';
 import {
   makeSelectRepos,
   makeSelectLoading,
@@ -21,11 +22,73 @@ import {
 } from 'containers/App/selectors';
 import Layout from 'components/Layout';
 import Tab from 'components/Tab';
+import TabList from 'components/Tab/TabList';
+import List from 'components/List';
 import { loadRepos } from '../App/actions';
 import { changeUsername } from './actions';
 import { makeSelectUsername } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
+
+const categoryItems = [
+  {
+    id: 1,
+    title: "Đề thi thử THPT Quốc Gia",
+    link: "",
+    quantity: 4,
+  },
+  {
+    id: 2,
+    title: "Chuyên đề, bài tập, giáo án",
+    link: "",
+    quantity: 4,
+  },
+  {
+    id: 3,
+    title: "Đề thi thử THPT Quốc Gia",
+    link: "",
+    quantity: 4,
+  },
+  {
+    id: 4,
+    title: "Đề thi thử THPT Quốc Gia",
+    link: "",
+    quantity: 4,
+  },
+  {
+    id: 5,
+    title: "Đề thi thử THPT Quốc Gia",
+    link: "",
+    quantity: 4,
+  },
+];
+
+const dataLeft = [
+  {
+    title: "Danh mục tài liệu",
+    data: categoryItems,
+  }
+];
+const dataRight1 = [
+  {
+    title: "Bộ sưu tập nổi bật",
+    data: categoryItems,
+    component: ({ data }) => <List items={data} component={({ item }) => <TabList item={item} />} />
+  },
+  {
+    title: "Tin tức nổi bật",
+  },
+  {
+    title: "Xu hướng từ khóa",
+  },
+  {
+    title: "Thống kê",
+  },
+  {
+    title: "Thông tin website",
+  }
+];
+
 
 /* eslint-disable react/prefer-stateless-function */
 export class HomePage extends React.PureComponent {
@@ -45,6 +108,18 @@ export class HomePage extends React.PureComponent {
       error,
       repos,
     };
+    const contentLeft = <div>{dataLeft.map((item, index) => <Tab key={`left-${index}`} title={item.title} content={
+      <List items={item.data} component={({ item }) => <TabList item={item} type={LIST_COLOR} />} />
+    } />)}</div>;
+    const contentRight1 = <div>
+    {
+      dataRight1.map((item, index) => {
+        const ComponentRendered = item.component;
+        return <Tab key={`right1-${index}`} style={{ background: 'white' }} title={item.title} content={
+          ComponentRendered ? <ComponentRendered data={item.data} /> : null} />
+      })
+    }
+    </div>;
 
     return (
       <article>
@@ -55,19 +130,15 @@ export class HomePage extends React.PureComponent {
             content="DethiTHPT"
           />
         </Helmet>
-        <div>
+        <div style={{ marginTop: '20px' }}>
           <Layout content={[
             {
-              children: <Tab title="Danh mục tài liệu" items={[
-                {
-                  title: "Đề thi thử THPT Quốc Gia",
-                  link: "",
-                  quantity: 4,
-                }
-              ]} />
+              children: contentLeft,
             },
             { children: <div>123</div> },
-            { children: <div>123</div> },
+            {
+              children: contentRight1,
+            },
             { children: <div>123</div> },
           ]} />
         </div>
