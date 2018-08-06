@@ -1,16 +1,21 @@
 import express from 'express';
-import { tokenGenerator } from '../middleware/jwt';
+import { login } from '../../src/controller/user';
 
 const routerDefine =  function defineRouter() {
   const route = express.Router();
 
-  route.post('/login', (req, res) => {
-    const { userName } = req.body;
-    const token = tokenGenerator(userName);
-
-    res.status(200).json({
-      token,
-    });
+  route.post('/login', async (req, res) => {
+    const { userName, password } = req.body;
+    const { token, error } = await login(userName, password);
+    if (token) {
+      res.status(200).json({
+        token,
+      });
+    } else {
+      res.status(error.status || 401).json({
+        error,
+      });
+    }
   });
 
   return route;
