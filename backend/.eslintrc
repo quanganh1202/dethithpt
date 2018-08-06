@@ -1,0 +1,38 @@
+{
+    "env": {
+        "es6": true,
+        "node": true
+    },
+    "extends": "eslint:recommended",
+    "parserOptions": {
+        "ecmaVersion": 2018,
+        "sourceType": "module"
+    },
+    "rules": {
+        "indent": ["error", 2],
+        "linebreak-style": ["error", "unix"],
+        "quotes": ["error", "single"],
+        "semi": "error",
+        "no-console": 1,
+        "no-await-in-loop": 2,
+        "default-case": 2,
+        "array-bracket-newline": 2,
+        "camelcase": 2,
+        "comma-spacing": 2,
+        "comma-dangle": ["error", "always-multiline"],
+        "func-call-spacing": 2,
+        "max-len": ["error", 100],
+        "no-trailing-spaces": 2,
+        "arrow-spacing": 2,
+        "no-confusing-arrow": 2,
+        "generator-star-spacing": 2,
+        "no-var": 2,
+        "use-isnan": 2,
+        "eqeqeq": 2,
+        "prefer-template": 2,
+        "template-curly-spacing": ["error", "never"],
+        "no-useless-concat": 2,
+        "newline-before-return": 2,
+        "object-curly-spacing": ["error", "always"]
+    }
+}
