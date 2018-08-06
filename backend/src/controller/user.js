@@ -1,21 +1,31 @@
-import MySQL from '../model/mysql';
+import User from '../model/user';
+import { tokenGenerator }  from '../../server/middleware/jwt';
 
-class User {
-  constructor() {
-    this.DB = new MySQL('tbUser');
-  }
+const userModel = new User();
 
-  login(userName, pwd) {
-    const cols = ['userName', 'password'];
-    const user = this.DB.getItems(cols, { userName });
+async function login(userName, pwd) {
+  try {
+    const user = await userModel.getList({
+      userName,
+      password: pwd,
+    });
 
-    const { password } = user;
-    if (pwd === password) {
-      return true;
+    if (user.length) {
+      const token = tokenGenerator();
+
+      return { token };
     }
 
-    return false;
+    return {
+      error: 'Unauthorize',
+      status: 401,
+    };
+  } catch (ex) {
+    return {
+      error: 'Unexpected error',
+      status: 500,
+    };
   }
 }
 
-export default User;
+export { login };

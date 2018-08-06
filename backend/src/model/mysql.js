@@ -40,13 +40,13 @@ class Database {
     });
   }
 
-  getItems(cols, filter) {
+  getItems(filter, cols) {
     const query = 'SELECT ?? FROM ?? WHERE ?';
 
     return new Promise((resolve, reject) => {
       this.connection.query(
         query,
-        [cols, this.type, filter],
+        [cols || '*', this.type, filter],
         (err, res) => {
           err ? reject(err) : resolve(res);
         }
