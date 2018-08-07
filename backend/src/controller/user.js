@@ -33,7 +33,8 @@ async function auth(email) {
     const criteria = { email };
     const user = await userModel.getList(criteria);
     if (user && user.length) {
-      const { token, expiresIn } = tokenGenerator();
+      const sign = { email };
+      const { token, expiresIn } = tokenGenerator(sign);
 
       return {
         status: 200,
