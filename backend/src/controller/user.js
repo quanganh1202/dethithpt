@@ -32,7 +32,15 @@ async function auth(email) {
   try {
     const criteria = { email };
     const user = await userModel.getList(criteria);
-    if (user && user.length) return tokenGenerator();
+    if (user && user.length) {
+      const { token, expiresIn } = tokenGenerator();
+
+      return {
+        status: 200,
+        token,
+        expiresIn,
+      };
+    }
     else return {
       error: 'Unauthorize',
       status: 401,

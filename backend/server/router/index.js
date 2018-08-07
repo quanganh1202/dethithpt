@@ -21,10 +21,11 @@ const routerDefine =  function defineRouter() {
 
   route.post('/login/auth/facebook', async (req, res) => {
     const { email } = req.body;
-    const { token, error } = await auth(email);
+    const { token, expiresIn, error } = await auth(email);
     if (token) {
       res.status(200).json({
         token,
+        expiresIn,
       });
     } else {
       res.status(error.status || 401).json({
