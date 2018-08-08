@@ -11,6 +11,8 @@ import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
+import { Switch, Route } from 'react-router-dom';
+import UploadDocument from 'containers/UploadDocument/Loadable';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
@@ -135,7 +137,11 @@ export class HomePage extends React.PureComponent {
             {
               children: contentLeft,
             },
-            { children: <div>123</div> },
+            { children: (
+              <Switch>
+                <Route exact path="/dang-ban-tai-lieu" component={UploadDocument} />
+              </Switch>
+            ) },
             {
               children: contentRight1,
             },

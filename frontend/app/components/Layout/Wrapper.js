@@ -4,6 +4,7 @@ const Wrapper = styled.div`
   & .column {
     float: left;
     width: 45%;
+    padding-right: 15px;
 
     :first-child, :nth-child(3) {
       width: 20%;

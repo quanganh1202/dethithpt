@@ -13,7 +13,6 @@ import { Switch, Route } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 
 import HomePage from 'containers/HomePage/Loadable';
-import FeaturePage from 'containers/FeaturePage/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import Header from 'components/Header';
 import Footer from 'components/Footer';
@@ -42,9 +41,8 @@ export default function App() {
         </Helmet>
         <Header />
         <Switch>
-          <Route exact path="/" component={HomePage} />
-          <Route path="/features" component={FeaturePage} />
-          <Route path="" component={NotFoundPage} />
+          <Route path="/" component={HomePage} />
+          {/* <Route path="" component={NotFoundPage} /> */}
         </Switch>
         <Footer />
       </AppWrapper>

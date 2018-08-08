@@ -31,8 +31,8 @@ class Header extends React.Component {
           <HeaderLink to="/">
             <FormattedMessage {...messages.home} />
           </HeaderLink>
-          <HeaderLink to="/features">
-            <FormattedMessage {...messages.features} />
+          <HeaderLink to="/dang-ban-tai-lieu">
+            Đăng bán tài liệu
           </HeaderLink>
         </NavBar>
       </div>
