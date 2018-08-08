@@ -37,8 +37,9 @@ async function auth(info) {
 
 async function addUser(userInfo) {
   try {
-    const { email } = userInfo;
-    const user = await userModel.getList({ email });
+    const { email, phone } = userInfo;
+    const user = email ? await userModel.getList({ email }) :
+      phone ? await userModel.getList({ phone }) : undefined;
     if (user && user.length) {
 
       return {
