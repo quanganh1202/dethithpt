@@ -10,8 +10,8 @@ class Database {
     return new Promise((resolve, reject) => {
       const connection = mysql.createConnection({
         host: process.env.MYSQL_HOST || 'localhost',
-        user: process.env.MYSQL_USER || 'administrator',
-        password: process.env.MYSQL_PASSWORD || '123456',
+        user: process.env.MYSQL_USER || 'root',
+        password: process.env.MYSQL_PASSWORD || '12345678',
         database: process.env.MYSQL_DATABASE || 'dethithpt',
       });
       connection.connect((err) => {
@@ -41,12 +41,15 @@ class Database {
   }
 
   getItems(filter, cols) {
-    const query = 'SELECT ?? FROM ?? WHERE ?';
+    let query = 'SELECT ?? FROM ??';
+    if (filter) {
+      query = `SELECT ?? FROM ?? WHERE ${filter}`;
+    }
 
     return new Promise((resolve, reject) => {
       this.connection.query(
         query,
-        [cols || '*', this.type, filter],
+        [cols || '*', this.type],
         (err, res) => {
           err ? reject(err) : resolve(res);
         }
