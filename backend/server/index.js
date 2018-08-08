@@ -11,7 +11,7 @@ const routes = routers();
 const app = express();
 const initialExpress = async function startServer() {
   const baseRoutePublic = process.env.BASE_ROUTE_PUBLIC || '';
-  const baseRoutePrivate = process.env.BASE_ROUTE_PRIVATE || /^(?!.*(login|register|test)).*$/;
+  const baseRoutePrivate = process.env.BASE_ROUTE_PRIVATE || /^(?!.*(login|register)).*$/;
   const port = process.env.EXPRESS_PORT || 3000;
   app.use(cors()); // Allow cors
   app.use(bodyParser.json());
