@@ -1,6 +1,5 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "id": "http://dethithpt.com/schemas/user-schema.json#",
+  "$id": "http://dethithpt.com/user-schema#",
   "title": "User",
   "description": "User schema validation",
   "type": "object",
