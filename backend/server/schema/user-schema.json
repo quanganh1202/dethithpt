@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://dethithpt.com/schemas/user-schema.json#",
+  "title": "User",
+  "description": "User schema validation",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string", "maxLength": 255 },
+    "email": { "type": "string", "format": "email" },
+    "phone": { "type": "string", "pattern": "^[0-9()\\-\\.\\s]+$" }
+  }
+}
