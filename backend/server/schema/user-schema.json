@@ -4,6 +4,7 @@
   "title": "User",
   "description": "User schema validation",
   "type": "object",
+  "additionalProperties": true,
   "properties": {
     "name": { "type": "string", "maxLength": 255 },
     "email": { "type": "string", "format": "email" },
