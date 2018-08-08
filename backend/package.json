@@ -22,7 +22,7 @@
   "os": [
     "win32",
     "linux",
-    "mac"
+    "darwin"
   ],
   "license": "ISC",
   "dependencies": {
