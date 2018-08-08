@@ -22,14 +22,14 @@ const routerDefine =  function defineRouter() {
   route.post('/login/auth/facebook', async (req, res) => {
     const { email } = req.body;
     const { token, expiresIn, error } = await auth(email);
-    if (token) {
+    if (error) {
+      res.status(error.status || 401).json({
+        error,
+      });
+    } else {
       res.status(200).json({
         token,
         expiresIn,
-      });
-    } else {
-      res.status(error.status || 401).json({
-        error,
       });
     }
   });
