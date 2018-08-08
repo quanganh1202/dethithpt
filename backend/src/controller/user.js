@@ -1,39 +1,13 @@
 import User from '../model/user';
 import { tokenGenerator }  from '../../server/middleware/jwt';
-import { encryptor, descryptor } from '../libs/encrypt';
 
 const userModel = new User();
 
-async function login(userName, pwd) {
+async function auth(info) {
   try {
-    const user = await userModel.getList({
-      userName,
-    });
-
-    const auth = await descryptor(pwd, user[0].password);
-
-    if (user.length && auth) {
-      const token = tokenGenerator();
-
-      return { token };
-    }
-
-    return {
-      error: 'Unauthorize',
-      status: 401,
-    };
-  } catch (ex) {
-    return {
-      error: 'Unexpected error',
-      status: 500,
-    };
-  }
-}
-
-async function auth(email) {
-  try {
-    const criteria = { email };
-    const user = await userModel.getList(criteria);
+    const { email, phone } = info;
+    const criteria = email ? { email } : phone ? { phone } : undefined;
+    const user = criteria ? await userModel.getList(criteria) : undefined;
     if (user && user.length) {
       const sign = { email };
       const { token, expiresIn } = tokenGenerator(sign);
@@ -67,7 +41,6 @@ async function addUser(userInfo) {
         status: 400,
       };
     }
-    userInfo.password = await encryptor(userInfo.password);
     await userModel.addNewUser(userInfo);
 
     return {
@@ -87,4 +60,4 @@ async function getAllUsers() {
   return users;
 }
 
-export { login, auth, addUser, getAllUsers };
+export { auth, addUser, getAllUsers };

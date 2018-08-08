@@ -1,27 +1,12 @@
 import express from 'express';
 import { tokenGenerator } from '../middleware/jwt';
-import { login, auth, addUser, getAllUsers } from '../../src/controller/user';
+import { auth, addUser, getAllUsers } from '../../src/controller/user';
 
 const routerDefine =  function defineRouter() {
   const route = express.Router();
 
   route.post('/login', async (req, res) => {
-    const { userName, password } = req.body;
-    const { token, error } = await login(userName, password);
-    if (token) {
-      res.status(200).json({
-        token,
-      });
-    } else {
-      res.status(error.status || 401).json({
-        error,
-      });
-    }
-  });
-
-  route.post('/login/auth/facebook', async (req, res) => {
-    const { email } = req.body;
-    const { token, expiresIn, error } = await auth(email);
+    const { token, expiresIn, error } = await auth(req.body);
     if (error) {
       res.status(error.status || 401).json({
         error,
