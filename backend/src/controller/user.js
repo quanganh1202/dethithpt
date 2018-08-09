@@ -1,5 +1,6 @@
 import User from '../model/user';
 import { tokenGenerator }  from '../../server/middleware/jwt';
+import logger from '../libs/logger';
 
 const userModel = new User();
 
@@ -18,11 +19,15 @@ async function auth(info) {
         expiresIn,
       };
     }
-    else return {
-      error: 'Unauthorize',
-      status: 401,
-    };
+    else {
+      return {
+        error: 'Unauthorize',
+        status: 401,
+      };
+    }
   } catch (ex) {
+    logger.error(ex.message);
+
     return {
       error: 'Unexpected error when authenticate user',
       status: 500,
@@ -47,6 +52,8 @@ async function addUser(userInfo) {
       status: 201,
     };
   } catch (ex) {
+    logger.error(ex.message);
+
     return {
       error: 'Unexpected error when insert an user',
       status: 500,
