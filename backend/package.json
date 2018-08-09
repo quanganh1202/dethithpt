@@ -8,7 +8,7 @@
     "start": "babel-node main",
     "production": "node ./dist/main.js",
     "build": "./resource/build.sh",
-    "dev": "nodemon main --exec babel-node"
+    "dev": "NODE_ENV=dev nodemon main --exec babel-node"
   },
   "keywords": [],
   "author": {

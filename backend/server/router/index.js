@@ -1,7 +1,7 @@
 import express from 'express';
 import { tokenGenerator } from '../middleware/jwt';
 import { auth, addUser, getAllUsers } from '../../src/controller/user';
-import { dataValidator } from '../middleware/ajv';
+import { getListDocuments, uploadDocument } from '../../src/controller/document';
 
 const routerDefine =  function defineRouter() {
   const route = express.Router();
@@ -21,29 +21,22 @@ const routerDefine =  function defineRouter() {
   });
 
   route.post('/register', async (req, res) => {
-    const resValidate = dataValidator(req.body, 'http://dethithpt.com/user-schema#');
-    if (resValidate.valid) {
-      const userInfo = req.body;
-      const { error, status } = await addUser(userInfo);
+    const userInfo = req.body;
+    const { error, status } = await addUser(userInfo);
 
-      if (error) {
-        res.status(status || 500).json({
-          error: error || 'Unexpected error',
-        });
-      } else {
-        const sign = {
-          role: userInfo.email,
-        };
-        const { token, expiresIn } = tokenGenerator(sign);
-        res.status(status || 201).json({
-          data: 'Has registered',
-          token,
-          expiresIn,
-        });
-      }
+    if (error) {
+      res.status(status || 500).json({
+        error: error || 'Unexpected error',
+      });
     } else {
-      res.status(resValidate.status || 403).json({
-        error: resValidate.errors,
+      const sign = {
+        role: userInfo.email,
+      };
+      const { token, expiresIn } = tokenGenerator(sign);
+      res.status(status || 201).json({
+        message: 'Has registered',
+        token,
+        expiresIn,
       });
     }
   });
@@ -51,8 +44,35 @@ const routerDefine =  function defineRouter() {
   route.get('/users', async (req, res) => {
     const users = await getAllUsers();
 
-    res.json(users);
+    res.status(200).json({
+      data: users,
+    });
   });
+
+  // Get all documents
+  route.get('/documents', async (req, res) => {
+    const result = await getListDocuments(req.query);
+    res.status(200).json(result);
+  });
+  // Get one
+  route.get('/documents/:id');
+  // Upload
+  route.post('/documents', async (req, res) => {
+    const { error, message, status } = await uploadDocument(req.body);
+    if (!error) {
+      return res.status(status || 201).json({
+        message,
+      });
+    }
+
+    return res.status(status || 500).json({
+      error,
+    });
+  });
+  // Update documents
+  route.put('/docuemnts/:id');
+  // Delete documents
+  route.delete('/docuents/:id');
 
   return route;
 };

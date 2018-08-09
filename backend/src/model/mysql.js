@@ -37,11 +37,26 @@ class Database {
     });
   }
 
-  async filter(filter, cols) {
+  async filter(filter, options = {}) {
+    const {
+      cols,
+      number,
+      offset,
+      sortBy,
+    } = options;
     const conn = await this.openConnect();
     let query = 'SELECT ?? FROM ??';
     if (filter) {
       query = `SELECT ?? FROM ?? WHERE ${filter}`;
+    }
+
+    if (number && offset) {
+      query += ` LIMIT ${number},${offset}`;
+    }
+
+    if (sortBy) {
+      const split = sortBy.split('.');
+      query += ` ORDER BY ${split[0]} ${split[1].toUpperCase()}`;
     }
 
     return conn.query(

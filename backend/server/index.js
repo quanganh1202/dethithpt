@@ -5,7 +5,7 @@ import path from 'path';
 import routers from './router/index';
 import { tokenVerifier } from './middleware/jwt';
 import logger from '../src/libs/logger';
-import { addSchema } from './middleware/ajv';
+import { addSchema } from '../src/libs/ajv';
 
 const routes = routers();
 const app = express();
