@@ -71,7 +71,7 @@ class Database {
     const conn = await this.openConnect();
 
     return conn.query(
-      'INSERT INTO ?? SET ?',
+      'UPDATE ?? SET ?',
       [this.table, body],
     ).then(result => {
       conn.end();
@@ -80,10 +80,18 @@ class Database {
     });
   }
 
+  async deleteById(id) {
+    const conn = await this.openConnect();
 
-  // deleteItem(id) {
+    return conn.query(
+      'DELETE FROM ?? WHERE id = ?',
+      [this.table, id],
+    ).then(result => {
+      conn.end();
 
-  // }
+      return result;
+    });
+  }
 }
 
 export default Database;
