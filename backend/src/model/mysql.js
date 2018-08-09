@@ -51,7 +51,7 @@ class Database {
     }
 
     if (number && offset) {
-      query += ` LIMIT ${number},${offset}`;
+      query += ` LIMIT ${offset},${number}`;
     }
 
     if (sortBy) {

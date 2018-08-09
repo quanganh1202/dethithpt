@@ -6,13 +6,12 @@ const docModel = new Document();
 
 async function getListDocuments(args) {
   try {
-    const { name, tags, description, searchType } = args;
+    const { name, tags, description, searchType, number, offset, sortBy } = args;
     const filter = [];
     filter.push(name ? { name }: undefined);
     filter.push(tags ? { tags: `#${tags}` }: undefined);
     filter.push(description ? { description }: undefined);
-    const options = {};
-    if (searchType) options.searchType = searchType;
+    const options = { number, offset, sortBy, searchType };
     const docs = await docModel.getList(filter, options);
 
     return docs || [];
