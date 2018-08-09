@@ -1,13 +1,20 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "id": "http://dethithpt.com/schemas/user-schema.json#",
+  "$id": "http://dethithpt.com/user-schema#",
   "title": "User",
   "description": "User schema validation",
   "type": "object",
   "additionalProperties": true,
+  "required":[ "name", "phone", "role", "bod", "city", "district", "level", "school" ],
   "properties": {
     "name": { "type": "string", "maxLength": 255 },
     "email": { "type": "string", "format": "email" },
-    "phone": { "type": "string", "pattern": "^[0-9()\\-\\.\\s]+$" }
+    "phone": { "type": "string", "pattern": "^[0-9()\\-\\.\\s]+$" },
+    "role": { "type": "string" },
+    "bod": { "type": "string", "maxLength": 4, "pattern": "^[1-9]{1}[0-9]*$"},
+    "city": { "type": "string" },
+    "district": { "type": "string" },
+    "level": { "type": "string" },
+    "school": { "type": "string" },
+    "facebook": { "type": "string" }
   }
 }

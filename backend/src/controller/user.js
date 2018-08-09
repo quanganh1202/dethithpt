@@ -7,8 +7,8 @@ const userModel = new User();
 async function auth(info) {
   try {
     const { email, phone } = info;
-    const criteria = email ? { email } : phone ? { phone } : undefined;
-    const user = criteria ? await userModel.getList(criteria) : undefined;
+    const criteria = [{ email }, { phone }];
+    const user = await userModel.getList(criteria);
     if (user && user.length) {
       const sign = { email };
       const { token, expiresIn } = tokenGenerator(sign);
@@ -37,8 +37,10 @@ async function auth(info) {
 
 async function addUser(userInfo) {
   try {
-    const { email } = userInfo;
-    const user = await userModel.getList({ email });
+    const { email, phone } = userInfo;
+    const criteria = [ { email }, { phone }];
+    const user = await userModel.getList(criteria);
+
     if (user && user.length) {
 
       return {

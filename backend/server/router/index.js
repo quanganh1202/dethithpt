@@ -1,6 +1,7 @@
 import express from 'express';
 import { tokenGenerator } from '../middleware/jwt';
 import { auth, addUser, getAllUsers } from '../../src/controller/user';
+import { dataValidator } from '../middleware/ajv';
 
 const routerDefine =  function defineRouter() {
   const route = express.Router();
@@ -20,22 +21,29 @@ const routerDefine =  function defineRouter() {
   });
 
   route.post('/register', async (req, res) => {
-    const userInfo = req.body;
-    const { error, status } = await addUser(userInfo);
+    const resValidate = dataValidator(req.body, 'http://dethithpt.com/user-schema#');
+    if (resValidate.valid) {
+      const userInfo = req.body;
+      const { error, status } = await addUser(userInfo);
 
-    if (error) {
-      res.status(status || 500).json({
-        error: error || 'Unexpected error',
-      });
+      if (error) {
+        res.status(status || 500).json({
+          error: error || 'Unexpected error',
+        });
+      } else {
+        const sign = {
+          role: userInfo.email,
+        };
+        const { token, expiresIn } = tokenGenerator(sign);
+        res.status(status || 201).json({
+          data: 'Has registered',
+          token,
+          expiresIn,
+        });
+      }
     } else {
-      const sign = {
-        role: userInfo.email,
-      };
-      const { token, expiresIn } = tokenGenerator(sign);
-      res.status(status || 201).json({
-        data: 'Has registered',
-        token,
-        expiresIn,
+      res.status(resValidate.status || 403).json({
+        error: resValidate.errors,
       });
     }
   });

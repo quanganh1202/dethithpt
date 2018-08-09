@@ -1,16 +1,30 @@
 import Ajv from 'ajv';
+import path from 'path';
+import fs from 'fs-extra';
 
-let globalSchema;
 const ajv = new Ajv();
 
-const schemaAdder = function addSchema(schema) {
-  globalSchema = ajv.addSchema(schema, 'mySchema');
+const addSchema = async function () {
+  const pathFolderSchema = path.resolve(__dirname, '../schema');
+  const files = await fs.readdir(pathFolderSchema);
+  files.forEach(fileName => {
+    const schema = require(`${pathFolderSchema}/${fileName}`);
+    ajv.addSchema(schema);
+  });
 };
 
-const dataValidator = function validateData(data) {
-  const valid = globalSchema.validate('mySchema', data);
+const dataValidator = function validateData(data, idSchema) {
+  const valid = ajv.validate(idSchema, data);
+  if (!valid) return {
+    status: 403,
+    valid,
+    errors: ajv.errors,
+  };
 
-  if (!valid) return valid.error;
+  return {
+    valid,
+  };
 };
 
-export { schemaAdder, dataValidator };
+
+export { dataValidator, addSchema };
