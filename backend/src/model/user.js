@@ -6,9 +6,9 @@ class User {
     this.DB = new MySQL('tbUser');
   }
 
-  async getList(filter, cols) {
+  async getList(filter, options) {
     const criteria = queryBuilder(filter);
-    const users = await this.DB.filter(criteria, cols);
+    const users = await this.DB.filter(criteria, options);
 
     return users || [];
   }
