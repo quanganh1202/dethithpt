@@ -10,9 +10,9 @@ import React from 'react';
 import { Helmet } from 'react-helmet';
 import styled from 'styled-components';
 import { Switch, Route } from 'react-router-dom';
+import { ThemeProvider } from 'styled-components';
 
 import HomePage from 'containers/HomePage/Loadable';
-import FeaturePage from 'containers/FeaturePage/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import Header from 'components/Header';
 import Footer from 'components/Footer';
@@ -25,6 +25,11 @@ const AppWrapper = styled.div`
   min-height: 100%;
   flex-direction: column;
 `;
+
+const theme = {
+  headerMenu: '#6668a9',
+  linkColor: '#295496',
+};
 
 class App extends React.Component {
   constructor() {
@@ -41,30 +46,30 @@ class App extends React.Component {
 
   render() {
     return (
-      <AppWrapper>
-        <Helmet
-          titleTemplate="%s - DethiTHPT"
-          defaultTitle="DethiTHPT"
-        >
-          <meta name="description" content="DethiTHPT" />
-        </Helmet>
-        {!this.state.user ? (
-          <div>
-            <FacebookLogin onLogin={this.onLogin}>Login Facebook</FacebookLogin>
-            <GoogleLogin onLogin={this.onLogin}>Login Google</GoogleLogin>
-          </div>
-        ) : (
-          this.state.user.email || this.state.user.phone
-        )}
-        {/* <div id="my-signin2" ref={(ref) => (this.googleButton = ref)}>abc</div> */}
-        <Header />
-        <Switch>
-          <Route exact path="/" component={HomePage} />
-          <Route path="/features" component={FeaturePage} />
-          <Route path="" component={NotFoundPage} />
-        </Switch>
-        <Footer />
-      </AppWrapper>
+      <ThemeProvider theme={theme}>
+        <AppWrapper>
+          <Helmet
+            titleTemplate="%s - DethiTHPT"
+            defaultTitle="DethiTHPT"
+          >
+            <meta name="description" content="DethiTHPT" />
+          </Helmet>
+          {!this.state.user ? (
+            <div>
+              <FacebookLogin onLogin={this.onLogin}>Login Facebook</FacebookLogin>
+              <GoogleLogin onLogin={this.onLogin}>Login Google</GoogleLogin>
+            </div>
+          ) : (
+            this.state.user.email || this.state.user.phone
+          )}
+          <Header />
+          <Switch>
+            <Route path="/" component={HomePage} />
+          {/* <Route path="" component={NotFoundPage} /> */}
+          </Switch>
+          <Footer />
+        </AppWrapper>
+      </ThemeProvider>
     );
   }
 }
