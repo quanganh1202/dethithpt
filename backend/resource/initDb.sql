@@ -8,7 +8,7 @@ CREATE TABLE `dethithpt`.`tbUser` (
   `email` VARCHAR(45) NULL,
   `phone` VARCHAR(20) NOT NULL,
   `role` VARCHAR(20) NOT NULL,
-  `bod` VARCHAR(4) NOT NULL,
+  `bod` YEAR(4) NOT NULL,
   `city` VARCHAR(50) NOT NULL,
   `district` VARCHAR(50) NOT NULL,
   `level` VARCHAR(45) NOT NULL,
@@ -18,3 +18,16 @@ CREATE TABLE `dethithpt`.`tbUser` (
   UNIQUE INDEX `id_UNIQUE` (`id` ASC),
   UNIQUE INDEX `email_UNIQUE` (`email` ASC),
   UNIQUE INDEX `phone_UNIQUE` (`phone` ASC));
+  
+CREATE TABLE `dethithpt`.`tbDocument` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  `tags` VARCHAR(255) NULL,
+  `description` LONGTEXT NULL,
+  `userId` VARCHAR(50) NOT NULL,
+  `price` VARCHAR(50) NOT NULL,
+  `createdAt` DATETIME NULL,
+  `category` VARCHAR(45) NOT NULL,
+  `path` MEDIUMTEXT NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `id_UNIQUE` (`id` ASC));
