@@ -24,7 +24,7 @@ class Database {
     await this.connection.end();
   }
 
-  async getItem(id, cols) {
+  async get(id, cols) {
     const conn = await this.openConnect();
 
     return conn.query(
@@ -37,7 +37,7 @@ class Database {
     });
   }
 
-  async getItems(filter, cols) {
+  async filter(filter, cols) {
     const conn = await this.openConnect();
     let query = 'SELECT ?? FROM ??';
     if (filter) {
@@ -54,7 +54,7 @@ class Database {
     });
   }
 
-  async insertItem(body) {
+  async insert(body) {
     const conn = await this.openConnect();
 
     return conn.query(
@@ -67,9 +67,19 @@ class Database {
     });
   }
 
-  // updateItem(body, id) {
+  async update(id, body) {
+    const conn = await this.openConnect();
 
-  // }
+    return conn.query(
+      'INSERT INTO ?? SET ?',
+      [this.table, body],
+    ).then(result => {
+      conn.end();
+
+      return result;
+    });
+  }
+
 
   // deleteItem(id) {
 
