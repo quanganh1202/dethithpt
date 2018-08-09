@@ -5,14 +5,24 @@ import logger from '../libs/logger';
 const docModel = new Document();
 
 async function getListDocuments(args) {
-  const { name, tags, description } = args;
-  const filter = [];
-  filter.push(name ? { name }: {});
-  filter.push(tags ? { tags }: {});
-  filter.push(description ? { description }: {});
-  const docs = await docModel.getList(filter, args);
+  try {
+    const { name, tags, description, searchType } = args;
+    const filter = [];
+    filter.push(name ? { name }: undefined);
+    filter.push(tags ? { tags: `#${tags}` }: undefined);
+    filter.push(description ? { description }: undefined);
+    const options = {};
+    if (searchType) options.searchType = searchType;
+    const docs = await docModel.getList(filter, options);
 
-  return docs || [];
+    return docs || [];
+  } catch (ex) {
+    return {
+      error: ex.message || 'Unexpected error when get documents',
+      status: 500,
+    };
+  }
+
 }
 
 async function uploadDocument(body) {

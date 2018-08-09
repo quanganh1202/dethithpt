@@ -6,9 +6,12 @@ class Document {
     this.DB = new MySQL('tbDocument');
   }
 
-  async getList(filter, cols) {
-    const criteria = queryBuilder(filter);
-    const docs = await this.DB.filter(criteria, cols);
+  async getList(filter, options) {
+    const criteria = queryBuilder(
+      filter,
+      options.searchType ? options.searchType.toUpperCase(): undefined
+    );
+    const docs = await this.DB.filter(criteria, options);
 
     return docs || [];
   }
