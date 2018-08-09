@@ -21,6 +21,12 @@ class Document {
 
     return result;
   }
+
+  async getDocumentById(id, cols) {
+    const result = await this.DB.get(id, cols);
+
+    return result;
+  }
 }
 
 export default Document;

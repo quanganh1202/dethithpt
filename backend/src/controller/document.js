@@ -54,4 +54,23 @@ async function uploadDocument(body) {
   }
 }
 
-export { uploadDocument, getListDocuments };
+async function getDocument(id, cols) {
+  try {
+    const result = await docModel.getDocumentById(id, cols.split(','));
+
+    return {
+      status: 200,
+      data: result,
+    };
+  } catch (ex) {
+    logger.error(ex.message || 'Unexpected error when get document');
+
+    return {
+      status: 500,
+      error: 'Unexpected error when get document',
+    };
+  }
+
+}
+
+export { uploadDocument, getListDocuments, getDocument };
