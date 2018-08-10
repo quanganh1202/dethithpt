@@ -73,4 +73,23 @@ async function getDocument(id, cols) {
 
 }
 
-export { uploadDocument, getListDocuments, getDocument };
+async function updateDocumentInfo(id, body) {
+  const existed = await docModel.getDocumentById(id);
+
+  if (existed && existed.length) {
+    const result = await docModel.updateDocumentById(id, body);
+
+    if (result) return {
+      status: 200,
+      message: 'Updated',
+    };
+  }
+  logger.error('Update failed');
+
+  return {
+    status: 400,
+    error: 'Document not found',
+  };
+}
+
+export { uploadDocument, getListDocuments, getDocument, updateDocumentInfo };

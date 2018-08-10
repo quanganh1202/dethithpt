@@ -1,7 +1,12 @@
 import express from 'express';
 import { tokenGenerator } from '../middleware/jwt';
 import { auth, addUser, getAllUsers } from '../../src/controller/user';
-import { getListDocuments, uploadDocument, getDocument } from '../../src/controller/document';
+import {
+  getListDocuments,
+  uploadDocument,
+  getDocument,
+  updateDocumentInfo,
+} from '../../src/controller/document';
 
 const routerDefine =  function defineRouter() {
   const route = express.Router();
@@ -82,7 +87,17 @@ const routerDefine =  function defineRouter() {
     });
   });
   // Update documents
-  route.put('/docuemnts/:id');
+  route.put('/documents/:id', async (req, res) => {
+    const { error, message, status } = await updateDocumentInfo(req.params.id, req.body);
+    if (error) {
+      return res.status(status).json({
+        message,
+      });
+    }
+    res.status(status).json({
+      data: message,
+    });
+  });
   // Delete documents
   route.delete('/docuents/:id');
 

@@ -27,6 +27,12 @@ class Document {
 
     return result;
   }
+
+  async updateDocumentById(id, body) {
+    const result = await this.DB.update(id, body);
+
+    return result;
+  }
 }
 
 export default Document;

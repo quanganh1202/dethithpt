@@ -87,8 +87,8 @@ class Database {
     const conn = await this.openConnect();
 
     return conn.query(
-      'UPDATE ?? SET ?',
-      [this.table, body],
+      'UPDATE ?? SET ? WHERE id = ?',
+      [this.table, body, id],
     ).then(result => {
       conn.end();
 
