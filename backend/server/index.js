@@ -5,13 +5,13 @@ import path from 'path';
 import routers from './router/index';
 import { tokenVerifier } from './middleware/jwt';
 import logger from '../src/libs/logger';
-import { addSchema } from './middleware/ajv';
+import { addSchema } from '../src/libs/ajv';
 
 const routes = routers();
 const app = express();
 const initialExpress = async function startServer() {
   const baseRoutePublic = process.env.BASE_ROUTE_PUBLIC || '';
-  const baseRoutePrivate = process.env.BASE_ROUTE_PRIVATE || /^(?!.*(login|register|test)).*$/;
+  const baseRoutePrivate = process.env.BASE_ROUTE_PRIVATE || /^(?!.*(login|register)).*$/;
   const port = process.env.EXPRESS_PORT || 3000;
   app.use(cors()); // Allow cors
   app.use(bodyParser.json());

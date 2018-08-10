@@ -1,81 +1,112 @@
-import mysql from 'mysql';
+import mysql from 'promise-mysql';
 
 class Database {
   constructor(table) {
-    this.type = table;
-    this.connection = this.initConnect().then(r => r).catch(e => e);
+    this.table = table;
   }
 
-  initConnect() {
-    return new Promise((resolve, reject) => {
-      const connection = mysql.createConnection({
+  async openConnect() {
+    try {
+      const connection = await mysql.createConnection({
         host: process.env.MYSQL_HOST || 'localhost',
         user: process.env.MYSQL_USER || 'root',
         password: process.env.MYSQL_PASSWORD || '12345678',
         database: process.env.MYSQL_DATABASE || 'dethithpt',
       });
-      connection.connect((err) => {
-        if (err) {
-          return reject('Unexpected error when are connecting to MySQL');
-        }
-        this.connection = connection;
-        resolve(connection);
-      });
+
+      return connection;
+    } catch (ex) {
+      return (ex.message || 'Unexpected error when are connecting to MySQL');
+    }
+  }
+
+  async closeConnect() {
+    await this.connection.end();
+  }
+
+  async get(id, cols) {
+    const conn = await this.openConnect();
+
+    return conn.query(
+      'SELECT ?? FROM ?? WHERE id = ?',
+      [cols, this.table, id],
+    ).then(result => {
+      conn.end();
+
+      return result;
     });
   }
 
-  closeConnect() {
-    this.connection.end();
-  }
-
-  getItem(id) {
-    return new Promise((resolve, reject) => {
-      this.connection.query(
-        `SELECT * FROM ${this.type} WHERE id = ?`,
-        [id],
-        (err, res) => {
-          err ? reject(err) : resolve(res);
-        }
-      );
-    });
-  }
-
-  getItems(filter, cols) {
+  async filter(filter, options = {}) {
+    const {
+      cols,
+      number,
+      offset,
+      sortBy,
+    } = options;
+    const conn = await this.openConnect();
     let query = 'SELECT ?? FROM ??';
     if (filter) {
       query = `SELECT ?? FROM ?? WHERE ${filter}`;
     }
 
-    return new Promise((resolve, reject) => {
-      this.connection.query(
-        query,
-        [cols || '*', this.type],
-        (err, res) => {
-          err ? reject(err) : resolve(res);
-        }
-      );
+    if (number && offset) {
+      query += ` LIMIT ${number},${offset}`;
+    }
+
+    if (sortBy) {
+      const split = sortBy.split('.');
+      query += ` ORDER BY ${split[0]} ${split[1].toUpperCase()}`;
+    }
+
+    return conn.query(
+      query,
+      [cols || '*', this.table],
+    ).then(result => {
+      conn.end();
+
+      return result;
     });
   }
 
-  insertItem(body) {
-    return new Promise((resolve, reject) => {
-      this.connection.query(
-        `INSERT INTO ${this.type} SET ?`,
-        body,
-        (err, res) => {
-          err ? reject(err) : resolve(res);
-        }
-      );
+  async insert(body) {
+    const conn = await this.openConnect();
+
+    return conn.query(
+      'INSERT INTO ?? SET ?',
+      [this.table, body],
+    ).then(result => {
+      conn.end();
+
+      return result;
     });
   }
 
-  // updateItem(body, id) {
+  async update(id, body) {
+    const conn = await this.openConnect();
 
-  // }
+    return conn.query(
+      'UPDATE ?? SET ?',
+      [this.table, body],
+    ).then(result => {
+      conn.end();
 
-  // deleteItem(id) {
+      return result;
+    });
+  }
 
-  // }
+  async deleteById(id) {
+    const conn = await this.openConnect();
+
+    return conn.query(
+      'DELETE FROM ?? WHERE id = ?',
+      [this.table, id],
+    ).then(result => {
+      conn.end();
+
+      return result;
+    });
+  }
 }
 
 export default Database;

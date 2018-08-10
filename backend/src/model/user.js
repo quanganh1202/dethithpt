@@ -6,15 +6,15 @@ class User {
     this.DB = new MySQL('tbUser');
   }
 
-  async getList(filter, cols) {
+  async getList(filter, options) {
     const criteria = queryBuilder(filter);
-    const users = await this.DB.getItems(criteria, cols);
+    const users = await this.DB.filter(criteria, options);
 
     return users || [];
   }
 
   async addNewUser(user) {
-    const result = await this.DB.insertItem(user);
+    const result = await this.DB.insert(user);
 
     return result;
   }

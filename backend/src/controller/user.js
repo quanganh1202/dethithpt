@@ -1,6 +1,7 @@
 import User from '../model/user';
 import { tokenGenerator }  from '../../server/middleware/jwt';
 import logger from '../libs/logger';
+import { dataValidator } from '../libs/ajv';
 
 const userModel = new User();
 
@@ -37,6 +38,13 @@ async function auth(info) {
 
 async function addUser(userInfo) {
   try {
+    const resValidate = dataValidator(userInfo, 'http://dethithpt.com/user-schema#');
+    if (!resValidate.valid) {
+      return {
+        status: 403,
+        error: resValidate.errors,
+      };
+    }
     const { email, phone } = userInfo;
     const criteria = [ { email }, { phone }];
     const user = await userModel.getList(criteria);
