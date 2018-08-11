@@ -33,6 +33,9 @@
         "template-curly-spacing": ["error", "never"],
         "no-useless-concat": 2,
         "newline-before-return": 2,
-        "object-curly-spacing": ["error", "always"]
+        "object-curly-spacing": ["error", "always"],
+        "no-return-await": "error",
+        "block-spacing": "error",
+        "semi-spacing": "error"
     }
 }

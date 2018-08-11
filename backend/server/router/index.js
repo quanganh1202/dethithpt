@@ -1,7 +1,12 @@
 import express from 'express';
 import { tokenGenerator } from '../middleware/jwt';
 import { auth, addUser, getAllUsers } from '../../src/controller/user';
-import { getListDocuments, uploadDocument } from '../../src/controller/document';
+import {
+  getListDocuments,
+  uploadDocument,
+  getDocument,
+  updateDocumentInfo,
+} from '../../src/controller/document';
 
 const routerDefine =  function defineRouter() {
   const route = express.Router();
@@ -52,10 +57,22 @@ const routerDefine =  function defineRouter() {
   // Get all documents
   route.get('/documents', async (req, res) => {
     const result = await getListDocuments(req.query);
-    res.status(200).json(result);
+    res.status(200).json({
+      data: result,
+    });
   });
   // Get one
-  route.get('/documents/:id');
+  route.get('/documents/:id', async (req, res) => {
+    const { error, data, status } = await getDocument(req.params.id, req.query.cols);
+    if (error)
+      return res.status(status || 500).json({
+        error,
+      });
+
+    res.status(status || 200).json({
+      data,
+    });
+  });
   // Upload
   route.post('/documents', async (req, res) => {
     const { error, message, status } = await uploadDocument(req.body);
@@ -70,7 +87,17 @@ const routerDefine =  function defineRouter() {
     });
   });
   // Update documents
-  route.put('/docuemnts/:id');
+  route.put('/documents/:id', async (req, res) => {
+    const { error, message, status } = await updateDocumentInfo(req.params.id, req.body);
+    if (error) {
+      return res.status(status).json({
+        message,
+      });
+    }
+    res.status(status).json({
+      data: message,
+    });
+  });
   // Delete documents
   route.delete('/docuents/:id');
 

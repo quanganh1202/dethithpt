@@ -24,12 +24,12 @@ class Database {
     await this.connection.end();
   }
 
-  async get(id, cols) {
+  async get(id, cols = []) {
     const conn = await this.openConnect();
 
     return conn.query(
       'SELECT ?? FROM ?? WHERE id = ?',
-      [cols, this.table, id],
+      [cols.length ? cols : '*', this.table, id],
     ).then(result => {
       conn.end();
 
@@ -50,18 +50,19 @@ class Database {
       query = `SELECT ?? FROM ?? WHERE ${filter}`;
     }
 
-    if (number && offset) {
-      query += ` LIMIT ${number},${offset}`;
-    }
-
     if (sortBy) {
       const split = sortBy.split('.');
       query += ` ORDER BY ${split[0]} ${split[1].toUpperCase()}`;
     }
 
+
+    if (number && offset) {
+      query += ` LIMIT ${offset},${number}`;
+    }
+
     return conn.query(
       query,
-      [cols || '*', this.table],
+      [cols && cols.length ? cols : '*', this.table],
     ).then(result => {
       conn.end();
 
@@ -86,8 +87,8 @@ class Database {
     const conn = await this.openConnect();
 
     return conn.query(
-      'UPDATE ?? SET ?',
-      [this.table, body],
+      'UPDATE ?? SET ? WHERE id = ?',
+      [this.table, body, id],
     ).then(result => {
       conn.end();
 
