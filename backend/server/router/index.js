@@ -102,8 +102,8 @@ const routerDefine =  function defineRouter() {
     });
   });
   // Update documents
-  route.put('/documents/:id', async (req, res) => {
-    const { error, message, status } = await updateDocumentInfo(req.params.id, req.body);
+  route.post('/documents/:id', uploader.any(), async (req, res) => {
+    const { error, message, status } = await updateDocumentInfo(req.params.id, req.body, req.files);
     if (error) {
       return res.status(status).json({
         message,
@@ -114,7 +114,7 @@ const routerDefine =  function defineRouter() {
     });
   });
   // Delete documents
-  route.delete('/docuents/:id');
+  route.delete('/documents/:id');
 
   return route;
 };
