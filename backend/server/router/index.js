@@ -7,6 +7,7 @@ import {
   uploadDocument,
   getDocument,
   updateDocumentInfo,
+  viewContent,
 } from '../../src/controller/document';
 
 const routerDefine =  function defineRouter() {
@@ -76,6 +77,16 @@ const routerDefine =  function defineRouter() {
     res.status(status || 200).json({
       data,
     });
+  });
+
+  route.get('/documents/view/:fileName', async (req, res) => {
+    const { error, filePath, status } = await viewContent(req.params.fileName);
+    if (error) {
+      return res.status(status || 500).json({
+        error,
+      });
+    }
+    res.status(status || 200).sendFile(filePath);
   });
   // Upload
   route.post('/documents', uploader.any(), async (req, res) => {

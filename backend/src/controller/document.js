@@ -49,7 +49,7 @@ async function uploadDocument(body, file) {
     const originExtension = file[0].originalname.split('.').pop();
     const newFileName = `${pathFolderStore}/${file[0].filename}.${originExtension}`;
     body.path = newFileName;
-    await Promise.all([
+    const res = await Promise.all([
       docModel.addNewDocument(body),
       fs.rename(
         file[0].path,
@@ -62,7 +62,7 @@ async function uploadDocument(body, file) {
 
     return {
       status: 201,
-      message: 'Created',
+      message: `Document created with insertId = ${res[0].insertId}`,
     };
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when upload file');
@@ -76,7 +76,7 @@ async function uploadDocument(body, file) {
 
 async function getDocument(id, cols) {
   try {
-    const result = await docModel.getDocumentById(id, cols.split(','));
+    const result = await docModel.getDocumentById(id, cols);
 
     return {
       status: 200,
@@ -88,6 +88,26 @@ async function getDocument(id, cols) {
     return {
       status: 500,
       error: 'Unexpected error when get document',
+    };
+  }
+
+}
+
+async function viewContent(fileName) {
+  try {
+    const filePath = `${process.env.PATH_FOLDER_STORE || path.resolve(__dirname, '../../storage')}/${fileName}`;
+    const existed = await fs.pathExists(filePath);
+    if (existed) return { status: 200, filePath };
+    else return {
+      error: 'File not found',
+      status: 404,
+    };
+  } catch (ex) {
+    logger.error(ex.message || 'Unexpected error');
+
+    return {
+      status: 500,
+      error: 'Unexpected error',
     };
   }
 
@@ -112,4 +132,10 @@ async function updateDocumentInfo(id, body) {
   };
 }
 
-export { uploadDocument, getListDocuments, getDocument, updateDocumentInfo };
+export {
+  uploadDocument,
+  getListDocuments,
+  getDocument,
+  updateDocumentInfo,
+  viewContent,
+};
