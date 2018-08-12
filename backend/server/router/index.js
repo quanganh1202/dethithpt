@@ -106,7 +106,7 @@ const routerDefine =  function defineRouter() {
     const { error, message, status } = await updateDocumentInfo(req.params.id, req.body, req.files);
     if (error) {
       return res.status(status).json({
-        message,
+        error,
       });
     }
     res.status(status).json({

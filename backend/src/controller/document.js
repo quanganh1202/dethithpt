@@ -114,18 +114,19 @@ async function viewContent(fileName) {
 }
 
 async function updateDocumentInfo(id, body, file) {
-  try { const existed = await docModel.getDocumentById(id);
+  try {
+    const existed = await docModel.getDocumentById(id);
 
-    if (!existed && !existed.length) {
+    if (!existed || !existed.length) {
       return {
         status: 400,
         error: 'Document not found',
       };
     }
-    const promise = [];
+    const promise = [docModel.updateDocumentById(id, body)];
 
     if (file && file.length) {
-      const { error, status, fileName } =  fileHelpers.validateExtension(file, body.userId);
+      const { error, status, fileName } =  fileHelpers.validateExtension(file, id);
       if (error)
         return {
           error,
@@ -133,12 +134,12 @@ async function updateDocumentInfo(id, body, file) {
         };
 
       body.path = fileName;
-      promise.push(fileHelpers.storeFile(file, fileName));
+      promise.concat([
+        fileHelpers.storeFile(file, fileName),
+        fileHelpers.removeFile(existed[0].path),
+      ]);
     }
-
-    promise.push(docModel.updateDocumentById(id, body));
-    await Promise.all(promise);
-    // ? Will delete old file after everything is done ?
+    await Promise.all(promise).catch((ex) => { throw ex; });
 
     return {
       status: 200,
