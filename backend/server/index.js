@@ -4,10 +4,12 @@ import cors from 'cors';
 import path from 'path';
 import routers from './router/index';
 import { tokenVerifier } from './middleware/jwt';
+import logger from '../src/libs/logger';
+import { addSchema } from '../src/libs/ajv';
 
 const routes = routers();
 const app = express();
-const initialExpress = function startServer() {
+const initialExpress = async function startServer() {
   const baseRoutePublic = process.env.BASE_ROUTE_PUBLIC || '';
   const baseRoutePrivate = process.env.BASE_ROUTE_PRIVATE || /^(?!.*(login|register)).*$/;
   const port = process.env.EXPRESS_PORT || 3000;
@@ -24,8 +26,10 @@ const initialExpress = function startServer() {
   });
   app.all(baseRoutePrivate, tokenVerifier);
   app.use(baseRoutePublic, routes);
+  // Loading schema validation file in folder ./schema
+  await addSchema();
   app.listen(port, () => {
-    console.log(`Server is running at ${port}`);
+    logger.info(`Server is running at ${port}`);
   });
 };
 

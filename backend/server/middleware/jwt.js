@@ -26,7 +26,7 @@ const headerExtractor = function extractHeader(req) {
 
 const tokenVerifier = function verifyToken(req, res, next) {
   // Ignore authenticate with GET request
-  if (req.method.toUpperCase() === 'GET') next();
+  if (req.method.toUpperCase() === 'GET' || process.env.NODE_ENV === 'dev') next();
   else {
     const token = headerExtractor(req);
     if (token && jwt.verify(token, secret) && tokenStore.includes(token)) {
