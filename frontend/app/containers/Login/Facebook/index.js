@@ -2,28 +2,6 @@ import React, { Component } from 'react';
 
 class FacebookLogin extends Component {
   componentDidMount() {
-    // Facebook init
-    window.fbAsyncInit = function () {
-      FB.init({
-        appId: '273274706807786', // FB app ID, TODO: need to be replaced using const
-        autoLogAppEvents: true,
-        xfbml: true,
-        version: 'v2.11'
-      });
-
-      // Broadcast an event when FB object is ready
-      var fbInitEvent = new Event('FBObjectReady');
-      document.dispatchEvent(fbInitEvent);
-    };
-
-    (function (d, s, id) {
-      var js, fjs = d.getElementsByTagName(s)[0];
-      if (d.getElementById(id)) { return; }
-      js = d.createElement(s); js.id = id;
-      js.src = "https://connect.facebook.net/en_US/sdk.js";
-      fjs.parentNode.insertBefore(js, fjs);
-    }(document, 'script', 'facebook-jssdk'));
-
     document.addEventListener('FBObjectReady', this.initializeFacebookLogin);
   }
 
@@ -44,7 +22,9 @@ class FacebookLogin extends Component {
 
   // Check login status and call login api if user is not logged in
   facebookLogin = () => {
+    console.log('there');
     if (!this.FB) return;
+    console.log('here');
     this.FB.getLoginStatus((response) => {
       if (response.status === 'connected') {
         this.facebookLoginHandler(response);

@@ -16,8 +16,6 @@ import HomePage from 'containers/HomePage/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import Header from 'components/Header';
 import Footer from 'components/Footer';
-import FacebookLogin from 'containers/Login/Facebook';
-import GoogleLogin from 'containers/Login/Google';
 
 const AppWrapper = styled.div`
   margin: 0 auto;
@@ -32,16 +30,28 @@ const theme = {
 };
 
 class App extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      user: null,
-    };
-    this.onLogin = this.onLogin.bind(this);
-  }
+  componentDidMount() {
+    // Facebook init
+    window.fbAsyncInit = function () {
+      FB.init({
+        appId: '273274706807786', // FB app ID, TODO: need to be replaced using const
+        autoLogAppEvents: true,
+        xfbml: true,
+        version: 'v2.11'
+      });
 
-  onLogin(data) {
-    this.setState({ user: data });
+      // Broadcast an event when FB object is ready
+      var fbInitEvent = new Event('FBObjectReady');
+      document.dispatchEvent(fbInitEvent);
+    };
+
+    (function (d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) { return; }
+      js = d.createElement(s); js.id = id;
+      js.src = "https://connect.facebook.net/en_US/sdk.js";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
   }
 
   render() {
@@ -54,14 +64,6 @@ class App extends React.Component {
           >
             <meta name="description" content="DethiTHPT" />
           </Helmet>
-          {!this.state.user ? (
-            <div>
-              <FacebookLogin onLogin={this.onLogin}>Login Facebook</FacebookLogin>
-              <GoogleLogin onLogin={this.onLogin}>Login Google</GoogleLogin>
-            </div>
-          ) : (
-            this.state.user.email || this.state.user.phone
-          )}
           <Header />
           <Switch>
             <Route path="/" component={HomePage} />
