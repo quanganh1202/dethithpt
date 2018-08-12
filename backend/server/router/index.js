@@ -1,4 +1,5 @@
 import express from 'express';
+import multer from 'multer';
 import { tokenGenerator } from '../middleware/jwt';
 import { auth, addUser, getAllUsers } from '../../src/controller/user';
 import {
@@ -9,6 +10,9 @@ import {
 } from '../../src/controller/document';
 
 const routerDefine =  function defineRouter() {
+  // Destination folder path
+  const pathDesFolder = process.env.PATH_DES_FOLDER || '/tmp/';
+  const uploader = multer({ dest: pathDesFolder });
   const route = express.Router();
 
   route.post('/login', async (req, res) => {
@@ -74,8 +78,8 @@ const routerDefine =  function defineRouter() {
     });
   });
   // Upload
-  route.post('/documents', async (req, res) => {
-    const { error, message, status } = await uploadDocument(req.body);
+  route.post('/documents', uploader.any(), async (req, res) => {
+    const { error, message, status } = await uploadDocument(req.body, req.files);
     if (!error) {
       return res.status(status || 201).json({
         message,
