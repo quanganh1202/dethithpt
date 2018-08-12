@@ -1,0 +1,26 @@
+{
+  "$id": "http://dethithpt.com/document-schema#",
+  "title": "Document",
+  "description": "Document schema validation",
+  "type": "object",
+  "additionalProperties": false,
+  "required":[ "name", "tags", "userId", "price", "cateId", "subjectId", "classId", "yearSchoolId", "collectionId" ],
+  "properties": {
+    "name": { "type": "string", "maxLength": 255 },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^#.+$"
+      }
+    },
+    "description": { "type": "string" },
+    "userId": { "type": "integer" },
+    "price": { "type": "string", "maxLength": 50, "pattern": "^[0-9]+$"},
+    "cateId": { "type": "integer", "maxLength": 11 },
+    "subjectId": { "type": "integer", "maxLength": 11 },
+    "classId": { "type": "integer", "maxLength": 11 },
+    "yearSchoolId": { "type": "integer", "maxLength": 4 },
+    "collectionId": { "type": "integer", "maxLength": 11 }
+  }
+}

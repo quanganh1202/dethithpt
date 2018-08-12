@@ -1,27 +1,20 @@
 import MySQL from './mysql';
+import queryBuilder from '../libs/queryBuilder';
 
 class User {
   constructor() {
     this.DB = new MySQL('tbUser');
   }
 
-  generateCriteria(criteriaObj = {}) {
-    return Object.entries(criteriaObj).reduce((pre, cur) => {
-      if (pre) return `${pre} AND ${cur[0]} = '${cur[1]}'`;
-
-      return `${cur[0]} = '${cur[1]}'`;
-    }, undefined);
-  }
-
-  async getList(filter, cols) {
-    const criteria = this.generateCriteria(filter);
-    const users = await this.DB.getItems(criteria, cols);
+  async getList(filter, options) {
+    const criteria = queryBuilder(filter);
+    const users = await this.DB.filter(criteria, options);
 
     return users || [];
   }
 
   async addNewUser(user) {
-    const result = await this.DB.insertItem(user);
+    const result = await this.DB.insert(user);
 
     return result;
   }

@@ -1,11 +1,12 @@
 import 'babel-polyfill';
 import expressServer from './server/index';
 import MySql from './src/model/mysql';
+import logger from './src/libs/logger';
 
 const DB = new MySql();
 // Wait for connect to Mysql success before start express server
-console.log('Connecting to MySql ...');
-DB.initConnect().then(() => {
-  console.log('MySql connected');
+logger.info('Connecting to MySql ...');
+DB.openConnect().then(() => {
+  logger.info('MySql is connected');
   expressServer();
-}).catch(err => console.log(`[ERR]: ${err}`));
+}).catch(err => logger.error(`[ERR]: ${err}`));
