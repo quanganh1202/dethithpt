@@ -3,6 +3,7 @@ import path from 'path';
 import Document from '../model/document';
 import { dataValidator } from '../libs/ajv';
 import logger from '../libs/logger';
+import * as fileHelpers from '../libs/helper';
 
 const docModel = new Document();
 
@@ -27,12 +28,9 @@ async function getListDocuments(args) {
 }
 
 async function uploadDocument(body, file) {
-  const pathFolderStore = process.env.PATH_FOLDER_STORE || path.resolve(__dirname, '../../storage');
   try {
     const resValidate = dataValidator(body, 'http://dethithpt.com/document-schema#');
     if (!resValidate.valid) {
-      logger.error('Document validattion false');
-
       return {
         status: 403,
         error: resValidate.errors,
@@ -41,20 +39,22 @@ async function uploadDocument(body, file) {
     if (!file.length) {
       return {
         status: 400,
-        error: 'Should contain any file',
+        error: 'Should be contain any file',
       };
     }
     const { tags } = body;
     body.tags = Array.isArray(tags) ? tags.join(',') : tags;
-    const originExtension = file[0].originalname.split('.').pop();
-    const newFileName = `${pathFolderStore}/${file[0].filename}.${originExtension}`;
-    body.path = newFileName;
+    const { error, status, fileName } =  fileHelpers.validateExtension(file, body.userId);
+    if (error) {
+      return {
+        error,
+        status,
+      };
+    }
+    body.path = fileName;
     const res = await Promise.all([
       docModel.addNewDocument(body),
-      fs.rename(
-        file[0].path,
-        path.resolve(__dirname, newFileName)
-      ),
+      fileHelpers.storeFile(file, fileName),
     ]).catch(ex => {
       // TODO: Need to ROLLBACK
       throw ex;
@@ -113,23 +113,45 @@ async function viewContent(fileName) {
 
 }
 
-async function updateDocumentInfo(id, body) {
-  const existed = await docModel.getDocumentById(id);
+async function updateDocumentInfo(id, body, file) {
+  try { const existed = await docModel.getDocumentById(id);
 
-  if (existed && existed.length) {
-    const result = await docModel.updateDocumentById(id, body);
+    if (!existed && !existed.length) {
+      return {
+        status: 400,
+        error: 'Document not found',
+      };
+    }
+    const promise = [];
 
-    if (result) return {
+    if (file && file.length) {
+      const { error, status, fileName } =  fileHelpers.validateExtension(file, body.userId);
+      if (error)
+        return {
+          error,
+          status,
+        };
+
+      body.path = fileName;
+      promise.push(fileHelpers.storeFile(file, fileName));
+    }
+
+    promise.push(docModel.updateDocumentById(id, body));
+    await Promise.all(promise);
+    // ? Will delete old file after everything is done ?
+
+    return {
       status: 200,
-      message: 'Updated',
+      message: `Document with id = ${id} is updated`,
+    };
+  } catch (ex) {
+    logger(ex.message || 'Unexpected error');
+
+    return {
+      status: ex.status || 500,
+      error: 'Unexpected error',
     };
   }
-  logger.error('Update failed');
-
-  return {
-    status: 400,
-    error: 'Document not found',
-  };
 }
 
 export {
