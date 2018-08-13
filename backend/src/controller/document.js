@@ -155,10 +155,41 @@ async function updateDocumentInfo(id, body, file) {
   }
 }
 
+async function deleteDocument(id) {
+  try {
+    const result = await docModel.getDocumentById(id);
+
+    if (!result || !result.length) {
+      return {
+        error: 'Document not found',
+        status: 404,
+      };
+    }
+
+    await Promise.all([
+      docModel.deleteDocumentById(id),
+      fileHelpers.removeFile(result[0].path),
+    ]);
+
+    return {
+      status: 200,
+      message: 'Deleted',
+    };
+  } catch (ex) {
+    logger.error(ex.message || 'Unexpect error when delete file');
+
+    return {
+      status: 500,
+      error: 'Unexpected error',
+    };
+  }
+}
+
 export {
   uploadDocument,
   getListDocuments,
   getDocument,
   updateDocumentInfo,
   viewContent,
+  deleteDocument,
 };
