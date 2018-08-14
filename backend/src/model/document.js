@@ -6,7 +6,7 @@ class Document {
     this.DB = new MySQL('tbDocument');
   }
 
-  async getList(filter, options) {
+  async getList(filter, options = {}) {
     const criteria = queryBuilder(
       filter,
       options.searchType ? options.searchType.toUpperCase(): undefined

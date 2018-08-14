@@ -12,7 +12,7 @@ async function getListCategories(args) {
     filter.push(name ? { name }: undefined);
     filter.push(description ? { description }: undefined);
     const options = { number, offset, sortBy, searchType };
-    const docs = await cateModel.getList(filter, options);
+    const docs = await cateModel.getListCategory(filter, options);
 
     return docs || [];
   } catch (ex) {
@@ -33,12 +33,20 @@ async function createCategory(body) {
         error: resValidate.errors,
       };
     }
+    const { name } = body;
+    const cate = await cateModel.getListCategory([{ name }]);
+    if (cate && cate.length) {
+      return {
+        error: `Category ${body.name} already existed`,
+        status: 400,
+      };
+    }
 
     const res = await cateModel.addNewCategory(body);
 
     return {
       status: 201,
-      message: `Category created with insertId = ${res[0].insertId}`,
+      message: `Category created with insertId = ${res.insertId}`,
     };
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when create category');
@@ -80,6 +88,15 @@ async function updateCategory(id, body) {
       };
     }
 
+    const { name } = body;
+    const cate = await cateModel.getListCategory([{ name }]);
+    if (cate && cate.length && name !== existed[0].name) {
+      return {
+        error: `Category ${body.name} already existed`,
+        status: 400,
+      };
+    }
+
     await cateModel.updateCategoryById(id, body);
 
     return {
@@ -98,7 +115,7 @@ async function updateCategory(id, body) {
 
 async function deleteCategoryById(id) {
   try {
-    const result = await cateModel.getDocumentById(id);
+    const result = await cateModel.getCategoryById(id);
 
     if (!result || !result.length) {
       return {
@@ -107,7 +124,7 @@ async function deleteCategoryById(id) {
       };
     }
 
-    await cateModel.deleteDocumentById(id);
+    await cateModel.deleteCategoryById(id);
 
     return {
       status: 200,

@@ -4,6 +4,7 @@ import cors from 'cors';
 import path from 'path';
 import authRoutes from './router/authRoutes';
 import documentRoutes from './router/documentRoutes';
+import categoryRoutes from './router/cateRoutes';
 import { tokenVerifier } from './middleware/jwt';
 import logger from '../src/libs/logger';
 import { addSchema } from '../src/libs/ajv';
@@ -29,6 +30,7 @@ const initialExpress = async function startServer() {
   app.use(baseRoutePublic, [
     authRoutes(),
     documentRoutes(),
+    categoryRoutes(),
   ]);
   // Loading schema validation file in folder ./schema
   await addSchema();

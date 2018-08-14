@@ -6,7 +6,7 @@ class Category {
     this.DB = new MySQL('tbCategory');
   }
 
-  async getList(filter, options) {
+  async getListCategory(filter, options = {}) {
     const criteria = queryBuilder(
       filter,
       options.searchType ? options.searchType.toUpperCase(): undefined //EXACTLY OR FULLTEXT
