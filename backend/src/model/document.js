@@ -33,6 +33,12 @@ class Document {
 
     return result;
   }
+
+  async deleteDocumentById(id) {
+    const result = await this.DB.deleteById(id);
+
+    return result;
+  }
 }
 
 export default Document;

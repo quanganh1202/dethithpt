@@ -8,6 +8,7 @@ import {
   getDocument,
   updateDocumentInfo,
   viewContent,
+  deleteDocument,
 } from '../../src/controller/document';
 
 const routerDefine =  function defineRouter() {
@@ -106,7 +107,7 @@ const routerDefine =  function defineRouter() {
     const { error, message, status } = await updateDocumentInfo(req.params.id, req.body, req.files);
     if (error) {
       return res.status(status).json({
-        message,
+        error,
       });
     }
     res.status(status).json({
@@ -114,7 +115,14 @@ const routerDefine =  function defineRouter() {
     });
   });
   // Delete documents
-  route.delete('/documents/:id');
+  route.delete('/documents/:id', async (req, res) => {
+    const { error, message, status } = await deleteDocument(req.params.id);
+    if (error) {
+      return res.status(status || 500).json({ error });
+    }
+
+    res.status(status || 200).json({ message });
+  });
 
   return route;
 };
