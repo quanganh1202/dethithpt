@@ -28,10 +28,10 @@ async function auth(info) {
       };
     }
   } catch (ex) {
-    logger.error(ex.message);
+    logger.error(ex.message || 'Unexpected error when auth');
 
     return {
-      error: 'Unexpected error when authenticate user',
+      error: 'Unexpected error',
       status: 500,
     };
   }
@@ -63,10 +63,10 @@ async function addUser(userInfo) {
       status: 201,
     };
   } catch (ex) {
-    logger.error(ex.message);
+    logger.error(ex.message || 'Unexpected error when insert an user');
 
     return {
-      error: 'Unexpected error when insert an user',
+      error: 'Unexpected error',
       status: 500,
     };
   }
