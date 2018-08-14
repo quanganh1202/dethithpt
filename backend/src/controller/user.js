@@ -4,6 +4,7 @@ import logger from '../libs/logger';
 import { dataValidator } from '../libs/ajv';
 
 const userModel = new User();
+const schemaId = 'http://dethithpt.com/user-schema#';
 
 async function auth(info) {
   try {
@@ -38,7 +39,7 @@ async function auth(info) {
 
 async function addUser(userInfo) {
   try {
-    const resValidate = dataValidator(userInfo, 'http://dethithpt.com/user-schema#');
+    const resValidate = dataValidator(userInfo, schemaId);
     if (!resValidate.valid) {
       return {
         status: 403,
@@ -52,7 +53,7 @@ async function addUser(userInfo) {
     if (user && user.length) {
 
       return {
-        error: 'User email already existed',
+        error: 'User account already existed',
         status: 400,
       };
     }

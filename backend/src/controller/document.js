@@ -6,6 +6,7 @@ import logger from '../libs/logger';
 import * as fileHelpers from '../libs/helper';
 
 const docModel = new Document();
+const schemaId = 'http://dethithpt.com/document-schema#';
 
 async function getListDocuments(args) {
   try {
@@ -29,7 +30,7 @@ async function getListDocuments(args) {
 
 async function uploadDocument(body, file) {
   try {
-    const resValidate = dataValidator(body, 'http://dethithpt.com/document-schema#');
+    const resValidate = dataValidator(body, schemaId);
     if (!resValidate.valid) {
       return {
         status: 403,

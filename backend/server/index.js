@@ -2,13 +2,13 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import path from 'path';
-import routers from './router/index';
+import authRoutes from './router/authRoutes';
+import documentRoutes from './router/documentRoutes';
 import { tokenVerifier } from './middleware/jwt';
 import logger from '../src/libs/logger';
 import { addSchema } from '../src/libs/ajv';
 import { initStoreFolder } from '../src/libs/helper';
 
-const routes = routers();
 const app = express();
 const initialExpress = async function startServer() {
   const baseRoutePublic = process.env.BASE_ROUTE_PUBLIC || '';
@@ -26,7 +26,10 @@ const initialExpress = async function startServer() {
     next();
   });
   app.all(baseRoutePrivate, tokenVerifier);
-  app.use(baseRoutePublic, routes);
+  app.use(baseRoutePublic, [
+    authRoutes(),
+    documentRoutes(),
+  ]);
   // Loading schema validation file in folder ./schema
   await addSchema();
   const pathFolderStore = process.env.PATH_FOLDER_STORE || path.resolve(__dirname, '../storage');
