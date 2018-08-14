@@ -26,7 +26,10 @@ const initialExpress = async function startServer() {
     next();
   });
   app.all(baseRoutePrivate, tokenVerifier);
-  app.use(baseRoutePublic, [authRoutes(), documentRoutes()]);
+  app.use(baseRoutePublic, [
+    authRoutes(),
+    documentRoutes(),
+  ]);
   // Loading schema validation file in folder ./schema
   await addSchema();
   const pathFolderStore = process.env.PATH_FOLDER_STORE || path.resolve(__dirname, '../storage');
