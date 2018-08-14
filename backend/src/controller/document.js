@@ -1,8 +1,12 @@
+import fs from 'fs-extra';
+import path from 'path';
 import Document from '../model/document';
 import { dataValidator } from '../libs/ajv';
 import logger from '../libs/logger';
+import * as fileHelpers from '../libs/helper';
 
 const docModel = new Document();
+const schemaId = 'http://dethithpt.com/document-schema#';
 
 async function getListDocuments(args) {
   try {
@@ -24,25 +28,42 @@ async function getListDocuments(args) {
 
 }
 
-async function uploadDocument(body) {
+async function uploadDocument(body, file) {
   try {
-    const resValidate = dataValidator(body, 'http://dethithpt.com/document-schema#');
+    const resValidate = dataValidator(body, schemaId);
     if (!resValidate.valid) {
-      logger.error('Document validattion false');
-
       return {
         status: 403,
         error: resValidate.errors,
       };
     }
+    if (!file.length) {
+      return {
+        status: 400,
+        error: 'Should be contain any file',
+      };
+    }
     const { tags } = body;
-    body.tags = tags.join(',');
-    body.path = 'TODO path to save content file to hard disk';
-    await docModel.addNewDocument(body);
+    body.tags = Array.isArray(tags) ? tags.join(',') : tags;
+    const { error, status, fileName } =  fileHelpers.validateExtension(file, body.userId);
+    if (error) {
+      return {
+        error,
+        status,
+      };
+    }
+    body.path = fileName;
+    const res = await Promise.all([
+      docModel.addNewDocument(body),
+      fileHelpers.storeFile(file, fileName),
+    ]).catch(ex => {
+      // TODO: Need to ROLLBACK
+      throw ex;
+    });
 
     return {
       status: 201,
-      message: 'Created',
+      message: `Document created with insertId = ${res[0].insertId}`,
     };
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when upload file');
@@ -56,7 +77,7 @@ async function uploadDocument(body) {
 
 async function getDocument(id, cols) {
   try {
-    const result = await docModel.getDocumentById(id, cols.split(','));
+    const result = await docModel.getDocumentById(id, cols);
 
     return {
       status: 200,
@@ -73,23 +94,103 @@ async function getDocument(id, cols) {
 
 }
 
-async function updateDocumentInfo(id, body) {
-  const existed = await docModel.getDocumentById(id);
+async function viewContent(fileName) {
+  try {
+    const filePath = `${process.env.PATH_FOLDER_STORE || path.resolve(__dirname, '../../storage')}/${fileName}`;
+    const existed = await fs.pathExists(filePath);
+    if (existed) return { status: 200, filePath };
+    else return {
+      error: 'File not found',
+      status: 404,
+    };
+  } catch (ex) {
+    logger.error(ex.message || 'Unexpected error');
 
-  if (existed && existed.length) {
-    const result = await docModel.updateDocumentById(id, body);
-
-    if (result) return {
-      status: 200,
-      message: 'Updated',
+    return {
+      status: 500,
+      error: 'Unexpected error',
     };
   }
-  logger.error('Update failed');
 
-  return {
-    status: 400,
-    error: 'Document not found',
-  };
 }
 
-export { uploadDocument, getListDocuments, getDocument, updateDocumentInfo };
+async function updateDocumentInfo(id, body, file) {
+  try {
+    const existed = await docModel.getDocumentById(id);
+
+    if (!existed || !existed.length) {
+      return {
+        status: 400,
+        error: 'Document not found',
+      };
+    }
+    const promise = [docModel.updateDocumentById(id, body)];
+
+    if (file && file.length) {
+      const { error, status, fileName } =  fileHelpers.validateExtension(file, id);
+      if (error)
+        return {
+          error,
+          status,
+        };
+
+      body.path = fileName;
+      promise.concat([
+        fileHelpers.storeFile(file, fileName),
+        fileHelpers.removeFile(existed[0].path),
+      ]);
+    }
+    await Promise.all(promise).catch((ex) => { throw ex; });
+
+    return {
+      status: 200,
+      message: `Document with id = ${id} is updated`,
+    };
+  } catch (ex) {
+    logger(ex.message || 'Unexpected error');
+
+    return {
+      status: ex.status || 500,
+      error: 'Unexpected error',
+    };
+  }
+}
+
+async function deleteDocument(id) {
+  try {
+    const result = await docModel.getDocumentById(id);
+
+    if (!result || !result.length) {
+      return {
+        error: 'Document not found',
+        status: 404,
+      };
+    }
+
+    await Promise.all([
+      docModel.deleteDocumentById(id),
+      fileHelpers.removeFile(result[0].path),
+    ]);
+
+    return {
+      status: 200,
+      message: 'Deleted',
+    };
+  } catch (ex) {
+    logger.error(ex.message || 'Unexpect error when delete file');
+
+    return {
+      status: 500,
+      error: 'Unexpected error',
+    };
+  }
+}
+
+export {
+  uploadDocument,
+  getListDocuments,
+  getDocument,
+  updateDocumentInfo,
+  viewContent,
+  deleteDocument,
+};

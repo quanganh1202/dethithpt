@@ -8,19 +8,15 @@
   "properties": {
     "name": { "type": "string", "maxLength": 255 },
     "tags": {
-      "type": "array",
-      "items": {
-        "type": "string",
-        "pattern": "^#.+$"
-      }
+      "type": "string"
     },
     "description": { "type": "string" },
-    "userId": { "type": "integer" },
+    "userId": { "type": "string" },
     "price": { "type": "string", "maxLength": 50, "pattern": "^[0-9]+$"},
-    "cateId": { "type": "integer", "maxLength": 11 },
-    "subjectId": { "type": "integer", "maxLength": 11 },
-    "classId": { "type": "integer", "maxLength": 11 },
-    "yearSchoolId": { "type": "integer", "maxLength": 4 },
-    "collectionId": { "type": "integer", "maxLength": 11 }
+    "cateId": { "type": "string", "maxLength": 11 },
+    "subjectId": { "type": "string", "maxLength": 11 },
+    "classId": { "type": "string", "maxLength": 11 },
+    "yearSchoolId": { "type": "string", "maxLength": 4 },
+    "collectionId": { "type": "string", "maxLength": 11 }
   }
 }

@@ -21,7 +21,7 @@
         "comma-spacing": 2,
         "comma-dangle": ["error", "always-multiline"],
         "func-call-spacing": 2,
-        "max-len": ["error", 100],
+        "max-len": ["error", 150],
         "no-trailing-spaces": 2,
         "arrow-spacing": 2,
         "no-confusing-arrow": 2,
