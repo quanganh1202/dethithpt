@@ -6,18 +6,11 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { Helmet } from 'react-helmet';
-import { createStructuredSelector } from 'reselect';
-import { compose } from 'redux';
 import styled from 'styled-components';
 
 import Tab from 'components/Tab';
-import injectSaga from 'utils/injectSaga';
-import injectReducer from 'utils/injectReducer';
-import makeSelectUploadDocument from './selectors';
-import reducer from './reducer';
-import saga from './saga';
+import UploadPost from './UploadPost';
 
 const Wrapper = styled.div`
   & .continue-button, & div.input-button {
@@ -25,30 +18,21 @@ const Wrapper = styled.div`
     margin-top: 20px;
   }
 
-  & div.input-button {
-    padding: 10px;
-    width: 200px;
-    background: #00a884;
-    border:1px solid #00a884;
-    position:relative;
-    color:#fff;
-    border-radius:2px;
-    text-align:center;
-    cursor:pointer;
-    font-weight: bold;
+  & .dropzone > div {
+    border: none!important;
+    width: 100%!important;
+    text-align: center;
+    color: #555555;
   }
 
-  & .hide_file {
-      position: absolute;
-      z-index: 1000;
-      opacity: 0;
-      cursor: pointer;
-      right: 0;
-      top: 0;
-      height: 100%;
-      font-size: 24px;
-      width: 100%;
-      
+  & .list-item-upload {
+    list-style: none;
+    padding: 0;
+
+    li {
+      background: #f0f0f0;
+      padding: 10px;
+    }
   }
 `;
 
@@ -80,126 +64,17 @@ export class UploadDocument extends React.PureComponent {
             <input type="checkbox" style={{ marginRight: '5px' }} />
             Tôi hoàn toàn đồng ý với các điều khoản của website
           </label>
-          <Button onClick={() => this.openCity('step2')} className="continue-button">Tiếp</Button>
+          <Button onClick={() => this.nextStep('step2')} className="continue-button">Tiếp</Button>
         </div> },
         { id: "step2", title: "2", component: () => (
-          <div style={{ textAlign: 'center' }}>
-            <div className="input-button">
-              Chọn tệp
-            <input type="file" className="hide_file" multiple  name="upload" onChange={this.handleChange}      
-                onDrop={this.handleDrop}
-                onDragEnter={this.handleDragEnter}
-                onDragOver={this.handleDragOver}
-                onDragLeave={this.handleDragLeave} />
-            </div>
-
-            <p>Chọn nút tải lên để chọn nhiều file từ máy tính của bạn hoặc kéo file thả vào đây</p>
-            <p>Ấn nút Shift hoặc Ctrl để chọn nhiều file</p>
-          </div>
+          <UploadPost />
         )},
         { id: "step3", title: "3", component: () => <div>1234</div> },
       ]
     };
-
-    this.handleChange = this.handleChange.bind(this);
-    this.dropTarget = this.dropTarget.bind(this);
-    this.dropLeave = this.dropLeave.bind(this);
-    this.handleDrop = this.handleDrop.bind(this);
-    this.handleDragEnter = this.handleDragEnter.bind(this);
-    this.handleDragLeave = this.handleDragLeave.bind(this);
-    this.handleDragOver = this.handleDragOver.bind(this);
   }
 
-  componentDidMount() {
-    window.addEventListener('dragover', this.dropTarget);
-    window.addEventListener('dragleave', this.dropLeave);
-    window.addEventListener('drop', this.handleDrop);
-  }
-
-  componentWillUnmount() {    
-    window.removeEventListener('dragover', this.dropTarget);
-    window.removeEventListener('dragleave', this.dropLeave);
-    window.removeEventListener('drop', this.handleDrop);
-  }
-
-  onFileChange(files) {
-    var reader = new FileReader();
-    this.fileName = fileObj.name;
-    this.fileType = fileObj.type;
-    
-    reader.onload = function(e) {
-      this.file = reader.result;
-      this.setState({
-        previewing: true
-      });
-    }
-    reader.readAsDataURL(fileObj.file);
-  }
-
-  handleChange(e) {
-    console.log(e.target.files);
-    const files = e.target.files;
-
-    this.onFileChange(Object.keys(files).map((file) => ({
-      file: files[file],
-      name: files[file].name,
-      type: files[file].type
-    })));
-  }
-
-  dropTarget(e) {    
-    if (!this.state.active) {
-      this.setState({
-        target: true
-      });
-    }
-  }
-
-  dropLeave(e) {
-    if(e.screenX === 0 && e.screenY === 0) { // Checks for if the leave event is when leaving the window
-    	this.setState({
-    	  target: false
-    	});
-    }
-  }
-
-  handleDrop(e) {
-    e.preventDefault();
-    e.stopPropagation();
-  
-    var uploadObj = {
-      target: e.nativeEvent.dataTransfer
-    };
-    
-    this.setState({
-      target: false,
-      hover: false
-    });
-    
-    this.handleChange(uploadObj);
-  }
-  
-  handleDragEnter(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!this.state.active) {
-      this.setState({
-        hover: true
-      });
-    }
-  }
-
-  handleDragLeave(e) {
-		this.setState({
-      hover: false
-    });
-  }
-
-  handleDragOver(e) {
-    e.preventDefault();
-  }
-
-  openCity(cityName) {
+  nextStep(cityName) {
     var i;
     var x = document.getElementsByClassName("tab-content");
     for (i = 0; i < x.length; i++) {
@@ -212,7 +87,7 @@ export class UploadDocument extends React.PureComponent {
     const { stepDefinitions } = this.state;
     const header = <div className="w3-bar w3-black">{
       stepDefinitions.map((item, key) => 
-        <button key={`tab-header-${key}`} className="w3-bar-item w3-button" onClick={() => this.openCity(item.id)}>{item.title}</button>)
+        <button key={`tab-header-${key}`} className="w3-bar-item w3-button" onClick={() => this.nextStep(item.id)}>{item.title}</button>)
     }</div>;
     const content = stepDefinitions.map((item, key) => {
       const Component = item.component;
@@ -244,29 +119,6 @@ export class UploadDocument extends React.PureComponent {
 }
 
 UploadDocument.propTypes = {
-  dispatch: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = createStructuredSelector({
-  uploaddocument: makeSelectUploadDocument(),
-});
-
-function mapDispatchToProps(dispatch) {
-  return {
-    dispatch,
-  };
-}
-
-const withConnect = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-);
-
-const withReducer = injectReducer({ key: 'uploadDocument', reducer });
-const withSaga = injectSaga({ key: 'uploadDocument', saga });
-
-export default compose(
-  withReducer,
-  withSaga,
-  withConnect,
-)(UploadDocument);
+export default UploadDocument;

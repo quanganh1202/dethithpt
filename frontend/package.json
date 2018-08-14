@@ -101,6 +101,7 @@
     "prop-types": "15.6.1",
     "react": "16.4.1",
     "react-dom": "16.4.1",
+    "react-dropzone": "^4.3.0",
     "react-helmet": "5.2.0",
     "react-intl": "2.4.0",
     "react-loadable": "5.4.0",
@@ -113,6 +114,7 @@
     "reselect": "3.0.1",
     "sanitize.css": "4.1.0",
     "styled-components": "3.3.2",
+    "superagent": "^3.8.3",
     "warning": "4.0.1",
     "whatwg-fetch": "2.0.4"
   },
