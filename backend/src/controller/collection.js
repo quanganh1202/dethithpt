@@ -7,7 +7,8 @@ const schemaId = 'http://dethithpt.com/collection-schema#';
 
 async function getListCollections(args) {
   try {
-    const { name, description, searchType, number, offset, sortBy } = args;
+    const { name, description, searchType, number, offset, sortBy, cols } = args;
+    if (cols) options.cols = cols.split(',');
     const filter = [];
     filter.push(name ? { name }: undefined);
     filter.push(description ? { description }: undefined);
@@ -62,7 +63,7 @@ async function createCollection(body) {
 
 async function getCollectionById(id, cols) {
   try {
-    const result = await subModel.getCollectionById(id, cols);
+    const result = await subModel.getCollectionById(id,  cols ? cols.split(','): undefined);
 
     return {
       status: 200,

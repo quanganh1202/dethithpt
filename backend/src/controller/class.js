@@ -7,11 +7,12 @@ const schemaId = 'http://dethithpt.com/class-schema#';
 
 async function getListClasses(args) {
   try {
-    const { name, description, searchType, number, offset, sortBy } = args;
+    const { name, description, searchType, number, offset, sortBy, cols } = args;
     const filter = [];
     filter.push(name ? { name }: undefined);
     filter.push(description ? { description }: undefined);
     const options = { number, offset, sortBy, searchType };
+    if (cols) options.cols = cols.split(',');
     const docs = await classModel.getListClass(filter, options);
 
     return docs || [];
@@ -62,7 +63,7 @@ async function createClass(body) {
 
 async function getClassById(id, cols) {
   try {
-    const result = await classModel.getClassById(id, cols);
+    const result = await classModel.getClassById(id,  cols ? cols.split(','): undefined);
 
     return {
       status: 200,
