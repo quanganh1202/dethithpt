@@ -8,11 +8,10 @@ const schemaId = 'http://dethithpt.com/subject-schema#';
 async function getListSubjects(args) {
   try {
     const { name, description, searchType, number, offset, sortBy, cols } = args;
-    if (cols) options.cols = cols.split(',');
     const filter = [];
     filter.push(name ? { name }: undefined);
     filter.push(description ? { description }: undefined);
-    const options = { number, offset, sortBy, searchType };
+    const options = { number, offset, sortBy, searchType, cols };
     const docs = await subModel.getListSubject(filter, options);
 
     return docs || [];
@@ -63,7 +62,7 @@ async function createSubject(body) {
 
 async function getSubjectById(id, cols) {
   try {
-    const result = await subModel.getSubjectById(id,  cols ? cols.split(','): undefined);
+    const result = await subModel.getSubjectById(id,  cols);
 
     return {
       status: 200,
