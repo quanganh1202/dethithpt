@@ -1,0 +1,12 @@
+{
+  "$id": "http://dethithpt.com/yearSchool-schema#",
+  "title": "Year School",
+  "description": "Year School schema validation",
+  "type": "object",
+  "additionalProperties": false,
+  "required":[ "name", "description" ],
+  "properties": {
+    "name": { "type": "string", "maxLength": 255 },
+    "description": { "type": "string" }
+  }
+}

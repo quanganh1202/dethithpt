@@ -1,0 +1,16 @@
+{
+  "$id": "http://dethithpt.com/collection-schema#",
+  "title": "Collection",
+  "description": "Collection schema validation",
+  "type": "object",
+  "additionalProperties": false,
+  "required":[ "name", "description", "cateId", "classId", "yearSchoolId", "subjectId" ],
+  "properties": {
+    "name": { "type": "string", "maxLength": 255 },
+    "description": { "type": "string" },
+    "cateId": { "type": "string" },
+    "classId": { "type": "string" },
+    "yearSchoolId": { "type": "string" },
+    "subjectId": { "type": "string" }
+  }
+}
