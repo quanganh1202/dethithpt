@@ -8,7 +8,7 @@
     "start": "babel-node main",
     "production": "node ./dist/main.js",
     "build": "./resource/build.sh",
-    "dev": "NODE_ENV=dev nodemon main --exec babel-node"
+    "dev": "cross-env NODE_ENV=dev MYSQL_PASSWORD=1 MYSQL_DATABASE=dethithpt nodemon main --exec babel-node"
   },
   "keywords": [],
   "author": {
@@ -30,6 +30,7 @@
     "babel-polyfill": "^6.26.0",
     "body-parser": "^1.18.3",
     "cors": "^2.8.4",
+    "cross-env": "^5.2.0",
     "express": "^4.16.3",
     "fs-extra": "^7.0.0",
     "jsonwebtoken": "^8.3.0",
