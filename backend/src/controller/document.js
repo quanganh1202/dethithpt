@@ -10,12 +10,13 @@ const schemaId = 'http://dethithpt.com/document-schema#';
 
 async function getListDocuments(args) {
   try {
-    const { name, tags, description, searchType, number, offset, sortBy } = args;
+    const { name, tags, description, searchType, number, offset, sortBy, cols } = args;
     const filter = [];
     filter.push(name ? { name }: undefined);
     filter.push(tags ? { tags: `#${tags}` }: undefined);
     filter.push(description ? { description }: undefined);
     const options = { number, offset, sortBy, searchType };
+    if (cols) options.cols = cols.split(',');
     const docs = await docModel.getList(filter, options);
 
     return docs || [];
@@ -77,7 +78,7 @@ async function uploadDocument(body, file) {
 
 async function getDocument(id, cols) {
   try {
-    const result = await docModel.getDocumentById(id, cols);
+    const result = await docModel.getDocumentById(id,  cols ? cols.split(','): undefined);
 
     return {
       status: 200,

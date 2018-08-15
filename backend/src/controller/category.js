@@ -7,11 +7,12 @@ const schemaId = 'http://dethithpt.com/category-schema#';
 
 async function getListCategories(args) {
   try {
-    const { name, description, searchType, number, offset, sortBy } = args;
+    const { name, description, searchType, number, offset, sortBy, cols } = args;
     const filter = [];
     filter.push(name ? { name }: undefined);
     filter.push(description ? { description }: undefined);
     const options = { number, offset, sortBy, searchType };
+    if (cols) options.cols = cols.split(',');
     const docs = await cateModel.getListCategory(filter, options);
 
     return docs || [];
@@ -60,7 +61,7 @@ async function createCategory(body) {
 
 async function getCategoryById(id, cols) {
   try {
-    const result = await cateModel.getCategoryById(id, cols);
+    const result = await cateModel.getCategoryById(id, cols ? cols.split(','): undefined);
 
     return {
       status: 200,

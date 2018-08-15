@@ -7,11 +7,12 @@ const schemaId = 'http://dethithpt.com/yearSchool-schema#';
 
 async function getListYearSchools(args) {
   try {
-    const { name, description, searchType, number, offset, sortBy } = args;
+    const { name, description, searchType, number, offset, sortBy, cols } = args;
     const filter = [];
     filter.push(name ? { name }: undefined);
     filter.push(description ? { description }: undefined);
     const options = { number, offset, sortBy, searchType };
+    if (cols) options.cols = cols.split(',');
     const docs = await ySchoolModel.getListYearSchool(filter, options);
 
     return docs || [];
@@ -62,7 +63,7 @@ async function createYearSchool(body) {
 
 async function getYearSchoolById(id, cols) {
   try {
-    const result = await ySchoolModel.getYearSchoolById(id, cols);
+    const result = await ySchoolModel.getYearSchoolById(id,  cols ? cols.split(','): undefined);
 
     return {
       status: 200,
