@@ -2,7 +2,7 @@ CREATE SCHEMA `dethithpt` DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
 USE dethithpt;
 
-CREATE TABLE `dethithpt`.`tbUser` (
+CREATE TABLE IF NOT EXISTS `dethithpt`.`tbUser` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(50) NOT NULL,
   `email` VARCHAR(45) NULL,
@@ -25,7 +25,7 @@ CREATE TABLE `dethithpt`.`tbUser` (
   UNIQUE INDEX `email_UNIQUE` (`email` ASC),
   UNIQUE INDEX `phone_UNIQUE` (`phone` ASC));
 
-CREATE TABLE `dethithpt`.`tbDocument` (
+CREATE TABLE IF NOT EXISTS `dethithpt`.`tbDocument` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
   `tags` VARCHAR(255) NULL,
@@ -42,7 +42,7 @@ CREATE TABLE `dethithpt`.`tbDocument` (
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC));
 
-CREATE TABLE `dethithpt`.`tbCategory` (
+CREATE TABLE IF NOT EXISTS `dethithpt`.`tbCategory` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(50) NOT NULL,
   `description` TEXT(255) NOT NULL,
@@ -51,7 +51,7 @@ CREATE TABLE `dethithpt`.`tbCategory` (
   UNIQUE INDEX `id_UNIQUE` (`id` ASC),
   UNIQUE INDEX `name_UNIQUE` (`name` ASC));
 
-CREATE TABLE `dethithpt`.`tbSubject` (
+CREATE TABLE IF NOT EXISTS `dethithpt`.`tbSubject` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(50) NOT NULL,
   `description` TEXT(255) NOT NULL,
@@ -59,7 +59,7 @@ CREATE TABLE `dethithpt`.`tbSubject` (
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC));
 
-CREATE TABLE `dethithpt`.`tbClass` (
+CREATE TABLE IF NOT EXISTS `dethithpt`.`tbClass` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(50) NOT NULL,
   `description` TEXT(255) NOT NULL,
@@ -67,7 +67,7 @@ CREATE TABLE `dethithpt`.`tbClass` (
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC));
 
-CREATE TABLE `dethithpt`.`tbYearSchool` (
+CREATE TABLE IF NOT EXISTS `dethithpt`.`tbYearSchool` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(50) NOT NULL,
   `description` TEXT(255) NOT NULL,
@@ -75,7 +75,7 @@ CREATE TABLE `dethithpt`.`tbYearSchool` (
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC));
 
-CREATE TABLE `dethithpt`.`tbCollection` (
+CREATE TABLE IF NOT EXISTS `dethithpt`.`tbCollection` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(50) NOT NULL,
   `description` TEXT(255) NOT NULL,
