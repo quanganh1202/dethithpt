@@ -2,7 +2,7 @@ import Class from '../model/class';
 import logger from '../libs/logger';
 import { dataValidator } from '../libs/ajv';
 
-const cateModel = new Class;
+const classModel = new Class;
 const schemaId = 'http://dethithpt.com/class-schema#';
 
 async function getListClasses(args) {
@@ -12,7 +12,7 @@ async function getListClasses(args) {
     filter.push(name ? { name }: undefined);
     filter.push(description ? { description }: undefined);
     const options = { number, offset, sortBy, searchType };
-    const docs = await cateModel.getListClass(filter, options);
+    const docs = await classModel.getListClass(filter, options);
 
     return docs || [];
   } catch (ex) {
@@ -36,7 +36,7 @@ async function createClass(body) {
       };
     }
     const { name } = body;
-    const cate = await cateModel.getListClass([{ name }]);
+    const cate = await classModel.getListClass([{ name }]);
     if (cate && cate.length) {
       return {
         error: `Class ${body.name} already existed`,
@@ -44,7 +44,7 @@ async function createClass(body) {
       };
     }
 
-    const res = await cateModel.addNewClass(body);
+    const res = await classModel.addNewClass(body);
 
     return {
       status: 201,
@@ -62,7 +62,7 @@ async function createClass(body) {
 
 async function getClassById(id, cols) {
   try {
-    const result = await cateModel.getClassById(id, cols);
+    const result = await classModel.getClassById(id, cols);
 
     return {
       status: 200,
@@ -81,7 +81,7 @@ async function getClassById(id, cols) {
 
 async function updateClass(id, body) {
   try {
-    const existed = await cateModel.getClassById(id);
+    const existed = await classModel.getClassById(id);
 
     if (!existed || !existed.length) {
       return {
@@ -91,7 +91,7 @@ async function updateClass(id, body) {
     }
 
     const { name } = body;
-    const cate = await cateModel.getListClass([{ name }]);
+    const cate = await classModel.getListClass([{ name }]);
     if (cate && cate.length && name !== existed[0].name) {
       return {
         error: `Class ${body.name} already existed`,
@@ -99,7 +99,7 @@ async function updateClass(id, body) {
       };
     }
 
-    await cateModel.updateClassById(id, body);
+    await classModel.updateClassById(id, body);
 
     return {
       status: 200,
@@ -117,7 +117,7 @@ async function updateClass(id, body) {
 
 async function deleteClassById(id) {
   try {
-    const result = await cateModel.getClassById(id);
+    const result = await classModel.getClassById(id);
 
     if (!result || !result.length) {
       return {
@@ -126,7 +126,7 @@ async function deleteClassById(id) {
       };
     }
 
-    await cateModel.deleteClassById(id);
+    await classModel.deleteClassById(id);
 
     return {
       status: 200,

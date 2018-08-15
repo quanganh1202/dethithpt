@@ -1,22 +1,22 @@
-import Subject from '../model/subject';
+import Collection from '../model/collection';
 import logger from '../libs/logger';
 import { dataValidator } from '../libs/ajv';
 
-const subModel = new Subject;
-const schemaId = 'http://dethithpt.com/subject-schema#';
+const subModel = new Collection;
+const schemaId = 'http://dethithpt.com/collection-schema#';
 
-async function getListSubjects(args) {
+async function getListCollections(args) {
   try {
     const { name, description, searchType, number, offset, sortBy } = args;
     const filter = [];
     filter.push(name ? { name }: undefined);
     filter.push(description ? { description }: undefined);
     const options = { number, offset, sortBy, searchType };
-    const docs = await subModel.getListSubject(filter, options);
+    const docs = await subModel.getListCollection(filter, options);
 
     return docs || [];
   } catch (ex) {
-    logger.error(ex.message || 'Unexpected error when get subjects');
+    logger.error(ex.message || 'Unexpected error when get collections');
 
     return {
       error: ex.message || 'Unexpected error',
@@ -26,7 +26,7 @@ async function getListSubjects(args) {
 
 }
 
-async function createSubject(body) {
+async function createCollection(body) {
   try {
     const resValidate = dataValidator(body, schemaId);
     if (!resValidate.valid) {
@@ -36,22 +36,22 @@ async function createSubject(body) {
       };
     }
     const { name } = body;
-    const cate = await subModel.getListSubject([{ name }]);
+    const cate = await subModel.getListCollection([{ name }]);
     if (cate && cate.length) {
       return {
-        error: `Subject ${body.name} already existed`,
+        error: `Collection ${body.name} already existed`,
         status: 400,
       };
     }
 
-    const res = await subModel.addNewSubject(body);
+    const res = await subModel.addNewCollection(body);
 
     return {
       status: 201,
-      message: `Subject created with insertId = ${res.insertId}`,
+      message: `Collection created with insertId = ${res.insertId}`,
     };
   } catch (ex) {
-    logger.error(ex.message || 'Unexpected error when create subject');
+    logger.error(ex.message || 'Unexpected error when create collection');
 
     return {
       status: ex.status || 500,
@@ -60,16 +60,16 @@ async function createSubject(body) {
   }
 }
 
-async function getSubjectById(id, cols) {
+async function getCollectionById(id, cols) {
   try {
-    const result = await subModel.getSubjectById(id, cols);
+    const result = await subModel.getCollectionById(id, cols);
 
     return {
       status: 200,
       data: result,
     };
   } catch (ex) {
-    logger.error(ex.message || 'Unexpected error when get subject');
+    logger.error(ex.message || 'Unexpected error when get collection');
 
     return {
       status: 500,
@@ -79,34 +79,34 @@ async function getSubjectById(id, cols) {
 
 }
 
-async function updateSubject(id, body) {
+async function updateCollection(id, body) {
   try {
-    const existed = await subModel.getSubjectById(id);
+    const existed = await subModel.getCollectionById(id);
 
     if (!existed || !existed.length) {
       return {
         status: 400,
-        error: 'Subject not found',
+        error: 'Collection not found',
       };
     }
 
     const { name } = body;
-    const cate = await subModel.getListSubject([{ name }]);
+    const cate = await subModel.getListCollection([{ name }]);
     if (cate && cate.length && name !== existed[0].name) {
       return {
-        error: `Subject ${body.name} already existed`,
+        error: `Collection ${body.name} already existed`,
         status: 400,
       };
     }
 
-    await subModel.updateSubjectById(id, body);
+    await subModel.updateCollectionById(id, body);
 
     return {
       status: 200,
-      message: `Subject with id = ${id} is updated`,
+      message: `Collection with id = ${id} is updated`,
     };
   } catch (ex) {
-    logger(ex.message || 'Unexpected error when update subject');
+    logger(ex.message || 'Unexpected error when update collection');
 
     return {
       status: ex.status || 500,
@@ -115,25 +115,25 @@ async function updateSubject(id, body) {
   }
 }
 
-async function deleteSubjectById(id) {
+async function deleteCollectionById(id) {
   try {
-    const result = await subModel.getSubjectById(id);
+    const result = await subModel.getCollectionById(id);
 
     if (!result || !result.length) {
       return {
-        error: 'Subject not found',
+        error: 'Collection not found',
         status: 404,
       };
     }
 
-    await subModel.deleteSubjectById(id);
+    await subModel.deleteCollectionById(id);
 
     return {
       status: 200,
       message: 'Deleted',
     };
   } catch (ex) {
-    logger.error(ex.message || 'Unexpect error when delete subject');
+    logger.error(ex.message || 'Unexpect error when delete collection');
 
     return {
       status: 500,
@@ -143,9 +143,9 @@ async function deleteSubjectById(id) {
 }
 
 export {
-  createSubject,
-  getSubjectById,
-  getListSubjects,
-  updateSubject,
-  deleteSubjectById,
+  createCollection,
+  getCollectionById,
+  getListCollections,
+  updateCollection,
+  deleteCollectionById,
 };

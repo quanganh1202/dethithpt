@@ -1,22 +1,22 @@
-import Subject from '../model/subject';
+import YearSchool from '../model/yearSchool';
 import logger from '../libs/logger';
 import { dataValidator } from '../libs/ajv';
 
-const subModel = new Subject;
-const schemaId = 'http://dethithpt.com/subject-schema#';
+const ySchoolModel = new YearSchool;
+const schemaId = 'http://dethithpt.com/yearSchool-schema#';
 
-async function getListSubjects(args) {
+async function getListYearSchools(args) {
   try {
     const { name, description, searchType, number, offset, sortBy } = args;
     const filter = [];
     filter.push(name ? { name }: undefined);
     filter.push(description ? { description }: undefined);
     const options = { number, offset, sortBy, searchType };
-    const docs = await subModel.getListSubject(filter, options);
+    const docs = await ySchoolModel.getListYearSchool(filter, options);
 
     return docs || [];
   } catch (ex) {
-    logger.error(ex.message || 'Unexpected error when get subjects');
+    logger.error(ex.message || 'Unexpected error when get yearSchools');
 
     return {
       error: ex.message || 'Unexpected error',
@@ -26,7 +26,7 @@ async function getListSubjects(args) {
 
 }
 
-async function createSubject(body) {
+async function createYearSchool(body) {
   try {
     const resValidate = dataValidator(body, schemaId);
     if (!resValidate.valid) {
@@ -36,22 +36,22 @@ async function createSubject(body) {
       };
     }
     const { name } = body;
-    const cate = await subModel.getListSubject([{ name }]);
+    const cate = await ySchoolModel.getListYearSchool([{ name }]);
     if (cate && cate.length) {
       return {
-        error: `Subject ${body.name} already existed`,
+        error: `YearSchool ${body.name} already existed`,
         status: 400,
       };
     }
 
-    const res = await subModel.addNewSubject(body);
+    const res = await ySchoolModel.addNewYearSchool(body);
 
     return {
       status: 201,
-      message: `Subject created with insertId = ${res.insertId}`,
+      message: `YearSchool created with insertId = ${res.insertId}`,
     };
   } catch (ex) {
-    logger.error(ex.message || 'Unexpected error when create subject');
+    logger.error(ex.message || 'Unexpected error when create YearSchool');
 
     return {
       status: ex.status || 500,
@@ -60,16 +60,16 @@ async function createSubject(body) {
   }
 }
 
-async function getSubjectById(id, cols) {
+async function getYearSchoolById(id, cols) {
   try {
-    const result = await subModel.getSubjectById(id, cols);
+    const result = await ySchoolModel.getYearSchoolById(id, cols);
 
     return {
       status: 200,
       data: result,
     };
   } catch (ex) {
-    logger.error(ex.message || 'Unexpected error when get subject');
+    logger.error(ex.message || 'Unexpected error when get YearSchool');
 
     return {
       status: 500,
@@ -79,34 +79,34 @@ async function getSubjectById(id, cols) {
 
 }
 
-async function updateSubject(id, body) {
+async function updateYearSchool(id, body) {
   try {
-    const existed = await subModel.getSubjectById(id);
+    const existed = await ySchoolModel.getYearSchoolById(id);
 
     if (!existed || !existed.length) {
       return {
         status: 400,
-        error: 'Subject not found',
+        error: 'YearSchool not found',
       };
     }
 
     const { name } = body;
-    const cate = await subModel.getListSubject([{ name }]);
+    const cate = await ySchoolModel.getListYearSchool([{ name }]);
     if (cate && cate.length && name !== existed[0].name) {
       return {
-        error: `Subject ${body.name} already existed`,
+        error: `YearSchool ${body.name} already existed`,
         status: 400,
       };
     }
 
-    await subModel.updateSubjectById(id, body);
+    await ySchoolModel.updateYearSchoolById(id, body);
 
     return {
       status: 200,
-      message: `Subject with id = ${id} is updated`,
+      message: `YearSchool with id = ${id} is updated`,
     };
   } catch (ex) {
-    logger(ex.message || 'Unexpected error when update subject');
+    logger(ex.message || 'Unexpected error when update YearSchool');
 
     return {
       status: ex.status || 500,
@@ -115,25 +115,25 @@ async function updateSubject(id, body) {
   }
 }
 
-async function deleteSubjectById(id) {
+async function deleteYearSchoolById(id) {
   try {
-    const result = await subModel.getSubjectById(id);
+    const result = await ySchoolModel.getYearSchoolById(id);
 
     if (!result || !result.length) {
       return {
-        error: 'Subject not found',
+        error: 'YearSchool not found',
         status: 404,
       };
     }
 
-    await subModel.deleteSubjectById(id);
+    await ySchoolModel.deleteYearSchoolById(id);
 
     return {
       status: 200,
       message: 'Deleted',
     };
   } catch (ex) {
-    logger.error(ex.message || 'Unexpect error when delete subject');
+    logger.error(ex.message || 'Unexpect error when delete YearSchool');
 
     return {
       status: 500,
@@ -143,9 +143,9 @@ async function deleteSubjectById(id) {
 }
 
 export {
-  createSubject,
-  getSubjectById,
-  getListSubjects,
-  updateSubject,
-  deleteSubjectById,
+  createYearSchool,
+  getYearSchoolById,
+  getListYearSchools,
+  updateYearSchool,
+  deleteYearSchoolById,
 };
