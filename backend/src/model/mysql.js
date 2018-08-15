@@ -25,7 +25,7 @@ class Database {
 
     return conn.query(
       'SELECT ?? FROM ?? WHERE id = ?',
-      [cols.length ? cols : ['*'], this.table, id],
+      [cols.length ? cols : ['\'*\''], this.table, id],
     ).then(result => {
       conn.end();
 
@@ -41,9 +41,9 @@ class Database {
       sortBy,
     } = options;
     const conn = await this.openConnect();
-    let query = 'SELECT ?? FROM ??';
+    let query = `SELECT ${cols ? cols : '*'} FROM ??`;
     if (filter) {
-      query = `SELECT ?? FROM ?? WHERE ${filter}`;
+      query = `SELECT ${cols ? cols : '*'} FROM ?? WHERE ${filter}`;
     }
 
     if (sortBy) {
@@ -51,14 +51,13 @@ class Database {
       query += ` ORDER BY ${split[0]} ${split[1].toUpperCase()}`;
     }
 
-
     if (number && offset) {
       query += ` LIMIT ${offset},${number}`;
     }
 
     return conn.query(
       query,
-      [cols && cols.length ? cols : ['*'], this.table],
+      this.table,
     ).then(result => {
       conn.end();
 

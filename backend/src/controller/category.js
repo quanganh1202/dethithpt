@@ -11,8 +11,7 @@ async function getListCategories(args) {
     const filter = [];
     filter.push(name ? { name }: undefined);
     filter.push(description ? { description }: undefined);
-    const options = { number, offset, sortBy, searchType };
-    if (cols) options.cols = cols.split(',');
+    const options = { number, offset, sortBy, searchType, cols };
     const docs = await cateModel.getListCategory(filter, options);
 
     return docs || [];
@@ -61,7 +60,7 @@ async function createCategory(body) {
 
 async function getCategoryById(id, cols) {
   try {
-    const result = await cateModel.getCategoryById(id, cols ? cols.split(','): undefined);
+    const result = await cateModel.getCategoryById(id, cols);
 
     return {
       status: 200,

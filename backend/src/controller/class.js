@@ -11,8 +11,7 @@ async function getListClasses(args) {
     const filter = [];
     filter.push(name ? { name }: undefined);
     filter.push(description ? { description }: undefined);
-    const options = { number, offset, sortBy, searchType };
-    if (cols) options.cols = cols.split(',');
+    const options = { number, offset, sortBy, searchType, cols };
     const docs = await classModel.getListClass(filter, options);
 
     return docs || [];
@@ -63,7 +62,7 @@ async function createClass(body) {
 
 async function getClassById(id, cols) {
   try {
-    const result = await classModel.getClassById(id,  cols ? cols.split(','): undefined);
+    const result = await classModel.getClassById(id,  cols);
 
     return {
       status: 200,
