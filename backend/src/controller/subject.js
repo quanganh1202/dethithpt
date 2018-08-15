@@ -1,22 +1,22 @@
-import Class from '../model/class';
+import Subject from '../model/subject';
 import logger from '../libs/logger';
 import { dataValidator } from '../libs/ajv';
 
-const cateModel = new Class;
-const schemaId = 'http://dethithpt.com/class-schema#';
+const cateModel = new Subject;
+const schemaId = 'http://dethithpt.com/subject-schema#';
 
-async function getListClasses(args) {
+async function getListSubjects(args) {
   try {
     const { name, description, searchType, number, offset, sortBy } = args;
     const filter = [];
     filter.push(name ? { name }: undefined);
     filter.push(description ? { description }: undefined);
     const options = { number, offset, sortBy, searchType };
-    const docs = await cateModel.getListClass(filter, options);
+    const docs = await cateModel.getListSubject(filter, options);
 
     return docs || [];
   } catch (ex) {
-    logger.error(ex.message || 'Unexpected error when get classes');
+    logger.error(ex.message || 'Unexpected error when get subjects');
 
     return {
       error: ex.message || 'Unexpected error',
@@ -26,7 +26,7 @@ async function getListClasses(args) {
 
 }
 
-async function createClass(body) {
+async function createSubject(body) {
   try {
     const resValidate = dataValidator(body, schemaId);
     if (!resValidate.valid) {
@@ -36,22 +36,22 @@ async function createClass(body) {
       };
     }
     const { name } = body;
-    const cate = await cateModel.getListClass([{ name }]);
+    const cate = await cateModel.getListSubject([{ name }]);
     if (cate && cate.length) {
       return {
-        error: `Class ${body.name} already existed`,
+        error: `Subject ${body.name} already existed`,
         status: 400,
       };
     }
 
-    const res = await cateModel.addNewClass(body);
+    const res = await cateModel.addNewSubject(body);
 
     return {
       status: 201,
-      message: `Class created with insertId = ${res.insertId}`,
+      message: `Subject created with insertId = ${res.insertId}`,
     };
   } catch (ex) {
-    logger.error(ex.message || 'Unexpected error when create class');
+    logger.error(ex.message || 'Unexpected error when create subject');
 
     return {
       status: ex.status || 500,
@@ -60,16 +60,16 @@ async function createClass(body) {
   }
 }
 
-async function getClassById(id, cols) {
+async function getSubjectById(id, cols) {
   try {
-    const result = await cateModel.getClassById(id, cols);
+    const result = await cateModel.getSubjectById(id, cols);
 
     return {
       status: 200,
       data: result,
     };
   } catch (ex) {
-    logger.error(ex.message || 'Unexpected error when get class');
+    logger.error(ex.message || 'Unexpected error when get subject');
 
     return {
       status: 500,
@@ -79,34 +79,34 @@ async function getClassById(id, cols) {
 
 }
 
-async function updateClass(id, body) {
+async function updateSubject(id, body) {
   try {
-    const existed = await cateModel.getClassById(id);
+    const existed = await cateModel.getSubjectById(id);
 
     if (!existed || !existed.length) {
       return {
         status: 400,
-        error: 'Class not found',
+        error: 'Subject not found',
       };
     }
 
     const { name } = body;
-    const cate = await cateModel.getListClass([{ name }]);
+    const cate = await cateModel.getListSubject([{ name }]);
     if (cate && cate.length && name !== existed[0].name) {
       return {
-        error: `Class ${body.name} already existed`,
+        error: `Subject ${body.name} already existed`,
         status: 400,
       };
     }
 
-    await cateModel.updateClassById(id, body);
+    await cateModel.updateSubjectById(id, body);
 
     return {
       status: 200,
-      message: `Class with id = ${id} is updated`,
+      message: `Subject with id = ${id} is updated`,
     };
   } catch (ex) {
-    logger(ex.message || 'Unexpected error when update class');
+    logger(ex.message || 'Unexpected error when update subject');
 
     return {
       status: ex.status || 500,
@@ -115,25 +115,25 @@ async function updateClass(id, body) {
   }
 }
 
-async function deleteClassById(id) {
+async function deleteSubjectById(id) {
   try {
-    const result = await cateModel.getClassById(id);
+    const result = await cateModel.getSubjectById(id);
 
     if (!result || !result.length) {
       return {
-        error: 'Class not found',
+        error: 'Subject not found',
         status: 404,
       };
     }
 
-    await cateModel.deleteClassById(id);
+    await cateModel.deleteSubjectById(id);
 
     return {
       status: 200,
       message: 'Deleted',
     };
   } catch (ex) {
-    logger.error(ex.message || 'Unexpect error when delete class');
+    logger.error(ex.message || 'Unexpect error when delete subject');
 
     return {
       status: 500,
@@ -143,9 +143,9 @@ async function deleteClassById(id) {
 }
 
 export {
-  createClass,
-  getClassById,
-  getListClasses,
-  updateClass,
-  deleteClassById,
+  createSubject,
+  getSubjectById,
+  getListSubjects,
+  updateSubject,
+  deleteSubjectById,
 };
