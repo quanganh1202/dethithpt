@@ -25,7 +25,7 @@ class Database {
 
     return conn.query(
       'SELECT ?? FROM ?? WHERE id = ?',
-      [cols.length ? cols : '*', this.table, id],
+      [cols.length ? cols : ['*'], this.table, id],
     ).then(result => {
       conn.end();
 
@@ -58,7 +58,7 @@ class Database {
 
     return conn.query(
       query,
-      [cols && cols.length ? cols : '*', this.table],
+      [cols && cols.length ? cols : ['*'], this.table],
     ).then(result => {
       conn.end();
 
