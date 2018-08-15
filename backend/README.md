@@ -24,6 +24,6 @@
 
 ## Authenticate API
 
-  ```json {
+  ```json
     a: 1
-  }```
+  ```
