@@ -61,7 +61,7 @@ async function createCategory(body) {
 
 async function getCategoryById(id, cols) {
   try {
-    const result = await cateModel.getCategoryById(id, cols);
+    const result = await cateModel.getCategoryById(id, cols ? cols.split(','): undefined);
 
     return {
       status: 200,
