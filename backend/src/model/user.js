@@ -18,6 +18,12 @@ class User {
 
     return result;
   }
+
+  async updateUser(id, user) {
+    const result = await this.DB.update(id, user);
+
+    return result;
+  }
 }
 
 export default User;
