@@ -2,6 +2,9 @@ import React from 'react';
 import Dropzone from 'react-dropzone';
 import Request from 'superagent';
 import styled from 'styled-components';
+import ToggleButton from 'react-toggle-button';
+
+import DetailForm from './DetailForm';
 
 const ButtonUpload = styled.div`
   background: #00a884;
@@ -22,14 +25,6 @@ class UploadPost extends React.Component {
     this.state = { files: [] }
   }
 
-  /*We will be using Request.post() to the send our post request
-  "http://posttestserver.com/post.php?dir=example" was used for testing our post request
-  '.set' is where we give our headers
-  '.send' is where we attach the file that is to be sent
-  * '.attach' can also be used to send a file
-  '.on' is used to find out the progress of the file upload
-  For demonstration purpose we just show the value of percentage complete
-  The value can be passed to progress bar and can also be used to calculate time remaining*/
   onDrop(files) {
     files.forEach(element => {
       Request.post('http://localhost:3000/profile')
@@ -37,15 +32,16 @@ class UploadPost extends React.Component {
         .send(element)
         .on('progress', function(e) {
           console.log('Progress', e.percent);
-          this.setState({
-            files,
-          })
+          
         }.bind(this))
         .end((err, res) => {
             console.log(err);
             console.log(res);
         })
     });
+    this.setState({
+      files,
+    })
   }
 
   render() {
@@ -58,16 +54,28 @@ class UploadPost extends React.Component {
             <em>Ấn nút Shift hoặc Ctrl để chọn nhiều file</em>
           </Dropzone>
         </div>
-        <aside>
+        {this.state.files.length > 0 ? (<aside>
+          <div class="form-group">
+            <ToggleButton
+              value={ this.state.add2All || false }
+              onToggle={(value) => {
+                this.setState({
+                  add2All: !value,
+                })
+              }} />
+            <span>Thêm thông tin cho toàn bộ tài liệu tải lên</span>
+          </div>
+          {this.state.add2All ? <DetailForm /> : null}
           <ul className="list-item-upload">
             {
               this.state.files.map((f, ind) => <li key={ind}>
                 <div><text>{f.name} - {f.size} bytes</text><span>Hủy tải lên X</span></div>
                 <progress value="22" max="100"></progress>
+                {!this.state.add2All ? <DetailForm /> : null}
               </li>)
             }
           </ul>
-        </aside>
+        </aside>) : null }
       </section>
     );
   }

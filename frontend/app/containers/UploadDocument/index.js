@@ -11,6 +11,7 @@ import styled from 'styled-components';
 
 import Tab from 'components/Tab';
 import UploadPost from './UploadPost';
+import Button from './Button';
 
 const Wrapper = styled.div`
   & .continue-button, & div.input-button {
@@ -33,20 +34,6 @@ const Wrapper = styled.div`
       background: #f0f0f0;
       padding: 10px;
     }
-  }
-`;
-
-const Button = styled.button`
-  display: block;
-  background: #00a884;
-  color: #fff;
-  font-weight: bold;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-
-  &:hover {
-    opacity: 0.9;
   }
 `;
 
