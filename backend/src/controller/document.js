@@ -15,8 +15,7 @@ async function getListDocuments(args) {
     filter.push(name ? { name }: undefined);
     filter.push(tags ? { tags: `#${tags}` }: undefined);
     filter.push(description ? { description }: undefined);
-    const options = { number, offset, sortBy, searchType };
-    if (cols) options.cols = cols.split(',');
+    const options = { number, offset, sortBy, searchType, cols };
     const docs = await docModel.getList(filter, options);
 
     return docs || [];
@@ -78,7 +77,7 @@ async function uploadDocument(body, file) {
 
 async function getDocument(id, cols) {
   try {
-    const result = await docModel.getDocumentById(id,  cols ? cols.split(','): undefined);
+    const result = await docModel.getDocumentById(id,  cols);
 
     return {
       status: 200,
