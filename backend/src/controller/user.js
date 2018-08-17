@@ -39,8 +39,9 @@ async function auth(info) {
       };
       await userModel.addNewUser(user);
       sign = user;
+    } else {
+      sign = user[0];
     }
-    sign = user[0];
     const { token, expiresIn } = tokenGenerator(sign);
 
     return {
