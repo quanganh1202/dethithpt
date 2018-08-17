@@ -12,7 +12,6 @@ import collectionRoutes from './router/collectionRoutes';
 import { tokenVerifier } from './middleware/jwt';
 import logger from '../src/libs/logger';
 import { addSchema } from '../src/libs/ajv';
-import { initStoreFolder } from '../src/libs/helper';
 
 const app = express();
 const initialExpress = async function startServer() {
@@ -42,8 +41,6 @@ const initialExpress = async function startServer() {
   ]);
   // Loading schema validation file in folder ./schema
   await addSchema();
-  const pathFolderStore = process.env.PATH_FOLDER_STORE || path.resolve(__dirname, '../storage');
-  await initStoreFolder(pathFolderStore);
   app.listen(port, () => {
     logger.info(`Server is running at ${port}`);
   });
