@@ -1,0 +1,33 @@
+<html>
+  <head>
+    <title>FORM FOR TEST UPLOAD</title>
+  </head>
+<body>
+  <!-- {
+	"name": "DocumentTEST",
+	"tags": ["#hashtag"],
+	"description": "This is doc for test",
+	"userId": 2,
+	"price": "1234",
+	"cateId": 1,
+	"subjectId": 1,
+	"classId": 1,
+	"yearSchoolId": 1,
+	"collectionId": 1
+} -->
+  <form action="http://localhost:3000/documents" method="POST" enctype="multipart/form-data">
+    <div><label>fileUpload</label><input type="file" name="fileUpload"/></div>
+    <div><label>Name</label><input type="text" name="name" value="DocumentTEST"/></div>
+    <div><label>tags</label><input type="text" name="tags" value="#hashtag"/></div>
+    <div><label>tags</label><input type="text" name="userId" value="2"/></div>
+    <div><label>description</label><input type="text" name="description" value="This is doc for test"/></div>
+    <div><label>price</label><input type="text" name="price" value="1234"/></div>
+    <div><label>cateId</label><input type="text" name="cateId" value="1"/></div>
+    <div><label>subjectId</label><input type="text" name="subjectId" value="1"/></div>
+    <div><label>classId</label><input type="text" name="classId" value="1"/></div>
+    <div><label>yearSchoolId</label><input type="text" name="yearSchoolId" value="1"/></div>
+    <div><label>collectionId</label><input type="text" name="collectionId" value="1"/></div>
+    <div><button type="submit">Submit</button></div>
+  </form>
+</body>
+</html>
