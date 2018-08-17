@@ -17,6 +17,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCog, faFolder } from '@fortawesome/free-solid-svg-icons';
 import { faMoneyBillAlt } from '@fortawesome/free-regular-svg-icons';
 import UploadDocument from 'containers/UploadDocument/Loadable';
+import styled from 'styled-components';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
@@ -32,14 +33,15 @@ import Layout from 'components/Layout';
 import Tab from 'components/Tab';
 import TabList from 'components/Tab/TabList';
 import List from 'components/List';
+import ListItem from 'components/ListItem';
+import PopUp from 'components/PopUp';
 import SocialButton from 'components/SocialButton';
 import { loadRepos } from '../App/actions';
 import { changeUsername } from './actions';
 import { makeSelectUsername } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
-import ListItem from '../../components/ListItem';
-import styled from '../../../node_modules/styled-components';
+import CreateUserForm from '../Login/Form';
 
 library.add(faMoneyBillAlt, faFolder, faCog);
 
@@ -198,12 +200,17 @@ export class HomePage extends React.PureComponent {
     super();
     this.state = {
       user: null,
+      formCreate: {}
     };
     this.onLogin = this.onLogin.bind(this);
   }
 
   onLogin(data) {
     this.setState({ user: data });
+  }
+
+  onChange(e) {
+    console.log(e.currentTarget.value, e.currentTarget.name);
   }
 
   render() {
@@ -302,13 +309,20 @@ export class HomePage extends React.PureComponent {
                       key="latest-docs"
                       title="Tài liệu mới đăng"
                       content={
-                        <div>test</div>
+                        <List
+                          items={items}
+                          component={ListItem}
+                        />
                       }
                     >
                     </Tab>
-                    <List
-                      items={items}
-                      component={ListItem}
+                    <PopUp
+                      // show={this.state.showCreateUserForm}
+                      show
+                      onClose={() => this.setState({ showCreateUserForm: false })}
+                      content={
+                        <CreateUserForm onSubmit={this.onSubmit} onChange={this.onChange} />
+                      }
                     />
                   </div>
                 )} />
