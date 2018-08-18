@@ -35,13 +35,14 @@ const routerDefine =  function defineRouter() {
     });
   });
 
-  route.get('/documents/view/:fileName', async (req, res) => {
+  route.get('/documents/:fileName/view', async (req, res) => {
     const { error, filePath, status } = await viewContent(req.params.fileName);
     if (error) {
       return res.status(status || 500).json({
         error,
       });
     }
+    res.setHeader('Content-Type', `application/${filePath.split('.').pop()}`);
     res.status(status || 200).sendFile(filePath);
   });
   // Upload

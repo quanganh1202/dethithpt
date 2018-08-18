@@ -1,3 +1,7 @@
+# Init folder log
+mkdir -p logs
+# Init folder store
+mkdir -p storage
 
 echo "Please enter account, password"
 echo "------------------------------------------------------"
@@ -23,7 +27,7 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     id INT NOT NULL AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL,
     email VARCHAR(45) NULL,
-    phone VARCHAR(20) NOT NULL,
+    phone VARCHAR(20) NULL,
     role VARCHAR(20) NULL,
     bod YEAR(4) NULL,
     city VARCHAR(50) NULL,
@@ -35,7 +39,7 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     surplus VARCHAR(45) DEFAULT '0',
     totalIncome VARCHAR(45) DEFAULT '0',
     recharge VARCHAR(45) DEFAULT '0',
-    active TINYINT DEFAULT '1',
+    status TINYINT DEFAULT '2',
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE INDEX id_UNIQUE (id ASC),

@@ -1,6 +1,6 @@
 import express from 'express';
 import { tokenGenerator } from '../middleware/jwt';
-import { auth, addUser, getAllUsers } from '../../src/controller/user';
+import { auth, addUser, getAllUsers, deleteUser, updateUser, blockUser } from '../../src/controller/user';
 
 const routerDefine =  function defineRouter() {
   // Destination folder path
@@ -47,6 +47,36 @@ const routerDefine =  function defineRouter() {
     res.status(200).json({
       data: users,
     });
+  });
+
+  route.delete('/users/:id', async (req, res) => {
+    const { error, message, status } = await deleteUser(req.params.id);
+    res.status(status);
+    if (error) {
+      return res.json({ error });
+    }
+
+    res.json({ message });
+  });
+
+  route.put('/users/:id', async (req, res) => {
+    const { error, message, status } = await updateUser(req.params.id, req.body);
+    res.status(status);
+    if (error) {
+      return res.json({ error });
+    }
+
+    res.json({ message });
+  });
+
+  route.put('/users/:id/block', async (req, res) => {
+    const { error, message, status } = await blockUser(req.params.id);
+    res.status(status);
+    if (error) {
+      return res.json({ error });
+    }
+
+    res.json({ message });
   });
 
   return route;
