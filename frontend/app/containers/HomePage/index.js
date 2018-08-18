@@ -154,7 +154,7 @@ const numberWithCommas = (x) => {
   return parts.join(".");
 }
 
-const UserDashboard = styled.div`;
+const UserDashboard = styled.div`
   &.user-dashboard {
     padding: 5px 10px;
     margin-bottom: 15px;
