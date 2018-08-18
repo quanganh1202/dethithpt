@@ -1,6 +1,7 @@
 import YearSchool from '../model/yearSchool';
 import logger from '../libs/logger';
 import { dataValidator } from '../libs/ajv';
+import { exception } from '../constant/error';
 
 const ySchoolModel = new YearSchool;
 const schemaId = 'http://dethithpt.com/yearSchool-schema#';
@@ -18,10 +19,7 @@ async function getListYearSchools(args) {
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when get yearSchools');
 
-    return {
-      error: ex.message || 'Unexpected error',
-      status: 500,
-    };
+    return exception;
   }
 
 }
@@ -53,10 +51,7 @@ async function createYearSchool(body) {
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when create YearSchool');
 
-    return {
-      status: ex.status || 500,
-      error: 'Unexpected error',
-    };
+    return exception;
   }
 }
 
@@ -71,10 +66,7 @@ async function getYearSchoolById(id, cols) {
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when get YearSchool');
 
-    return {
-      status: 500,
-      error: 'Unexpected error',
-    };
+    return exception;
   }
 
 }
@@ -108,10 +100,7 @@ async function updateYearSchool(id, body) {
   } catch (ex) {
     logger(ex.message || 'Unexpected error when update YearSchool');
 
-    return {
-      status: ex.status || 500,
-      error: 'Unexpected error',
-    };
+    return exception;
   }
 }
 
@@ -135,10 +124,7 @@ async function deleteYearSchoolById(id) {
   } catch (ex) {
     logger.error(ex.message || 'Unexpect error when delete YearSchool');
 
-    return {
-      status: 500,
-      error: 'Unexpected error',
-    };
+    return exception;
   }
 }
 
