@@ -35,7 +35,7 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     surplus VARCHAR(45) DEFAULT '0',
     totalIncome VARCHAR(45) DEFAULT '0',
     recharge VARCHAR(45) DEFAULT '0',
-    active TINYINT DEFAULT '2',
+    status TINYINT DEFAULT '2',
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE INDEX id_UNIQUE (id ASC),
