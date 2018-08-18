@@ -1,5 +1,4 @@
 import express from 'express';
-import { tokenGenerator } from '../middleware/jwt';
 import { auth, addUser, getAllUsers, deleteUser, updateUser, blockUser } from '../../src/controller/user';
 
 const routerDefine =  function defineRouter() {
