@@ -18,16 +18,22 @@ async function getListDocuments(args) {
     filter.push(tags ? { tags: `#${tags}` }: undefined);
     filter.push(description ? { description }: undefined);
     const options = { number, offset, sortBy, searchType, cols };
-    const docs = await docModel.getList(filter, options);
+    const result = await Promise.all([
+      docModel.getList(filter, options),
+      docModel.getCount(),
+    ]);
 
-    return docs || [];
+    return {
+      docs: result[0],
+      total: result[1][0]['COUNT(*)'],
+      status: 200,
+    };
   } catch (ex) {
     return {
       error: ex.message || 'Unexpected error when get documents',
       status: 500,
     };
   }
-
 }
 
 async function uploadDocument(body, file) {
