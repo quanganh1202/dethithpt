@@ -9,16 +9,19 @@ import Wrapper from './Wrapper';
 library.add(faEye, faDownload, faFolderOpen, faFileAlt, faDollarSign, fasEye, faClock);
 
 const numberWithCommas = (x) => {
-  var parts = x.toString().split(".");
-  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  return parts.join(".");
+  if (x && x.toString) {
+    var parts = x.toString().split(".");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return parts.join(".");
+  }
+  return '';
 }
 
 function ListItem(props) {
   return (
     <Wrapper>
       <div className="doc-title">
-        <span>{props.item.title}</span>
+        <span>{props.item.name}</span>
         <FontAwesomeIcon className={'title-icon'} icon={['far', 'eye']} />
         <FontAwesomeIcon className={'title-icon'} icon={['fas', 'download']} />
       </div>

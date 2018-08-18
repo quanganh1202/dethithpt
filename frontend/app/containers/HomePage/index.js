@@ -32,8 +32,12 @@ import List from 'components/List';
 import ListItem from 'components/ListItem';
 import PopUp from 'components/PopUp';
 import SocialButton from 'components/SocialButton';
-import { login, updateUserInfo } from './actions';
-import { makeSelectUser, makeSelectLoading } from './selectors';
+import { login, updateUserInfo, getDocumentsList } from './actions';
+import {
+  makeSelectUser,
+  makeSelectLoading,
+  makeSelectDocuments,
+} from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 import CreateUserForm from '../Login/Form';
@@ -203,8 +207,12 @@ export class HomePage extends React.PureComponent {
     this.onSubmit = this.onSubmit.bind(this);
   }
 
+  componentWillMount() {
+    this.props.getDocumentsList({ sortBy: 'createdAt.desc' });
+  }
+
   componentWillReceiveProps(nextProps) {
-    if (this.props.user || nextProps.user) {
+    if (!_.isEqual(this.props.user, nextProps.user)) {
       this.setState({ user: nextProps.user });
     }
   }
@@ -223,7 +231,10 @@ export class HomePage extends React.PureComponent {
 
   onSubmit(e) {
     e.preventDefault();
-    this.props.onSubmitUserInfo(this.state.user);
+    const update = _.cloneDeep(this.state.user);
+    delete update.exp;
+    delete update.iat;
+    this.props.onSubmitUserInfo(update);
   }
 
   render() {
@@ -325,7 +336,7 @@ export class HomePage extends React.PureComponent {
                         title="Tài liệu mới đăng"
                         content={
                           <List
-                            items={items}
+                            items={this.props.documents}
                             component={ListItem}
                           />
                         }
@@ -369,12 +380,14 @@ export function mapDispatchToProps(dispatch) {
   return {
     onLogin: (payload) => dispatch(login(payload)),
     onSubmitUserInfo: (payload) => dispatch(updateUserInfo(payload)),
+    getDocumentsList: (query) => dispatch(getDocumentsList(query)),
   };
 }
 
 const mapStateToProps = createStructuredSelector({
   user: makeSelectUser(),
   loading: makeSelectLoading(),
+  documents: makeSelectDocuments(),
 });
 
 const withConnect = connect(

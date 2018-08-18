@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 import Wrapper from './Wrapper';
 
 function Layout(props) {
-  let content = props.content.map(({ key = Math.random(), children }) => 
-    <div key={key} className="column">{children}</div>
+  let content = props.content.map(({ key = Math.random(), children }, idx) => 
+    <div key={idx} className="column">{children}</div>
   );
   return (
     <Wrapper>

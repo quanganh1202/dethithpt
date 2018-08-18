@@ -4,14 +4,16 @@ import {
   LOGIN_FAILURE,
   UPDATE_USER_INFO_REQUEST,
   UPDATE_USER_INFO_SUCCESS,
+  GET_DOC_LIST_REQUEST,
+  GET_DOC_LIST_SUCCESS,
 } from './constants';
 
 /**
  * Changes the input field of the form
  *
- * @param  {name} name The new text of the input field
+ * @param  {name} payload to request login user
  *
- * @return {object}    An action object with a type of CHANGE_USERNAME
+ * @return {object}    An action object with a type of LOGIN_REQUEST
  */
 export function login(payload) {
   return {
@@ -23,9 +25,9 @@ export function login(payload) {
 /**
  * Changes the input field of the form
  *
- * @param  {name} name The new text of the input field
+ * @param  {name} payload get from backend after login
  *
- * @return {object}    An action object with a type of CHANGE_USERNAME
+ * @return {object}    An action object with a type of LOGIN_SUCCESS
  */
 export function loginSuccess(payload) {
   return {
@@ -37,9 +39,9 @@ export function loginSuccess(payload) {
 /**
  * Changes the input field of the form
  *
- * @param  {name} name The new text of the input field
+ * @param  {name} err from login
  *
- * @return {object}    An action object with a type of CHANGE_USERNAME
+ * @return {object}    An action object with a type of LOGIN_FAILURE
  */
 export function loginFailure(err) {
   return {
@@ -51,9 +53,9 @@ export function loginFailure(err) {
 /**
  * Changes the input field of the form
  *
- * @param  {name} name The new text of the input field
+ * @param  {name} payload to complete user information
  *
- * @return {object}    An action object with a type of CHANGE_USERNAME
+ * @return {object}    An action object with a type of UPDATE_USER_INFO_REQUEST
  */
 export function updateUserInfo(payload) {
   return {
@@ -65,13 +67,41 @@ export function updateUserInfo(payload) {
 /**
  * Changes the input field of the form
  *
- * @param  {name} name The new text of the input field
+ * @param  {payload} payload get from backend after update successfully
  *
- * @return {object}    An action object with a type of CHANGE_USERNAME
+ * @return {object}    An action object with a type of UPDATE_USER_INFO_SUCCESS
  */
 export function updateUserInfoSuccess(payload) {
   return {
     type: UPDATE_USER_INFO_SUCCESS,
     payload,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} name The new text of the input field
+ *
+ * @return {object}    An action object with a type of CHANGE_USERNAME
+ */
+export function getDocumentsList(query) {
+  return {
+    type: GET_DOC_LIST_REQUEST,
+    query,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} name The new text of the input field
+ *
+ * @return {object}    An action object with a type of CHANGE_USERNAME
+ */
+export function getDocumentsListSuccess(documents) {
+  return {
+    type: GET_DOC_LIST_SUCCESS,
+    documents,
   };
 }

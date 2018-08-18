@@ -10,14 +10,15 @@
  *   return state.set('yourStateVariable', true);
  */
 import { fromJS } from 'immutable';
-import jwtDecode from 'jwt-decode';
 import {
   LOGIN_SUCCESS,
   LOGIN_REQUEST,
   UPDATE_USER_INFO_REQUEST,
   UPDATE_USER_INFO_SUCCESS,
+  GET_DOC_LIST_REQUEST,
+  GET_DOC_LIST_SUCCESS,
 } from './constants';
-import { setToken, getUser, mappingUser } from 'services/auth';
+import { setToken, mappingUser } from 'services/auth';
 
 const requiredFields = ['name', 'phone', 'bod', 'role', 'city', 'district', 'level', 'school'];
 
@@ -29,6 +30,7 @@ const validate = (input, req) => {
 export const initialState = fromJS({
   user: null,
   loading: false,
+  documents: [],
 });
 
 function homeReducer(state = initialState, action) {
@@ -48,6 +50,13 @@ function homeReducer(state = initialState, action) {
     case UPDATE_USER_INFO_SUCCESS:
       setToken(action.payload.token);
       return state.set('loading', false);
+    case GET_DOC_LIST_REQUEST:
+      return state
+        .set('loading', true);
+    case GET_DOC_LIST_SUCCESS:
+      return state
+        .set('loading', false)
+        .set('documents', fromJS(action.documents));
     default:
       return state;
   }
