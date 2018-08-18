@@ -4,6 +4,7 @@ import Document from '../model/document';
 import { dataValidator } from '../libs/ajv';
 import logger from '../libs/logger';
 import * as fileHelpers from '../libs/helper';
+import { exception } from '../constant/error';
 
 const docModel = new Document();
 const schemaId = 'http://dethithpt.com/document-schema#';
@@ -86,10 +87,7 @@ async function getDocument(id, cols) {
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when get document');
 
-    return {
-      status: 500,
-      error: 'Unexpected error when get document',
-    };
+    return exception;
   }
 
 }
@@ -106,10 +104,7 @@ async function viewContent(fileName) {
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error');
 
-    return {
-      status: 500,
-      error: 'Unexpected error',
-    };
+    return exception;
   }
 
 }
@@ -149,10 +144,7 @@ async function updateDocumentInfo(id, body, file) {
   } catch (ex) {
     logger(ex.message || 'Unexpected error');
 
-    return {
-      status: ex.status || 500,
-      error: 'Unexpected error',
-    };
+    return exception;
   }
 }
 
@@ -179,10 +171,7 @@ async function deleteDocument(id) {
   } catch (ex) {
     logger.error(ex.message || 'Unexpect error when delete file');
 
-    return {
-      status: 500,
-      error: 'Unexpected error',
-    };
+    return exception;
   }
 }
 

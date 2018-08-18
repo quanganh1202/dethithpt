@@ -1,6 +1,7 @@
 import Class from '../model/class';
 import logger from '../libs/logger';
 import { dataValidator } from '../libs/ajv';
+import { exception } from '../constant/error';
 
 const classModel = new Class;
 const schemaId = 'http://dethithpt.com/class-schema#';
@@ -18,10 +19,7 @@ async function getListClasses(args) {
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when get classes');
 
-    return {
-      error: ex.message || 'Unexpected error',
-      status: 500,
-    };
+    return exception;
   }
 
 }
@@ -53,10 +51,7 @@ async function createClass(body) {
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when create class');
 
-    return {
-      status: ex.status || 500,
-      error: 'Unexpected error',
-    };
+    return exception;
   }
 }
 
@@ -71,10 +66,7 @@ async function getClassById(id, cols) {
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when get class');
 
-    return {
-      status: 500,
-      error: 'Unexpected error',
-    };
+    return exception;
   }
 
 }
@@ -108,10 +100,7 @@ async function updateClass(id, body) {
   } catch (ex) {
     logger(ex.message || 'Unexpected error when update class');
 
-    return {
-      status: ex.status || 500,
-      error: 'Unexpected error',
-    };
+    return exception;
   }
 }
 
@@ -135,10 +124,7 @@ async function deleteClassById(id) {
   } catch (ex) {
     logger.error(ex.message || 'Unexpect error when delete class');
 
-    return {
-      status: 500,
-      error: 'Unexpected error',
-    };
+    return exception;
   }
 }
 
