@@ -17,30 +17,24 @@ echo "-------------------Updating database-------------------"
 mysql -u$ACCOUNT -p$PASSWORD -e "
   USE $DATABASE;
 
-  DROP TABLE $DATABASE.tbUser;
+  DROP TABLE $DATABASE.tbDocument;
 
-  CREATE TABLE IF NOT EXISTS $DATABASE.tbUser (
+  CREATE TABLE IF NOT EXISTS $DATABASE.tbDocument (
     id INT NOT NULL AUTO_INCREMENT,
-    name VARCHAR(50) NOT NULL,
-    email VARCHAR(45) NULL,
-    phone VARCHAR(20) NULL,
-    role VARCHAR(20) NULL,
-    bod YEAR(4) NULL,
-    city VARCHAR(50) NULL,
-    district VARCHAR(50) NULL,
-    level VARCHAR(45) NULL,
-    school VARCHAR(45) NULL,
-    facebook VARCHAR(45) NULL,
-    position VARCHAR(45) NULL,
-    surplus VARCHAR(45) DEFAULT '0',
-    totalIncome VARCHAR(45) DEFAULT '0',
-    recharge VARCHAR(45) DEFAULT '0',
-    status TINYINT DEFAULT '2',
+    name VARCHAR(255) NOT NULL,
+    tags VARCHAR(255) NOT NULL,
+    description LONGTEXT NULL,
+    userId INT(11) NOT NULL,
+    price VARCHAR(50) NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    cateId INT(11) NULL,
+    path MEDIUMTEXT NULL,
+    subjectId INT(11) NULL,
+    classId INT(11) NULL,
+    yearSchoolId INT(11) NULL,
+    collectionId INT(11) NULL,
     PRIMARY KEY (id),
-    UNIQUE INDEX id_UNIQUE (id ASC),
-    UNIQUE INDEX email_UNIQUE (email ASC),
-    UNIQUE INDEX phone_UNIQUE (phone ASC));
+    UNIQUE INDEX id_UNIQUE (id ASC));
 "
 if [ $? == 0 ]
 then
