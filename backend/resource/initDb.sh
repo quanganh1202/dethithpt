@@ -46,20 +46,19 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     UNIQUE INDEX email_UNIQUE (email ASC),
     UNIQUE INDEX phone_UNIQUE (phone ASC));
 
-
   CREATE TABLE IF NOT EXISTS $DATABASE.tbDocument (
     id INT NOT NULL AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
-    tags VARCHAR(255) NULL,
+    tags VARCHAR(255) NOT NULL,
     description LONGTEXT NULL,
     userId INT(11) NOT NULL,
-    price VARCHAR(50) NOT NULL,
+    price VARCHAR(50) NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    cateId INT(11) NOT NULL,
-    path MEDIUMTEXT NOT NULL,
-    subjectId INT(11) NOT NULL,
-    classId INT(11) NOT NULL,
-    yearSchoolId INT(11) NOT NULL,
+    cateId INT(11) NULL,
+    path MEDIUMTEXT NULL,
+    subjectId INT(11) NULL,
+    classId INT(11) NULL,
+    yearSchoolId INT(11) NULL,
     collectionId INT(11) NULL,
     PRIMARY KEY (id),
     UNIQUE INDEX id_UNIQUE (id ASC));
