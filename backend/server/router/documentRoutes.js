@@ -17,9 +17,10 @@ const routerDefine =  function defineRouter() {
 
   // Get all documents
   route.get('/documents', async (req, res) => {
-    const result = await getListDocuments(req.query);
-    res.status(200).json({
-      data: result,
+    const { docs, status, total } = await getListDocuments(req.query);
+    res.status(status || 200).json({
+      data: docs,
+      total,
     });
   });
   // Get one

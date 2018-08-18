@@ -103,6 +103,19 @@ class Database {
       return result;
     });
   }
+
+  async getCount() {
+    const conn = await this.openConnect();
+
+    return conn.query(
+      'SELECT COUNT(*) FROM ??',
+      [this.table],
+    ).then(result => {
+      conn.end();
+
+      return result;
+    });
+  }
 }
 
 export default Database;

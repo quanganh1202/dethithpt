@@ -4,31 +4,33 @@ import { tokenGenerator }  from '../../server/middleware/jwt';
 import logger from '../libs/logger';
 import { dataValidator } from '../libs/ajv';
 import { exception } from '../constant/error';
+import social from '../constant/socialApiUrl';
 
 const userModel = new User();
 const schemaId = 'http://dethithpt.com/user-schema#';
-const fbApi = process.env.FB_API || 'https://graph.facebook.com/v3.1';
 
 async function auth(info) {
   try {
-    const { fbToken } = info;
-    if (!fbToken) {
+    const { fbToken, ggToken } = info;
+    if (!fbToken && !ggToken) {
       return {
         status: 400,
         error: 'You need provide a facebook or gmail access token',
       };
     }
-    const url = `${fbApi}/me?fields=id,name,email,birthday,gender&access_token=${fbToken}`;
-    const fbUserInfo = await request.get(url).catch(err => {
+    const url = fbToken ?
+      `${social.facebook}?fields=name,email&access_token=${fbToken}`:
+      `${social.google}?id_token=${ggToken}`;
+    const socialUserInfo = await request.get(url).catch(err => {
       return {
-        error: err.error || 'FB token invalid',
+        error: err.error || 'Token invalid',
         status: err.StatusCodeError,
       };
     });
-    if (fbUserInfo.error) {
-      return fbUserInfo;
+    if (socialUserInfo.error) {
+      return socialUserInfo;
     }
-    const { name, email, phone } = JSON.parse(fbUserInfo);
+    const { name, email, phone } = JSON.parse(socialUserInfo);
     const criteria = [{ email }, { phone }];
     const user = await userModel.getList(criteria);
     let sign;
@@ -36,11 +38,18 @@ async function auth(info) {
       const user = {
         name,
         email,
+        status: 2, // Inactive
       };
-      await userModel.addNewUser(user);
+      const { insertId } = await userModel.addNewUser(user);
       sign = user;
+      sign.id = insertId;
     } else {
-      sign = user[0];
+      sign = {
+        id: user[0].id,
+        name: user[0].name,
+        email: user[0].email,
+        status: user[0].status,
+      };
     }
     const { token, expiresIn } = tokenGenerator(sign);
 
@@ -65,11 +74,11 @@ async function addUser(userInfo) {
         error: resValidate.errors,
       };
     }
-    const { email, phone } = userInfo;
+    const { name, email, phone } = userInfo;
     const criteria = [ { email }, { phone }];
     const user = await userModel.getList(criteria);
     userInfo.status = 1;
-
+    let id;
     if (user && user.length) {
       if (user[0].status !== 2) {
         return {
@@ -77,14 +86,26 @@ async function addUser(userInfo) {
           status: 400,
         };
       } else {
-        await userModel.updateUser(user[0].id, userInfo);
+        id = user[0].id;
+        await userModel.updateUser(id, userInfo);
       }
     } else {
-      await userModel.addNewUser(userInfo);
+      const { insertId } = await userModel.addNewUser(userInfo);
+      id = insertId;
     }
+    const sign = {
+      id,
+      name,
+      email,
+      status: 1,
+    };
+    const { token, expiresIn } = tokenGenerator(sign);
 
     return {
       status: 201,
+      message: 'Created',
+      token,
+      expiresIn,
     };
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when insert an user');
