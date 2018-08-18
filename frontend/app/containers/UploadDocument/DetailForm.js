@@ -13,6 +13,8 @@ const KeyCodes = {
 const delimiters = [KeyCodes.comma, KeyCodes.enter];
 
 const Wrapper = styled.section`
+  margin-top: 10px;
+
   label {
     /* Other styling.. */
     text-align: right;
@@ -26,10 +28,12 @@ const Wrapper = styled.section`
     margin-bottom: 15px;
 
     .form-control {
+      width: 70%;
+    }
+    input.form-control, textarea.form-control {
       border: 1px solid #ccc;
       border-radius: 4px;
       padding: 5px 10px;
-      width: 70%;
     }
   }
 
@@ -67,6 +71,7 @@ const Wrapper = styled.section`
     border: 1px solid transparent;
     border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
     cursor: pointer;
+    border-radius: 4px;
   }
   /*style items (options):*/
   .select-items {
@@ -112,6 +117,7 @@ class DetailForm extends React.Component {
     this.handleAddition = this.handleAddition.bind(this);
     this.handleDrag = this.handleDrag.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
   }
 
   componentDidMount() {
@@ -218,7 +224,6 @@ class DetailForm extends React.Component {
     if (event.preventDefault) event.preventDefault();
     const { formData } = this.state;
     const { name, value } = event.target;
-    console.log(name, value);
     let newValue = value;
     switch (name) {
       case 'price': {
@@ -234,6 +239,11 @@ class DetailForm extends React.Component {
     this.setState({ formData: temp });
   }
 
+  onSubmit() {
+    const { formData } = this.state;
+    if (formData.get('name'))  this.props.onSubmit(this.state.formData.toJS());
+  }
+
   render() {
     const { tags, suggestions, formData } = this.state;
 
@@ -246,11 +256,12 @@ class DetailForm extends React.Component {
             name="name"  
             value={formData.get('name', '')}
             onChange={this.handleChange}
+            required
           />
         </div>) : null}
         <div className="form-group">
-          <label htmlFor="school"></label>
-          <div className="custom-select" style={{ width: '200px' }}>
+          <label htmlFor="school">&nbsp;</label>
+          <div className="custom-select form-control" style={{ display: 'grid' }}>
             <select name="school" onSelect={this.handleChange}>
               <option value="0">Select car:</option>
               <option value="1">Audi</option>
@@ -277,7 +288,9 @@ class DetailForm extends React.Component {
             handleAddition={this.handleAddition}
             handleDrag={this.handleDrag}
             delimiters={delimiters}
-            inline />
+            inline
+            className="form-control"
+          />
         </div>
         <div className="form-group">
           <label htmlFor="name">Mô tả</label>
@@ -289,7 +302,7 @@ class DetailForm extends React.Component {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="name">Giá bán<i className="required">(*)</i></label>
+          <label htmlFor="name">Giá bán</label>
           <input
             className="form-control"
             name="price"
@@ -297,7 +310,10 @@ class DetailForm extends React.Component {
             onChange={this.handleChange}
           />
         </div>
-        <Button>Lưu</Button>
+        <div className="form-group">
+          <label htmlFor="button-save">&nbsp;</label>
+          <Button name="button-save" onClick={this.onSubmit}>Lưu</Button>
+        </div>
       </Wrapper>
     );
   }
