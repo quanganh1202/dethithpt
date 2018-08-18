@@ -1,3 +1,7 @@
+# Init folder log
+mkdir -p logs
+# Init folder store
+mkdir -p storage
 
 echo "Please enter account, password"
 echo "------------------------------------------------------"
