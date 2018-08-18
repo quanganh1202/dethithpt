@@ -37,7 +37,9 @@ class App extends React.Component {
         appId: '273274706807786', // FB app ID, TODO: need to be replaced using const
         autoLogAppEvents: true,
         xfbml: true,
-        version: 'v2.11'
+        version: 'v2.11',
+        cookie: true,
+        status: true,
       });
 
       // Broadcast an event when FB object is ready
