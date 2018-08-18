@@ -12,7 +12,7 @@ class FacebookLogin extends Component {
   // Init FB object and check Facebook Login status
   initializeFacebookLogin = () => {
     this.FB = window.FB;
-    this.checkLoginStatus();
+    // this.checkLoginStatus();
   }
 
   // Check login status
@@ -22,12 +22,12 @@ class FacebookLogin extends Component {
 
   // Check login status and call login api if user is not logged in
   facebookLogin = () => {
-    console.log('there');
     if (!this.FB) return;
-    console.log('here');
     this.FB.getLoginStatus((response) => {
       if (response.status === 'connected') {
+        console.log('connected');
         this.facebookLoginHandler(response);
+        // this.FB.login(this.facebookLoginHandler, { scope: 'public_profile,email' });
       } else {
         this.FB.login(this.facebookLoginHandler, { scope: 'public_profile,email' });
       }
@@ -37,9 +37,11 @@ class FacebookLogin extends Component {
   // Handle login response
   facebookLoginHandler = response => {
     if (response.status === 'connected') {
-      this.FB.api('/me', { locale: 'en_US', fields: 'email' }, (userData) => {
-        this.props.onLogin({ email: userData.email });
-      });
+      this.props.onLogin({ fbToken: response.authResponse.accessToken });
+      // this.FB.api('/me', { locale: 'en_US', fields: 'email' }, (userData) => {
+      //   console.log('userData', response);
+      //   this.props.onLogin({ email: userData.email });
+      // });
     } else {
       console.log('disconnected from the server');
     }
