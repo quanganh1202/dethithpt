@@ -210,13 +210,13 @@ class DetailForm extends React.Component {
 
     return (
       <Wrapper>
-        <div class="form-group">
-          <label for="name">Tên tài liệu <i className="required">(*)</i></label>
+        <div className="form-group">
+          <label htmlFor="name">Tên tài liệu <i className="required">(*)</i></label>
           <input className="form-control" name="name" />
         </div>
-        <div class="form-group">
-          <label for="school"></label>
-          <div class="custom-select" style={{ width: '200px' }}>
+        <div className="form-group">
+          <label htmlFor="school"></label>
+          <div className="custom-select" style={{ width: '200px' }}>
             <select name="school">
               <option value="0">Select car:</option>
               <option value="1">Audi</option>
@@ -235,8 +235,8 @@ class DetailForm extends React.Component {
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="name">Từ khóa <i className="required">(*)</i></label>
+        <div className="form-group">
+          <label htmlFor="name">Từ khóa <i className="required">(*)</i></label>
           <ReactTags tags={tags}
             suggestions={suggestions}
             handleDelete={this.handleDelete}
@@ -245,12 +245,12 @@ class DetailForm extends React.Component {
             delimiters={delimiters}
             inline />
         </div>
-        <div class="form-group">
-          <label for="name">Mô tả</label>
+        <div className="form-group">
+          <label htmlFor="name">Mô tả</label>
           <textarea className="form-control" name="description" />
         </div>
-        <div class="form-group">
-          <label for="name">Giá bán<i className="required">(*)</i></label>
+        <div className="form-group">
+          <label htmlFor="name">Giá bán<i className="required">(*)</i></label>
           <input className="form-control" name="name" type="number" />
         </div>
         <Button>Lưu</Button>

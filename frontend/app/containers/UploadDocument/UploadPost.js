@@ -19,6 +19,8 @@ const ButtonUpload = styled.div`
   margin: 0 auto;
 `;
 
+const token = '';
+
 class UploadPost extends React.Component {
   constructor() {
     super()
@@ -27,8 +29,9 @@ class UploadPost extends React.Component {
 
   onDrop(files) {
     files.forEach(element => {
-      Request.post('http://localhost:3000/profile')
+      Request.post('http://125.212.250.92:3000/documents')
         .set("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
+        .set('Authorization', 'Bearer ' + token)
         .send(element)
         .on('progress', function(e) {
           console.log('Progress', e.percent);
@@ -55,7 +58,7 @@ class UploadPost extends React.Component {
           </Dropzone>
         </div>
         {this.state.files.length > 0 ? (<aside>
-          <div class="form-group">
+          <div className="form-group">
             <ToggleButton
               value={ this.state.add2All || false }
               onToggle={(value) => {
@@ -69,7 +72,7 @@ class UploadPost extends React.Component {
           <ul className="list-item-upload">
             {
               this.state.files.map((f, ind) => <li key={ind}>
-                <div><text>{f.name} - {f.size} bytes</text><span>Hủy tải lên X</span></div>
+                <div><span>{f.name} - {f.size} bytes</span><span>Hủy tải lên X</span></div>
                 <progress value="22" max="100"></progress>
                 {!this.state.add2All ? <DetailForm /> : null}
               </li>)
