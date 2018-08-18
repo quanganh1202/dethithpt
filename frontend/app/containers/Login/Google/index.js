@@ -20,6 +20,7 @@ class GoogleLogin extends Component {
   googleLogin(data) {
     if (!this.auth2.isSignedIn.get()) {
 			this.auth2.signIn().then((response) => {
+        console.log(response);
 				this.props.onLogin({ email: response.getBasicProfile().getEmail() });
 			});
 		}

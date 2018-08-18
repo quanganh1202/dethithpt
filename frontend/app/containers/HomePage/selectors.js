@@ -13,4 +13,12 @@ const makeSelectUser = () =>
 const makeSelectLoading = () =>
   createSelector(selectHome, homeState => homeState.get('loading'));
 
-export { selectHome, makeSelectUser, makeSelectLoading };
+const makeSelectDocuments = () =>
+  createSelector(selectHome, homeState => homeState.get('documents').toJS());
+
+export {
+  selectHome,
+  makeSelectUser,
+  makeSelectLoading,
+  makeSelectDocuments,
+};
