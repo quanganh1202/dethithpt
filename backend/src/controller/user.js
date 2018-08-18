@@ -20,7 +20,7 @@ async function auth(info) {
     }
     const url = fbToken ?
       `${social.facebook}?fields=name,email&access_token=${fbToken}`:
-      `${social.google}?access_token=${ggToken}`;
+      `${social.google}?id_token=${ggToken}`;
     const socialUserInfo = await request.get(url).catch(err => {
       return {
         error: err.error || 'Token invalid',
@@ -78,6 +78,7 @@ async function addUser(userInfo) {
     const criteria = [ { email }, { phone }];
     const user = await userModel.getList(criteria);
     userInfo.status = 1;
+    let id;
     if (user && user.length) {
       if (user[0].status !== 2) {
         return {
@@ -85,12 +86,15 @@ async function addUser(userInfo) {
           status: 400,
         };
       } else {
-        await userModel.updateUser(user[0].id, userInfo);
+        id = user[0].id;
+        await userModel.updateUser(id, userInfo);
       }
     } else {
-      await userModel.addNewUser(userInfo);
+      const { insertId } = await userModel.addNewUser(userInfo);
+      id = insertId;
     }
     const sign = {
+      id,
       name,
       email,
       status: 1,

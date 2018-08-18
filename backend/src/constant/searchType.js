@@ -1,6 +1,4 @@
-const searchType = {
+export default {
   FULLTEXT: 'FULLTEXT',
   EXACTLY: 'EXACTLY',
 };
-
-export default searchType;
