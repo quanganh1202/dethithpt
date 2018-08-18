@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { WithContext as ReactTags } from 'react-tag-input';
+import { fromJS } from 'immutable';
 
 import Button from './Button';
 
@@ -86,9 +87,13 @@ const Wrapper = styled.section`
 `;
 
 class DetailForm extends React.Component {
-  constructor() {
-    super()
+  constructor(props) {
+    super(props);
+    
     this.state = {
+      formData: fromJS({
+        name: this.props.name
+      }),
       files: [],
       tags: [
         { id: "Thailand", text: "Thailand" },
@@ -106,9 +111,11 @@ class DetailForm extends React.Component {
     this.handleDelete = this.handleDelete.bind(this);
     this.handleAddition = this.handleAddition.bind(this);
     this.handleDrag = this.handleDrag.bind(this);
+    this.handleChange = this.handleChange.bind(this);
   }
 
   componentDidMount() {
+    const self = this;
     var x, i, j, selElmnt, a, b, c;
     /*look for any elements with the class "custom-select":*/
     x = document.getElementsByClassName("custom-select");
@@ -145,6 +152,8 @@ class DetailForm extends React.Component {
                 break;
               }
             }
+            const { name, value } = selElmnt;
+            self.handleChange({ target: { name, value } });
             h.click();
         });
         b.appendChild(c);
@@ -205,19 +214,44 @@ class DetailForm extends React.Component {
     this.setState({ tags: newTags });
   }
 
+  handleChange(event) {
+    if (event.preventDefault) event.preventDefault();
+    const { formData } = this.state;
+    const { name, value } = event.target;
+    console.log(name, value);
+    let newValue = value;
+    switch (name) {
+      case 'price': {
+        const re = /^[0-9\b]+$/;
+        if (!re.test(value)) {
+          newValue = formData.get(name, '');
+        }
+        break;
+      }
+    }
+    
+    const temp = formData.set(name, newValue)
+    this.setState({ formData: temp });
+  }
+
   render() {
-    const { tags, suggestions } = this.state;
+    const { tags, suggestions, formData } = this.state;
 
     return (
       <Wrapper>
-        <div className="form-group">
+        {formData.get('name') ? (<div className="form-group">
           <label htmlFor="name">Tên tài liệu <i className="required">(*)</i></label>
-          <input className="form-control" name="name" />
-        </div>
+          <input
+            className="form-control"
+            name="name"  
+            value={formData.get('name', '')}
+            onChange={this.handleChange}
+          />
+        </div>) : null}
         <div className="form-group">
           <label htmlFor="school"></label>
           <div className="custom-select" style={{ width: '200px' }}>
-            <select name="school">
+            <select name="school" onSelect={this.handleChange}>
               <option value="0">Select car:</option>
               <option value="1">Audi</option>
               <option value="2">BMW</option>
@@ -247,11 +281,21 @@ class DetailForm extends React.Component {
         </div>
         <div className="form-group">
           <label htmlFor="name">Mô tả</label>
-          <textarea className="form-control" name="description" />
+          <textarea
+            className="form-control"
+            name="description"
+            value={formData.get('description', '')}
+            onChange={this.handleChange}
+          />
         </div>
         <div className="form-group">
           <label htmlFor="name">Giá bán<i className="required">(*)</i></label>
-          <input className="form-control" name="name" type="number" />
+          <input
+            className="form-control"
+            name="price"
+            value={formData.get('price', '')}
+            onChange={this.handleChange}
+          />
         </div>
         <Button>Lưu</Button>
       </Wrapper>

@@ -61,6 +61,10 @@ export class UploadDocument extends React.PureComponent {
     };
   }
 
+  onSubmit(data) {
+    console.log(data);
+  }
+
   nextStep(cityName) {
     var i;
     var x = document.getElementsByClassName("tab-content");
