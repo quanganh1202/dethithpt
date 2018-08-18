@@ -13,6 +13,12 @@ class User {
     return users || [];
   }
 
+  async getById(id, cols) {
+    const result = await this.DB.get(id, cols);
+
+    return result;
+  }
+
   async addNewUser(user) {
     const result = await this.DB.insert(user);
 
@@ -21,6 +27,12 @@ class User {
 
   async updateUser(id, user) {
     const result = await this.DB.update(id, user);
+
+    return result;
+  }
+
+  async deleteUser(id) {
+    const result = await this.DB.deleteById(id);
 
     return result;
   }

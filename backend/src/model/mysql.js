@@ -20,12 +20,12 @@ class Database {
     await this.connection.end();
   }
 
-  async get(id, cols = []) {
+  async get(id, cols) {
     const conn = await this.openConnect();
 
     return conn.query(
-      'SELECT ?? FROM ?? WHERE id = ?',
-      [cols.length ? cols : ['\'*\''], this.table, id],
+      `SELECT ${cols ? cols : '*'} FROM ?? WHERE id = ?`,
+      [this.table, id],
     ).then(result => {
       conn.end();
 
