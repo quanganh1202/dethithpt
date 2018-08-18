@@ -1,6 +1,7 @@
 import Subject from '../model/subject';
 import logger from '../libs/logger';
 import { dataValidator } from '../libs/ajv';
+import { exception } from '../constant/error';
 
 const subModel = new Subject;
 const schemaId = 'http://dethithpt.com/subject-schema#';
@@ -18,10 +19,7 @@ async function getListSubjects(args) {
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when get subjects');
 
-    return {
-      error: ex.message || 'Unexpected error',
-      status: 500,
-    };
+    return exception;
   }
 
 }
@@ -53,10 +51,7 @@ async function createSubject(body) {
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when create subject');
 
-    return {
-      status: ex.status || 500,
-      error: 'Unexpected error',
-    };
+    return exception;
   }
 }
 
@@ -71,10 +66,7 @@ async function getSubjectById(id, cols) {
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when get subject');
 
-    return {
-      status: 500,
-      error: 'Unexpected error',
-    };
+    return exception;
   }
 
 }
@@ -108,10 +100,7 @@ async function updateSubject(id, body) {
   } catch (ex) {
     logger(ex.message || 'Unexpected error when update subject');
 
-    return {
-      status: ex.status || 500,
-      error: 'Unexpected error',
-    };
+    return exception;
   }
 }
 
@@ -135,10 +124,7 @@ async function deleteSubjectById(id) {
   } catch (ex) {
     logger.error(ex.message || 'Unexpect error when delete subject');
 
-    return {
-      status: 500,
-      error: 'Unexpected error',
-    };
+    return exception;
   }
 }
 

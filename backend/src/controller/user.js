@@ -85,6 +85,7 @@ async function addUser(userInfo) {
 
     return {
       status: 201,
+      message: 'Created',
     };
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when insert an user');
