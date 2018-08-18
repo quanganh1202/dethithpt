@@ -49,7 +49,7 @@ const routerDefine =  function defineRouter() {
     });
   });
 
-  route.delete('/users:/id', async (req, res) => {
+  route.delete('/users/:id', async (req, res) => {
     const { error, message, status } = await deleteUser(req.params.id);
     res.status(status);
     if (error) {
