@@ -22,23 +22,18 @@ const routerDefine =  function defineRouter() {
 
   route.post('/register', async (req, res) => {
     const userInfo = req.body;
-    const { error, status } = await addUser(userInfo);
+    const { error, status, token, expiresIn } = await addUser(userInfo);
 
     if (error) {
-      res.status(status || 500).json({
+      return res.status(status || 500).json({
         error: error || 'Unexpected error',
       });
-    } else {
-      const sign = {
-        role: userInfo.email,
-      };
-      const { token, expiresIn } = tokenGenerator(sign);
-      res.status(status || 201).json({
-        message: 'Has registered',
-        token,
-        expiresIn,
-      });
     }
+    res.status(status || 201).json({
+      message: 'Has registered',
+      token,
+      expiresIn,
+    });
   });
 
   route.get('/users', async (req, res) => {

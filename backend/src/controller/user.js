@@ -36,11 +36,16 @@ async function auth(info) {
       const user = {
         name,
         email,
+        status: 2, // Inactive
       };
       await userModel.addNewUser(user);
       sign = user;
     } else {
-      sign = user[0];
+      sign = {
+        name: user[0].name,
+        email: user[0].email,
+        status: user[0].status,
+      };
     }
     const { token, expiresIn } = tokenGenerator(sign);
 
@@ -65,11 +70,10 @@ async function addUser(userInfo) {
         error: resValidate.errors,
       };
     }
-    const { email, phone } = userInfo;
+    const { name, email, phone } = userInfo;
     const criteria = [ { email }, { phone }];
     const user = await userModel.getList(criteria);
     userInfo.status = 1;
-
     if (user && user.length) {
       if (user[0].status !== 2) {
         return {
@@ -82,10 +86,18 @@ async function addUser(userInfo) {
     } else {
       await userModel.addNewUser(userInfo);
     }
+    const sign = {
+      name,
+      email,
+      status: 1,
+    };
+    const { token, expiresIn } = tokenGenerator(sign);
 
     return {
       status: 201,
       message: 'Created',
+      token,
+      expiresIn,
     };
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when insert an user');
