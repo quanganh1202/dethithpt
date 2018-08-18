@@ -12,7 +12,7 @@ const schemaId = 'http://dethithpt.com/user-schema#';
 async function auth(info) {
   try {
     const { fbToken, ggToken } = info;
-    if (!fbToken || !ggToken) {
+    if (!fbToken && !ggToken) {
       return {
         status: 400,
         error: 'You need provide a facebook or gmail access token',
@@ -40,10 +40,12 @@ async function auth(info) {
         email,
         status: 2, // Inactive
       };
-      await userModel.addNewUser(user);
+      const { insertId } = await userModel.addNewUser(user);
       sign = user;
+      sign.id = insertId;
     } else {
       sign = {
+        id: user[0].id,
         name: user[0].name,
         email: user[0].email,
         status: user[0].status,
