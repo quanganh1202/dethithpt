@@ -1,6 +1,7 @@
 import Category from '../model/category';
 import logger from '../libs/logger';
 import { dataValidator } from '../libs/ajv';
+import { exception } from '../constant/error';
 
 const cateModel = new Category;
 const schemaId = 'http://dethithpt.com/category-schema#';
@@ -16,10 +17,9 @@ async function getListCategories(args) {
 
     return docs || [];
   } catch (ex) {
-    return {
-      error: ex.message || 'Unexpected error when get documents',
-      status: 500,
-    };
+    logger.error(ex.message || 'Unexpected error when get list categories');
+
+    return exception;
   }
 
 }
@@ -51,10 +51,7 @@ async function createCategory(body) {
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when create category');
 
-    return {
-      status: ex.status || 500,
-      error: 'Unexpected error',
-    };
+    return exception;
   }
 }
 
@@ -69,10 +66,7 @@ async function getCategoryById(id, cols) {
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when get category');
 
-    return {
-      status: 500,
-      error: 'Unexpected error',
-    };
+    return exception;
   }
 
 }
@@ -106,10 +100,7 @@ async function updateCategory(id, body) {
   } catch (ex) {
     logger(ex.message || 'Unexpected error when update category');
 
-    return {
-      status: ex.status || 500,
-      error: 'Unexpected error',
-    };
+    return exception;
   }
 }
 
@@ -133,10 +124,7 @@ async function deleteCategoryById(id) {
   } catch (ex) {
     logger.error(ex.message || 'Unexpect error when delete file');
 
-    return {
-      status: 500,
-      error: 'Unexpected error',
-    };
+    return exception;
   }
 }
 

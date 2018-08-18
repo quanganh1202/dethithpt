@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { WithContext as ReactTags } from 'react-tag-input';
+import { fromJS } from 'immutable';
 
 import Button from './Button';
 
@@ -12,6 +13,8 @@ const KeyCodes = {
 const delimiters = [KeyCodes.comma, KeyCodes.enter];
 
 const Wrapper = styled.section`
+  margin-top: 10px;
+
   label {
     /* Other styling.. */
     text-align: right;
@@ -25,10 +28,12 @@ const Wrapper = styled.section`
     margin-bottom: 15px;
 
     .form-control {
+      width: 70%;
+    }
+    input.form-control, textarea.form-control {
       border: 1px solid #ccc;
       border-radius: 4px;
       padding: 5px 10px;
-      width: 70%;
     }
   }
 
@@ -66,6 +71,7 @@ const Wrapper = styled.section`
     border: 1px solid transparent;
     border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
     cursor: pointer;
+    border-radius: 4px;
   }
   /*style items (options):*/
   .select-items {
@@ -86,9 +92,13 @@ const Wrapper = styled.section`
 `;
 
 class DetailForm extends React.Component {
-  constructor() {
-    super()
+  constructor(props) {
+    super(props);
+    
     this.state = {
+      formData: fromJS({
+        name: this.props.name
+      }),
       files: [],
       tags: [
         { id: "Thailand", text: "Thailand" },
@@ -106,9 +116,12 @@ class DetailForm extends React.Component {
     this.handleDelete = this.handleDelete.bind(this);
     this.handleAddition = this.handleAddition.bind(this);
     this.handleDrag = this.handleDrag.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
   }
 
   componentDidMount() {
+    const self = this;
     var x, i, j, selElmnt, a, b, c;
     /*look for any elements with the class "custom-select":*/
     x = document.getElementsByClassName("custom-select");
@@ -145,6 +158,8 @@ class DetailForm extends React.Component {
                 break;
               }
             }
+            const { name, value } = selElmnt;
+            self.handleChange({ target: { name, value } });
             h.click();
         });
         b.appendChild(c);
@@ -205,19 +220,49 @@ class DetailForm extends React.Component {
     this.setState({ tags: newTags });
   }
 
+  handleChange(event) {
+    if (event.preventDefault) event.preventDefault();
+    const { formData } = this.state;
+    const { name, value } = event.target;
+    let newValue = value;
+    switch (name) {
+      case 'price': {
+        const re = /^[0-9\b]+$/;
+        if (!re.test(value)) {
+          newValue = formData.get(name, '');
+        }
+        break;
+      }
+    }
+    
+    const temp = formData.set(name, newValue)
+    this.setState({ formData: temp });
+  }
+
+  onSubmit() {
+    const { formData } = this.state;
+    if (formData.get('name'))  this.props.onSubmit(this.state.formData.toJS());
+  }
+
   render() {
-    const { tags, suggestions } = this.state;
+    const { tags, suggestions, formData } = this.state;
 
     return (
       <Wrapper>
-        <div class="form-group">
-          <label for="name">Tên tài liệu <i className="required">(*)</i></label>
-          <input className="form-control" name="name" />
-        </div>
-        <div class="form-group">
-          <label for="school"></label>
-          <div class="custom-select" style={{ width: '200px' }}>
-            <select name="school">
+        {formData.get('name') ? (<div className="form-group">
+          <label htmlFor="name">Tên tài liệu <i className="required">(*)</i></label>
+          <input
+            className="form-control"
+            name="name"  
+            value={formData.get('name', '')}
+            onChange={this.handleChange}
+            required
+          />
+        </div>) : null}
+        <div className="form-group">
+          <label htmlFor="school">&nbsp;</label>
+          <div className="custom-select form-control" style={{ display: 'grid' }}>
+            <select name="school" onSelect={this.handleChange}>
               <option value="0">Select car:</option>
               <option value="1">Audi</option>
               <option value="2">BMW</option>
@@ -235,25 +280,40 @@ class DetailForm extends React.Component {
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="name">Từ khóa <i className="required">(*)</i></label>
+        <div className="form-group">
+          <label htmlFor="name">Từ khóa <i className="required">(*)</i></label>
           <ReactTags tags={tags}
             suggestions={suggestions}
             handleDelete={this.handleDelete}
             handleAddition={this.handleAddition}
             handleDrag={this.handleDrag}
             delimiters={delimiters}
-            inline />
+            inline
+            className="form-control"
+          />
         </div>
-        <div class="form-group">
-          <label for="name">Mô tả</label>
-          <textarea className="form-control" name="description" />
+        <div className="form-group">
+          <label htmlFor="name">Mô tả</label>
+          <textarea
+            className="form-control"
+            name="description"
+            value={formData.get('description', '')}
+            onChange={this.handleChange}
+          />
         </div>
-        <div class="form-group">
-          <label for="name">Giá bán<i className="required">(*)</i></label>
-          <input className="form-control" name="name" type="number" />
+        <div className="form-group">
+          <label htmlFor="name">Giá bán</label>
+          <input
+            className="form-control"
+            name="price"
+            value={formData.get('price', '')}
+            onChange={this.handleChange}
+          />
         </div>
-        <Button>Lưu</Button>
+        <div className="form-group">
+          <label htmlFor="button-save">&nbsp;</label>
+          <Button name="button-save" onClick={this.onSubmit}>Lưu</Button>
+        </div>
       </Wrapper>
     );
   }

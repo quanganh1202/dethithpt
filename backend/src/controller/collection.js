@@ -1,6 +1,7 @@
 import Collection from '../model/collection';
 import logger from '../libs/logger';
 import { dataValidator } from '../libs/ajv';
+import { exception } from '../constant/error';
 
 const subModel = new Collection;
 const schemaId = 'http://dethithpt.com/collection-schema#';
@@ -18,10 +19,7 @@ async function getListCollections(args) {
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when get collections');
 
-    return {
-      error: ex.message || 'Unexpected error',
-      status: 500,
-    };
+    return exception;
   }
 
 }
@@ -53,10 +51,7 @@ async function createCollection(body) {
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when create collection');
 
-    return {
-      status: ex.status || 500,
-      error: 'Unexpected error',
-    };
+    return exception;
   }
 }
 
@@ -71,10 +66,7 @@ async function getCollectionById(id, cols) {
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when get collection');
 
-    return {
-      status: 500,
-      error: 'Unexpected error',
-    };
+    return exception;
   }
 
 }
@@ -108,10 +100,7 @@ async function updateCollection(id, body) {
   } catch (ex) {
     logger(ex.message || 'Unexpected error when update collection');
 
-    return {
-      status: ex.status || 500,
-      error: 'Unexpected error',
-    };
+    return exception;
   }
 }
 
@@ -135,10 +124,7 @@ async function deleteCollectionById(id) {
   } catch (ex) {
     logger.error(ex.message || 'Unexpect error when delete collection');
 
-    return {
-      status: 500,
-      error: 'Unexpected error',
-    };
+    return exception;
   }
 }
 

@@ -47,7 +47,7 @@ export class UploadDocument extends React.PureComponent {
         { id: "step1", title: "1", component: () => <div>
           <label>Nội quy:</label>
           <div style={{ width: '100%', height: '200px' }}></div>
-          <label className="container">
+          <label>
             <input type="checkbox" style={{ marginRight: '5px' }} />
             Tôi hoàn toàn đồng ý với các điều khoản của website
           </label>
@@ -59,6 +59,10 @@ export class UploadDocument extends React.PureComponent {
         { id: "step3", title: "3", component: () => <div>1234</div> },
       ]
     };
+  }
+
+  onSubmit(data) {
+    console.log(data);
   }
 
   nextStep(cityName) {

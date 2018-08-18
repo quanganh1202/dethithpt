@@ -2,7 +2,7 @@ import Ajv from 'ajv';
 import path from 'path';
 import fs from 'fs-extra';
 
-const ajv = new Ajv();
+const ajv = new Ajv({ allErrors: true });
 
 const addSchema = async function () {
   const pathFolderSchema = path.resolve(__dirname, '../../server/schema');

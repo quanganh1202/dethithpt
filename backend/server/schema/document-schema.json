@@ -4,7 +4,7 @@
   "description": "Document schema validation",
   "type": "object",
   "additionalProperties": false,
-  "required":[ "name", "tags", "userId", "price", "cateId", "subjectId", "classId", "yearSchoolId", "collectionId" ],
+  "required":[ "name", "tags", "userId" ],
   "properties": {
     "name": { "type": "string", "maxLength": 255 },
     "tags": {

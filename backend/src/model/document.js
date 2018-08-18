@@ -39,6 +39,12 @@ class Document {
 
     return result;
   }
+
+  async getCount() {
+    const result = await this.DB.getCount();
+
+    return result;
+  }
 }
 
 export default Document;
