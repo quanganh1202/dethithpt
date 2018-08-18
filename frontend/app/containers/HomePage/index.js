@@ -18,15 +18,11 @@ import { faCog, faFolder } from '@fortawesome/free-solid-svg-icons';
 import { faMoneyBillAlt } from '@fortawesome/free-regular-svg-icons';
 import UploadDocument from 'containers/UploadDocument/Loadable';
 import styled from 'styled-components';
+import _ from 'lodash';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
 import { LIST_COLOR } from 'utils/constants';
-import {
-  makeSelectRepos,
-  makeSelectLoading,
-  makeSelectError,
-} from 'containers/App/selectors';
 import FacebookLogin from 'containers/Login/Facebook';
 import GoogleLogin from 'containers/Login/Google';
 import Layout from 'components/Layout';
@@ -36,12 +32,12 @@ import List from 'components/List';
 import ListItem from 'components/ListItem';
 import PopUp from 'components/PopUp';
 import SocialButton from 'components/SocialButton';
-import { loadRepos } from '../App/actions';
-import { changeUsername } from './actions';
-import { makeSelectUsername } from './selectors';
+import { login, updateUserInfo } from './actions';
+import { makeSelectUser, makeSelectLoading } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 import CreateUserForm from '../Login/Form';
+import { getUser } from 'services/auth';
 
 library.add(faMoneyBillAlt, faFolder, faCog);
 
@@ -203,17 +199,35 @@ export class HomePage extends React.PureComponent {
       formCreate: {}
     };
     this.onLogin = this.onLogin.bind(this);
+    this.onChange = this.onChange.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.user || nextProps.user) {
+      this.setState({ user: nextProps.user });
+    }
   }
 
   onLogin(data) {
-    this.setState({ user: data });
+    this.props.onLogin(data);
   }
 
   onChange(e) {
-    console.log(e.currentTarget.value, e.currentTarget.name);
+    const { name, value } = e.currentTarget;
+    this.setState({ user: {
+      ...this.state.user,
+      [name]: value,
+    } });
+  }
+
+  onSubmit(e) {
+    e.preventDefault();
+    this.props.onSubmitUserInfo(this.state.user);
   }
 
   render() {
+    const user = getUser();
     const { loading, error, repos } = this.props;
     const reposListProps = {
       loading,
@@ -222,7 +236,7 @@ export class HomePage extends React.PureComponent {
     };
     const contentLeft = (
       <div>
-        {!this.state.user ? (
+        {!user ? (
           <UserDashboard className={'user-login'}>
             <FacebookLogin onLogin={this.onLogin}>
               <SocialButton
@@ -241,7 +255,7 @@ export class HomePage extends React.PureComponent {
           </UserDashboard>
         ) : (
           <UserDashboard className="user-dashboard">
-            <p className="user-email">{this.state.user.email}</p>
+            <p className="user-email">{user.email}</p>
             <p className="user-page-link"><Link to="/">(Trang cá nhân)</Link></p>
             <p className="user-payment">
               <FontAwesomeIcon className="user-icon" icon={['far', 'file-alt']} />
@@ -294,46 +308,48 @@ export class HomePage extends React.PureComponent {
               children: contentLeft,
             },
             { children: (
-              <Switch>
-                <Route exact path="/" component={() => (
-                  <div>
-                    <Tab
-                      key="notifications"
-                      title="Thông báo mới"
-                      content={
-                        <div>test</div>
-                      }
-                    >
-                    </Tab>
-                    <Tab
-                      key="latest-docs"
-                      title="Tài liệu mới đăng"
-                      content={
-                        <List
-                          items={items}
-                          component={ListItem}
-                        />
-                      }
-                    >
-                    </Tab>
-                    <PopUp
-                      // show={this.state.showCreateUserForm}
-                      show
-                      onClose={() => this.setState({ showCreateUserForm: false })}
-                      content={
-                        <CreateUserForm onSubmit={this.onSubmit} onChange={this.onChange} />
-                      }
-                    />
-                  </div>
-                )} />
-                <Route exact path="/dang-ban-tai-lieu" component={UploadDocument} />
-              </Switch>
+              <div>
+                <Switch>
+                  <Route exact path="/" component={() => (
+                    <div>
+                      <Tab
+                        key="notifications"
+                        title="Thông báo mới"
+                        content={
+                          <div>test</div>
+                        }
+                      >
+                      </Tab>
+                      <Tab
+                        key="latest-docs"
+                        title="Tài liệu mới đăng"
+                        content={
+                          <List
+                            items={items}
+                            component={ListItem}
+                          />
+                        }
+                      >
+                      </Tab>
+                    </div>
+                  )} />
+                  <Route exact path="/dang-ban-tai-lieu" component={UploadDocument} />
+                </Switch>
+              </div>
             ) },
             {
               children: contentRight1,
             },
             { children: <div>123</div> },
           ]} />
+          <PopUp
+            show={this.state.user}
+            // show
+            onClose={() => this.setState({ showCreateUserForm: false })}
+            content={
+              <CreateUserForm data={this.state.user} onSubmit={this.onSubmit} onChange={this.onChange} />
+            }
+          />
         </div>
       </article>
     );
@@ -351,19 +367,14 @@ HomePage.propTypes = {
 
 export function mapDispatchToProps(dispatch) {
   return {
-    onChangeUsername: evt => dispatch(changeUsername(evt.target.value)),
-    onSubmitForm: evt => {
-      if (evt !== undefined && evt.preventDefault) evt.preventDefault();
-      dispatch(loadRepos());
-    },
+    onLogin: (payload) => dispatch(login(payload)),
+    onSubmitUserInfo: (payload) => dispatch(updateUserInfo(payload)),
   };
 }
 
 const mapStateToProps = createStructuredSelector({
-  repos: makeSelectRepos(),
-  username: makeSelectUsername(),
+  user: makeSelectUser(),
   loading: makeSelectLoading(),
-  error: makeSelectError(),
 });
 
 const withConnect = connect(
