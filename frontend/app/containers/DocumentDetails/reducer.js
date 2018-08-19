@@ -44,7 +44,6 @@ function homeReducer(state = initialState, action) {
         .set('loading', false)
         .set('document', fromJS(action.data));
     case GET_DOC_LIST_REQUEST:
-      console.log('request', action.query);
       return state
         .set('loading', true)
         .setIn(['documents', 'query'], action.query);
