@@ -2,6 +2,7 @@ import React from 'react';
 import { post, put } from 'axios';
 import styled from 'styled-components';
 
+import { getUser } from 'services/auth';
 import DetailForm from './DetailForm';
 
 const ErrorMessage = styled.div`
@@ -36,12 +37,14 @@ const Wrapper = styled.li`
     width: 100%;
   }
 
+  & progress::-moz-progress-bar, progress::-webkit-progress-value { background: red; }
+
   & .docs-name {
     font-weight: bold;
   }
 `;
 
-const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoxLCJuYW1lIjoiVsWpIEFuaCBExaluZyIsImVtYWlsIjoidnVhbmhkdW5nLmtobXQyazdAZ21haWwuY29tIiwicGhvbmUiOiIwOTk5OTk5OTEyMyIsInJvbGUiOiJzdHVkZW50IiwiYm9kIjoxOTk0LCJjaXR5IjoiSE4iLCJkaXN0cmljdCI6IkNHIiwibGV2ZWwiOiJDMyIsInNjaG9vbCI6IkFCQyIsImZhY2Vib29rIjoibnVsbCIsInBvc2l0aW9uIjoibWVtYmVyIiwic3VycGx1cyI6IjAiLCJ0b3RhbEluY29tZSI6IjAiLCJyZWNoYXJnZSI6IjAiLCJzdGF0dXMiOjEsImNyZWF0ZWRBdCI6IjIwMTgtMDgtMThUMDg6MjU6MTEuMDAwWiJ9LCJpYXQiOjE1MzQ1ODA3MzIsImV4cCI6MTUzODE4MDczMn0.2UQR3r2ulOiSso0TphHLYSj-EyZyHC1L8OHPCmXwC_8';
+const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7Im5hbWUiOiJOZ3V54buFbiDEkMOsbmggSHV5w6puIiwiZW1haWwiOiJuZ3VvaXJhbjIwMDBAZ21haWwuY29tIiwic3RhdHVzIjoyfSwiaWF0IjoxNTM0NjA0Mzk0LCJleHAiOjE1MzgyMDQzOTR9.8ecwPSZDBY3erg_K0ZiSgs1Nq9YWSmtJKeVfJb47qXk';
 
 class UploadProgress extends React.Component {
   constructor() {
@@ -51,20 +54,23 @@ class UploadProgress extends React.Component {
     this.fileUpload = this.fileUpload.bind(this);
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (!this.props.sendNow && nextProps.sendNow && !this.state.successId) {
+      this.fileUpload({
+        name: this.props.name,
+        ...nextProps.sendNow,
+      });
+    }
+  }
+
   fileUpload(form) {
     const { file } = this.props;
     const url = 'http://125.212.250.92:3000/documents';
     const formData = new FormData();
     Object.keys(form).forEach((f) => formData.append(f, form[f]));
-    
-    formData.append('tags', '#tags');
-    formData.append('userId', 2);
-    formData.append('price', 2);
-    formData.append('cateId', 1);
-    formData.append('subjectId', 1);
-    formData.append('classId', 1);
-    formData.append('yearSchoolId', 1);
-    formData.append('collectionId', 1);
+    const currentUser = getUser();
+    console.log(currentUser);
+    formData.append('userId', 5);
     const config = {
       headers: {
           'content-type': 'multipart/form-data',
@@ -77,7 +83,6 @@ class UploadProgress extends React.Component {
     }
     
     if (this.state.successId) {
-      formData.append('fileUpload', file);
       return put(url, formData,config).then((res) => {
         this.setState({
           successId: true,
@@ -88,6 +93,7 @@ class UploadProgress extends React.Component {
         });
       });
     } else {
+      formData.append('fileUpload', file);
       return post(url, formData,config).then((res) => {
         this.setState({
           successId: true,
@@ -131,8 +137,8 @@ class UploadProgress extends React.Component {
             {percent && percent !== 100 ? 'Hủy tải lên' : 'Xóa'} <span>X</span>
           </span>
         </div>
-        {percent ? <progress value={percent} max={100}></progress> : null}
-        {!showSelected ? <DetailForm name={file.name} onSubmit={this.fileUpload} /> : null}
+        {percent ? <progress value={percent} max={100} className={`${ this.state.successId ? 'success' : '' }`}></progress> : null}
+        {!showSelected && !this.state.successId ? <DetailForm name={file.name} onSubmit={this.fileUpload} /> : null}
         {this.state.error ? <ErrorMessage>{this.state.error}</ErrorMessage> : null}
       </Wrapper>
     );
