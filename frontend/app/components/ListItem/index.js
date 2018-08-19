@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
+import { Link } from 'react-router-dom';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload, faDollarSign, faEye as fasEye } from '@fortawesome/free-solid-svg-icons';
@@ -22,7 +23,9 @@ function ListItem(props) {
   return (
     <Wrapper>
       <div className="doc-title">
-        <span>{props.item.name || 'Đề thi THPT quốc gia chính thức - 2016 - Môn Địa lí - Bộ Giáo dục'}</span>
+        <span>
+          <Link to={`/tai-lieu/${props.item.id}`}>{props.item.name || 'Đề thi THPT quốc gia chính thức - 2016 - Môn Địa lí - Bộ Giáo dục'}</Link>
+        </span>
         <FontAwesomeIcon className={'title-icon'} icon={['far', 'eye']} />
         <FontAwesomeIcon className={'title-icon'} icon={['fas', 'download']} />
       </div>

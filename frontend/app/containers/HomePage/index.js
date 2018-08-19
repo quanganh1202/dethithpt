@@ -17,6 +17,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCog, faFolder } from '@fortawesome/free-solid-svg-icons';
 import { faMoneyBillAlt } from '@fortawesome/free-regular-svg-icons';
 import UploadDocument from 'containers/UploadDocument/Loadable';
+import DocumentDetails from 'containers/DocumentDetails/Loadable';
 import styled from 'styled-components';
 import _ from 'lodash';
 
@@ -211,7 +212,6 @@ export class HomePage extends React.PureComponent {
     super();
     this.state = {
       user: null,
-      formCreate: {}
     };
     this.onLogin = this.onLogin.bind(this);
     this.onChange = this.onChange.bind(this);
@@ -265,6 +265,9 @@ export class HomePage extends React.PureComponent {
     const update = _.cloneDeep(this.state.user);
     delete update.exp;
     delete update.iat;
+    if (update.facebook === null) {
+      update.facebook = '';
+    }
     this.props.onSubmitUserInfo(update);
   }
 
@@ -417,6 +420,7 @@ export class HomePage extends React.PureComponent {
                     </HomeWrapper>
                   )} />
                   <Route exact path="/dang-ban-tai-lieu" component={UploadDocument} />
+                  <Route exact path="/tai-lieu/:id" component={DocumentDetails} />
                 </Switch>
               </div>
             ) },
