@@ -20,10 +20,12 @@ class GoogleLogin extends Component {
   googleLogin(data) {
     if (!this.auth2.isSignedIn.get()) {
 			this.auth2.signIn().then((response) => {
-        console.log(response);
-				this.props.onLogin({ email: response.getBasicProfile().getEmail() });
+				this.props.onLogin({ ggToken: response.getAuthResponse().id_token });
 			});
-		}
+		} else {
+      const id_token = this.auth2.currentUser.get().getAuthResponse().id_token;
+      this.props.onLogin({ ggToken: id_token });
+    }
   }
 
   render() {
