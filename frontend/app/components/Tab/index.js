@@ -4,8 +4,10 @@ import Wrapper from './Wrapper';
 
 function Tab(props) {
   return (
-    <Wrapper style={props.style}>
-      <h2 className="title">{props.title}</h2>
+    <Wrapper className={props.className} style={props.style}>
+      {props.customTitle
+        ? props.customTitle
+        : <h2 className="title">{props.title}</h2>}
       <div className="content">
         {props.content}
       </div>

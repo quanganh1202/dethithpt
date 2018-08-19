@@ -42,6 +42,8 @@ import reducer from './reducer';
 import saga from './saga';
 import CreateUserForm from '../Login/Form';
 import { getUser } from 'services/auth';
+import GreyTitle from './GreyTitle';
+import HomeWrapper from './Wrapper';
 
 library.add(faMoneyBillAlt, faFolder, faCog);
 
@@ -105,6 +107,15 @@ const dataRight1 = [
     title: 'Thông tin website',
   },
 ];
+
+const dataRight2 = [
+  {
+    title: 'Admin hỗ trợ 24/24',
+  },
+  {
+    title: 'Quảng cáo',
+  },
+]
 
 const items = [
   {
@@ -205,10 +216,17 @@ export class HomePage extends React.PureComponent {
     this.onLogin = this.onLogin.bind(this);
     this.onChange = this.onChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
+    this.loadMoreDocs = this.loadMoreDocs.bind(this);
   }
 
   componentWillMount() {
-    this.props.getDocumentsList({ sortBy: 'createdAt.desc' });
+    if (!this.props.documents.data.length) {
+      this.props.getDocumentsList({
+        sortBy: 'createdAt.desc',
+        offset: 0,
+        number: 2,
+      });
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -237,14 +255,16 @@ export class HomePage extends React.PureComponent {
     this.props.onSubmitUserInfo(update);
   }
 
+  loadMoreDocs() {
+    this.props.getDocumentsList({
+      sortBy: 'createdAt.desc',
+      offset: this.props.documents.data.length,
+      number: 2,
+    });
+  }
+
   render() {
     const user = getUser();
-    const { loading, error, repos } = this.props;
-    const reposListProps = {
-      loading,
-      error,
-      repos,
-    };
     const contentLeft = (
       <div>
         {!user ? (
@@ -294,15 +314,32 @@ export class HomePage extends React.PureComponent {
         }
       </div>
     );
-    const contentRight1 = <div>
-    {
-      dataRight1.map((item, index) => {
-        const ComponentRendered = item.component;
-        return <Tab key={`right1-${index}`} style={{ background: 'white' }} title={item.title} content={
-          ComponentRendered ? <ComponentRendered data={item.data} /> : null} />
-      })
-    }
-    </div>;
+    const contentRight1 = (<div>
+      {
+        dataRight1.map((item, index) => {
+          const ComponentRendered = item.component;
+          return <Tab key={`right1-${index}`} style={{ background: 'white' }} title={item.title} content={
+            ComponentRendered ? <ComponentRendered data={item.data} /> : null} />
+        })
+      }
+    </div>);
+
+    const contentRight2 = (<div>
+      {
+        dataRight2.map((item, index) => {
+          const ComponentRendered = item.component;
+          return (<Tab
+            className="green-tab"
+            key={`right2-${index}`}
+            style={{ background: 'white' }}
+            title={item.title}
+            content={
+              ComponentRendered ? <ComponentRendered data={item.data} /> : null
+            }
+          />)
+        })
+      }
+    </div>);
 
     return (
       <article>
@@ -322,27 +359,49 @@ export class HomePage extends React.PureComponent {
               <div>
                 <Switch>
                   <Route exact path="/" component={() => (
-                    <div>
+                    <HomeWrapper>
                       <Tab
                         key="notifications"
                         title="Thông báo mới"
                         content={
-                          <div>test</div>
+                          <div className="content-notification">
+                            Chúc các bạn ngày mới tốt lành !
+                          </div>
+                        }
+                        className="grey-box"
+                        customTitle={
+                          <GreyTitle className="custom-title">
+                            <p>Thông báo mới</p>
+                          </GreyTitle>
                         }
                       >
                       </Tab>
                       <Tab
                         key="latest-docs"
                         title="Tài liệu mới đăng"
+                        className="grey-box"
+                        customTitle={
+                          <GreyTitle className="custom-title">
+                            <p>Tài liệu mới đăng</p>
+                            <p>Hôm nay có <span className="bold">{this.props.documents.total}</span> tài liệu mới</p>
+                          </GreyTitle>
+                        }
                         content={
-                          <List
-                            items={this.props.documents}
-                            component={ListItem}
-                          />
+                          <div>
+                            <div className="content-docs">
+                              Website hiện có <span className="red bold">{this.props.documents.total}</span> tài liệu
+                            </div>
+                            <List
+                              items={this.props.documents.data}
+                              component={ListItem}
+                              loadMore={this.props.documents.data.length < this.props.documents.total}
+                              onLoadMore={this.loadMoreDocs}
+                            />
+                          </div>
                         }
                       >
                       </Tab>
-                    </div>
+                    </HomeWrapper>
                   )} />
                   <Route exact path="/dang-ban-tai-lieu" component={UploadDocument} />
                 </Switch>
@@ -351,11 +410,12 @@ export class HomePage extends React.PureComponent {
             {
               children: contentRight1,
             },
-            { children: <div>123</div> },
+            { 
+              children: contentRight2,
+            },
           ]} />
           <PopUp
             show={this.state.user}
-            // show
             onClose={() => this.setState({ showCreateUserForm: false })}
             content={
               <CreateUserForm data={this.state.user} onSubmit={this.onSubmit} onChange={this.onChange} />

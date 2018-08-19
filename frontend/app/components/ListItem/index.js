@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import moment from 'moment';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload, faDollarSign, faEye as fasEye } from '@fortawesome/free-solid-svg-icons';
@@ -21,19 +22,19 @@ function ListItem(props) {
   return (
     <Wrapper>
       <div className="doc-title">
-        <span>{props.item.name}</span>
+        <span>{props.item.name || 'Đề thi THPT quốc gia chính thức - 2016 - Môn Địa lí - Bộ Giáo dục'}</span>
         <FontAwesomeIcon className={'title-icon'} icon={['far', 'eye']} />
         <FontAwesomeIcon className={'title-icon'} icon={['fas', 'download']} />
       </div>
       <div className="doc-category">
         <ul>
-          <li>{props.item.category}</li>
-          <li>{props.item.subject}</li>
-          <li>{props.item.class}</li>
-          <li>{props.item.year}</li>
+          <li>{props.item.category || 'Đề thi THPT Quốc Gia'}</li>
+          <li>{props.item.subject || 'Môn Toán'}</li>
+          <li>{props.item.class || '12'}</li>
+          <li>{props.item.year || '2018 - 2019'}</li>
           <li>
             <FontAwesomeIcon className={'specific-icon'} icon={['far', 'folder-open']} />
-            {props.item.specific}
+            {props.item.specific || 'Đề thi thử trường chuyên'}
           </li>
         </ul>
       </div>
@@ -41,21 +42,21 @@ function ListItem(props) {
         <div className="left-info">
           <p>
             <FontAwesomeIcon className={'info-icon'} icon={['far', 'file-alt']} />
-            {props.item.pages} trang
+            {props.item.pages || 24} trang
           </p>
           <p>
             <FontAwesomeIcon className={'info-icon'} icon={['fas', 'dollar-sign']} />
-            {numberWithCommas(props.item.price)}đ
+            {numberWithCommas(props.item.price || 10000)}đ
           </p>
           <p>
             <FontAwesomeIcon className={'info-icon'} icon={['fas', 'eye']} />
-            {numberWithCommas(props.item.views)}
+            {numberWithCommas(props.item.views || 28960)}
           </p>
         </div>
         <div className="right-info">
           <p>
             <FontAwesomeIcon className={'info-icon'} icon={['far', 'clock']} />
-            {props.item.createdAt}
+            {moment(props.item.createdAt).format('DD/MM/YYYY')}
           </p>
         </div>
       </div>
