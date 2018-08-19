@@ -39,6 +39,12 @@ export const initialState = fromJS({
 
 function homeReducer(state = initialState, action) {
   switch (action.type) {
+    case '@@router/LOCATION_CHANGE':
+      return state.set('documents', fromJS({
+        data: [],
+        total: 0,
+        query: null,
+      }));
     case LOGIN_REQUEST:
       return state.set('loading', true);
     case LOGIN_SUCCESS: {
