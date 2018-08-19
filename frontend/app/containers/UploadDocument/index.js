@@ -12,6 +12,7 @@ import styled from 'styled-components';
 import Tab from 'components/Tab';
 import UploadPost from './UploadPost';
 import Button from './Button';
+import ErrorMessage from './ErrorMessage';
 
 const Wrapper = styled.div`
   & .continue-button, & div.input-button {
@@ -44,38 +45,49 @@ export class UploadDocument extends React.PureComponent {
     this.state = {
       step: 0,
       stepDefinitions: [
-        { id: "step1", title: "1", component: () => <div>
+        { id: "step1", title: "", component: () => <div>
           <label>Nội quy:</label>
           <div style={{ width: '100%', height: '200px' }}></div>
           <label>
-            <input type="checkbox" style={{ marginRight: '5px' }} />
+            <input
+              type="checkbox"
+              style={{ marginRight: '5px' }}
+              onChange={(e) => this.setState({
+                confirm: e.target.checked
+              })}
+              required
+              id="confirm-policy"
+            />
             Tôi hoàn toàn đồng ý với các điều khoản của website
           </label>
+          {this.state.error ? <ErrorMessage>{this.state.error}</ErrorMessage> : null}
           <Button onClick={() => this.nextStep('step2')} className="continue-button">Tiếp</Button>
         </div> },
-        { id: "step2", title: "2", component: () => (
+        { id: "step2", title: "", component: () => (
           <UploadPost />
         )},
-        { id: "step3", title: "3", component: () => <div>1234</div> },
       ]
     };
   }
 
-  nextStep(cityName) {
-    var i;
-    var x = document.getElementsByClassName("tab-content");
-    for (i = 0; i < x.length; i++) {
-        x[i].style.display = "none"; 
+  nextStep(step) {
+    if (step !== 'step2' || (step === 'step2' && this.state.confirm)) {
+      let i;
+      const x = document.getElementsByClassName("tab-content");
+      for (i = 0; i < x.length; i++) {
+          x[i].style.display = "none"; 
+      }
+      document.getElementById(step).style.display = "block"; 
+    } else {
+      this.setState({
+        error: 'Bạn cần đồng ý với điều khoản của website',
+      });
     }
-    document.getElementById(cityName).style.display = "block"; 
   }
 
   render() {
     const { stepDefinitions } = this.state;
-    const header = <div className="w3-bar w3-black">{
-      stepDefinitions.map((item, key) => 
-        <button key={`tab-header-${key}`} className="w3-bar-item w3-button" onClick={() => this.nextStep(item.id)}>{item.title}</button>)
-    }</div>;
+
     const content = stepDefinitions.map((item, key) => {
       const Component = item.component;
       return <div
@@ -96,7 +108,6 @@ export class UploadDocument extends React.PureComponent {
         
         <Tab key="dang-ban-tai-lieu" style={{ background: 'white' }} title="Đăng tài liệu" content={
           <div style={{ padding: "20px" }}>
-            {header}
             {content}
           </div>
         } />

@@ -25,7 +25,6 @@ class FacebookLogin extends Component {
     if (!this.FB) return;
     this.FB.getLoginStatus((response) => {
       if (response.status === 'connected') {
-        console.log('connected');
         this.facebookLoginHandler(response);
         // this.FB.login(this.facebookLoginHandler, { scope: 'public_profile,email' });
       } else {

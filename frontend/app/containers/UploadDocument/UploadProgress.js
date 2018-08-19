@@ -4,12 +4,7 @@ import styled from 'styled-components';
 
 import { getUser } from 'services/auth';
 import DetailForm from './DetailForm';
-
-const ErrorMessage = styled.div`
-  background: red;
-  color: #fff;
-  padding: 5px;
-`;
+import ErrorMessage from './ErrorMessage';
 
 const Wrapper = styled.li`
   position: relative;
@@ -69,7 +64,6 @@ class UploadProgress extends React.Component {
     const formData = new FormData();
     Object.keys(form).forEach((f) => formData.append(f, form[f]));
     const currentUser = getUser();
-    console.log(currentUser);
     formData.append('userId', 5);
     const config = {
       headers: {
@@ -107,7 +101,6 @@ class UploadProgress extends React.Component {
   }
 
   handleCancel() {
-    console.log(1);
   }
 
   render() {

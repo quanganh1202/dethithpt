@@ -219,7 +219,6 @@ class UploadPost extends React.Component {
   }
 
   render() {
-    console.log(this.state.add2All);
     return (
       <Wrapper>
         <div className="dropzone">

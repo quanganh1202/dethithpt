@@ -227,6 +227,19 @@ export class HomePage extends React.PureComponent {
         number: 2,
       });
     }
+    this.unlisten = this.props.history.listen((location, action) => {
+      if (location.pathname === '/') {
+        this.props.getDocumentsList({
+          sortBy: 'createdAt.desc',
+          offset: 0,
+          number: 2,
+        });
+      }
+    });
+  }
+
+  componentWillUnmount() {
+    this.unlisten();
   }
 
   componentWillReceiveProps(nextProps) {

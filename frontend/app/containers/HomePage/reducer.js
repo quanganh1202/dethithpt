@@ -39,6 +39,12 @@ export const initialState = fromJS({
 
 function homeReducer(state = initialState, action) {
   switch (action.type) {
+    case '@@router/LOCATION_CHANGE':
+      return state.set('documents', fromJS({
+        data: [],
+        total: 0,
+        query: null,
+      }));
     case LOGIN_REQUEST:
       return state.set('loading', true);
     case LOGIN_SUCCESS: {
@@ -55,7 +61,6 @@ function homeReducer(state = initialState, action) {
       setToken(action.payload.token);
       return state.set('loading', false);
     case GET_DOC_LIST_REQUEST:
-      console.log('request', action.query);
       return state
         .set('loading', true)
         .setIn(['documents', 'query'], action.query);
