@@ -49,8 +49,7 @@ export function* getDocumentsListHandler({ query }) {
 
   try {
     const resp = yield call(axios.get, url, { params: query });
-    console.log(resp.data.data);
-    yield put(getDocumentsListSuccess(resp.data.data));
+    yield put(getDocumentsListSuccess(resp.data));
   } catch (err) {
     // yield put(loginFailure(err));
   }

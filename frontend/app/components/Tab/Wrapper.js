@@ -2,6 +2,9 @@ import styled from 'styled-components';
 
 const Wrapper = styled.div`
   margin-bottom: 15px;
+  &.green-tab .title {
+    background: green;
+  }
 
   & .title {
     font-size: 1em;

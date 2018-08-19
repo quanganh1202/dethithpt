@@ -99,9 +99,10 @@ export function getDocumentsList(query) {
  *
  * @return {object}    An action object with a type of CHANGE_USERNAME
  */
-export function getDocumentsListSuccess(documents) {
+export function getDocumentsListSuccess({ data: documents, total }) {
   return {
     type: GET_DOC_LIST_SUCCESS,
     documents,
+    total,
   };
 }

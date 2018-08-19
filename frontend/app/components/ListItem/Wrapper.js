@@ -5,8 +5,8 @@ const Wrapper = styled.li`
   align-items: center;
   position: relative;
   background-color: white;
-  padding: 5px 15px;
-  margin-bottom: 10px;
+  padding: 5px 15px !important;
+  margin-bottom: 15px !important;
   border-radius: 3px;
 
   &:first-child {

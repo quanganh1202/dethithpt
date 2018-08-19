@@ -30,7 +30,11 @@ const validate = (input, req) => {
 export const initialState = fromJS({
   user: null,
   loading: false,
-  documents: [],
+  documents: {
+    data: [],
+    total: 0,
+    query: null,
+  },
 });
 
 function homeReducer(state = initialState, action) {
@@ -51,12 +55,19 @@ function homeReducer(state = initialState, action) {
       setToken(action.payload.token);
       return state.set('loading', false);
     case GET_DOC_LIST_REQUEST:
+      console.log('request', action.query);
       return state
-        .set('loading', true);
+        .set('loading', true)
+        .setIn(['documents', 'query'], action.query);
     case GET_DOC_LIST_SUCCESS:
+      const documents = state.getIn(['documents', 'data']).push(...fromJS(action.documents));
       return state
         .set('loading', false)
-        .set('documents', fromJS(action.documents));
+        .set('documents', fromJS({
+          data: documents,
+          total: action.total,
+          query: state.getIn(['documents', 'query']),
+        }));
     default:
       return state;
   }
