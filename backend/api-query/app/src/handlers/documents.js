@@ -1,7 +1,7 @@
 import ES from '../../elastic';
 import logger from '../libs/logger';
-const documentType = process.env.ES_DOCUMENT_TYPE;
-const index = process.env.ES_INDEX;
+const documentType = process.env.ES_DOCUMENT_TYPE || 'documents';
+const index = process.env.ES_INDEX || 'dethithpt';
 const elasticsearch = new ES(index, documentType);
 
 const handleDocumentError = (error) => {
@@ -33,13 +33,13 @@ export default {
   getDocuments: async (options) => {
     const { size, offset, sort, filters, fields } = options;
     const numberRegex = new RegExp(/^[0-9]*$/);
-    if (!numberRegex.test(size) || numberRegex.test(offset)) {
+    if (size && offset && (!numberRegex.test(size) || !numberRegex.test(offset))) {
       return {
         statusCode: 400,
         error: 'Size & offset is only allowed to contain digits',
       };
     }
-    const sortObj = sort.reduce((pre, cur) => {
+    const sortObj = sort && Array.isArray(sort) ? sort.reduce((pre, cur) => {
       const extractString = cur.split('.');
       if (extractString.length !== 2) {
         throw new Error('Sort param is invalid format');
@@ -47,9 +47,15 @@ export default {
       pre[extractString[0]] = extractString[1];
 
       return pre;
-    }, {});
-    const fieldsToArray = fields.split('.');
-    const from = size * (offset - 1);
+    }, {}) : sort ? (() => {
+      const sortToArray = sort.split('.');
+
+      return {
+        [sortToArray[0]]: sortToArray[1],
+      };
+    })() : undefined;
+    const fieldsToArray = fields ? fields.split('.') : undefined;
+    const from = size && offset ? size * (offset - 1) : undefined;
     const result = await elasticsearch.getAll(fieldsToArray, filters, sortObj, from, size );
 
     return result;

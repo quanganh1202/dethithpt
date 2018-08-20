@@ -15,7 +15,6 @@ function clearScrollAndReturnEmpty(scrollId) {
     .then(() => ({ statusCode: 204 }));
 }
 
-
 class ES {
   constructor(index, type) {
     this.index = index;
@@ -25,8 +24,12 @@ class ES {
   ping() {
     return esClient.ping({
       requestTimeout: process.env.ES_CONNECTION_TIMEOUT,
-    }).then(() => ({ status: 200 }))
+    }).then(() => ({ statusCode: 200 }))
       .catch(handleElasticsearchError);
+  }
+
+  close() {
+    return esClient.close();
   }
 
   get(id){
@@ -37,7 +40,16 @@ class ES {
     }).then(response => ({
       statusCode: 200,
       data: response._source,
-    })).catch(handleElasticsearchError);
+    })).catch((err) => {
+      if (err.statusCode === 404) {
+        return {
+          statusCode: 404,
+          error: 'Not Found',
+        };
+      }
+
+      return handleElasticsearchError(err);
+    });
   }
 
   getRaw(id) {

@@ -2,13 +2,13 @@
   "name": "api-query",
   "version": "0.0.1",
   "description": "",
-  "main": "main.js",
+  "main": "app/index.js",
   "scripts": {
     "test": "mocha",
-    "start": "babel-node main",
+    "start": "babel-node app/index.js",
     "production": "node ./dist/main.js",
     "build": "./resource/build.sh",
-    "dev": "cross-env NODE_ENV=dev nodemon main --exec babel-node",
+    "dev": "cross-env NODE_ENV=dev nodemon app/index.js --exec babel-node",
     "init": "bash ./resource/initDb.sh",
     "updateDb": "bash ./resource/updateDb.sh"
   },

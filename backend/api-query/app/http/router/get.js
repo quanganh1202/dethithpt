@@ -19,12 +19,12 @@ const routerDefine =  function defineRouter() {
   route.get('/documents', async (req, res) => {
     const queryParams = req.query;
 
-    const { statusCode, error, data } = await documentHandler.getDocuments(queryParams);
+    const { statusCode, error, data, totalSize } = await documentHandler.getDocuments(queryParams);
     res.status(statusCode);
     if (error) {
       res.json({ statusCode, error });
     } else {
-      res.json({ statusCode, data });
+      res.json({ statusCode, data, totalSize });
     }
   });
 
