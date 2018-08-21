@@ -1,50 +1,44 @@
-import MySQL from './mysql';
+import MySQL from '../../mysql';
 import queryBuilder from '../libs/queryBuilder';
 
-class Document {
+class Subject {
   constructor() {
-    this.DB = new MySQL('tbDocument');
+    this.DB = new MySQL('tbSubject');
   }
 
-  async getList(filter, options = {}) {
+  async getListSubject(filter, options = {}) {
     const criteria = queryBuilder(
       filter,
-      options.searchType ? options.searchType.toUpperCase(): undefined
+      options.searchType ? options.searchType.toUpperCase(): undefined //EXACTLY OR FULLTEXT
     );
     const docs = await this.DB.filter(criteria, options);
 
     return docs || [];
   }
 
-  async addNewDocument(doc) {
+  async addNewSubject(doc) {
     const result = await this.DB.insert(doc);
 
     return result;
   }
 
-  async getDocumentById(id, cols) {
+  async getSubjectById(id, cols) {
     const result = await this.DB.get(id, cols);
 
     return result;
   }
 
-  async updateDocumentById(id, body) {
+  async updateSubjectById(id, body) {
     const result = await this.DB.update(id, body);
 
     return result;
   }
 
-  async deleteDocumentById(id) {
+  async deleteSubjectById(id) {
     const result = await this.DB.deleteById(id);
-
-    return result;
-  }
-
-  async getCount() {
-    const result = await this.DB.getCount();
 
     return result;
   }
 }
 
-export default Document;
+export default Subject;

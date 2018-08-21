@@ -1,6 +1,6 @@
 import request from 'request-promise';
 import User from '../model/user';
-import { tokenGenerator }  from '../../server/middleware/jwt';
+import { tokenGenerator }  from '../../http/middleware/jwt';
 import logger from '../libs/logger';
 import { dataValidator } from '../libs/ajv';
 import { exception } from '../constant/error';

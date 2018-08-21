@@ -1,12 +1,13 @@
 import 'babel-polyfill';
-import expressServer from './server/index';
-import MySql from './src/model/mysql';
+import path from 'path';
+import expressServer from './http';
+import MySql from './mysql';
 import logger from './src/libs/logger';
 import { initStoreFolder } from './src/libs/helper';
 
 const DB = new MySql();
-const pathFolderStore = process.env.PATH_FOLDER_STORE || `${__dirname}/storage`;
-const pathFolderLogs = process.env.PATH_FOLDER_LOGS || `${__dirname}/logs`;
+const pathFolderStore = process.env.PATH_FOLDER_STORE || path.resolve(__dirname, '../storage');
+const pathFolderLogs = process.env.PATH_FOLDER_LOGS || path.resolve(__dirname, '../logs');
 // Wait for connect to Mysql success before start express server
 Promise.all([
   initStoreFolder(pathFolderLogs),

@@ -5,7 +5,7 @@ import fs from 'fs-extra';
 const ajv = new Ajv({ allErrors: true });
 
 const addSchema = async function () {
-  const pathFolderSchema = path.resolve(__dirname, '../../server/schema');
+  const pathFolderSchema = path.resolve(__dirname, '../../http/schema');
   const files = await fs.readdir(pathFolderSchema);
   files.forEach(fileName => {
     const schema = require(`${pathFolderSchema}/${fileName}`);

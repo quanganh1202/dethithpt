@@ -1,4 +1,4 @@
-import MySQL from './mysql';
+import MySQL from '../../mysql';
 import queryBuilder from '../libs/queryBuilder';
 
 class Class {
