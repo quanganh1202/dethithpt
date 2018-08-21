@@ -19,7 +19,7 @@ const initial = async () => {
     await expressServer();
     logger.info('Starting is DONE');
   } catch (err) {
-    logger.error(`[START][ERROR]: ${err}`);
+    logger.error(`[START][ERROR]: ${err.message || JSON.stringify(err)}`);
   }
 };
 

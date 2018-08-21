@@ -3,6 +3,7 @@ import esClient from './client';
 
 const handleElasticsearchError = (error) => {
   logger.error(`[ELASTICSEARCH][ERROR]: ${error.message || error}`);
+  esClient.close();
 
   return {
     statusCode: error.statusCode || 500,
@@ -64,8 +65,8 @@ class ES {
   }
 
   getAll(fields, filters = {}, sort = {}, from, size) {
-    const esFilters = Object.keys(filters).map(k => ({ term: { [k]: filters[k] } }));
-    const esSorter = Object.entries(sort).map(s => ({ [s[0]]: { order: s[1] } }));
+    const esFilters = Object.keys(filters).map(k => ({ match: { [k]: filters[k] } }));
+    const esSorter = Object.entries(sort).map(s => ({ [`${s[0]}.raw`]: { order: s[1] } }));
 
     return esClient.search({
       index: this.index,
@@ -76,7 +77,7 @@ class ES {
         size,
         query: {
           bool: {
-            filter: esFilters,
+            must: esFilters, // AND filter. Use should instead must for OR filter
           },
         },
         sort: esSorter,
@@ -146,7 +147,7 @@ class ES {
     return esClient.index({
       index: this.index,
       type: this.type,
-      id,
+      id, // If no id is provided, elasticsearch auto generate unique id
       body,
     }).then(() => ({
       statusCode: 200,
