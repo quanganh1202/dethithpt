@@ -3,8 +3,9 @@ import expressServer from './http';
 import elasticsearch from './elastic';
 import logger from './src/libs/logger';
 import { initStoreFolder } from '../app/src/libs/helpers';
+import path from 'path';
 
-const pathFolderLogs = process.env.PATH_FOLDER_LOGS || `${__dirname}/logs`;
+const pathFolderLogs = process.env.PATH_FOLDER_LOGS || path.resolve(__dirname, '../logs');
 const el = new elasticsearch();
 
 const initial = async () => {

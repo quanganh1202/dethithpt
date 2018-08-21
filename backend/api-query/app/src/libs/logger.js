@@ -17,7 +17,7 @@ const log = winston.createLogger({
     new (winston.transports.File)({
       level: 'info',
       name: 'info-file',
-      filename: path.resolve(__dirname, '../../', 'logs',
+      filename: path.resolve(__dirname, '../../../', 'logs',
         `${moment().format('YYYYMMDD')}-development-info.log`),
       timestamp: () => moment().format('YYYY-MM-DD HH-mm-ss'),
       formatter: options => `[${options.timestamp()}]: ${options.message ||''}`,
@@ -35,7 +35,7 @@ const log = winston.createLogger({
     new (winston.transports.File)({
       level: 'error',
       name: 'error-file',
-      filename: path.resolve(__dirname, '../../', 'logs',
+      filename: path.resolve(__dirname, '../../../', 'logs',
         `${moment().format('YYYYMMDD')}-development-error.log`),
       timestamp: () => moment().format('YYYY-MM-DD HH-mm-ss'),
       formatter: options => `[${options.timestamp()}]: ${options.message || ''}`,
