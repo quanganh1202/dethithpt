@@ -1,21 +1,82 @@
-/*
- * Home Actions
- *
- * Actions change things in your application
- * Since this boilerplate uses a uni-directional data flow, specifically redux,
- * we have these actions which are the only way your application interacts with
- * your application state. This guarantees that your state is up to date and nobody
- * messes it up weirdly somewhere.
- *
- * To add a new Action:
- * 1) Import your constant
- * 2) Add a function like this:
- *    export function yourAction(var) {
- *        return { type: YOUR_ACTION_CONSTANT, var: var }
- *    }
- */
+import {
+  LOGIN_REQUEST,
+  LOGIN_SUCCESS,
+  LOGIN_FAILURE,
+  UPDATE_USER_INFO_REQUEST,
+  UPDATE_USER_INFO_SUCCESS,
+  GET_DOC_LIST_REQUEST,
+  GET_DOC_LIST_SUCCESS,
+} from './constants';
 
-import { CHANGE_USERNAME } from './constants';
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} payload to request login user
+ *
+ * @return {object}    An action object with a type of LOGIN_REQUEST
+ */
+export function login(payload) {
+  return {
+    type: LOGIN_REQUEST,
+    payload,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} payload get from backend after login
+ *
+ * @return {object}    An action object with a type of LOGIN_SUCCESS
+ */
+export function loginSuccess(payload) {
+  return {
+    type: LOGIN_SUCCESS,
+    payload,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} err from login
+ *
+ * @return {object}    An action object with a type of LOGIN_FAILURE
+ */
+export function loginFailure(err) {
+  return {
+    type: LOGIN_FAILURE,
+    err,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} payload to complete user information
+ *
+ * @return {object}    An action object with a type of UPDATE_USER_INFO_REQUEST
+ */
+export function updateUserInfo(payload) {
+  return {
+    type: UPDATE_USER_INFO_REQUEST,
+    payload,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {payload} payload get from backend after update successfully
+ *
+ * @return {object}    An action object with a type of UPDATE_USER_INFO_SUCCESS
+ */
+export function updateUserInfoSuccess(payload) {
+  return {
+    type: UPDATE_USER_INFO_SUCCESS,
+    payload,
+  };
+}
 
 /**
  * Changes the input field of the form
@@ -24,9 +85,24 @@ import { CHANGE_USERNAME } from './constants';
  *
  * @return {object}    An action object with a type of CHANGE_USERNAME
  */
-export function changeUsername(name) {
+export function getDocumentsList(query) {
   return {
-    type: CHANGE_USERNAME,
-    name,
+    type: GET_DOC_LIST_REQUEST,
+    query,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} name The new text of the input field
+ *
+ * @return {object}    An action object with a type of CHANGE_USERNAME
+ */
+export function getDocumentsListSuccess({ data: documents, total }) {
+  return {
+    type: GET_DOC_LIST_SUCCESS,
+    documents,
+    total,
   };
 }

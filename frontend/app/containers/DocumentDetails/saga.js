@@ -2,41 +2,27 @@
  * Gets the repositories of the user from Github
  */
 import axios from 'axios';
+import _ from 'lodash';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import request from 'utils/request';
-import { LOGIN_REQUEST, UPDATE_USER_INFO_REQUEST, GET_DOC_LIST_REQUEST } from './constants';
+import { GET_DOC_DETAILS_REQUEST, GET_DOC_LIST_REQUEST } from './constants';
 import {
-  loginSuccess,
-  loginFailure,
-  updateUserInfoSuccess,
+  getDocumentDetailsSuccess,
   getDocumentsListSuccess,
 } from './actions';
 import { makeSelectUsername } from 'containers/HomePage/selectors';
 
 /**
- * Request to login using social network token
+ * Request to get document details by id
  */
-export function* loginHandler({ payload }) {
-  const url = `http://125.212.250.92:3000/login`;
+export function* getDocumentDetailsHandler({ id }) {
+  const url = `http://125.212.250.92:3000/documents/${id}`;
 
   try {
-    const resp = yield call(axios.post, url, payload);
-    yield put(loginSuccess(resp.data));
+    const resp = yield call(axios.get, url);
+    yield put(getDocumentDetailsSuccess(_.get(resp.data, 'data[0]')));
   } catch (err) {
-    yield put(loginFailure(err));
-  }
-}
-
-/**
- * Request update user info
- */
-export function* updateUserHandler({ payload }) {
-  const url = `http://125.212.250.92:3000/register`;
-
-  try {
-    const resp = yield call(axios.post, url, payload);
-    yield put(updateUserInfoSuccess(resp.data));
-  } catch (err) {
+    console.log(err.message);
     // yield put(loginFailure(err));
   }
 }
@@ -59,7 +45,6 @@ export function* getDocumentsListHandler({ query }) {
  * Root saga manages watcher lifecycle
  */
 export default function* homeSaga() {
-  yield takeLatest(LOGIN_REQUEST, loginHandler);
-  yield takeLatest(UPDATE_USER_INFO_REQUEST, updateUserHandler);
+  yield takeLatest(GET_DOC_DETAILS_REQUEST, getDocumentDetailsHandler);
   yield takeLatest(GET_DOC_LIST_REQUEST, getDocumentsListHandler)
 }

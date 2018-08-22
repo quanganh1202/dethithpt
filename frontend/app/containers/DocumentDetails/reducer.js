@@ -11,10 +11,8 @@
  */
 import { fromJS } from 'immutable';
 import {
-  LOGIN_SUCCESS,
-  LOGIN_REQUEST,
-  UPDATE_USER_INFO_REQUEST,
-  UPDATE_USER_INFO_SUCCESS,
+  GET_DOC_DETAILS_REQUEST,
+  GET_DOC_DETAILS_SUCCESS,
   GET_DOC_LIST_REQUEST,
   GET_DOC_LIST_SUCCESS,
 } from './constants';
@@ -28,7 +26,7 @@ const validate = (input, req) => {
 
 // The initial state of the App
 export const initialState = fromJS({
-  user: null,
+  document: {},
   loading: false,
   documents: {
     data: [],
@@ -39,27 +37,12 @@ export const initialState = fromJS({
 
 function homeReducer(state = initialState, action) {
   switch (action.type) {
-    case '@@router/LOCATION_CHANGE':
-      return state.set('documents', fromJS({
-        data: [],
-        total: 0,
-        query: null,
-      }));
-    case LOGIN_REQUEST:
+    case GET_DOC_DETAILS_REQUEST:
       return state.set('loading', true);
-    case LOGIN_SUCCESS: {
-      const user = mappingUser(action.payload.token);
-      if (validate(user, requiredFields)) {
-        return state.set('user', user).set('loading', false);
-      }
-      setToken(action.payload.token);
-      return state.set('loading', false);
-    }
-    case UPDATE_USER_INFO_REQUEST:
-      return state.set('loading', true).set('user', null);
-    case UPDATE_USER_INFO_SUCCESS:
-      setToken(action.payload.token);
-      return state.set('loading', false);
+    case GET_DOC_DETAILS_SUCCESS:
+      return state
+        .set('loading', false)
+        .set('document', fromJS(action.data));
     case GET_DOC_LIST_REQUEST:
       return state
         .set('loading', true)

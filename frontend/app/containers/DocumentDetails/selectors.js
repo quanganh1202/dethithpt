@@ -5,10 +5,10 @@
 import { createSelector } from 'reselect';
 import { initialState } from './reducer';
 
-const selectHome = state => state.get('home', initialState);
+const selectHome = state => state.get('documentDetails', initialState);
 
-const makeSelectUser = () =>
-  createSelector(selectHome, homeState => homeState.get('user'));
+const makeSelectDocument = () =>
+  createSelector(selectHome, homeState => homeState.get('document').toJS());
 
 const makeSelectLoading = () =>
   createSelector(selectHome, homeState => homeState.get('loading'));
@@ -18,7 +18,7 @@ const makeSelectDocuments = () =>
 
 export {
   selectHome,
-  makeSelectUser,
+  makeSelectDocument,
   makeSelectLoading,
   makeSelectDocuments,
 };
