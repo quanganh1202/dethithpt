@@ -26,7 +26,15 @@ class ES {
     return esClient.ping({
       requestTimeout: process.env.ES_CONNECTION_TIMEOUT,
     }).then(() => ({ statusCode: 200 }))
-      .catch(handleElasticsearchError);
+      .catch((error) => {
+        logger.error(`[ELASTICSEARCH][ERROR]: ${error.message || error}`);
+        esClient.close();
+
+        return {
+          statusCode: error.statusCode || 500,
+          error: error.message || 'Unexpected Server Internal Error',
+        };
+      });
   }
 
   close() {

@@ -84,7 +84,7 @@ const sortParamsHandler = (sort) => {
 };
 
 export default {
-  getDocumentById: async (docId) => {
+  getOne: async (docId) => {
     try {
       if (!docId) {
         return {
@@ -100,7 +100,7 @@ export default {
     }
   },
 
-  getDocuments: async (options) => {
+  getList: async (options) => {
     try {
       const { size, offset, sort, filters, fields } = options;
       const numberRegex = new RegExp(/^[0-9]*$/);
@@ -124,7 +124,7 @@ export default {
     }
   },
 
-  createDocument: async (docId, body) => {
+  create: async (docId, body) => {
     try {
       const result = await elasticsearch.insert(docId, body);
 
@@ -134,7 +134,7 @@ export default {
     }
   },
 
-  updateDocument: async (docId, body) => {
+  update: async (docId, body) => {
     try {
       if (!docId) {
         return {
@@ -150,7 +150,7 @@ export default {
     }
   },
 
-  deleteDocument: async (docId) => {
+  delete: async (docId) => {
     try {
       if (!docId) {
         return {
