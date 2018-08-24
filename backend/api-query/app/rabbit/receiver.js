@@ -32,7 +32,7 @@ const rabbitMQConnector = () => {
         const ex = process.env.RABBIT_EXCHANGE || 'topic_dethithpt';
         ch.assertExchange(ex, 'topic', { durable: false });
 
-        ch.assertQueue('', { exclusive: true }, function(errQ, q) {
+        ch.assertQueue('', { exclusive: true }, (errQ, q) => {
           if (errQ) {
             logger.error(errQ.message || JSON.stringify(errQ) || '[RabbitMQ][ERROR]: Declare queue fail');
             reject();
@@ -43,14 +43,12 @@ const rabbitMQConnector = () => {
             ch.bindQueue(q.queue, ex, r); // Get all message with routing key equal #
           });
 
-          ch.consume(q.queue, function(msg) {
-            console.log(msg.fields.routingKey, JSON.parse(msg.content));
+          ch.consume(q.queue, (msg) => {
             const actor = msg.fields.routingKey.split('.');
             switch (actor[0]) {
             case 'document':
               document[actor[1]](JSON.parse(msg.content).id, JSON.parse(msg.content).body)
-                .then(r => {
-                  console.log(r);
+                .then(() => {
                   ch.ack(msg);
                 });
               break;
