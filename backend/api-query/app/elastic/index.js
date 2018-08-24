@@ -3,7 +3,6 @@ import esClient from './client';
 
 const handleElasticsearchError = (error) => {
   logger.error(`[ELASTICSEARCH][ERROR]: ${error.message || error}`);
-  esClient.close();
 
   return {
     statusCode: error.statusCode || 500,
@@ -13,7 +12,7 @@ const handleElasticsearchError = (error) => {
 
 function clearScrollAndReturnEmpty(scrollId) {
   return esClient.clearScroll({ scrollId: [scrollId] })
-    .then(() => ({ statusCode: 204 }));
+    .then(() => ({ statusCode: 204, data: [], scrollId, isLastPage: true }));
 }
 
 class ES {
@@ -73,7 +72,6 @@ class ES {
   }
 
   getAll(fields, filters = {}, sort = {}, from, size) {
-    const esFilters = Object.keys(filters).map(k => ({ match: { [k]: filters[k] } }));
     const esSorter = Object.entries(sort).map(s => ({ [`${s[0]}.raw`]: { order: s[1] } }));
 
     return esClient.search({
@@ -83,15 +81,15 @@ class ES {
       body: {
         from,
         size,
-        query: {
-          bool: {
-            must: esFilters, // AND filter. Use should instead must for OR filter
-          },
-        },
+        query: filters,
         sort: esSorter,
       },
     }).then((response) => {
-      const hits = response.hits.hits.map(h => h._source);
+      const hits = response.hits.hits.map(h => {
+        h._source.id = h._id;
+
+        return h._source;
+      });
 
       return {
         statusCode: response.hits.total > size ? 206 : 200,
@@ -101,34 +99,35 @@ class ES {
     }).catch(handleElasticsearchError);
   }
 
-  getInitialScroll(fields, filters = {}, sort = {}) {
-    const esFilters = Object.keys(filters).map(k => ({ term: { [k]: filters[k] } }));
-    const esSorter = Object.entries(sort).map(s => ({ [s[0]]: { order: s[1] } }));
+  getInitialScroll(fields, filters = {}, sort = {}, size) {
+    const esSorter = Object.entries(sort).map(s => ({ [`${s[0]}.raw`]: { order: s[1] } }));
 
     return esClient.search({
       index: this.index,
       type: this.type,
-      size: process.env.ES_DEFAULT_SIZE || 100,
+      size: size || process.env.ES_DEFAULT_SIZE || 100,
       scroll: process.env.ES_TIMEOUT_SCROLL || '1m',
       _source: fields,
       body: {
-        query: {
-          bool: {
-            filter: esFilters,
-          },
-        },
+        query: filters,
         sort: esSorter,
       },
     }).then((response) => {
       if (response.hits.hits.length === 0) {
         return clearScrollAndReturnEmpty(response._scroll_id);
       }
+      const hits = response.hits.hits.map(h => {
+        h._source.id = h._id;
 
-      const hits = response.hits.hits.map(h => h._source);
+        return h._source;
+      });
 
       return {
         statusCode: hits.length === 0 ? 204 : 200,
-        data: { hits, scrollId: response._scroll_id },
+        data: hits,
+        scrollId: response._scroll_id,
+        totalSize: response.hits.total,
+        isLastPage: false,
       };
     }).catch(handleElasticsearchError);
   }
@@ -142,13 +141,29 @@ class ES {
         return clearScrollAndReturnEmpty(scrollId);
       }
 
-      const hits = response.hits.hits.map(h => h._source);
+      const hits = response.hits.hits.map(h => {
+        h._source.id = h._id;
+
+        return h._source;
+      });
 
       return {
         statusCode: 200,
-        data: { hits, scrollId },
+        data: hits,
+        scrollId,
+        totalSize: response.hits.total,
+        isLastPage: false,
       };
-    }).catch(handleElasticsearchError);
+    }).catch((err) => {
+      if (err.statusCode === 404) {
+        return {
+          statusCode: 404,
+          error: 'ScrollID is expired or has been cleared',
+        };
+      }
+
+      return handleElasticsearchError(err);
+    });
   }
 
   insert(id, body) {
@@ -173,17 +188,11 @@ class ES {
   }
 
   getCount(filters) {
-    const esFilters = Object.keys(filters).map(k => ({ term: { [k]: filters[k] } }));
-
     return esClient.count({
       index: this.index,
       type: this.type,
       body: {
-        query: {
-          bool: {
-            filter: esFilters,
-          },
-        },
+        query: filters,
       },
     }).then(response => ({
       statusCode: 200,
