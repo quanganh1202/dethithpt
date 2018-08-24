@@ -22,10 +22,10 @@ const rabbitMQConnector = () => {
         reject();
         process.exit(1); // Exit
       }
-      logger.info('[RabbitMQ][ERROR]: AMQP connection success');
+      logger.info('[RabbitMQ]: AMQP connection success');
       conn.createChannel((errCh, ch) => {
         if (errCh) {
-          logger.error(errCh.message || JSON.stringify(errCh) || '[RabbitMQ][ERROR]: Create channel fail');
+          logger.error(errCh.message || JSON.stringify(errCh) || '[RabbitMQ]: Create channel fail');
           reject();
           process.exit(1);
         }
@@ -34,7 +34,7 @@ const rabbitMQConnector = () => {
 
         ch.assertQueue('', { exclusive: true }, (errQ, q) => {
           if (errQ) {
-            logger.error(errQ.message || JSON.stringify(errQ) || '[RabbitMQ][ERROR]: Declare queue fail');
+            logger.error(`[RabbitMQ]: ${errQ.message || JSON.stringify(errQ) || 'Declare queue fail'}`);
             reject();
             process.exit(1);
           }

@@ -2,7 +2,7 @@ import logger from '../src/libs/logger';
 import esClient from './client';
 
 const handleElasticsearchError = (error) => {
-  logger.error(`[ELASTICSEARCH][ERROR]: ${error.message || error}`);
+  logger.error(`[ELASTICSEARCH]: ${error.message || error}`);
 
   return {
     statusCode: error.statusCode || 500,
@@ -26,7 +26,7 @@ class ES {
       requestTimeout: process.env.ES_CONNECTION_TIMEOUT,
     }).then(() => ({ statusCode: 200 }))
       .catch((error) => {
-        logger.error(`[ELASTICSEARCH][ERROR]: ${error.message || error}`);
+        logger.error(`[ELASTICSEARCH]: ${error.message || error}`);
         esClient.close();
 
         return {
