@@ -166,15 +166,18 @@ class ES {
     });
   }
 
-  insert(id, body) {
+  insert(body, id) {
     return esClient.index({
       index: this.index,
       type: this.type,
       id, // If no id is provided, elasticsearch auto generate unique id
       body,
-    }).then(() => ({
-      statusCode: 200,
-    })).catch(handleElasticsearchError);
+    }).then((result) => {
+      return {
+        statusCode: 200,
+        createdId: result._id,
+      };
+    }).catch(handleElasticsearchError);
   }
 
   remove(id) {

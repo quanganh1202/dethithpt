@@ -1,9 +1,10 @@
 import { isUndefined } from 'util';
+import moment from 'moment';
 import ES from '../../elastic';
 import logger from '../libs/logger';
 import { filterParamsHandler, sortParamsHandler } from '../libs/esHelper';
-const documentType = process.env.ES_DOCUMENT_TYPE || 'documents';
-const index = process.env.ES_INDEX || 'dethithpt';
+const documentType = process.env.ES_DOCUMENT_TYPE || 'document';
+const index = process.env.ES_INDEX || 'documents';
 const elasticsearch = new ES(index, documentType);
 
 const handleDocumentError = (error) => {
@@ -91,11 +92,33 @@ export default {
     }
   },
 
-  create: async (docId, body) => {
+  create: async (body) => {
     try {
-      const result = await elasticsearch.insert(docId, body);
+      const { cates, tags } = body;
+      const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
+      body.createAt = now;
+      const { createdId } = await elasticsearch.insert(body);
+      const cateDocRefs = new ES('catedocrefs', 'cateDocRef');
+      const promiseCateDocRefs = cates.map((cate) => {
+        return cateDocRefs.insert({
+          cateId: cate.cateId,
+          docId: createdId,
+          createAt: now,
+        });
+      });
 
-      return result;
+      const tagDocRefs = new ES('tagdocrefs', 'tagDocRef');
+      const promiseTagDocRefs = tags.map((tag) => {
+        return tagDocRefs.insert({
+          tagId: tag.tagId,
+          docId: createdId,
+          createAt: now,
+        });
+      });
+
+      await Promise.all([...promiseCateDocRefs, ...promiseTagDocRefs]);
+
+      return { statusCode: 200 };
     } catch (error) {
       return handleDocumentError(error);
     }

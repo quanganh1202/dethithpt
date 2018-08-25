@@ -47,7 +47,7 @@ const rabbitMQConnector = () => {
             const actor = msg.fields.routingKey.split('.');
             switch (actor[0]) {
             case 'document':
-              document[actor[1]](JSON.parse(msg.content).id, JSON.parse(msg.content).body)
+              document[actor[1]](JSON.parse(msg.content).body)
                 .then(() => {
                   ch.ack(msg);
                 });
