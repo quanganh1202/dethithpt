@@ -31,7 +31,7 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     path MEDIUMTEXT NULL,
     subjectId INT(11) NULL,
     classId INT(11) NULL,
-    yearSchoolId INT(11) NULL,
+    yearSchool INT(11) NULL,
     collectionId INT(11) NULL,
     PRIMARY KEY (id),
     UNIQUE INDEX id_UNIQUE (id ASC));
