@@ -2,10 +2,15 @@ import fs from 'fs-extra';
 import path from 'path';
 import Document from '../model/document';
 import User from '../model/user';
+import Category from '../model/category';
+import Subject from '../model/subject';
+import Class from '../model/class';
+import Collection from '../model/collection';
 import { dataValidator } from '../libs/ajv';
 import logger from '../libs/logger';
 import * as fileHelpers from '../libs/helper';
 import { exception } from '../constant/error';
+import rabbitSender from '../../rabbit/sender';
 
 const docModel = new Document();
 const schemaId = 'http://dethithpt.com/document-schema#';
@@ -59,6 +64,38 @@ async function uploadDocument(body, file) {
         error: 'User id does not exists',
       };
     }
+    const cateModel = new Category();
+    const category = await cateModel.getById(body.cateId);
+    if (!category || !category.length) {
+      return {
+        status: 400,
+        error: 'Category id does not exists',
+      };
+    }
+    const subModel = new Subject();
+    const subject = await subModel.getById(body.subjectId);
+    if (!subject || !subject.length) {
+      return {
+        status: 400,
+        error: 'Subject id does not exists',
+      };
+    }
+    const classModel = new Class();
+    const _class = await classModel.getById(body.subjectId);
+    if (!_class || !_class.length) {
+      return {
+        status: 400,
+        error: 'Class id does not exists',
+      };
+    }
+    const collectionModel = new Collection();
+    const collection = await collectionModel.getById(body.subjectId);
+    if (!collection || !collection.length) {
+      return {
+        status: 400,
+        error: 'Collection id does not exists',
+      };
+    }
     const { tags } = body;
     body.tags = Array.isArray(tags) ? tags.join(',') : tags;
     const { error, status, fileName } =  fileHelpers.validateExtension(file, body.userId);
@@ -76,6 +113,17 @@ async function uploadDocument(body, file) {
       // TODO: Need to ROLLBACK
       throw ex;
     });
+
+    // Append data and send to query api
+    body.className = _class[0].name;
+    body.collectionName = collection[0].name;
+    body.subjectName =subject[0].name;
+    body.userName = user[0].name;
+    body.cates = {
+      cateId: body.cateId,
+      cateName: category[0].name,
+    };
+    await rabbitSender('document.create', { body });
 
     return {
       status: 201,
