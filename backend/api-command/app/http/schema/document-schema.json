@@ -16,7 +16,7 @@
     "cateId": { "type": "string", "maxLength": 11 },
     "subjectId": { "type": "string", "maxLength": 11 },
     "classId": { "type": "string", "maxLength": 11 },
-    "yearSchoolId": { "type": "string", "maxLength": 4 },
+    "yearSchool": { "type": "string", "maxLength": 4 },
     "collectionId": { "type": "string", "maxLength": 11 }
   }
 }

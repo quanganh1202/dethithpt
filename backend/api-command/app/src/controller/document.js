@@ -65,7 +65,7 @@ async function uploadDocument(body, file) {
       };
     }
     const cateModel = new Category();
-    const category = await cateModel.getById(body.cateId);
+    const category = await cateModel.getCategoryById(body.cateId);
     if (!category || !category.length) {
       return {
         status: 400,
@@ -73,7 +73,7 @@ async function uploadDocument(body, file) {
       };
     }
     const subModel = new Subject();
-    const subject = await subModel.getById(body.subjectId);
+    const subject = await subModel.getSubjectById(body.subjectId);
     if (!subject || !subject.length) {
       return {
         status: 400,
@@ -81,7 +81,7 @@ async function uploadDocument(body, file) {
       };
     }
     const classModel = new Class();
-    const _class = await classModel.getById(body.subjectId);
+    const _class = await classModel.getClassById(body.subjectId);
     if (!_class || !_class.length) {
       return {
         status: 400,
@@ -89,7 +89,7 @@ async function uploadDocument(body, file) {
       };
     }
     const collectionModel = new Collection();
-    const collection = await collectionModel.getById(body.subjectId);
+    const collection = await collectionModel.getCollectionById(body.subjectId);
     if (!collection || !collection.length) {
       return {
         status: 400,
@@ -119,10 +119,14 @@ async function uploadDocument(body, file) {
     body.collectionName = collection[0].name;
     body.subjectName =subject[0].name;
     body.userName = user[0].name;
-    body.cates = {
-      cateId: body.cateId,
-      cateName: category[0].name,
-    };
+    body.cates = [
+      {
+        cateId: body.cateId,
+        cateName: category[0].name,
+      },
+    ];
+    body.tags = [];
+    delete body.cateId;
     await rabbitSender('document.create', { body });
 
     return {

@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `dethithpt`.`tbDocument` (
   `path` MEDIUMTEXT NOT NULL,
   `subjectId` INT(11) NOT NULL,
   `classId` INT(11) NOT NULL,
-  `yearSchoolId` INT(11) NOT NULL,
+  `yearSchool` INT(11) NOT NULL,
   `collectionId` INT(11) NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC));
@@ -68,14 +68,6 @@ CREATE TABLE IF NOT EXISTS `dethithpt`.`tbClass` (
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC));
 
-CREATE TABLE IF NOT EXISTS `dethithpt`.`tbYearSchool` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(50) NOT NULL,
-  `description` TEXT(255) NOT NULL,
-  `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE INDEX `id_UNIQUE` (`id` ASC));
-
 CREATE TABLE IF NOT EXISTS `dethithpt`.`tbCollection` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(50) NOT NULL,
@@ -83,7 +75,7 @@ CREATE TABLE IF NOT EXISTS `dethithpt`.`tbCollection` (
   `cateId` INT NOT NULL,
   `classId` INT NOT NULL,
   `subjectId` INT NOT NULL,
-  `yearSchoolId` INT NOT NULL,
+  `yearSchool` INT NOT NULL,
   `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC));
