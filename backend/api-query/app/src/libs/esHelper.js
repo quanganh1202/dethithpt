@@ -1,6 +1,6 @@
 import logger from './logger';
 
-const filterParamsHandler = (filtersParam) => {
+const filterParamsHandler = (filtersParam = {}) => {
   try {
     const must = Object.entries(filtersParam).reduce((arrFilters, filter) => {
       if (filter[1]) {

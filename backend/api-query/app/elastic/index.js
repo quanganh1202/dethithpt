@@ -202,6 +202,25 @@ class ES {
       count: response.count,
     })).catch(handleElasticsearchError);
   }
+
+  getAggs(field) {
+    return esClient.search({
+      index: this.index,
+      type: this.type,
+      body: {
+        aggs: {
+          myAggs: {
+            terms: {
+              field,
+            },
+          },
+        },
+      },
+    }).then(response => ({
+      statusCode: 200,
+      aggs: response.aggregations.myAggs.buckets,
+    })).catch(handleElasticsearchError);
+  }
 }
 
 export default ES;

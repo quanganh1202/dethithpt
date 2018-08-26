@@ -1,8 +1,10 @@
 import express from 'express';
+import { isUndefined } from 'util';
 import documentHandler from '../../src/handlers/documents';
 import trackingHandler from '../../src/handlers/tradingHistories';
 import commonHandler from '../../src/handlers/common';
-import { isUndefined } from 'util';
+import cateDocRefHandler from '../../src/handlers/cateDoc';
+import categoryHandler from '../../src/handlers/category';
 
 const routerDefine =  function defineRouter() {
   // Destination folder path
@@ -61,15 +63,46 @@ const routerDefine =  function defineRouter() {
 
   route.get('/income/:userId', async (req, res) => {
     const { userId } = req.params;
-
     const { statusCode, error, data } = await trackingHandler.getIncome(userId);
-    console.log(statusCode, data);
-
     res.status(statusCode !== 204 ? statusCode : 200);
     if (error) {
       res.json({ statusCode, error });
     } else {
       res.json({ statusCode, data });
+    }
+  });
+
+  route.get('/categories', async (req, res) => {
+    const queryParams = req.query;
+
+    const { statusCode, error, data, totalSize, scrollId, isLastPage } = isUndefined(req.query.scrollId) ?
+      await categoryHandler.getList(queryParams) :
+      await categoryHandler.getNextPage(req.query.scrollId);
+    res.status(statusCode !== 204 ? statusCode : 200);
+    if (error) {
+      res.json({ statusCode, error });
+    } else {
+      res.json({ statusCode, data, totalSize, scrollId, isLastPage });
+    }
+  });
+
+  route.get('/categories/:id', async (req, res) => {
+    const { id } = req.params;
+    const { statusCode, error, data } = await categoryHandler.getOne(id);
+    res.status(statusCode);
+    if (error) {
+      res.json({ statusCode, error });
+    } else {
+      res.json({ statusCode, data });
+    }
+  });
+
+  route.get('/categories/aggregation', async (req, res) => {
+    const { statusCode, error, aggs } = await cateDocRefHandler.getAggs();
+    if (error) {
+      res.json({ statusCode, error });
+    } else {
+      res.json({ statusCode, data: aggs });
     }
   });
 
