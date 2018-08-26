@@ -102,6 +102,7 @@ export default {
       const promiseCateDocRefs = cates.map((cate) => {
         return cateDocRefs.insert({
           cateId: cate.cateId,
+          cateName: cate.cateName,
           docId: createdId,
           createAt: now,
         });
