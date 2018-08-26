@@ -1,6 +1,7 @@
 import amqp from 'amqplib/callback_api';
 import logger from '../src/libs/logger';
 import document from '../src/handlers/documents';
+import category from '../src/handlers/category';
 const routingKey = [
   'document.create',
   'document.update',
@@ -48,6 +49,12 @@ const rabbitMQConnector = () => {
             switch (actor[0]) {
             case 'document':
               document[actor[1]](JSON.parse(msg.content).body)
+                .then(() => {
+                  ch.ack(msg);
+                });
+              break;
+            case 'category':
+              category[actor[1]](JSON.parse(msg.content).body)
                 .then(() => {
                   ch.ack(msg);
                 });

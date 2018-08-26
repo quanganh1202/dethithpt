@@ -1,7 +1,9 @@
 import Category from '../model/category';
+import User from '../model/user';
 import logger from '../libs/logger';
 import { dataValidator } from '../libs/ajv';
 import { exception } from '../constant/error';
+import rabbitSender from '../../rabbit/sender';
 
 const cateModel = new Category;
 const schemaId = 'http://dethithpt.com/category-schema#';
@@ -21,7 +23,6 @@ async function getListCategories(args) {
 
     return exception;
   }
-
 }
 
 async function createCategory(body) {
@@ -42,7 +43,18 @@ async function createCategory(body) {
       };
     }
 
+    const userModel = new User();
+    const user = await userModel.getById(body.userId);
+    if (!user || !user.length) {
+      return {
+        error: `User ${body.userId} does not exist`,
+        status: 400,
+      };
+    }
+
     const res = await cateModel.addNewCategory(body);
+    body.userName = user[0].name;
+    await rabbitSender('category.create', { body });
 
     return {
       status: 201,

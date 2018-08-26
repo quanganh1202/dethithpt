@@ -28,9 +28,9 @@ const rabbitProducer = (key, msg) => {
           });
         }
         let ex = process.env.RABBIT_TOPIC || 'topic_dethithpt';
+        const message = typeof msg === 'string' ? msg : JSON.stringify(msg);
         ch.assertExchange(ex, 'topic', { durable: false });
-        ch.publish(ex, key, new Buffer(msg));
-        conn.close();
+        ch.publish(ex, key, new Buffer(message));
         resolve({
           statusCode: 200,
           data: 'Message is delivered',
