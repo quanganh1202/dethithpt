@@ -13,7 +13,7 @@ const rabbitProducer = (key, msg) => {
     const rabbitHost = process.env.RABBIT_HOST || 'amqp://localhost';
     amqp.connect(rabbitHost, (err, conn) => {
       if (err) {
-        logger.error(`[RABBIT][ERROR]: ${err.message || JSON.stringify(err)}`);
+        logger.error(`[RABBIT]: ${err.message || JSON.stringify(err)}`);
         reject({
           statusCode: err.status || 500,
           error: err.message || JSON.stringify(err) || 'Rabbit connection fail',
@@ -21,7 +21,7 @@ const rabbitProducer = (key, msg) => {
       }
       conn.createChannel((errCh, ch) => {
         if (errCh) {
-          logger.error(`[RABBIT][ERROR]: ${errCh.message || JSON.stringify(errCh)}`);
+          logger.error(`[RABBIT]: ${errCh.message || JSON.stringify(errCh)}`);
           reject({
             statusCode: errCh.status || 500,
             error: errCh.message || JSON.stringify(errCh) || 'Rabbit create channel fail',
