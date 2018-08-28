@@ -180,6 +180,22 @@ class ES {
     }).catch(handleElasticsearchError);
   }
 
+  update(body, id) {
+    return esClient.update({
+      index: this.index,
+      type: this.type,
+      id, // If no id is provided, elasticsearch auto generate unique id
+      body: {
+        doc: body,
+      },
+    }).then((result) => {
+      return {
+        statusCode: 200,
+        createdId: result._id,
+      };
+    }).catch(handleElasticsearchError);
+  }
+
   remove(id) {
     return esClient.delete({
       index: this.index,
@@ -188,6 +204,16 @@ class ES {
     }).then(res => ({
       statusCode: res.deleted ? 204 : 404,
     })).catch(handleElasticsearchError);
+  }
+
+  deleteByQuery(filters) {
+    return esClient.deleteByQuery({
+      index: this.index,
+      type: this.type,
+      body: {
+        query: filters,
+      },
+    });
   }
 
   getCount(filters) {

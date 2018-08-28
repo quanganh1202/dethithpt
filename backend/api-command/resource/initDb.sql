@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS `dethithpt`.`tbDocument` (
   `userId` INT(11) NOT NULL,
   `price` VARCHAR(50) NOT NULL,
   `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  `cateId` INT(11) NOT NULL,
+  `cates` VARCHAR(255) NULL,
   `path` MEDIUMTEXT NOT NULL,
   `subjectId` INT(11) NOT NULL,
   `classId` INT(11) NOT NULL,

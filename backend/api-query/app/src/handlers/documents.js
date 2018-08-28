@@ -16,6 +16,47 @@ const handleDocumentError = (error) => {
   };
 };
 
+const insertToCateDoc = (docId, cates = [], createdAt) => {
+  const cateDocRefs = new ES('catedocrefs', 'cateDocRef');
+  const promiseCateDocRefs = cates.map((cate) => {
+    return cateDocRefs.insert({
+      cateId: cate.cateId,
+      cateName: cate.cateName,
+      docId,
+      createdAt,
+    });
+  });
+
+  return promiseCateDocRefs;
+};
+
+const insertToTagDoc = (docId, tags, createdAt) => {
+  const tagDocRefs = new ES('tagdocrefs', 'tagDocRef');
+  const promiseTagDocRefs = tags.map((tag) => {
+    return tagDocRefs.insert({
+      tagId: tag.tagId,
+      docId,
+      createdAt,
+    });
+  });
+
+  return promiseTagDocRefs;
+};
+
+const removeCateRefToDoc = (docId) => {
+  const filters = filterParamsHandler({ docId });
+  const cateDocRefs = new ES('catedocrefs', 'cateDocRef');
+
+  return cateDocRefs.deleteByQuery(filters);
+};
+
+const removeTagRefToDoc = (docId) => {
+  const filters = filterParamsHandler({ docId });
+  const tagDocRefs = new ES('tagdocrefs', 'tagDocRef');
+
+  return tagDocRefs.deleteByQuery(filters);
+};
+
 export default {
   getOne: async (docId) => {
     try {
@@ -92,31 +133,14 @@ export default {
     }
   },
 
-  create: async (body) => {
+  create: async (body, id) => {
     try {
       const { cates, tags } = body;
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
-      body.createAt = now;
-      const { createdId } = await elasticsearch.insert(body);
-      const cateDocRefs = new ES('catedocrefs', 'cateDocRef');
-      const promiseCateDocRefs = cates.map((cate) => {
-        return cateDocRefs.insert({
-          cateId: cate.cateId,
-          cateName: cate.cateName,
-          docId: createdId,
-          createAt: now,
-        });
-      });
-
-      const tagDocRefs = new ES('tagdocrefs', 'tagDocRef');
-      const promiseTagDocRefs = tags.map((tag) => {
-        return tagDocRefs.insert({
-          tagId: tag.tagId,
-          docId: createdId,
-          createAt: now,
-        });
-      });
-
+      body.createdAt = now;
+      const { createdId } = await elasticsearch.insert(body, id);
+      const promiseCateDocRefs = insertToCateDoc(createdId, cates, now);
+      const promiseTagDocRefs = insertToTagDoc(createdId, tags, now);
       await Promise.all([...promiseCateDocRefs, ...promiseTagDocRefs]);
 
       return { statusCode: 200 };
@@ -125,7 +149,7 @@ export default {
     }
   },
 
-  update: async (docId, body) => {
+  update: async (body, docId) => {
     try {
       if (!docId) {
         return {
@@ -133,9 +157,29 @@ export default {
           error: 'Missing document id',
         };
       }
-      const result = await elasticsearch.insert(docId, body);
+      const { cates, tags } = body;
+      const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
+      body.updatedAt = now;
+      // Perform update
+      const result = await elasticsearch.update(body, docId);
+      const promisesRemove = [];
+      const promiseInsert = [];
+      // Update tags on ref table if user update tags for document
+      if (tags) {
+        promisesRemove.push(removeTagRefToDoc(docId));
+        promiseInsert.concat(insertToCateDoc(docId, cates, now));
+      }
+      // The same to tags
+      if (cates) {
+        promisesRemove.push(removeCateRefToDoc(docId));
+        promiseInsert.concat(insertToTagDoc(docId, tags, now));
+      }
+      // Need to clean all the tags ref to docId before insert new tags
+      await Promise.all(promisesRemove);
+      // Insert new tags
+      await Promise.all(promiseInsert);
 
-      return result;
+      return result[0];
     } catch (error) {
       return handleDocumentError(error);
     }
@@ -149,9 +193,13 @@ export default {
           error: 'Missing document id',
         };
       }
-      const result = await elasticsearch.insert(docId);
+      const result = await Promise.all([
+        elasticsearch.remove(docId),
+        removeTagRefToDoc(docId),
+        removeCateRefToDoc(docId),
+      ]);
 
-      return result;
+      return result[0];
     } catch (error) {
       return handleDocumentError(error);
     }

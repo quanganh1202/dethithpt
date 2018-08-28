@@ -13,7 +13,12 @@
     "description": { "type": "string" },
     "userId": { "type": "string" },
     "price": { "type": "string", "maxLength": 50, "pattern": "^[0-9]+$"},
-    "cateId": { "type": "string", "maxLength": 11 },
+    "cates": {
+      "anyOf": [
+        { "type": "string" },
+        { "type": "array" }
+      ]
+    },
     "subjectId": { "type": "string", "maxLength": 11 },
     "classId": { "type": "string", "maxLength": 11 },
     "yearSchool": { "type": "string", "maxLength": 4 },

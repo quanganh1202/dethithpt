@@ -4,13 +4,14 @@
   "description": "Collection schema validation",
   "type": "object",
   "additionalProperties": false,
-  "required":[ "name", "description", "cateId", "classId", "yearSchoolId", "subjectId" ],
+  "required":[ "name", "description", "cateId", "classId", "yearSchoolId", "subjectId", "userId" ],
   "properties": {
     "name": { "type": "string", "maxLength": 255 },
     "description": { "type": "string" },
     "cateId": { "type": "string" },
     "classId": { "type": "string" },
     "yearSchoolId": { "type": "string" },
-    "subjectId": { "type": "string" }
+    "subjectId": { "type": "string" },
+    "userId": { "type": "string" }
   }
 }

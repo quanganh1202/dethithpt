@@ -56,24 +56,40 @@ async function uploadDocument(body, file) {
         error: 'Should be contain any file',
       };
     }
+    const { tags, cates, subjectId, classId, collectionId, userId } = body;
     const userModel = new User();
-    const user = await userModel.getById(body.userId);
+    const user = await userModel.getById(userId);
     if (!user || !user.length || !user[0].status) {
       return {
         status: 400,
         error: 'User id does not exists',
       };
     }
-    const cateModel = new Category();
-    const category = await cateModel.getCategoryById(body.cateId);
-    if (!category || !category.length) {
-      return {
-        status: 400,
-        error: 'Category id does not exists',
-      };
+
+    let newCate;
+    if (cates && cates.length) {
+      const cateModel = new Category();
+      const promises = Array.isArray(cates) ?
+        cates.map(cateId => cateModel.getCategoryById(cateId)) :
+        cates.split(',').map(cateId => cateModel.getCategoryById(cateId));
+      const categories = await Promise.all(promises);
+      // Will replace cates by an array with more than infomation
+      newCate = categories.map(cate => {
+        if (!cate || !cate.length) {
+          throw {
+            status: 400,
+            error: 'Category id does not exists',
+          };
+        }
+
+        return {
+          cateId: cate[0].id,
+          cateName: cate[0].name,
+        };
+      });
     }
     const subModel = new Subject();
-    const subject = await subModel.getSubjectById(body.subjectId);
+    const subject = await subModel.getSubjectById(subjectId);
     if (!subject || !subject.length) {
       return {
         status: 400,
@@ -81,7 +97,7 @@ async function uploadDocument(body, file) {
       };
     }
     const classModel = new Class();
-    const _class = await classModel.getClassById(body.subjectId);
+    const _class = await classModel.getClassById(classId);
     if (!_class || !_class.length) {
       return {
         status: 400,
@@ -89,15 +105,15 @@ async function uploadDocument(body, file) {
       };
     }
     const collectionModel = new Collection();
-    const collection = await collectionModel.getCollectionById(body.subjectId);
+    const collection = await collectionModel.getCollectionById(collectionId);
     if (!collection || !collection.length) {
       return {
         status: 400,
         error: 'Collection id does not exists',
       };
     }
-    const { tags } = body;
     body.tags = Array.isArray(tags) ? tags.join(',') : tags;
+    body.cates = Array.isArray(cates) ? cates.join(',') : cates;
     const { error, status, fileName } =  fileHelpers.validateExtension(file, body.userId);
     if (error) {
       return {
@@ -119,15 +135,12 @@ async function uploadDocument(body, file) {
     body.collectionName = collection[0].name;
     body.subjectName =subject[0].name;
     body.userName = user[0].name;
-    body.cates = [
-      {
-        cateId: body.cateId,
-        cateName: category[0].name,
-      },
-    ];
-    body.tags = [];
-    delete body.cateId;
-    await rabbitSender('document.create', { body });
+    body.cates = newCate;
+    body.tags = body.tags.split(',').map(tag => ({
+      tagId: tag,
+      tagText: tag,
+    }));
+    await rabbitSender('document.create', { body, id: res[0].insertId });
 
     return {
       status: 201,
@@ -179,6 +192,7 @@ async function viewContent(fileName) {
 async function updateDocumentInfo(id, body, file) {
   try {
     const existed = await docModel.getDocumentById(id);
+    const newBody = Object.assign({}, body);
 
     if (!existed || !existed.length) {
       return {
@@ -186,6 +200,72 @@ async function updateDocumentInfo(id, body, file) {
         error: 'Document not found',
       };
     }
+    const { tags, cates, subjectId, classId, collectionId } = body;
+
+    if (cates && cates.length) {
+      const cateModel = new Category();
+      const promises = cates.map(cateId => cateModel.getCategoryById(cateId));
+      const categories = await Promise.all(promises);
+      // Will replace cates by an array with more than infomation
+      newBody.cates = categories.map(cate => {
+        if (!cate || !cate.length) {
+          throw {
+            status: 400,
+            error: 'Category id does not exists',
+          };
+        }
+
+        return {
+          cateId: cate.id,
+          cateName: cate.name,
+        };
+      });
+    }
+
+    if(subjectId) {
+      const subModel = new Subject();
+      const subject = await subModel.getSubjectById(subjectId);
+      if (!subject || !subject.length) {
+        return {
+          status: 400,
+          error: 'Subject id does not exists',
+        };
+      }
+      newBody.subjectName = subject[0].name;
+    }
+
+    if (classId) {
+      const classModel = new Class();
+      const _class = await classModel.getClassById(classId);
+      if (!_class || !_class.length) {
+        return {
+          status: 400,
+          error: 'Class id does not exists',
+        };
+      }
+      newBody.subjectName = _class[0].name;
+    }
+
+    if (collectionId) {
+      const collectionModel = new Collection();
+      const collection = await collectionModel.getCollectionById(collectionId);
+      if (!collection || !collection.length) {
+        return {
+          status: 400,
+          error: 'Collection id does not exists',
+        };
+      }
+      newBody.collectionName = collection[0].name;
+    }
+
+    if (tags) {
+      newBody.tags = tags.split(',').map(tag => ({
+        tagId: tag,
+        tagName: tag,
+      }));
+      body.tags = Array.isArray(tags) ? tags.join(',') : tags;
+    }
+
     const promise = [docModel.updateDocumentById(id, body)];
 
     if (file && file.length) {
@@ -203,6 +283,7 @@ async function updateDocumentInfo(id, body, file) {
       ]);
     }
     await Promise.all(promise).catch((ex) => { throw ex; });
+    await rabbitSender('document.update', { body: newBody, id });
 
     return {
       status: 200,

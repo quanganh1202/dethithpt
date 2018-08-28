@@ -46,15 +46,16 @@ const rabbitMQConnector = () => {
 
           ch.consume(q.queue, (msg) => {
             const actor = msg.fields.routingKey.split('.');
+            const content = JSON.parse(msg.content);
             switch (actor[0]) {
             case 'document':
-              document[actor[1]](JSON.parse(msg.content).body)
+              document[actor[1]](content.body, content.id)
                 .then(() => {
                   ch.ack(msg);
                 });
               break;
             case 'category':
-              category[actor[1]](JSON.parse(msg.content).body)
+              category[actor[1]](content.body, content.id)
                 .then(() => {
                   ch.ack(msg);
                 });
