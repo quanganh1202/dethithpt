@@ -261,7 +261,7 @@ async function updateDocumentInfo(id, body, file) {
     if (tags) {
       newBody.tags = tags.split(',').map(tag => ({
         tagId: tag,
-        tagName: tag,
+        tagText: tag,
       }));
       body.tags = Array.isArray(tags) ? tags.join(',') : tags;
     }

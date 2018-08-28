@@ -47,14 +47,14 @@ const removeCateRefToDoc = (docId) => {
   const filters = filterParamsHandler({ docId });
   const cateDocRefs = new ES('catedocrefs', 'cateDocRef');
 
-  return cateDocRefs.deleteByQuery(filters);
+  return cateDocRefs.deleteByQuery(filters.data);
 };
 
 const removeTagRefToDoc = (docId) => {
   const filters = filterParamsHandler({ docId });
   const tagDocRefs = new ES('tagdocrefs', 'tagDocRef');
 
-  return tagDocRefs.deleteByQuery(filters);
+  return tagDocRefs.deleteByQuery(filters.data);
 };
 
 export default {
@@ -167,12 +167,12 @@ export default {
       // Update tags on ref table if user update tags for document
       if (tags) {
         promisesRemove.push(removeTagRefToDoc(docId));
-        promiseInsert.concat(insertToCateDoc(docId, cates, now));
+        promiseInsert.concat(insertToTagDoc(docId, tags, now));
       }
       // The same to tags
       if (cates) {
         promisesRemove.push(removeCateRefToDoc(docId));
-        promiseInsert.concat(insertToTagDoc(docId, tags, now));
+        promiseInsert.concat(insertToCateDoc(docId, cates, now));
       }
       // Need to clean all the tags ref to docId before insert new tags
       await Promise.all(promisesRemove);
