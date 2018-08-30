@@ -54,12 +54,22 @@ async function createCategory(body) {
 
     const { insertId } = await cateModel.addNewCategory(body);
     body.userName = user[0].name;
-    await rabbitSender('category.create', { body, id: insertId });
+    const serverNotify = await rabbitSender('category.create', { body, id: insertId });
+    if (serverNotify.statusCode === 200) {
+      return {
+        status: 201,
+        message: `Category created with insertId = ${insertId}`,
+      };
+    } else {
+      // HERE IS CASE API QUERY iS NOT RESOLVED
+      // TODO: ROLLBACK HERE
+      logger.error(`[CATEGORY]: ${serverNotify.error}`);
 
-    return {
-      status: 201,
-      message: `Category created with insertId = ${insertId}`,
-    };
+      return {
+        status: serverNotify.statusCode,
+        message: serverNotify.error,
+      };
+    }
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when create category');
 

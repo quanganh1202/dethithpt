@@ -39,31 +39,36 @@ const rabbitMQConnector = () => {
             reject();
             process.exit(1);
           }
-          resolve();
+          resolve(); // Just let we know connected to rabbit. Pls ignore it
           routingKey.forEach(r => {
             ch.bindQueue(q.queue, ex, r); // Get all message with routing key equal #
           });
-
-          ch.consume(q.queue, (msg) => {
+          ch.consume(q.queue, async (msg) => {
             const actor = msg.fields.routingKey.split('.');
             const content = JSON.parse(msg.content);
+            let replyMessage;
             switch (actor[0]) {
             case 'document':
-              document[actor[1]](content.id, content.body, )
-                .then(() => {
-                  ch.ack(msg);
-                });
+              replyMessage = await document[actor[1]](content.id, content.body).catch(e => e);
               break;
             case 'category':
-              category[actor[1]](content.id, content.body)
-                .then(() => {
-                  ch.ack(msg);
-                });
+              replyMessage = await category[actor[1]](content.id, content.body).catch(e => e);
               break;
-
             default:
+              replyMessage = {
+                statusCode: 500,
+                error: 'Error from API query',
+              };
               break;
             }
+            // Notify to client the state of process
+            replyMessage = typeof replyMessage === 'string' ? replyMessage : JSON.stringify(replyMessage);
+            ch.sendToQueue(
+              msg.properties.replyTo,
+              new Buffer(replyMessage)
+            );
+
+            ch.ack(msg);
             // Tell rabbitmq know the message was proceed
           }, { noAck: false });
         });
