@@ -199,7 +199,10 @@ export default {
         removeCateRefToDoc(docId),
       ]);
 
-      await removeTagRefToDoc(docId); // Remove all tags refer to this doc
+      await Promise.all([
+        removeTagRefToDoc(docId),
+        removeCateRefToDoc(docId),
+      ]); // Remove all tags & cate refer to this doc
 
       return result[0];
     } catch (error) {
