@@ -88,11 +88,11 @@ export default {
     }
   },
 
-  create: async (body) => {
+  create: async (body, cateId) => {
     try {
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.createAt = now;
-      const result = await elasticsearch.insert(body);
+      const result = await elasticsearch.insert(body, cateId);
 
       return result;
     } catch (error) {
@@ -100,7 +100,7 @@ export default {
     }
   },
 
-  update: async (cateId, body) => {
+  update: async (body, cateId) => {
     try {
       if (!cateId) {
         return {

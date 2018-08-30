@@ -133,12 +133,12 @@ export default {
     }
   },
 
-  create: async (body, id) => {
+  create: async (docId, body) => {
     try {
       const { cates, tags } = body;
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.createdAt = now;
-      const { createdId } = await elasticsearch.insert(body, id);
+      const { createdId } = await elasticsearch.insert(body, docId);
       const promiseCateDocRefs = insertToCateDoc(createdId, cates, now);
       const promiseTagDocRefs = insertToTagDoc(createdId, tags, now);
       await Promise.all([...promiseCateDocRefs, ...promiseTagDocRefs]);
@@ -149,7 +149,7 @@ export default {
     }
   },
 
-  update: async (body, docId) => {
+  update: async (docId, body) => {
     try {
       if (!docId) {
         return {
@@ -198,6 +198,8 @@ export default {
         removeTagRefToDoc(docId),
         removeCateRefToDoc(docId),
       ]);
+
+      await removeTagRefToDoc(docId); // Remove all tags refer to this doc
 
       return result[0];
     } catch (error) {

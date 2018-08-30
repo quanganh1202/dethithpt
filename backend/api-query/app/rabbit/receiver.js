@@ -49,13 +49,13 @@ const rabbitMQConnector = () => {
             const content = JSON.parse(msg.content);
             switch (actor[0]) {
             case 'document':
-              document[actor[1]](content.body, content.id)
+              document[actor[1]](content.id, content.body, )
                 .then(() => {
                   ch.ack(msg);
                 });
               break;
             case 'category':
-              category[actor[1]](content.body, content.id)
+              category[actor[1]](content.id, content.body)
                 .then(() => {
                   ch.ack(msg);
                 });

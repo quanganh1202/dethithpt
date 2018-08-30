@@ -312,6 +312,8 @@ async function deleteDocument(id) {
       fileHelpers.removeFile(result[0].path),
     ]);
 
+    await rabbitSender('document.delete', { id });
+
     return {
       status: 200,
       message: 'Deleted',
