@@ -1,3 +1,4 @@
+import ES from '../../elastic';
 import logger from './logger';
 
 const filterParamsHandler = (filtersParam = {}) => {
@@ -94,4 +95,52 @@ const sortParamsHandler = (sort) => {
   }
 };
 
-export { filterParamsHandler, sortParamsHandler };
+const insertToCateDoc = (docId, cates = [], createdAt) => {
+  const cateDocRefs = new ES('catedocrefs', 'cateDocRef');
+  const promiseCateDocRefs = cates.map((cate) => {
+    return cateDocRefs.insert({
+      cateId: cate.cateId,
+      cateName: cate.cateName,
+      docId,
+      createdAt,
+    });
+  });
+
+  return promiseCateDocRefs;
+};
+
+const insertToTagDoc = (docId, tags, createdAt) => {
+  const tagDocRefs = new ES('tagdocrefs', 'tagDocRef');
+  const promiseTagDocRefs = tags.map((tag) => {
+    return tagDocRefs.insert({
+      tagId: tag.tagId,
+      docId,
+      createdAt,
+    });
+  });
+
+  return promiseTagDocRefs;
+};
+
+const removeCateRefToDoc = (docId) => {
+  const filters = filterParamsHandler({ docId });
+  const cateDocRefs = new ES('catedocrefs', 'cateDocRef');
+
+  return cateDocRefs.deleteByQuery(filters.data);
+};
+
+const removeTagRefToDoc = (docId) => {
+  const filters = filterParamsHandler({ docId });
+  const tagDocRefs = new ES('tagdocrefs', 'tagDocRef');
+
+  return tagDocRefs.deleteByQuery(filters.data);
+};
+
+export {
+  filterParamsHandler,
+  sortParamsHandler,
+  insertToCateDoc,
+  insertToTagDoc,
+  removeCateRefToDoc,
+  removeTagRefToDoc,
+};

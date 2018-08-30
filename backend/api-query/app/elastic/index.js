@@ -71,7 +71,7 @@ class ES {
     })).catch(handleElasticsearchError);
   }
 
-  getAll(fields, filters = {}, sort = {}, from, size) {
+  getList(filters = {}, fields, sort = {}, from, size) {
     const esSorter = Object.entries(sort).map(s => ({ [`${s[0]}.raw`]: { order: s[1] } }));
 
     return esClient.search({
@@ -99,7 +99,7 @@ class ES {
     }).catch(handleElasticsearchError);
   }
 
-  getInitialScroll(fields, filters = {}, sort = {}, size) {
+  getInitialScroll(filters = {}, fields, sort = {}, size) {
     const esSorter = Object.entries(sort).map(s => ({ [`${s[0]}.raw`]: { order: s[1] } }));
 
     return esClient.search({

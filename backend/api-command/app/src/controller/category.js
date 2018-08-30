@@ -52,13 +52,13 @@ async function createCategory(body) {
       };
     }
 
-    const res = await cateModel.addNewCategory(body);
+    const { insertId } = await cateModel.addNewCategory(body);
     body.userName = user[0].name;
-    await rabbitSender('category.create', { body });
+    await rabbitSender('category.create', { body, id: insertId });
 
     return {
       status: 201,
-      message: `Category created with insertId = ${res.insertId}`,
+      message: `Category created with insertId = ${insertId}`,
     };
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when create category');
@@ -104,6 +104,7 @@ async function updateCategory(id, body) {
     }
 
     await cateModel.updateCategoryById(id, body);
+    await rabbitSender('category.update', { id, body });
 
     return {
       status: 200,
@@ -128,6 +129,7 @@ async function deleteCategoryById(id) {
     }
 
     await cateModel.deleteCategoryById(id);
+    await rabbitSender('category.delete', { id });
 
     return {
       status: 200,

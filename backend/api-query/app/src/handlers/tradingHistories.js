@@ -27,8 +27,8 @@ export default {
       const filterBuilt = filterParamsHandler({ userId });
       if (filterBuilt.statusCode !== 200) return filterBuilt; // Return error
       const result = isScroll ?
-        await elasticsearch.getInitialScroll(undefined, filterBuilt.data, sortObj.data):
-        await elasticsearch.getAll(undefined, filterBuilt.data, sortObj.data );
+        await elasticsearch.getInitialScroll(filterBuilt.data, undefined, sortObj.data):
+        await elasticsearch.getList( filterBuilt.data, undefined, sortObj.data );
 
       return result;
     } catch (err) {
@@ -40,7 +40,7 @@ export default {
     try {
       const filterBuilt = filterParamsHandler({ userId });
       if (filterBuilt.statusCode !== 200) return filterBuilt; // Return error
-      const result = await elasticsearch.getAll(['money', 'tradingType'], filterBuilt.data);
+      const result = await elasticsearch.getList(filterBuilt.data, ['money', 'tradingType']);
 
       const income = result.data.reduce((pre, cur) => {
         if (cur.tradingType === 'sub') {

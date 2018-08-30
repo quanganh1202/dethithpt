@@ -2,7 +2,14 @@ import { isUndefined } from 'util';
 import moment from 'moment';
 import ES from '../../elastic';
 import logger from '../libs/logger';
-import { filterParamsHandler, sortParamsHandler } from '../libs/esHelper';
+import {
+  filterParamsHandler,
+  sortParamsHandler,
+  removeCateRefToDoc,
+  removeTagRefToDoc,
+  insertToCateDoc,
+  insertToTagDoc,
+} from '../libs/esHelper';
 const documentType = process.env.ES_DOCUMENT_TYPE || 'document';
 const index = process.env.ES_INDEX || 'documents';
 const elasticsearch = new ES(index, documentType);
@@ -14,47 +21,6 @@ const handleDocumentError = (error) => {
     statusCode: error.status || error.code || 500,
     error: 'Unexpected Server Internal Error',
   };
-};
-
-const insertToCateDoc = (docId, cates = [], createdAt) => {
-  const cateDocRefs = new ES('catedocrefs', 'cateDocRef');
-  const promiseCateDocRefs = cates.map((cate) => {
-    return cateDocRefs.insert({
-      cateId: cate.cateId,
-      cateName: cate.cateName,
-      docId,
-      createdAt,
-    });
-  });
-
-  return promiseCateDocRefs;
-};
-
-const insertToTagDoc = (docId, tags, createdAt) => {
-  const tagDocRefs = new ES('tagdocrefs', 'tagDocRef');
-  const promiseTagDocRefs = tags.map((tag) => {
-    return tagDocRefs.insert({
-      tagId: tag.tagId,
-      docId,
-      createdAt,
-    });
-  });
-
-  return promiseTagDocRefs;
-};
-
-const removeCateRefToDoc = (docId) => {
-  const filters = filterParamsHandler({ docId });
-  const cateDocRefs = new ES('catedocrefs', 'cateDocRef');
-
-  return cateDocRefs.deleteByQuery(filters.data);
-};
-
-const removeTagRefToDoc = (docId) => {
-  const filters = filterParamsHandler({ docId });
-  const tagDocRefs = new ES('tagdocrefs', 'tagDocRef');
-
-  return tagDocRefs.deleteByQuery(filters.data);
 };
 
 export default {
@@ -114,8 +80,8 @@ export default {
       const fieldsToArray = fields ? fields.split(',') : undefined; // List fields specific by ","
       const from = size && offset && !isScroll ? size * (offset - 1) : 0; // Fulfil size and offset to get from value. Default equal 0
       const result = isScroll ?
-        await elasticsearch.getInitialScroll(fieldsToArray, filterBuilt.data, sortObj.data, size):
-        await elasticsearch.getAll(fieldsToArray, filterBuilt.data, sortObj.data, from, size );
+        await elasticsearch.getInitialScroll(filterBuilt.data, fieldsToArray, sortObj.data, size):
+        await elasticsearch.getList(filterBuilt.data, fieldsToArray, sortObj.data, from, size );
 
       return result;
     } catch (err) {
