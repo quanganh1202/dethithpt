@@ -43,6 +43,7 @@ async function getListDocuments(args) {
 
 async function uploadDocument(body, file) {
   try {
+    const queryBody = Object.assign({}, body);
     const resValidate = dataValidator(body, schemaId);
     if (!resValidate.valid) {
       return {
@@ -50,12 +51,14 @@ async function uploadDocument(body, file) {
         error: resValidate.errors,
       };
     }
+
     if (!file.length) {
       return {
         status: 400,
         error: 'Should be contain any file',
       };
     }
+
     const { tags, cates, subjectId, classId, collectionId, userId } = body;
     const userModel = new User();
     const user = await userModel.getById(userId);
@@ -87,31 +90,49 @@ async function uploadDocument(body, file) {
           cateName: cate[0].name,
         };
       });
+
+      queryBody.cates = newCate;
     }
-    const subModel = new Subject();
-    const subject = await subModel.getSubjectById(subjectId);
-    if (!subject || !subject.length) {
-      return {
-        status: 400,
-        error: 'Subject id does not exists',
-      };
+
+    if (subjectId) {
+      const subModel = new Subject();
+      const subject = await subModel.getSubjectById(subjectId);
+      if (!subject || !subject.length) {
+        return {
+          status: 400,
+          error: 'Subject id does not exists',
+        };
+      }
+
+      queryBody.subjectName =subject[0].name;
     }
-    const classModel = new Class();
-    const _class = await classModel.getClassById(classId);
-    if (!_class || !_class.length) {
-      return {
-        status: 400,
-        error: 'Class id does not exists',
-      };
+
+    if (classId) {
+      const classModel = new Class();
+      const _class = await classModel.getClassById(classId);
+      if (!_class || !_class.length) {
+        return {
+          status: 400,
+          error: 'Class id does not exists',
+        };
+      }
+
+      queryBody.className = _class[0].name;
     }
-    const collectionModel = new Collection();
-    const collection = await collectionModel.getCollectionById(collectionId);
-    if (!collection || !collection.length) {
-      return {
-        status: 400,
-        error: 'Collection id does not exists',
-      };
+
+    if (collectionId) {
+      const collectionModel = new Collection();
+      const collection = await collectionModel.getCollectionById(collectionId);
+      if (!collection || !collection.length) {
+        return {
+          status: 400,
+          error: 'Collection id does not exists',
+        };
+      }
+
+      queryBody.collectionName = collection[0].name;
     }
+
     body.tags = Array.isArray(tags) ? tags.join(',') : tags;
     body.cates = Array.isArray(cates) ? cates.join(',') : cates;
     const { error, status, fileName } =  fileHelpers.validateExtension(file, body.userId);
@@ -122,6 +143,7 @@ async function uploadDocument(body, file) {
       };
     }
     body.path = fileName;
+    queryBody.path = fileName;
     const res = await Promise.all([
       docModel.addNewDocument(body),
       fileHelpers.storeFile(file, fileName),
@@ -131,16 +153,13 @@ async function uploadDocument(body, file) {
     });
 
     // Append data and send to query api
-    body.className = _class[0].name;
-    body.collectionName = collection[0].name;
-    body.subjectName =subject[0].name;
-    body.userName = user[0].name;
-    body.cates = newCate;
-    body.tags = body.tags.split(',').map(tag => ({
+
+    queryBody.userName = user[0].name;
+    queryBody.tags = body.tags.split(',').map(tag => ({
       tagId: tag,
       tagText: tag,
     }));
-    await rabbitSender('document.create', { body, id: res[0].insertId });
+    await rabbitSender('document.create', { body: queryBody, id: res[0].insertId });
 
     return {
       status: 201,
@@ -200,6 +219,7 @@ async function updateDocumentInfo(id, body, file) {
         error: 'Document not found',
       };
     }
+
     const { tags, cates, subjectId, classId, collectionId } = body;
 
     if (cates && cates.length) {

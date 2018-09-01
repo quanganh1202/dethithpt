@@ -77,6 +77,7 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     id INT NOT NULL AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL,
     description TEXT(255) NOT NULL,
+    userId INT(11) NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE INDEX id_UNIQUE (id ASC));
@@ -85,6 +86,7 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     id INT NOT NULL AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL,
     description TEXT(255) NOT NULL,
+    userId INT(11) NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE INDEX id_UNIQUE (id ASC));
@@ -96,6 +98,7 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     cateId INT NOT NULL,
     classId INT NOT NULL,
     subjectId INT NOT NULL,
+    userId INT(11) NOT NULL,
     yearSchool INT NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
