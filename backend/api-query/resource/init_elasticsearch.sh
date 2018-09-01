@@ -1,5 +1,13 @@
-echo "Please enter elasticsearch host"
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+echo
+echo
+echo -e "${GREEN} Please enter elasticsearch host${NC}"
+echo
 echo "------------------------------------------------------"
+echo
 
 echo -n "ES HOST: "
 read ES_HOST
@@ -32,4 +40,4 @@ echo
 CURL -X PUT "$ES_HOST/tagdocrefs" -H 'Content-Type: application/json' -d @'./resource/tagdocref.mapping.json'
 echo
 
-echo 'DONE !'
+echo 'DONE !';
