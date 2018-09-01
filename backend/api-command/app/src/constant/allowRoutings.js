@@ -5,4 +5,7 @@ export default [
   'category.create',
   'category.update',
   'category.delete',
+  'user.create',
+  'user.update',
+  'user.delete',
 ];
