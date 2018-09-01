@@ -122,6 +122,29 @@ const insertToTagDoc = (docId, tags, createdAt) => {
   return promiseTagDocRefs;
 };
 
+const insertTag = async (tags, createdAt) => {
+  try {
+    const tagModel = new ES('tags', 'tag');
+
+    return tags.map(tag => {
+      const filterModel = filterParamsHandler({ tagId: tag.tagId }).data;
+
+      return tagModel.getList(filterModel).then(tagInfo => {
+        if (tagInfo.error) {
+          throw tag;
+        } else if (tagInfo.data && !tagInfo.data.length){
+          return tagModel.insert({
+            tagId: tag.tagId,
+            createdAt,
+          });
+        }
+      });
+    });
+  } catch (e) {
+    throw e;
+  }
+};
+
 const removeCateRefToDoc = (docId) => {
   const filters = filterParamsHandler({ docId });
   const cateDocRefs = new ES('catedocrefs', 'cateDocRef');
@@ -137,6 +160,7 @@ const removeTagRefToDoc = (docId) => {
 };
 
 export {
+  insertTag,
   filterParamsHandler,
   sortParamsHandler,
   insertToCateDoc,

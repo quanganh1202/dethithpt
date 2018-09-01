@@ -75,13 +75,14 @@ async function uploadDocument(body, file) {
       const promises = Array.isArray(cates) ?
         cates.map(cateId => cateModel.getCategoryById(cateId)) :
         cates.split(',').map(cateId => cateModel.getCategoryById(cateId));
+
       const categories = await Promise.all(promises);
       // Will replace cates by an array with more than infomation
-      newCate = categories.map(cate => {
+      newCate = categories.map((cate, i) => {
         if (!cate || !cate.length) {
           throw {
             status: 400,
-            error: 'Category id does not exists',
+            error: `Category id ${cates.split(',')[i]} does not exists`,
           };
         }
 
@@ -153,24 +154,34 @@ async function uploadDocument(body, file) {
     });
 
     // Append data and send to query api
-
     queryBody.userName = user[0].name;
     queryBody.tags = body.tags.split(',').map(tag => ({
       tagId: tag,
       tagText: tag,
     }));
-    await rabbitSender('document.create', { body: queryBody, id: res[0].insertId });
+    const serverNotify = await rabbitSender('document.create', { body: queryBody, id: res[0].insertId });
+    if (serverNotify.statusCode === 200) {
+      return {
+        status: 201,
+        message: `Document created with insertId = ${res[0].insertId}`,
+      };
+    } else {
+      // HERE IS CASE API QUERY iS NOT RESOLVED
+      // TODO: ROLLBACK HERE
+      logger.error(`[CATEGORY]: ${serverNotify.error}`);
 
-    return {
-      status: 201,
-      message: `Document created with insertId = ${res[0].insertId}`,
-    };
+      return {
+        status: serverNotify.statusCode,
+        message: serverNotify.error,
+      };
+    }
+
   } catch (ex) {
-    logger.error(ex.message || 'Unexpected error when upload file');
+    logger.error(ex.message || ex.error || 'Unexpected error when upload file');
 
     return {
-      status: ex.status || 500,
-      error: 'Unexpected error when upload file',
+      status: ex.status || ex.statusCode || 500,
+      error: ex.error || 'Unexpected error when upload file',
     };
   }
 }
