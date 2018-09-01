@@ -36,14 +36,14 @@ const routerDefine =  function defineRouter() {
   route.get('/documents', async (req, res) => {
     const queryParams = req.query;
 
-    const { statusCode, error, data, totalSize, scrollId, isLastPage } = isUndefined(req.query.scrollId) ?
+    const { statusCode, error, data, total, scrollId, isLastPage } = isUndefined(req.query.scrollId) ?
       await documentHandler.getList(queryParams) :
       await documentHandler.getNextPage(req.query.scrollId);
     res.status(statusCode !== 204 ? statusCode : 200);
     if (error) {
       res.json({ statusCode, error });
     } else {
-      res.json({ statusCode, data, totalSize, scrollId, isLastPage });
+      res.json({ statusCode, data, total, scrollId, isLastPage });
     }
   });
 
@@ -51,13 +51,13 @@ const routerDefine =  function defineRouter() {
     const queryParams = req.query;
     const { userId } = req.params;
 
-    const { statusCode, error, data, totalSize, scrollId, isLastPage } = await trackingHandler.getList(userId, queryParams);
+    const { statusCode, error, data, total, scrollId, isLastPage } = await trackingHandler.getList(userId, queryParams);
 
     res.status(statusCode !== 204 ? statusCode : 200);
     if (error) {
       res.json({ statusCode, error });
     } else {
-      res.json({ statusCode, data, totalSize, scrollId, isLastPage });
+      res.json({ statusCode, data, total, scrollId, isLastPage });
     }
   });
 
@@ -75,14 +75,14 @@ const routerDefine =  function defineRouter() {
   route.get('/categories', async (req, res) => {
     const queryParams = req.query;
 
-    const { statusCode, error, data, totalSize, scrollId, isLastPage } = isUndefined(req.query.scrollId) ?
+    const { statusCode, error, data, total, scrollId, isLastPage } = isUndefined(req.query.scrollId) ?
       await categoryHandler.getList(queryParams) :
       await categoryHandler.getNextPage(req.query.scrollId);
     res.status(statusCode !== 204 ? statusCode : 200);
     if (error) {
       res.json({ statusCode, error });
     } else {
-      res.json({ statusCode, data, totalSize, scrollId, isLastPage });
+      res.json({ statusCode, data, total, scrollId, isLastPage });
     }
   });
 

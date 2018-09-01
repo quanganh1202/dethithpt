@@ -93,7 +93,7 @@ class ES {
 
       return {
         statusCode: response.hits.total > size ? 206 : 200,
-        totalSize: response.hits.total,
+        total: response.hits.total,
         data: hits,
       };
     }).catch(handleElasticsearchError);
@@ -126,7 +126,7 @@ class ES {
         statusCode: hits.length === 0 ? 204 : 200,
         data: hits,
         scrollId: response._scroll_id,
-        totalSize: response.hits.total,
+        total: response.hits.total,
         isLastPage: false,
       };
     }).catch(handleElasticsearchError);
@@ -151,7 +151,7 @@ class ES {
         statusCode: 200,
         data: hits,
         scrollId,
-        totalSize: response.hits.total,
+        total: response.hits.total,
         isLastPage: false,
       };
     }).catch((err) => {
