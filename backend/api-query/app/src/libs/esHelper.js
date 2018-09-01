@@ -123,26 +123,28 @@ const insertToTagDoc = (docId, tags, createdAt) => {
 };
 
 const insertTag = async (tags, createdAt) => {
-  try {
-    const tagModel = new ES('tags', 'tag');
+  const tagModel = new ES('tags', 'tag');
 
-    return tags.map(tag => {
-      const filterModel = filterParamsHandler({ tagId: tag.tagId }).data;
+  const getPromises = tags.map(tag => {
+    const filterModel = filterParamsHandler({ tagId: tag }).data;
 
-      return tagModel.getList(filterModel).then(tagInfo => {
-        if (tagInfo.error) {
-          throw tag;
-        } else if (tagInfo.data && !tagInfo.data.length){
-          return tagModel.insert({
-            tagId: tag.tagId,
-            createdAt,
-          });
-        }
+    return tagModel.getList(filterModel);
+  });
+
+  const tagInfo = await Promise.all(getPromises);
+
+  return tagInfo.map((tag, i) => {
+    if (tag.error) {
+      throw tag.error;
+    }
+
+    if (tag.data && !tag.data.length){
+      return tagModel.insert({
+        tagId: tags[i].tagId,
+        createdAt,
       });
-    });
-  } catch (e) {
-    throw e;
-  }
+    }
+  });
 };
 
 const removeCateRefToDoc = (docId) => {

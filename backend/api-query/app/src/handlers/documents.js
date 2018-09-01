@@ -108,7 +108,7 @@ export default {
       const { createdId } = await elasticsearch.insert(body, docId);
       const promiseCateDocRefs = insertToCateDoc(createdId, cates, now);
       const promiseTagDocRefs = insertToTagDoc(createdId, tags, now);
-      await Promise.all([...promiseCateDocRefs, ...promiseTagDocRefs, ...insertTag(tags)]);
+      await Promise.all([...promiseCateDocRefs, ...promiseTagDocRefs, insertTag(tags)]);
 
       return { statusCode: 200 };
     } catch (error) {
