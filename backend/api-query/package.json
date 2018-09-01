@@ -9,7 +9,7 @@
     "production": "node ./dist/main.js",
     "build": "./resource/build.sh",
     "dev": "cross-env NODE_ENV=dev nodemon app/index.js --exec babel-node",
-    "init": "bash ./resource/initDb.sh",
+    "init": "bash ./resource/init_elasticsearch.sh",
     "updateDb": "bash ./resource/updateDb.sh"
   },
   "keywords": [],

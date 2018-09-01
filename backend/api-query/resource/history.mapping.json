@@ -1,0 +1,42 @@
+{
+  "settings": {
+    "analysis": {
+      "filter": {
+        "autocomplete_filter": {
+          "type": "edge_ngram",
+          "min_gram": 1,
+          "max_gram": 20
+        }
+      },
+      "analyzer": {
+        "autocomplete": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "autocomplete_filter"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "history": {
+      "dynamic": "strict",
+      "properties": {
+        "userId": {
+          "type": "keyword"
+        },
+        "docId": {
+          "type": "keyword"
+        },
+        "money": {
+          "type": "long"
+        },
+        "tradingType": {
+          "type": "keyword"
+        }
+      }
+    }
+  }
+}
