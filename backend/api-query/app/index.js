@@ -23,6 +23,7 @@ const initial = async () => {
     logger.info('Starting is DONE');
   } catch (err) {
     logger.error(`[START]: ${err.message || err.error || JSON.stringify(err)}`);
+    process.exit(1);
   }
 };
 

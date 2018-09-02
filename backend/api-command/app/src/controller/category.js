@@ -114,12 +114,22 @@ async function updateCategory(id, body) {
     }
 
     await cateModel.updateCategoryById(id, body);
-    await rabbitSender('category.update', { id, body });
+    const serverNotify = await rabbitSender('category.update', { id, body });
+    if (serverNotify.statusCode === 200) {
+      return {
+        status: 200,
+        message: `Category with id = ${id} is updated`,
+      };
+    } else {
+      // HERE IS CASE API QUERY iS NOT RESOLVED
+      // TODO: ROLLBACK HERE
+      logger.error(`[CATEGORY]: ${serverNotify.error}`);
 
-    return {
-      status: 200,
-      message: `Category with id = ${id} is updated`,
-    };
+      return {
+        status: serverNotify.statusCode,
+        message: serverNotify.error,
+      };
+    }
   } catch (ex) {
     logger(ex.message || 'Unexpected error when update category');
 
@@ -139,12 +149,22 @@ async function deleteCategoryById(id) {
     }
 
     await cateModel.deleteCategoryById(id);
-    await rabbitSender('category.delete', { id });
+    const serverNotify = await rabbitSender('category.delete', { id });
+    if (serverNotify.statusCode === 200) {
+      return {
+        status: 200,
+        message: 'Deleted',
+      };
+    } else {
+      // HERE IS CASE API QUERY iS NOT RESOLVED
+      // TODO: ROLLBACK HERE
+      logger.error(`[CATEGORY]: ${serverNotify.error}`);
 
-    return {
-      status: 200,
-      message: 'Deleted',
-    };
+      return {
+        status: serverNotify.statusCode,
+        message: serverNotify.error,
+      };
+    }
   } catch (ex) {
     logger.error(ex.message || 'Unexpect error when delete file');
 

@@ -2,6 +2,7 @@ import Subject from '../model/subject';
 import logger from '../libs/logger';
 import { dataValidator } from '../libs/ajv';
 import { exception } from '../constant/error';
+import rabbitSender from '../../rabbit/sender';
 
 const subModel = new Subject;
 const schemaId = 'http://dethithpt.com/subject-schema#';
@@ -43,11 +44,22 @@ async function createSubject(body) {
     }
 
     const res = await subModel.addNewSubject(body);
+    const serverNotify = await rabbitSender('subject.create', { id: res.insertId, body });
+    if (serverNotify.statusCode === 200) {
+      return {
+        status: 201,
+        message: `Subject created with insertId = ${res.insertId}`,
+      };
+    } else {
+      // HERE IS CASE API QUERY iS NOT RESOLVED
+      // TODO: ROLLBACK HERE
+      logger.error(`[SUBJECT]: ${serverNotify.error}`);
 
-    return {
-      status: 201,
-      message: `Subject created with insertId = ${res.insertId}`,
-    };
+      return {
+        status: serverNotify.statusCode,
+        message: serverNotify.error,
+      };
+    }
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when create subject');
 
@@ -92,11 +104,22 @@ async function updateSubject(id, body) {
     }
 
     await subModel.updateSubjectById(id, body);
+    const serverNotify = await rabbitSender('subject.update', { id, body });
+    if (serverNotify.statusCode === 200) {
+      return {
+        status: 200,
+        message: `Subject with id = ${id} is updated`,
+      };
+    } else {
+      // HERE IS CASE API QUERY iS NOT RESOLVED
+      // TODO: ROLLBACK HERE
+      logger.error(`[SUBJECT]: ${serverNotify.error}`);
 
-    return {
-      status: 200,
-      message: `Subject with id = ${id} is updated`,
-    };
+      return {
+        status: serverNotify.statusCode,
+        message: serverNotify.error,
+      };
+    }
   } catch (ex) {
     logger(ex.message || 'Unexpected error when update subject');
 
@@ -116,11 +139,22 @@ async function deleteSubjectById(id) {
     }
 
     await subModel.deleteSubjectById(id);
+    const serverNotify = await rabbitSender('subject.delete', { id });
+    if (serverNotify.statusCode === 200) {
+      return {
+        status: 200,
+        message: 'Deleted',
+      };
+    } else {
+      // HERE IS CASE API QUERY iS NOT RESOLVED
+      // TODO: ROLLBACK HERE
+      logger.error(`[SUBJECT]: ${serverNotify.error}`);
 
-    return {
-      status: 200,
-      message: 'Deleted',
-    };
+      return {
+        status: serverNotify.statusCode,
+        message: serverNotify.error,
+      };
+    }
   } catch (ex) {
     logger.error(ex.message || 'Unexpect error when delete subject');
 

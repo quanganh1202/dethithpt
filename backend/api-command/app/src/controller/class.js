@@ -2,6 +2,7 @@ import Class from '../model/class';
 import logger from '../libs/logger';
 import { dataValidator } from '../libs/ajv';
 import { exception } from '../constant/error';
+import rabbitSender from '../../rabbit/sender';
 
 const classModel = new Class;
 const schemaId = 'http://dethithpt.com/class-schema#';
@@ -43,11 +44,22 @@ async function createClass(body) {
     }
 
     const res = await classModel.addNewClass(body);
+    const serverNotify = await rabbitSender('class.create', { id: res.insertId, body });
+    if (serverNotify.statusCode === 200) {
+      return {
+        status: 201,
+        message: `Class created with insertId = ${res.insertId}`,
+      };
+    } else {
+      // HERE IS CASE API QUERY iS NOT RESOLVED
+      // TODO: ROLLBACK HERE
+      logger.error(`[CLASS]: ${serverNotify.error}`);
 
-    return {
-      status: 201,
-      message: `Class created with insertId = ${res.insertId}`,
-    };
+      return {
+        status: serverNotify.statusCode,
+        message: serverNotify.error,
+      };
+    }
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when create class');
 
@@ -92,11 +104,22 @@ async function updateClass(id, body) {
     }
 
     await classModel.updateClassById(id, body);
+    const serverNotify = await rabbitSender('class.update', { id, body });
+    if (serverNotify.statusCode === 200) {
+      return {
+        status: 200,
+        message: `Class with id = ${id} is updated`,
+      };
+    } else {
+      // HERE IS CASE API QUERY iS NOT RESOLVED
+      // TODO: ROLLBACK HERE
+      logger.error(`[CLASS]: ${serverNotify.error}`);
 
-    return {
-      status: 200,
-      message: `Class with id = ${id} is updated`,
-    };
+      return {
+        status: serverNotify.statusCode,
+        message: serverNotify.error,
+      };
+    }
   } catch (ex) {
     logger(ex.message || 'Unexpected error when update class');
 
@@ -116,11 +139,22 @@ async function deleteClassById(id) {
     }
 
     await classModel.deleteClassById(id);
+    const serverNotify = await rabbitSender('class.delete', { id });
+    if (serverNotify.statusCode === 200) {
+      return {
+        status: 200,
+        message: 'Deleted',
+      };
+    } else {
+      // HERE IS CASE API QUERY iS NOT RESOLVED
+      // TODO: ROLLBACK HERE
+      logger.error(`[CLASS]: ${serverNotify.error}`);
 
-    return {
-      status: 200,
-      message: 'Deleted',
-    };
+      return {
+        status: serverNotify.statusCode,
+        message: serverNotify.error,
+      };
+    }
   } catch (ex) {
     logger.error(ex.message || 'Unexpect error when delete class');
 

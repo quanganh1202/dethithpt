@@ -28,6 +28,18 @@ echo
 CURL -X PUT "$ES_HOST/tags" -H 'Content-Type: application/json' -d @'./resource/tag.mapping.json'
 echo
 
+# Init class
+CURL -X PUT "$ES_HOST/classes" -H 'Content-Type: application/json' -d @'./resource/class.mapping.json'
+echo
+
+# Init subject
+CURL -X PUT "$ES_HOST/subjects" -H 'Content-Type: application/json' -d @'./resource/subject.mapping.json'
+echo
+
+# Init collection
+CURL -X PUT "$ES_HOST/collections" -H 'Content-Type: application/json' -d @'./resource/collection.mapping.json'
+echo
+
 # Init history
 CURL -X PUT "$ES_HOST/histories" -H 'Content-Type: application/json' -d @'./resource/history.mapping.json'
 echo

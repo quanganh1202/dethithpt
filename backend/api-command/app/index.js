@@ -20,4 +20,7 @@ Promise.all([
   logger.info('MySql is connected');
 
   return expressServer();
-}).catch(err => logger.error(`[ERR]: ${err}`));
+}).catch(err => {
+  logger.error(`[START]: ${err}`);
+  process.exit(1);
+});

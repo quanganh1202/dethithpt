@@ -168,14 +168,13 @@ async function uploadDocument(body, file) {
     } else {
       // HERE IS CASE API QUERY iS NOT RESOLVED
       // TODO: ROLLBACK HERE
-      logger.error(`[CATEGORY]: ${serverNotify.error}`);
+      logger.error(`[DOCUMENT]: ${serverNotify.error}`);
 
       return {
         status: serverNotify.statusCode,
         message: serverNotify.error,
       };
     }
-
   } catch (ex) {
     logger.error(ex.message || ex.error || 'Unexpected error when upload file');
 
@@ -314,12 +313,23 @@ async function updateDocumentInfo(id, body, file) {
       ]);
     }
     await Promise.all(promise).catch((ex) => { throw ex; });
-    await rabbitSender('document.update', { body: newBody, id });
+    const serverNotify = await rabbitSender('document.update', { body: newBody, id });
 
-    return {
-      status: 200,
-      message: `Document with id = ${id} is updated`,
-    };
+    if (serverNotify.statusCode === 200) {
+      return {
+        status: 200,
+        message: `Document with id = ${id} is updated`,
+      };
+    } else {
+      // HERE IS CASE API QUERY iS NOT RESOLVED
+      // TODO: ROLLBACK HERE
+      logger.error(`[DOCUMENT]: ${serverNotify.error}`);
+
+      return {
+        status: serverNotify.statusCode,
+        message: serverNotify.error,
+      };
+    }
   } catch (ex) {
     logger(ex.message || 'Unexpected error');
 
@@ -343,12 +353,23 @@ async function deleteDocument(id) {
       fileHelpers.removeFile(result[0].path),
     ]);
 
-    await rabbitSender('document.delete', { id });
+    const serverNotify = await rabbitSender('document.delete', { id });
 
-    return {
-      status: 200,
-      message: 'Deleted',
-    };
+    if (serverNotify.statusCode === 200) {
+      return {
+        status: 200,
+        message: 'Deleted',
+      };
+    } else {
+      // HERE IS CASE API QUERY iS NOT RESOLVED
+      // TODO: ROLLBACK HERE
+      logger.error(`[DOCUMENT]: ${serverNotify.error}`);
+
+      return {
+        status: serverNotify.statusCode,
+        message: serverNotify.error,
+      };
+    }
   } catch (ex) {
     logger.error(ex.message || 'Unexpect error when delete file');
 
