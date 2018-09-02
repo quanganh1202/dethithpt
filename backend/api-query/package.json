@@ -1,0 +1,51 @@
+{
+  "name": "api-query",
+  "version": "0.0.1",
+  "description": "",
+  "main": "app/index.js",
+  "scripts": {
+    "test": "mocha",
+    "start": "babel-node app/index.js",
+    "production": "node ./dist/main.js",
+    "build": "./resource/build.sh",
+    "dev": "cross-env NODE_ENV=dev nodemon app/index.js --exec babel-node",
+    "init": "bash ./resource/init_elasticsearch.sh",
+    "updateDb": "bash ./resource/updateDb.sh"
+  },
+  "keywords": [],
+  "author": {
+    "name": "Vu Anh Dung",
+    "email": "dungva1505@gmail.com",
+    "github": "dungva1505"
+  },
+  "engines": {
+    "node": "v8.11.1"
+  },
+  "os": [
+    "win32",
+    "linux",
+    "darwin"
+  ],
+  "license": "ISC",
+  "dependencies": {
+    "amqplib": "^0.5.2",
+    "babel-polyfill": "^6.26.0",
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.4",
+    "cross-env": "^5.2.0",
+    "elasticsearch": "^15.1.1",
+    "express": "^4.16.3",
+    "fs-extra": "^7.0.0",
+    "jsonwebtoken": "^8.3.0",
+    "moment": "^2.22.2",
+    "nodemon": "^1.18.3",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.2",
+    "winston": "^3.0.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "eslint": "^5.2.0"
+  }
+}

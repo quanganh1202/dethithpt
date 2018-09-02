@@ -1,0 +1,114 @@
+{
+  "settings": {
+    "analysis": {
+      "filter": {
+        "autocomplete_filter": {
+          "type": "edge_ngram",
+          "min_gram": 1,
+          "max_gram": 20
+        }
+      },
+      "analyzer": {
+        "autocomplete": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "autocomplete_filter"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "user": {
+      "dynamic": "strict",
+      "properties": {
+        "name": {
+          "type": "text",
+          "analyzer": "autocomplete",
+          "search_analyzer": "standard",
+          "fields": {
+            "raw": {
+              "type": "keyword"
+            }
+          }
+        },
+        "email": {
+          "type": "text",
+          "analyzer": "autocomplete",
+          "search_analyzer": "standard",
+          "fields": {
+            "raw": {
+              "type": "keyword"
+            }
+          }
+        },
+        "yearOfBirth": {
+          "type": "text",
+          "fields": {
+            "raw": {
+              "type": "keyword"
+            }
+          }
+        },
+        "school": {
+          "type": "text",
+          "analyzer": "autocomplete",
+          "search_analyzer": "standard",
+          "fields": {
+            "raw": {
+              "type": "keyword"
+            }
+          }
+        },
+        "place": {
+          "type": "text",
+          "analyzer": "autocomplete",
+          "search_analyzer": "standard",
+          "fields": {
+            "raw": {
+              "type": "keyword"
+            }
+          }
+        },
+        "phone": {
+          "type": "text",
+          "analyzer": "autocomplete",
+          "search_analyzer": "standard",
+          "fields": {
+            "raw": {
+              "type": "integer"
+            }
+          }
+        },
+        "reward": {
+          "type": "text",
+          "analyzer": "autocomplete",
+          "search_analyzer": "standard",
+          "fields": {
+            "raw": {
+              "type": "keyword"
+            }
+          }
+        },
+        "money": {
+          "type": "text",
+          "analyzer": "autocomplete",
+          "search_analyzer": "standard",
+          "fields": {
+            "raw": {
+              "type": "keyword"
+            }
+          }
+        },
+        "createdAt": {
+        	"type": "date"
+        },
+        "updatedAt": {
+        	"type": "date"
+        }
+      }
+    }
+  }
+}
