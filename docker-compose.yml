@@ -1,0 +1,17 @@
+version: '2'
+services:
+  security:
+    build: ./backend
+    ports:
+     - "3000:3000"
+    depends_on:
+     - db
+    environment:
+     - DATABASE_HOST=db
+    volumes:
+     - ./sample-service/api:/app/api
+  db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: abc12345678
