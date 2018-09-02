@@ -7,7 +7,6 @@ import documentRoutes from './router/documentRoutes';
 import categoryRoutes from './router/cateRoutes';
 import classRoutes from './router/classRoutes';
 import subjectRoutes from './router/subjectRoutes';
-import yearSchoolRoutes from './router/yearSchoolRoutes';
 import collectionRoutes from './router/collectionRoutes';
 import { tokenVerifier } from './middleware/jwt';
 import logger from '../src/libs/logger';
@@ -36,7 +35,6 @@ const initialExpress = async function startServer() {
     categoryRoutes(),
     classRoutes(),
     subjectRoutes(),
-    yearSchoolRoutes(),
     collectionRoutes(),
   ]);
   // Loading schema validation file in folder ./schema
