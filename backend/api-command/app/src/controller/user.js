@@ -5,6 +5,7 @@ import logger from '../libs/logger';
 import { dataValidator } from '../libs/ajv';
 import { exception } from '../constant/error';
 import social from '../constant/socialApiUrl';
+import rabbitSender from '../../rabbit/sender';
 
 const userModel = new User();
 const schemaId = 'http://dethithpt.com/user-schema#';
@@ -51,13 +52,25 @@ async function auth(info) {
         status: user[0].status,
       };
     }
-    const { token, expiresIn } = tokenGenerator(sign);
+    const serverNotify = await rabbitSender('user.create', sign);
+    if (serverNotify.statusCode === 200) {
+      const { token, expiresIn } = tokenGenerator(sign);
 
-    return {
-      status: 200,
-      token,
-      expiresIn,
-    };
+      return {
+        status: 200,
+        token,
+        expiresIn,
+      };
+    } else {
+      // HERE IS CASE API QUERY iS NOT RESOLVED
+      // TODO: ROLLBACK HERE
+      logger.error(`[USER]: ${serverNotify.error}`);
+
+      return {
+        status: serverNotify.statusCode,
+        message: serverNotify.error,
+      };
+    }
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when auth');
 
@@ -99,14 +112,29 @@ async function addUser(userInfo) {
       email,
       status: 1,
     };
-    const { token, expiresIn } = tokenGenerator(sign);
+    const body = Object.assign({}, sign);
+    delete body.id;
+    const serverNotify = await rabbitSender('user.create', { id: user[0].id, body: userInfo });
+    if (serverNotify.statusCode === 200) {
+      const { token, expiresIn } = tokenGenerator(sign);
 
-    return {
-      status: 201,
-      message: 'Created',
-      token,
-      expiresIn,
-    };
+      return {
+        status: 201,
+        message: 'Created',
+        token,
+        expiresIn,
+      };
+    } else {
+      // HERE IS CASE API QUERY iS NOT RESOLVED
+      // TODO: ROLLBACK HERE
+      logger.error(`[USER]: ${serverNotify.error}`);
+
+      return {
+        status: serverNotify.statusCode,
+        message: serverNotify.error,
+      };
+    }
+
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when insert an user');
 
@@ -130,11 +158,22 @@ async function deleteUser(id) {
 
   try {
     await userModel.deleteUser(id);
+    const serverNotify = await rabbitSender('user.delete', { id });
+    if (serverNotify.statusCode === 200) {
+      return {
+        status: 200,
+        message: 'Deleted',
+      };
+    } else {
+      // HERE IS CASE API QUERY iS NOT RESOLVED
+      // TODO: ROLLBACK HERE
+      logger.error(`[USER]: ${serverNotify.error}`);
 
-    return {
-      status: 200,
-      message: 'Deleted',
-    };
+      return {
+        status: serverNotify.statusCode,
+        message: serverNotify.error,
+      };
+    }
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when delete user');
 
@@ -164,11 +203,22 @@ async function updateUser(id, userInfo) {
     }
 
     await userModel.updateUser(id, userInfo);
+    const serverNotify = await rabbitSender('user.update', { id, body: userInfo });
+    if (serverNotify.statusCode === 200) {
+      return {
+        status: 200,
+        message: 'User updated',
+      };
+    } else {
+      // HERE IS CASE API QUERY iS NOT RESOLVED
+      // TODO: ROLLBACK HERE
+      logger.error(`[USER]: ${serverNotify.error}`);
 
-    return {
-      status: 200,
-      message: 'User updated',
-    };
+      return {
+        status: serverNotify.statusCode,
+        message: serverNotify.error,
+      };
+    }
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when update user');
 
@@ -193,12 +243,22 @@ async function blockUser(id) {
     }
 
     await userModel.updateUser(id, { status: 0 });
+    const serverNotify = await rabbitSender('user.update', { id, body: { status: 0 } });
+    if (serverNotify.statusCode === 200) {
+      return {
+        status: 200,
+        message: 'Blocked',
+      };
+    } else {
+      // HERE IS CASE API QUERY iS NOT RESOLVED
+      // TODO: ROLLBACK HERE
+      logger.error(`[USER]: ${serverNotify.error}`);
 
-    return {
-      status: 200,
-      message: 'Blocked',
-    };
-
+      return {
+        status: serverNotify.statusCode,
+        message: serverNotify.error,
+      };
+    }
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when block user');
 

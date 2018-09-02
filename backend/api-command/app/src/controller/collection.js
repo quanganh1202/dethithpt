@@ -2,6 +2,7 @@ import Collection from '../model/collection';
 import logger from '../libs/logger';
 import { dataValidator } from '../libs/ajv';
 import { exception } from '../constant/error';
+import rabbitSender from '../../rabbit/sender';
 
 const subModel = new Collection;
 const schemaId = 'http://dethithpt.com/collection-schema#';
@@ -34,7 +35,7 @@ async function createCollection(body) {
       };
     }
     const { name } = body;
-    const cate = await subModel.getListCollection([{ name }]);
+    const cate = await subModel.getListCollection([{ 'name.raw': name }]);
     if (cate && cate.length) {
       return {
         error: `Collection ${body.name} already existed`,
@@ -43,11 +44,22 @@ async function createCollection(body) {
     }
 
     const res = await subModel.addNewCollection(body);
+    const serverNotify = await rabbitSender('collection.create', { id: res.insertId, body });
+    if (serverNotify.statusCode === 200) {
+      return {
+        status: 201,
+        message: `Collection created with insertId = ${res.insertId}`,
+      };
+    } else {
+      // HERE IS CASE API QUERY iS NOT RESOLVED
+      // TODO: ROLLBACK HERE
+      logger.error(`[COLLECTION]: ${serverNotify.error}`);
 
-    return {
-      status: 201,
-      message: `Collection created with insertId = ${res.insertId}`,
-    };
+      return {
+        status: serverNotify.statusCode,
+        message: serverNotify.error,
+      };
+    }
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when create collection');
 
@@ -92,11 +104,22 @@ async function updateCollection(id, body) {
     }
 
     await subModel.updateCollectionById(id, body);
+    const serverNotify = await rabbitSender('collection.update', { id, body });
+    if (serverNotify.statusCode === 200) {
+      return {
+        status: 200,
+        message: `Collection with id = ${id} is updated`,
+      };
+    } else {
+      // HERE IS CASE API QUERY iS NOT RESOLVED
+      // TODO: ROLLBACK HERE
+      logger.error(`[COLLECTION]: ${serverNotify.error}`);
 
-    return {
-      status: 200,
-      message: `Collection with id = ${id} is updated`,
-    };
+      return {
+        status: serverNotify.statusCode,
+        message: serverNotify.error,
+      };
+    }
   } catch (ex) {
     logger(ex.message || 'Unexpected error when update collection');
 
@@ -116,11 +139,22 @@ async function deleteCollectionById(id) {
     }
 
     await subModel.deleteCollectionById(id);
+    const serverNotify = await rabbitSender('collection.delete', { id });
+    if (serverNotify.statusCode === 200) {
+      return {
+        status: 200,
+        message: 'Deleted',
+      };
+    } else {
+      // HERE IS CASE API QUERY iS NOT RESOLVED
+      // TODO: ROLLBACK HERE
+      logger.error(`[COLLECTION]: ${serverNotify.error}`);
 
-    return {
-      status: 200,
-      message: 'Deleted',
-    };
+      return {
+        status: serverNotify.statusCode,
+        message: serverNotify.error,
+      };
+    }
   } catch (ex) {
     logger.error(ex.message || 'Unexpect error when delete collection');
 
