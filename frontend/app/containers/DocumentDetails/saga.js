@@ -16,7 +16,7 @@ import { makeSelectUsername } from 'containers/HomePage/selectors';
  * Request to get document details by id
  */
 export function* getDocumentDetailsHandler({ id }) {
-  const url = `http://125.212.250.92:3000/documents/${id}`;
+  const url = `/api/documents/${id}`;
 
   try {
     const resp = yield call(axios.get, url);
@@ -31,7 +31,7 @@ export function* getDocumentDetailsHandler({ id }) {
  * Request get document list
  */
 export function* getDocumentsListHandler({ query }) {
-  const url = `http://125.212.250.92:3000/documents`;
+  const url = `/api/documents`;
 
   try {
     const resp = yield call(axios.get, url, { params: query });

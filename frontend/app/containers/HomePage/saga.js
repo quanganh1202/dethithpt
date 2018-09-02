@@ -17,7 +17,7 @@ import { makeSelectUsername } from 'containers/HomePage/selectors';
  * Request to login using social network token
  */
 export function* loginHandler({ payload }) {
-  const url = `http://125.212.250.92:3000/login`;
+  const url = `/api/login`;
 
   try {
     const resp = yield call(axios.post, url, payload);
@@ -31,7 +31,7 @@ export function* loginHandler({ payload }) {
  * Request update user info
  */
 export function* updateUserHandler({ payload }) {
-  const url = `http://125.212.250.92:3000/register`;
+  const url = `/api/register`;
 
   try {
     const resp = yield call(axios.post, url, payload);
@@ -45,7 +45,7 @@ export function* updateUserHandler({ payload }) {
  * Request get document list
  */
 export function* getDocumentsListHandler({ query }) {
-  const url = `http://125.212.250.92:3000/documents`;
+  const url = `/api/documents`;
 
   try {
     const resp = yield call(axios.get, url, { params: query });
