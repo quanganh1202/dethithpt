@@ -3,12 +3,12 @@ import moment from 'moment';
 import ES from '../../elastic';
 import logger from '../libs/logger';
 import { filterParamsHandler, sortParamsHandler } from '../libs/esHelper';
-const type = process.env.ES_TYPE_CATEGORY || 'user';
-const index = process.env.ES_INDEX_CATEGORY || 'users';
+const type = process.env.ES_TYPE_CATEGORY || 'subject';
+const index = process.env.ES_INDEX_CATEGORY || 'subjects';
 const elasticsearch = new ES(index, type);
 
 const handleCategoryError = (error) => {
-  logger.error(`[USER] - ${error.message || error}`);
+  logger.error(`[SUBJECT] - ${error.message || error}`);
 
   return {
     statusCode: error.status || error.code || 500,
@@ -17,15 +17,15 @@ const handleCategoryError = (error) => {
 };
 
 export default {
-  getOne: async (userId) => {
+  getOne: async (subjectId) => {
     try {
-      if (!userId) {
+      if (!subjectId) {
         return {
           statusCode: 400,
-          error: 'User ID can not be null or undefined',
+          error: 'Subject ID can not be null or undefined',
         };
       }
-      const result = await elasticsearch.get(userId);
+      const result = await elasticsearch.get(subjectId);
 
       return result;
     } catch(error) {
@@ -87,11 +87,11 @@ export default {
     }
   },
 
-  create: async (userId, body) => {
+  create: async (subjectId, body) => {
     try {
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.createdAt = now;
-      const result = await elasticsearch.insert(body, userId);
+      const result = await elasticsearch.insert(body, subjectId);
 
       return result;
     } catch (error) {
@@ -99,15 +99,15 @@ export default {
     }
   },
 
-  update: async (userId, body) => {
+  update: async (subjectId, body) => {
     try {
-      if (!userId) {
+      if (!subjectId) {
         return {
           statusCode: 400,
-          error: 'Missing user id',
+          error: 'Missing class id',
         };
       }
-      const result = await elasticsearch.update(userId, body);
+      const result = await elasticsearch.update(subjectId, body);
 
       return result;
     } catch (error) {
@@ -115,15 +115,15 @@ export default {
     }
   },
 
-  delete: async (userId) => {
+  delete: async (subjectId) => {
     try {
-      if (!userId) {
+      if (!subjectId) {
         return {
           statusCode: 400,
-          error: 'Missing user id',
+          error: 'Missing subject id',
         };
       }
-      const result = await elasticsearch.remove(userId);
+      const result = await elasticsearch.remove(subjectId);
 
       return result;
     } catch (error) {

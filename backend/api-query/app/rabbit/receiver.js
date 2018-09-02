@@ -2,6 +2,10 @@ import amqp from 'amqplib/callback_api';
 import logger from '../src/libs/logger';
 import document from '../src/handlers/documents';
 import category from '../src/handlers/category';
+import collection from '../src/handlers/collection';
+import subject from '../src/handlers/subject';
+import _class from '../src/handlers/class';
+import user from '../src/handlers/user';
 const routingKey = [
   'document.create',
   'document.update',
@@ -62,6 +66,18 @@ const rabbitMQConnector = () => {
               break;
             case 'category':
               replyMessage = await category[actor[1]](content.id, content.body).catch(e => e);
+              break;
+            case 'user':
+              replyMessage = await user[actor[1]](content.id, content.body).catch(e => e);
+              break;
+            case 'class':
+              replyMessage = await _class[actor[1]](content.id, content.body).catch(e => e);
+              break;
+            case 'collection':
+              replyMessage = await collection[actor[1]](content.id, content.body).catch(e => e);
+              break;
+            case 'subject':
+              replyMessage = await subject[actor[1]](content.id, content.body).catch(e => e);
               break;
             default:
               replyMessage = {
