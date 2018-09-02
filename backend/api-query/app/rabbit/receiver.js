@@ -12,6 +12,15 @@ const routingKey = [
   'category.create',
   'category.update',
   'category.delete',
+  'collection.create',
+  'collection.update',
+  'collection.delete',
+  'class.create',
+  'class.update',
+  'class.delete',
+  'subject.create',
+  'subject.update',
+  'subject.delete',
 ];
 
 const rabbitMQConnector = () => {
