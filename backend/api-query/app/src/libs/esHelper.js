@@ -6,17 +6,15 @@ const filterParamsHandler = (filtersParam = {}) => {
     const must = Object.entries(filtersParam).reduce((arrFilters, filter) => {
       if (filter[1]) {
         let should = [];
-        if (Array.isArray(filter[1])) {
-          should = filter[1]
-            .join(',')
-            .split(',')
-            .reduce((pre, cur) => {
-              if (!pre.includes(cur)) {
-                pre.push(cur);
-              }
+        if (Array.isArray(filter[1]) || filter[1].split(',').length) {
+          const filters = Array.isArray(filter[1]) ? filter[1].join(',').split(',') : filter[1].split(',');
+          should = filters.reduce((pre, cur) => {
+            if (!pre.includes(cur)) {
+              pre.push(cur);
+            }
 
-              return pre;
-            }, [])
+            return pre;
+          }, [])
             .map(fval => {
               return {
                 match: {
