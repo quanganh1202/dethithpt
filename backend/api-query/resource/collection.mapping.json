@@ -45,7 +45,6 @@
           }
         },
         "cates": {
-          "type": "nested",
           "properties": {
             "cateId": {
               "type": "keyword"

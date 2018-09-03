@@ -35,7 +35,6 @@
           }
         },
         "cates": {
-          "type": "nested",
           "properties": {
             "cateId": {
               "type": "keyword"
@@ -53,7 +52,6 @@
           }
         },
         "tags": {
-          "type": "nested",
           "properties": {
             "tagId": {
               "type": "keyword"

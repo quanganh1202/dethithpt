@@ -48,9 +48,12 @@ export default {
         offset,
         sort,
         fields,
-        category,
-        subject,
-        classes,
+        cateName,
+        cateId,
+        subjectName,
+        subjectId,
+        className,
+        classId,
         yearSchool,
         name,
         price,
@@ -76,7 +79,17 @@ export default {
       }
       const sortObj = sortParamsHandler(sort);
       if (sortObj.statusCode !== 200) return sortObj; // Return error
-      const filterBuilt = filterParamsHandler({ category, subject, classes, yearSchool, name, price });
+      const filterBuilt = filterParamsHandler({
+        'cates.cateName': cateName,
+        'cates.cateId': cateId,
+        subjectName,
+        subjectId,
+        className,
+        classId,
+        yearSchool,
+        name,
+        price,
+      });
       if (filterBuilt.statusCode !== 200) return filterBuilt; // Return error
       const fieldsToArray = fields ? fields.split(',') : undefined; // List fields specific by ","
       const from = size && offset && !isScroll ? size * (offset - 1) : 0; // Fulfil size and offset to get from value. Default equal 0
