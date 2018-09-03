@@ -72,7 +72,7 @@ class ES {
   }
 
   getList(filters = {}, fields, sort = {}, from, size) {
-    const esSorter = Object.entries(sort).map(s => ({ [`${s[0]}.raw`]: { order: s[1] } }));
+    const esSorter = Object.entries(sort).map(s => ({ [s[0]]: { order: s[1] } }));
 
     return esClient.search({
       index: this.index,
@@ -100,7 +100,7 @@ class ES {
   }
 
   getInitialScroll(filters = {}, fields, sort = {}, size) {
-    const esSorter = Object.entries(sort).map(s => ({ [`${s[0]}.raw`]: { order: s[1] } }));
+    const esSorter = Object.entries(sort).map(s => ({ [s[0]]: { order: s[1] } }));
 
     return esClient.search({
       index: this.index,

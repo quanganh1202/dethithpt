@@ -65,7 +65,9 @@ const sortParamsHandler = (sort) => {
       if (extractString.length !== 2) {
         throw new Error('Sort param is invalid format');
       }
-      pre[extractString[0]] = extractString[1];
+      pre[
+        extractString[0] === 'createdAt' || extractString[0] === 'updatedAt' ? extractString[0] : `${extractString[0]}.raw`
+      ] = extractString[1];
 
       return pre;
     }, {}) : sort ? (() => {
@@ -75,7 +77,9 @@ const sortParamsHandler = (sort) => {
       }
 
       return {
-        [sortToArray[0]]: sortToArray[1],
+        [
+        sortToArray[0] === 'createdAt' || sortToArray[0] === 'updatedAt' ? sortToArray[0] : `${sortToArray[0]}.raw`
+        ]: sortToArray[1],
       };
     })() : undefined;
 
