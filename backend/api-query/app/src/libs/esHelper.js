@@ -126,7 +126,7 @@ const insertTag = async (tags, createdAt) => {
   const tagModel = new ES('tags', 'tag');
 
   const getPromises = tags.map(tag => {
-    const filterModel = filterParamsHandler({ tagId: tag }).data;
+    const filterModel = filterParamsHandler({ tagId: tag.tagId }).data;
 
     return tagModel.getList(filterModel);
   });
