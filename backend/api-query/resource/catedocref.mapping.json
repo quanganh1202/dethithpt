@@ -1,0 +1,24 @@
+{
+  "mappings": {
+      "cateDocRef": {
+          "dynamic": "strict",
+          "properties": {
+              "cateId": {
+                  "type": "keyword"
+              },
+              "cateName": {
+                  "type": "text"
+              },
+              "docId": {
+                  "type": "keyword"
+              },
+              "createdAt": {
+                  "type": "date"
+              },
+              "updatedAt": {
+                "type": "date"
+              }
+          }
+      }
+  }
+}

@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import A from './A';
 import NavBar from './NavBar';
 import HeaderLink from './HeaderLink';
-import Banner from './banner.jpg';
+import Banner from './banner.png';
 import messages from './messages';
 
 const HeaderBar = styled.div`
@@ -13,7 +13,8 @@ const HeaderBar = styled.div`
   background: #fff;
 
   & img {
-    width: 300px;
+    height: 70px;
+    margin-top: 10px;
   }
 `;
 
@@ -31,8 +32,8 @@ class Header extends React.Component {
           <HeaderLink to="/">
             <FormattedMessage {...messages.home} />
           </HeaderLink>
-          <HeaderLink to="/features">
-            <FormattedMessage {...messages.features} />
+          <HeaderLink to="/dang-ban-tai-lieu">
+            Đăng bán tài liệu
           </HeaderLink>
         </NavBar>
       </div>

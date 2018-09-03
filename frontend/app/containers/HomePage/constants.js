@@ -9,4 +9,13 @@
  * export const YOUR_ACTION_CONSTANT = 'yourproject/YourContainer/YOUR_ACTION_CONSTANT';
  */
 
-export const CHANGE_USERNAME = 'boilerplate/Home/CHANGE_USERNAME';
+const container = 'thpt/Home'
+
+export const LOGIN_REQUEST = 'thpt/Home/LOGIN/REQUEST';
+export const LOGIN_SUCCESS = 'thpt/Home/LOGIN/SUCCESS';
+export const LOGIN_FAILURE = 'thpt/Home/LOGIN/FAILURE';
+export const UPDATE_USER_INFO_REQUEST = 'thpt/Home/UPDATE_USER_INFO/REQUEST';
+export const UPDATE_USER_INFO_SUCCESS = 'thpt/Home/UPDATE_USER_INFO/SUCCESS';
+export const UPDATE_USER_INFO_FAILURE = 'thpt/Home/UPDATE_USER_INFO/FAILURE';
+export const GET_DOC_LIST_REQUEST = 'thpt/Home/GET_DOC_LIST/REQUEST';
+export const GET_DOC_LIST_SUCCESS = 'thpt/Home/GET_DOC_LIST/SUCCESS';

@@ -1,0 +1,21 @@
+{
+  "mappings": {
+    "tagDocRef": {
+      "dynamic": "strict",
+      "properties": {
+        "tagId": {
+          "type": "keyword"
+        },
+        "docId": {
+          "type": "keyword"
+        },
+        "createdAt": {
+          "type": "date"
+        },
+        "updatedAt": {
+        	"type": "date"
+        }
+      }
+    }
+  }
+}

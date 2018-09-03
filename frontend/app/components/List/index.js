@@ -21,6 +21,8 @@ function List(props) {
   return (
     <Wrapper>
       <Ul>{content}</Ul>
+      {props.loadMore &&
+        (<button className="load-btn" onClick={props.onLoadMore}>Xem thêm</button>)}
     </Wrapper>
   );
 }
