@@ -65,6 +65,9 @@ const sortParamsHandler = (sort) => {
       if (extractString.length !== 2) {
         throw new Error('Sort param is invalid format');
       }
+      if (['asc', 'desc'].includes(extractString[1])) {
+        throw new Error('Sort type can only be asc or desc');
+      }
       pre[
         extractString[0] === 'createdAt' || extractString[0] === 'updatedAt' ? extractString[0] : `${extractString[0]}.raw`
       ] = extractString[1];
@@ -74,6 +77,9 @@ const sortParamsHandler = (sort) => {
       const sortToArray = sort.split('.');
       if (sortToArray.length !== 2) {
         throw new Error('Sort param is invalid format');
+      }
+      if (!['asc', 'desc'].includes(sortToArray[1])) {
+        throw new Error('Sort type can only be asc or desc');
       }
 
       return {
