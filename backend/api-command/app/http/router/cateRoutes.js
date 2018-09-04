@@ -31,6 +31,7 @@ const routerDefine =  function defineRouter() {
   });
 
   route.post('/categories', async (req, res) => {
+    req.body.userId = req.app.locals.id.toString();
     const { error, message, status } = await createCategory(req.body);
     if (!error) {
       return res.status(status || 201).json({

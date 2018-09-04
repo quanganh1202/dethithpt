@@ -4,7 +4,7 @@
   "description": "Collection schema validation",
   "type": "object",
   "additionalProperties": false,
-  "required":[ "name", "description", "cateId", "classId", "yearSchool", "subjectId", "userId" ],
+  "required":[ "name", "description", "cateId", "classId", "yearSchool", "subjectId" ],
   "properties": {
     "name": { "type": "string", "maxLength": 255 },
     "description": { "type": "string" },

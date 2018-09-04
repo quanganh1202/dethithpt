@@ -31,6 +31,7 @@ const routerDefine =  function defineRouter() {
   });
 
   route.post('/collections', async (req, res) => {
+    req.body.userId = req.app.locals.id.toString();
     const { error, message, status } = await createCollection(req.body);
     if (!error) {
       return res.status(status || 201).json({

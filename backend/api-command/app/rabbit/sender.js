@@ -2,6 +2,14 @@ import amqp from 'amqplib/callback_api';
 import logger from '../src/libs/logger';
 import routings from '../src/constant/allowRoutings';
 
+/**
+ * Vũ Anh Dũng
+ * Function để send 1 message từ command => query
+ * @param {string} key Gồm 2 phần phân cách bằng dấu chấm (.). Phần đầu là tên model, phần sau là loại action (document.create)
+ * @param {object} msg Dữ liệu truyền sang query gồm 2 props là id và body. Id là id của dữ liệu trên mysql, body là dữ liệu
+ * Cần truyền Id sang vì cần đồng bộ dữ liệu cùng id giữa command và query
+ * @return {Promise} function return 1 Promise để thông báo trạng thái sau khi nhận message và xử lý từ api-query
+ */
 const rabbitProducer = (key, msg) => {
   return new Promise((resolve, reject) => {
     if (!routings.includes(key)) {
