@@ -4,14 +4,13 @@
   "description": "Document schema validation",
   "type": "object",
   "additionalProperties": false,
-  "required":[ "name", "tags", "userId" ],
+  "required":[ "name", "tags" ],
   "properties": {
     "name": { "type": "string", "maxLength": 255 },
     "tags": {
       "type": "string"
     },
     "description": { "type": "string" },
-    "userId": { "type": "string" },
     "price": { "type": "string", "maxLength": 50, "pattern": "^[0-9]+$"},
     "cates": {
       "anyOf": [

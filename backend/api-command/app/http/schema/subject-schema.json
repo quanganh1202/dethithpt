@@ -4,10 +4,9 @@
   "description": "Subject schema validation",
   "type": "object",
   "additionalProperties": false,
-  "required":[ "name", "description", "userId" ],
+  "required":[ "name", "description" ],
   "properties": {
     "name": { "type": "string", "maxLength": 255 },
-    "description": { "type": "string" },
-    "userId": { "type": "string" }
+    "description": { "type": "string" }
   }
 }
