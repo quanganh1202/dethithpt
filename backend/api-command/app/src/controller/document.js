@@ -134,7 +134,7 @@ async function uploadDocument(body, file) {
       queryBody.collectionName = collection[0].name;
     }
 
-    body.tags = Array.isArray(tags) ? tags.join(',') : tags;
+    body.tags = Array.isArray(tags) ? tags.join('') : tags;
     body.cates = Array.isArray(cates) ? cates.join(',') : cates;
     const { error, status, fileName } =  fileHelpers.validateExtension(file, body.userId);
     if (error) {
@@ -155,7 +155,7 @@ async function uploadDocument(body, file) {
 
     // Append data and send to query api
     queryBody.userName = user[0].name;
-    queryBody.tags = body.tags.split(',').map(tag => ({
+    queryBody.tags = body.tags.split('#').map(tag => ({
       tagId: tag,
       tagText: tag,
     }));

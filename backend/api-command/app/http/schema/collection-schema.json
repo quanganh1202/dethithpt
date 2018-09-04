@@ -11,6 +11,7 @@
     "cateId": { "type": "string" },
     "classId": { "type": "string" },
     "yearSchool": { "type": "string" },
-    "subjectId": { "type": "string" }
+    "subjectId": { "type": "string" },
+    "userId": { "type": "string" }
   }
 }

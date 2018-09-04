@@ -29,7 +29,7 @@ const tokenVerifier = function verifyToken(req, res, next) {
     const token = headerExtractor(req);
     if (token && jwt.verify(token, secret)) {
       const { data } = jwt.decode(token);
-      req.body.userId = data.id;
+      req.app.locals.id = data.id;
       next();
     } else {
       res.status(401).json({

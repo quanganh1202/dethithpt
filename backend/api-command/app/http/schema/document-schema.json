@@ -21,6 +21,7 @@
     "subjectId": { "type": "string", "maxLength": 11 },
     "classId": { "type": "string", "maxLength": 11 },
     "yearSchool": { "type": "string", "maxLength": 4 },
-    "collectionId": { "type": "string", "maxLength": 11 }
+    "collectionId": { "type": "string", "maxLength": 11 },
+    "userId": { "type": "string" }
   }
 }
