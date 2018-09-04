@@ -130,6 +130,24 @@ const insertToTagDoc = (docId, tags, createdAt) => {
   return promiseTagDocRefs;
 };
 
+const updateNumDocRefToCate = (cates) => {
+  const cateModel =new ES('categories', 'category');
+  const promiseUpdateCates = cates.map((cate) => {
+    return cateModel.updateByScrip(
+      cate.cateId,
+      {
+        source: 'ctx._source.numDocRefs += params.numDocRefs;',
+        lang: 'painless',
+        params : {
+          numDocRefs : 1,
+        },
+      }
+    );
+  });
+
+  return promiseUpdateCates;
+};
+
 const insertTag = async (tags, createdAt) => {
   const tagModel = new ES('tags', 'tag');
 
@@ -177,4 +195,5 @@ export {
   insertToTagDoc,
   removeCateRefToDoc,
   removeTagRefToDoc,
+  updateNumDocRefToCate,
 };

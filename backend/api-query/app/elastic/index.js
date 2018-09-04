@@ -247,6 +247,17 @@ class ES {
       aggs: response.aggregations.myAggs.buckets,
     })).catch(handleElasticsearchError);
   }
+
+  updateByScrip(id, script) {
+    return esClient.update({
+      index: this.index,
+      type: this.type,
+      id,
+      body:{
+        script,
+      },
+    });
+  }
 }
 
 export default ES;

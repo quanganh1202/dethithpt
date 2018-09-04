@@ -92,6 +92,7 @@ export default {
     try {
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.createdAt = now;
+      body.numDocRefs = 0;
       const result = await elasticsearch.insert(body, cateId);
 
       return result;

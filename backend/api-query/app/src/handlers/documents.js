@@ -10,6 +10,7 @@ import {
   insertToCateDoc,
   insertToTagDoc,
   insertTag,
+  updateNumDocRefToCate,
 } from '../libs/esHelper';
 const documentType = process.env.ES_DOCUMENT_TYPE || 'document';
 const index = process.env.ES_INDEX || 'documents';
@@ -121,7 +122,8 @@ export default {
       const { createdId } = await elasticsearch.insert(body, docId);
       const promiseCateDocRefs = insertToCateDoc(createdId, cates, now);
       const promiseTagDocRefs = insertToTagDoc(createdId, tags, now);
-      await Promise.all([...promiseCateDocRefs, ...promiseTagDocRefs, insertTag(tags)]);
+      const promiseUpdateCates = updateNumDocRefToCate(cates);
+      await Promise.all([...promiseCateDocRefs, ...promiseTagDocRefs, ...promiseUpdateCates, insertTag(tags)]);
 
       return { statusCode: 200 };
     } catch (error) {
