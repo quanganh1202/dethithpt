@@ -65,7 +65,7 @@ const sortParamsHandler = (sort) => {
       if (extractString.length !== 2) {
         throw new Error('Sort param is invalid format');
       }
-      if (['asc', 'desc'].includes(extractString[1])) {
+      if (!['asc', 'desc'].includes(extractString[1])) {
         throw new Error('Sort type can only be asc or desc');
       }
       pre[
