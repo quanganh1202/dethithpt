@@ -4,14 +4,38 @@
   "description": "Collection schema validation",
   "type": "object",
   "additionalProperties": false,
-  "required":[ "name", "description", "cateId", "classId", "yearSchool", "subjectId" ],
+  "required": ["name", "description", "classId", "yearSchool", "subjectId", "cates"],
   "properties": {
-    "name": { "type": "string", "maxLength": 255 },
-    "description": { "type": "string" },
-    "cateId": { "type": "string" },
-    "classId": { "type": "string" },
-    "yearSchool": { "type": "string" },
-    "subjectId": { "type": "string" },
-    "userId": { "type": "string" }
+    "name": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "description": {
+      "type": "string"
+    },
+    "cates": {
+      "anyOf": [{
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "classId": {
+      "type": "string"
+    },
+    "yearSchool": {
+      "type": "string"
+    },
+    "subjectId": {
+      "type": "string"
+    },
+    "userId": {
+      "type": "string"
+    }
   }
 }

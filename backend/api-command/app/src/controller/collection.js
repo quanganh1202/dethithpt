@@ -1,10 +1,14 @@
 import Collection from '../model/collection';
+import Category from '../model/category';
+import User from '../model/user';
+import Class from '../model/class';
+import Subject from '../model/subject';
 import logger from '../libs/logger';
 import { dataValidator } from '../libs/ajv';
 import { exception } from '../constant/error';
 import rabbitSender from '../../rabbit/sender';
 
-const subModel = new Collection;
+const collectionModel = new Collection;
 const schemaId = 'http://dethithpt.com/collection-schema#';
 
 async function getListCollections(args) {
@@ -14,7 +18,7 @@ async function getListCollections(args) {
     filter.push(name ? { name }: undefined);
     filter.push(description ? { description }: undefined);
     const options = { number, offset, sortBy, searchType, cols };
-    const docs = await subModel.getListCollection(filter, options);
+    const docs = await collectionModel.getListCollection(filter, options);
 
     return docs || [];
   } catch (ex) {
@@ -34,17 +38,78 @@ async function createCollection(body) {
         error: resValidate.errors,
       };
     }
-    const { name } = body;
-    const cate = await subModel.getListCollection([{ 'name.raw': name }]);
-    if (cate && cate.length) {
+    const { name, cates, userId, subjectId, classId } = body;
+    const collection = await collectionModel.getListCollection([{ 'name': name }]);
+    if (collection && collection.length) {
       return {
         error: `Collection ${body.name} already existed`,
         status: 400,
       };
     }
+    const userModel = new User();
+    const user = await userModel.getById(userId);
+    if (!user || !user.length || !user[0].status) {
+      return {
+        status: 400,
+        error: 'User id does not exists',
+      };
+    }
+    const queryBody = Object.assign({}, body);
+    let newCate;
+    if (cates && cates.length) {
+      const cateModel = new Category();
+      const promises = Array.isArray(cates) ?
+        cates.map(cateId => cateModel.getCategoryById(cateId)) :
+        cates.split(',').map(cateId => cateModel.getCategoryById(cateId));
 
-    const res = await subModel.addNewCollection(body);
-    const serverNotify = await rabbitSender('collection.create', { id: res.insertId, body });
+      const categories = await Promise.all(promises);
+      // Will replace cates by an array with more than infomation
+      newCate = categories.map((cate, i) => {
+        if (!cate || !cate.length) {
+          throw {
+            status: 400,
+            error: `Category id ${cates.split(',')[i]} does not exists`,
+          };
+        }
+
+        return {
+          cateId: cate[0].id,
+          cateName: cate[0].name,
+        };
+      });
+
+      queryBody.cates = newCate;
+    }
+
+    if (subjectId) {
+      const subModel = new Subject();
+      const subject = await subModel.getSubjectById(subjectId);
+      if (!subject || !subject.length) {
+        return {
+          status: 400,
+          error: 'Subject id does not exists',
+        };
+      }
+
+      queryBody.subjectName =subject[0].name;
+    }
+
+    if (classId) {
+      const classModel = new Class();
+      const _class = await classModel.getClassById(classId);
+      if (!_class || !_class.length) {
+        return {
+          status: 400,
+          error: 'Class id does not exists',
+        };
+      }
+
+      queryBody.className = _class[0].name;
+    }
+
+    body.cates = Array.isArray(cates) ? cates.join(',') : cates;
+    const res = await collectionModel.addNewCollection(body);
+    const serverNotify = await rabbitSender('collection.create', { id: res.insertId, body: queryBody });
     if (serverNotify.statusCode === 200) {
       return {
         status: 201,
@@ -69,7 +134,7 @@ async function createCollection(body) {
 
 async function getCollectionById(id, cols) {
   try {
-    const result = await subModel.getCollectionById(id,  cols);
+    const result = await collectionModel.getCollectionById(id,  cols);
 
     return {
       status: 200,
@@ -85,7 +150,7 @@ async function getCollectionById(id, cols) {
 
 async function updateCollection(id, body) {
   try {
-    const existed = await subModel.getCollectionById(id);
+    const existed = await collectionModel.getCollectionById(id);
 
     if (!existed || !existed.length) {
       return {
@@ -94,17 +159,80 @@ async function updateCollection(id, body) {
       };
     }
 
-    const { name } = body;
-    const cate = await subModel.getListCollection([{ name }]);
-    if (cate && cate.length && name !== existed[0].name) {
+    const { name, userId, cates, classId, subjectId } = body;
+    const collection = await collectionModel.getListCollection([{ name }]);
+    if (collection && collection.length && name !== existed[0].name) {
       return {
         error: `Collection ${body.name} already existed`,
         status: 400,
       };
     }
 
-    await subModel.updateCollectionById(id, body);
-    const serverNotify = await rabbitSender('collection.update', { id, body });
+    const userModel = new User();
+    const user = await userModel.getById(userId);
+    if (!user || !user.length || !user[0].status) {
+      return {
+        status: 400,
+        error: 'User id does not exists',
+      };
+    }
+    const queryBody = Object.assign({}, body);
+    let newCate;
+    if (cates && cates.length) {
+      const cateModel = new Category();
+      const promises = Array.isArray(cates) ?
+        cates.map(cateId => cateModel.getCategoryById(cateId)) :
+        cates.split(',').map(cateId => cateModel.getCategoryById(cateId));
+
+      const categories = await Promise.all(promises);
+      // Will replace cates by an array with more than infomation
+      newCate = categories.map((cate, i) => {
+        if (!cate || !cate.length) {
+          throw {
+            status: 400,
+            error: `Category id ${cates.split(',')[i]} does not exists`,
+          };
+        }
+
+        return {
+          cateId: cate[0].id,
+          cateName: cate[0].name,
+        };
+      });
+
+      queryBody.cates = newCate;
+    }
+
+    if (subjectId) {
+      const subModel = new Subject();
+      const subject = await subModel.getSubjectById(subjectId);
+      if (!subject || !subject.length) {
+        return {
+          status: 400,
+          error: 'Subject id does not exists',
+        };
+      }
+
+      queryBody.subjectName =subject[0].name;
+    }
+
+    if (classId) {
+      const classModel = new Class();
+      const _class = await classModel.getClassById(classId);
+      if (!_class || !_class.length) {
+        return {
+          status: 400,
+          error: 'Class id does not exists',
+        };
+      }
+
+      queryBody.className = _class[0].name;
+    }
+
+    body.cates = Array.isArray(cates) ? cates.join(',') : cates;
+
+    await collectionModel.updateCollectionById(id, body);
+    const serverNotify = await rabbitSender('collection.update', { id, body: queryBody });
     if (serverNotify.statusCode === 200) {
       return {
         status: 200,
@@ -129,7 +257,7 @@ async function updateCollection(id, body) {
 
 async function deleteCollectionById(id) {
   try {
-    const result = await subModel.getCollectionById(id);
+    const result = await collectionModel.getCollectionById(id);
 
     if (!result || !result.length) {
       return {
@@ -138,7 +266,7 @@ async function deleteCollectionById(id) {
       };
     }
 
-    await subModel.deleteCollectionById(id);
+    await collectionModel.deleteCollectionById(id);
     const serverNotify = await rabbitSender('collection.delete', { id });
     if (serverNotify.statusCode === 200) {
       return {

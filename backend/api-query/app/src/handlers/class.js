@@ -3,8 +3,8 @@ import moment from 'moment';
 import ES from '../../elastic';
 import logger from '../libs/logger';
 import { filterParamsHandler, sortParamsHandler } from '../libs/esHelper';
-const type = process.env.ES_TYPE_CATEGORY || 'class';
-const index = process.env.ES_INDEX_CATEGORY || 'classes';
+const type = process.env.ES_TYPE_CLASS || 'class';
+const index = process.env.ES_INDEX_CLASS || 'classes';
 const elasticsearch = new ES(index, type);
 
 const handleCategoryError = (error) => {
@@ -107,6 +107,8 @@ export default {
           error: 'Missing class id',
         };
       }
+      const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
+      body.updatedAt = now;
       const result = await elasticsearch.update(classId, body);
 
       return result;

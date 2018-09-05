@@ -15,7 +15,12 @@
     "cates": {
       "anyOf": [
         { "type": "string" },
-        { "type": "array" }
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
       ]
     },
     "subjectId": { "type": "string", "maxLength": 11 },

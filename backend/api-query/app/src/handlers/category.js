@@ -109,6 +109,8 @@ export default {
           error: 'Missing category id',
         };
       }
+      const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
+      body.updatedAt = now;
       const result = await elasticsearch.insert(cateId, body);
 
       return result;

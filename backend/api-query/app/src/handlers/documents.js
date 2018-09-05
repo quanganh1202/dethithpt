@@ -2,6 +2,7 @@ import { isUndefined } from 'util';
 import moment from 'moment';
 import ES from '../../elastic';
 import logger from '../libs/logger';
+import constant from '../constant/common';
 import {
   filterParamsHandler,
   sortParamsHandler,
@@ -11,9 +12,10 @@ import {
   insertToTagDoc,
   insertTag,
   updateNumDocRefToCate,
+  updateNumDocRefToCollection,
 } from '../libs/esHelper';
-const documentType = process.env.ES_DOCUMENT_TYPE || 'document';
-const index = process.env.ES_INDEX || 'documents';
+const documentType = process.env.ES_TYPE_DOCUMENT || 'document';
+const index = process.env.ES_INDEX_DOCUMENT || 'documents';
 const elasticsearch = new ES(index, documentType);
 
 const handleDocumentError = (error) => {
@@ -61,7 +63,6 @@ export default {
         scroll,
       } = options;
       const numberRegex = new RegExp(/^[0-9]*$/);
-      const withoutZeroRegex = new RegExp(/^(0)$/);
       const isScroll = !isUndefined(scroll);
       const existSizeAndOffsetInvalid = ((size && !numberRegex.test(size)) || ( offset && !numberRegex.test(offset)));
       const existSizeAndOffsetIsAnEmptyString = (size === '' || offset === '');
@@ -69,13 +70,6 @@ export default {
         return {
           statusCode: 400,
           error: 'Size & offset is only allowed to contain digits',
-        };
-      }
-      const offsetOrSizeIsZero = ((size && withoutZeroRegex.test(size)) || (offset && withoutZeroRegex.test(offset)));
-      if (offsetOrSizeIsZero) { // Only check offset if request is scroll. If not ignore
-        return {
-          statusCode: 400,
-          error: 'Size & offset cannot be number 0',
         };
       }
       const sortObj = sortParamsHandler(sort);
@@ -93,7 +87,7 @@ export default {
       });
       if (filterBuilt.statusCode !== 200) return filterBuilt; // Return error
       const fieldsToArray = fields ? fields.split(',') : undefined; // List fields specific by ","
-      const from = size && offset && !isScroll ? size * (offset - 1) : 0; // Fulfil size and offset to get from value. Default equal 0
+      const from = size && offset && !isScroll ? offset : 0; // Fulfil size and offset to get from value. Default equal 0
       const result = isScroll ?
         await elasticsearch.getInitialScroll(filterBuilt.data, fieldsToArray, sortObj.data, size):
         await elasticsearch.getList(filterBuilt.data, fieldsToArray, sortObj.data, from, size );
@@ -116,14 +110,19 @@ export default {
 
   create: async (docId, body) => {
     try {
-      const { cates, tags } = body;
+      const { cates, tags, collectionId } = body;
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.createdAt = now;
+      const promise = [];
       const { createdId } = await elasticsearch.insert(body, docId);
       const promiseCateDocRefs = insertToCateDoc(createdId, cates, now);
       const promiseTagDocRefs = insertToTagDoc(createdId, tags, now);
-      const promiseUpdateCates = updateNumDocRefToCate(cates);
-      await Promise.all([...promiseCateDocRefs, ...promiseTagDocRefs, ...promiseUpdateCates, insertTag(tags)]);
+      const promiseUpdateCates = updateNumDocRefToCate(cates, constant.INCREASE);
+      promise.concat([...promiseCateDocRefs, ...promiseTagDocRefs, ...promiseUpdateCates, insertTag(tags)]);
+      if (collectionId) {
+        promise.push(updateNumDocRefToCollection(collectionId, constant.INCREASE));
+      }
+      await Promise.all(promise);
 
       return { statusCode: 200 };
     } catch (error) {

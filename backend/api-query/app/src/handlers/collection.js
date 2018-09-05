@@ -3,8 +3,8 @@ import moment from 'moment';
 import ES from '../../elastic';
 import logger from '../libs/logger';
 import { filterParamsHandler, sortParamsHandler } from '../libs/esHelper';
-const type = process.env.ES_TYPE_CATEGORY || 'class';
-const index = process.env.ES_INDEX_CATEGORY || 'classes';
+const type = process.env.ES_TYPE_COLLECTION || 'collection';
+const index = process.env.ES_INDEX_COLLECTION || 'collections';
 const elasticsearch = new ES(index, type);
 
 const handleCategoryError = (error) => {
@@ -91,6 +91,7 @@ export default {
     try {
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.createdAt = now;
+      body.numDocRefs = 0;
       const result = await elasticsearch.insert(body, collectionId);
 
       return result;
@@ -107,6 +108,8 @@ export default {
           error: 'Missing collection id',
         };
       }
+      const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
+      body.updatedAt = now;
       const result = await elasticsearch.update(collectionId, body);
 
       return result;

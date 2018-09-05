@@ -44,6 +44,14 @@
             }
           }
         },
+        "numDocRefs": {
+          "type": "text",
+          "fields": {
+            "raw":{
+              "type": "integer"
+            }
+          }
+        },
         "cates": {
           "properties": {
             "cateId": {
