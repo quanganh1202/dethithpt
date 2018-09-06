@@ -6,15 +6,17 @@ const routerDefine =  function defineRouter() {
   const route = express.Router();
 
   route.post('/login', async (req, res) => {
-    const { token, expiresIn, error } = await auth(req.body);
+    const { token, expiresIn, error, status } = await auth(req.body);
     if (error) {
       res.status(error.status || 401).json({
         error,
+        statusCode: status,
       });
     } else {
       res.status(200).json({
         token,
         expiresIn,
+        statusCode: status,
       });
     }
   });
@@ -32,6 +34,7 @@ const routerDefine =  function defineRouter() {
       message: 'Has registered',
       token,
       expiresIn,
+      statusCode: status,
     });
   });
 
@@ -47,30 +50,30 @@ const routerDefine =  function defineRouter() {
     const { error, message, status } = await deleteUser(req.params.id);
     res.status(status);
     if (error) {
-      return res.json({ error });
+      return res.json({ statusCode: status, error });
     }
 
-    res.json({ message });
+    res.json({ statusCode: status, message });
   });
 
   route.put('/users/:id', async (req, res) => {
     const { error, message, status } = await updateUser(req.params.id, req.body);
     res.status(status);
     if (error) {
-      return res.json({ error });
+      return res.json({ statusCode: status, error });
     }
 
-    res.json({ message });
+    res.json({ statusCode: status, message });
   });
 
   route.put('/users/:id/block', async (req, res) => {
     const { error, message, status } = await blockUser(req.params.id);
     res.status(status);
     if (error) {
-      return res.json({ error });
+      return res.json({ statusCode: status, error });
     }
 
-    res.json({ message });
+    res.json({ statusCode: status, message });
   });
 
   return route;

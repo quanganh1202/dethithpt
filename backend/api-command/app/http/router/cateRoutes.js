@@ -35,11 +35,13 @@ const routerDefine =  function defineRouter() {
     const { error, message, status } = await createCategory(req.body);
     if (!error) {
       return res.status(status || 201).json({
+        statusCode: status,
         message,
       });
     }
 
     return res.status(status || 500).json({
+      statusCode: status,
       error,
     });
   });
@@ -48,10 +50,12 @@ const routerDefine =  function defineRouter() {
     const { error, message, status } = await updateCategory(req.params.id, req.body);
     if (error) {
       return res.status(status).json({
+        statusCode: status,
         error,
       });
     }
     res.status(status).json({
+      statusCode: status,
       data: message,
     });
   });
@@ -59,10 +63,10 @@ const routerDefine =  function defineRouter() {
   route.delete('/categories/:id', async (req, res) => {
     const { error, message, status } = await deleteCategoryById(req.params.id);
     if (error) {
-      return res.status(status || 500).json({ error });
+      return res.status(status || 500).json({ statusCode: status, error });
     }
 
-    res.status(status || 200).json({ message });
+    res.status(status || 200).json({ statusCode: status, message });
   });
 
   return route;

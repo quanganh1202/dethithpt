@@ -22,9 +22,9 @@ async function getListCollections(args) {
 
     return docs || [];
   } catch (ex) {
-    logger.error(ex.message || 'Unexpected error when get collections');
+    logger.error(ex.error || ex.message || 'Unexpected error when get collections');
 
-    return exception;
+    return ex.error ? ex : exception;
   }
 
 }
@@ -149,9 +149,9 @@ async function createCollection(body) {
       };
     }
   } catch (ex) {
-    logger.error(ex.message || 'Unexpected error when create collection');
+    logger.error(ex.error || ex.message || 'Unexpected error when create collection');
 
-    return exception;
+    return ex.error ? ex : exception;
   }
 }
 
@@ -164,9 +164,9 @@ async function getCollectionById(id, cols) {
       data: result,
     };
   } catch (ex) {
-    logger.error(ex.message || 'Unexpected error when get collection');
+    logger.error(ex.error || ex.message || 'Unexpected error when get collection');
 
-    return exception;
+    return ex.error ? ex : exception;
   }
 
 }
@@ -272,9 +272,9 @@ async function updateCollection(id, body) {
       };
     }
   } catch (ex) {
-    logger(ex.message || 'Unexpected error when update collection');
+    logger(ex.error || ex.message || 'Unexpected error when update collection');
 
-    return exception;
+    return ex.error ? ex : exception;
   }
 }
 
@@ -307,9 +307,9 @@ async function deleteCollectionById(id) {
       };
     }
   } catch (ex) {
-    logger.error(ex.message || 'Unexpect error when delete collection');
+    logger.error(ex.error || ex.message || 'Unexpect error when delete collection');
 
-    return exception;
+    return ex.error ? ex : exception;
   }
 }
 
