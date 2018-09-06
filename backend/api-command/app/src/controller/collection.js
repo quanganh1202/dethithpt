@@ -38,7 +38,7 @@ async function createCollection(body) {
         error: resValidate.errors,
       };
     }
-    const { name, cates, userId, subjectId, classId } = body;
+    const { name, cateIds, userId, subjectIds, classIds } = body;
     const collection = await collectionModel.getListCollection([{ 'name': name }]);
     if (collection && collection.length) {
       return {
@@ -56,11 +56,11 @@ async function createCollection(body) {
     }
     const queryBody = Object.assign({}, body);
     let newCate;
-    if (cates && cates.length) {
+    if (cateIds && cateIds.length) {
       const cateModel = new Category();
-      const promises = Array.isArray(cates) ?
-        cates.map(cateId => cateModel.getCategoryById(cateId)) :
-        cates.split(',').map(cateId => cateModel.getCategoryById(cateId));
+      const promises = Array.isArray(cateIds) ?
+        cateIds.map(cateId => cateModel.getCategoryById(cateId)) :
+        cateIds.split(',').map(cateId => cateModel.getCategoryById(cateId));
 
       const categories = await Promise.all(promises);
       // Will replace cates by an array with more than infomation
@@ -68,7 +68,7 @@ async function createCollection(body) {
         if (!cate || !cate.length) {
           throw {
             status: 400,
-            error: `Category id ${cates.split(',')[i]} does not exists`,
+            error: `Category id ${cateIds.split(',')[i]} does not exists`,
           };
         }
 
@@ -81,33 +81,57 @@ async function createCollection(body) {
       queryBody.cates = newCate;
     }
 
-    if (subjectId) {
+    if (subjectIds && subjectIds.length) {
       const subModel = new Subject();
-      const subject = await subModel.getSubjectById(subjectId);
-      if (!subject || !subject.length) {
-        return {
-          status: 400,
-          error: 'Subject id does not exists',
-        };
-      }
+      const promises = Array.isArray(subjectIds) ?
+        subjectIds.map(subjectId => subModel.getSubjectById(subjectId)) :
+        subjectIds.split(',').map(subjectId => subModel.getSubjectById(subjectId));
 
-      queryBody.subjectName =subject[0].name;
+      const subjects = await Promise.all(promises);
+      // Will replace cates by an array with more than infomation
+      newCate = subjects.map((sub, i) => {
+        if (!sub || !sub.length) {
+          throw {
+            status: 400,
+            error: `Subject id ${subjectIds.split(',')[i]} does not exists`,
+          };
+        }
+
+        return {
+          subId: sub[0].id,
+          subName: sub[0].name,
+        };
+      });
+
+      queryBody.subjects = newCate;
     }
 
-    if (classId) {
+    if (classIds && classIds.length) {
       const classModel = new Class();
-      const _class = await classModel.getClassById(classId);
-      if (!_class || !_class.length) {
-        return {
-          status: 400,
-          error: 'Class id does not exists',
-        };
-      }
+      const promises = Array.isArray(classIds) ?
+        classIds.map(classId => classModel.getClassById(classId)) :
+        classIds.split(',').map(classId => classModel.getClassById(classId));
 
-      queryBody.className = _class[0].name;
+      const classes = await Promise.all(promises);
+      // Will replace cates by an array with more than infomation
+      newCate = classes.map((classes, i) => {
+        if (!classes || !classes.length) {
+          throw {
+            status: 400,
+            error: `CLass id ${classIds.split(',')[i]} does not exists`,
+          };
+        }
+
+        return {
+          classId: classes[0].id,
+          className: classes[0].name,
+        };
+      });
+
+      queryBody.subjects = newCate;
     }
 
-    body.cates = Array.isArray(cates) ? cates.join(',') : cates;
+    body.cateIds = Array.isArray(cateIds) ? cateIds.join(',') : cateIds;
     const res = await collectionModel.addNewCollection(body);
     const serverNotify = await rabbitSender('collection.create', { id: res.insertId, body: queryBody });
     if (serverNotify.statusCode === 200) {
@@ -159,7 +183,7 @@ async function updateCollection(id, body) {
       };
     }
 
-    const { name, userId, cates, classId, subjectId } = body;
+    const { name, userId, cateIds, classIds, subjectIds } = body;
     const collection = await collectionModel.getListCollection([{ name }]);
     if (collection && collection.length && name !== existed[0].name) {
       return {
@@ -178,19 +202,19 @@ async function updateCollection(id, body) {
     }
     const queryBody = Object.assign({}, body);
     let newCate;
-    if (cates && cates.length) {
+    if (cateIds && cateIds.length) {
       const cateModel = new Category();
-      const promises = Array.isArray(cates) ?
-        cates.map(cateId => cateModel.getCategoryById(cateId)) :
-        cates.split(',').map(cateId => cateModel.getCategoryById(cateId));
+      const promises = Array.isArray(cateIds) ?
+        cateIds.map(cateId => cateModel.getCategoryById(cateId)) :
+        cateIds.split(',').map(cateId => cateModel.getCategoryById(cateId));
 
       const categories = await Promise.all(promises);
-      // Will replace cates by an array with more than infomation
+      // Will replace cateIds by an array with more than infomation
       newCate = categories.map((cate, i) => {
         if (!cate || !cate.length) {
           throw {
             status: 400,
-            error: `Category id ${cates.split(',')[i]} does not exists`,
+            error: `Category id ${cateIds.split(',')[i]} does not exists`,
           };
         }
 
@@ -200,12 +224,12 @@ async function updateCollection(id, body) {
         };
       });
 
-      queryBody.cates = newCate;
+      queryBody.cateIds = newCate;
     }
 
-    if (subjectId) {
+    if (subjectIds) {
       const subModel = new Subject();
-      const subject = await subModel.getSubjectById(subjectId);
+      const subject = await subModel.getSubjectById(subjectIds);
       if (!subject || !subject.length) {
         return {
           status: 400,
@@ -216,9 +240,9 @@ async function updateCollection(id, body) {
       queryBody.subjectName =subject[0].name;
     }
 
-    if (classId) {
+    if (classIds) {
       const classModel = new Class();
-      const _class = await classModel.getClassById(classId);
+      const _class = await classModel.getClassById(classIds);
       if (!_class || !_class.length) {
         return {
           status: 400,
@@ -229,7 +253,7 @@ async function updateCollection(id, body) {
       queryBody.className = _class[0].name;
     }
 
-    body.cates = Array.isArray(cates) ? cates.join(',') : cates;
+    body.cateIds = Array.isArray(cateIds) ? cateIds.join(',') : cateIds;
 
     await collectionModel.updateCollectionById(id, body);
     const serverNotify = await rabbitSender('collection.update', { id, body: queryBody });
