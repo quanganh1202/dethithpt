@@ -331,9 +331,9 @@ async function updateDocumentInfo(id, body, file) {
       };
     }
   } catch (ex) {
-    logger(ex.message || 'Unexpected error');
+    logger(ex.error || ex.message || 'Unexpected error');
 
-    return exception;
+    return ex.error ? ex : exception;
   }
 }
 
@@ -371,9 +371,9 @@ async function deleteDocument(id) {
       };
     }
   } catch (ex) {
-    logger.error(ex.message || 'Unexpect error when delete file');
+    logger.error(ex.error || ex.message || 'Unexpect error when delete file');
 
-    return exception;
+    return ex.error ? ex : exception;
   }
 }
 
