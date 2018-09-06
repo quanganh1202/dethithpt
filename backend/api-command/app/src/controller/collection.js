@@ -55,7 +55,6 @@ async function createCollection(body) {
       };
     }
     const queryBody = Object.assign({}, body);
-    let newCate;
     if (cateIds && cateIds.length) {
       const cateModel = new Category();
       const promises = Array.isArray(cateIds) ?
@@ -64,7 +63,7 @@ async function createCollection(body) {
 
       const categories = await Promise.all(promises);
       // Will replace cates by an array with more than infomation
-      newCate = categories.map((cate, i) => {
+      const newCate = categories.map((cate, i) => {
         if (!cate || !cate.length) {
           throw {
             status: 400,
@@ -89,7 +88,7 @@ async function createCollection(body) {
 
       const subjects = await Promise.all(promises);
       // Will replace cates by an array with more than infomation
-      newCate = subjects.map((sub, i) => {
+      const newSubject = subjects.map((sub, i) => {
         if (!sub || !sub.length) {
           throw {
             status: 400,
@@ -103,7 +102,7 @@ async function createCollection(body) {
         };
       });
 
-      queryBody.subjects = newCate;
+      queryBody.subjects = newSubject;
     }
 
     if (classIds && classIds.length) {
@@ -114,7 +113,7 @@ async function createCollection(body) {
 
       const classes = await Promise.all(promises);
       // Will replace cates by an array with more than infomation
-      newCate = classes.map((classes, i) => {
+      const newClass = classes.map((classes, i) => {
         if (!classes || !classes.length) {
           throw {
             status: 400,
@@ -128,7 +127,7 @@ async function createCollection(body) {
         };
       });
 
-      queryBody.subjects = newCate;
+      queryBody.classes = newClass;
     }
 
     body.cateIds = Array.isArray(cateIds) ? cateIds.join(',') : cateIds;
