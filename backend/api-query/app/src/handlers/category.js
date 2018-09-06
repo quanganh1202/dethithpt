@@ -92,6 +92,7 @@ export default {
     try {
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.createdAt = now;
+      body.numDocRefs = 0;
       const result = await elasticsearch.insert(body, cateId);
 
       return result;
@@ -108,6 +109,8 @@ export default {
           error: 'Missing category id',
         };
       }
+      const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
+      body.updatedAt = now;
       const result = await elasticsearch.insert(cateId, body);
 
       return result;

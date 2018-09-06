@@ -57,6 +57,14 @@
               "type": "keyword"
             }
           }
+        },
+        "numDocRefs": {
+          "type": "text",
+          "fields": {
+            "raw": {
+              "type": "integer"
+            }
+          }
         }
       }
     }

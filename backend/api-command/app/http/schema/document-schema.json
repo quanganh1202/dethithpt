@@ -12,10 +12,15 @@
     },
     "description": { "type": "string" },
     "price": { "type": "string", "maxLength": 50, "pattern": "^[0-9]+$"},
-    "cates": {
+    "cateIds": {
       "anyOf": [
         { "type": "string" },
-        { "type": "array" }
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
       ]
     },
     "subjectId": { "type": "string", "maxLength": 11 },

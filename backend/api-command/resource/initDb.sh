@@ -54,7 +54,7 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     userId INT(11) NOT NULL,
     price VARCHAR(50) NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    cates VARCHAR(255) NULL,
+    cateIds VARCHAR(255) NULL,
     path MEDIUMTEXT NULL,
     subjectId INT(11) NULL,
     classId INT(11) NULL,
@@ -63,7 +63,7 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     PRIMARY KEY (id),
     UNIQUE INDEX id_UNIQUE (id ASC));
 
-  CREATE TABLE IF NOT EXISTS tbCategory (
+  CREATE TABLE IF NOT EXISTS $DATABASE.tbCategory (
     id INT NOT NULL AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL,
     description TEXT(255) NOT NULL,
@@ -91,15 +91,15 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     PRIMARY KEY (id),
     UNIQUE INDEX id_UNIQUE (id ASC));
 
-  CREATE TABLE IF NOT EXISTS tbCollection (
+  CREATE TABLE IF NOT EXISTS $DATABASE.tbCollection (
     id INT NOT NULL AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL,
-    description TEXT(255) NOT NULL,
-    cateId INT NOT NULL,
-    classId INT NOT NULL,
-    subjectId INT NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    cateIds VARCHAR(255) NOT NULL,
+    classIds VARCHAR(255) NOT NULL,
+    subjectIds VARCHAR(255) NOT NULL,
     userId INT(11) NOT NULL,
-    yearSchool INT NOT NULL,
+    yearSchools VARCHAR(255) NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE INDEX id_UNIQUE (id ASC));

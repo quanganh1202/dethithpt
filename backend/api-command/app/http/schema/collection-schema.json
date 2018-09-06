@@ -4,14 +4,65 @@
   "description": "Collection schema validation",
   "type": "object",
   "additionalProperties": false,
-  "required":[ "name", "description", "cateId", "classId", "yearSchool", "subjectId" ],
+  "required": ["name", "description", "classIds", "yearSchools", "subjectIds", "cateIds"],
   "properties": {
-    "name": { "type": "string", "maxLength": 255 },
-    "description": { "type": "string" },
-    "cateId": { "type": "string" },
-    "classId": { "type": "string" },
-    "yearSchool": { "type": "string" },
-    "subjectId": { "type": "string" },
-    "userId": { "type": "string" }
+    "name": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "description": {
+      "type": "string"
+    },
+    "cateIds": {
+      "anyOf": [{
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "classIds": {
+      "anyOf": [{
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "yearSchools": {
+      "anyOf": [{
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "subjectIds": {
+      "anyOf": [{
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "userId": {
+      "type": "string"
+    }
   }
 }

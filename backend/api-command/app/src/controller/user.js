@@ -42,7 +42,7 @@ async function auth(info) {
         status: 2, // Inactive
       };
       const { insertId } = await userModel.addNewUser(user);
-      sign = user;
+      sign = Object.assign({}, user);
       sign.id = insertId;
       const serverNotify = await rabbitSender('user.create', { id: insertId, body: user });
       if (serverNotify.statusCode !== 200) {
