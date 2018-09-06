@@ -97,8 +97,8 @@ async function createCollection(body) {
         }
 
         return {
-          subId: sub[0].id,
-          subName: sub[0].name,
+          subjectId: sub[0].id,
+          subjectName: sub[0].name,
         };
       });
 
@@ -132,6 +132,9 @@ async function createCollection(body) {
 
     body.cateIds = Array.isArray(cateIds) ? cateIds.join(',') : cateIds;
     const res = await collectionModel.addNewCollection(body);
+    delete queryBody.cateIds;
+    delete queryBody.classIds;
+    delete queryBody.subjectIds;
     const serverNotify = await rabbitSender('collection.create', { id: res.insertId, body: queryBody });
     if (serverNotify.statusCode === 200) {
       return {
