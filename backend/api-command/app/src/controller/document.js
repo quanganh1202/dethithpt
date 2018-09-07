@@ -91,7 +91,7 @@ async function uploadDocument(body, file) {
           cateName: cate[0].name,
         };
       });
-
+      delete queryBody.cateIds;
       queryBody.cates = newCate;
     }
 
