@@ -48,6 +48,8 @@ const numberWithCommas = (x) => {
   return parts.join(".");
 }
 
+const itemsPerLoad = 10;
+
 /* eslint-disable react/prefer-stateless-function */
 export class Category extends React.PureComponent {
   constructor() {
@@ -72,7 +74,7 @@ export class Category extends React.PureComponent {
     if (!this.props.documents.data.length) {
       const queries = {
         sort: 'createdAt.desc',
-        size: 2,
+        size: itemsPerLoad,
       };
       if (this.props.match.params.id) {
         queries.cateId = this.props.match.params.id
@@ -85,7 +87,7 @@ export class Category extends React.PureComponent {
     if (this.props.match.params.id !== nextProps.match.params.id) {
       const queries = {
         sort: 'createdAt.desc',
-        size: 2,
+        size: itemsPerLoad,
         cateId: nextProps.match.params.id,
       }
       this.props.getDocumentsList(queries, true);
@@ -106,7 +108,7 @@ export class Category extends React.PureComponent {
     const queries = {
       sort: `createdAt.${filter.sort.value}` || 'createdAt.desc',
       offset: this.props.documents.data.length,
-      size: 2,
+      size: itemsPerLoad,
     }
     Array.from(['subjectId', 'classId', 'yearSchool']).forEach((f) => {
       if (filter[f] && filter[f].length > 0) {
@@ -124,7 +126,7 @@ export class Category extends React.PureComponent {
     const queries = {
       sort: `createdAt.${newFilter.sort.value}` || 'createdAt.desc',
       offset: 0,
-      size: 2,
+      size: itemsPerLoad,
       cateId: this.props.match.params.id,
     }
     Array.from(['subjectId', 'classId', 'yearSchool']).forEach((filter) => {
