@@ -44,6 +44,15 @@ function documentReducer(state = initialState, action) {
         .set('loading', false)
         .set('document', fromJS(action.data));
     case GET_DOC_LIST_REQUEST:
+      if (action.clear) {
+        return state
+          .set('loading', true)
+          .set('documents', fromJS({
+            data: [],
+            total: 0,
+            query: action.query,
+          }))
+      }
       return state
         .set('loading', true)
         .setIn(['documents', 'query'], action.query);
