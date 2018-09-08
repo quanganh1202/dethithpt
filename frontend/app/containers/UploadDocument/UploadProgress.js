@@ -59,7 +59,7 @@ class UploadProgress extends React.Component {
 
   fileUpload(form) {
     const { file } = this.props;
-    const url = 'http://125.212.250.92:3000/documents';
+    const url = 'http://125.212.250.92:3001/documents';
     const formData = new FormData();
     Object.keys(form).forEach((f) => formData.append(f, form[f]));
     const currentUser = getUser();
