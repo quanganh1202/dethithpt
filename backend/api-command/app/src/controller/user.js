@@ -42,8 +42,19 @@ async function auth(info) {
         status: 2, // Inactive
       };
       const { insertId } = await userModel.addNewUser(user);
-      sign = user;
+      sign = Object.assign({}, user);
       sign.id = insertId;
+      const serverNotify = await rabbitSender('user.create', { id: insertId, body: user });
+      if (serverNotify.statusCode !== 200) {
+        // HERE IS CASE API QUERY iS NOT RESOLVED
+        // TODO: ROLLBACK HERE
+        logger.error(`[USER]: ${serverNotify.error}`);
+
+        return {
+          status: serverNotify.statusCode,
+          message: serverNotify.error,
+        };
+      }
     } else {
       sign = {
         id: user[0].id,
@@ -52,25 +63,14 @@ async function auth(info) {
         status: user[0].status,
       };
     }
-    const serverNotify = await rabbitSender('user.create', sign);
-    if (serverNotify.statusCode === 200) {
-      const { token, expiresIn } = tokenGenerator(sign);
+    const { token, expiresIn } = tokenGenerator(sign);
 
-      return {
-        status: 200,
-        token,
-        expiresIn,
-      };
-    } else {
-      // HERE IS CASE API QUERY iS NOT RESOLVED
-      // TODO: ROLLBACK HERE
-      logger.error(`[USER]: ${serverNotify.error}`);
+    return {
+      status: 200,
+      token,
+      expiresIn,
+    };
 
-      return {
-        status: serverNotify.statusCode,
-        message: serverNotify.error,
-      };
-    }
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when auth');
 

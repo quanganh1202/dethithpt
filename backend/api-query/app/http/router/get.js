@@ -2,7 +2,6 @@ import express from 'express';
 import { isUndefined } from 'util';
 import documentHandler from '../../src/handlers/documents';
 import trackingHandler from '../../src/handlers/tradingHistories';
-import commonHandler from '../../src/handlers/common';
 import cateDocRefHandler from '../../src/handlers/cateDoc';
 import categoryHandler from '../../src/handlers/category';
 import userHandler from '../../src/handlers/user';
@@ -13,18 +12,6 @@ import subjectHandler from '../../src/handlers/subject';
 const routerDefine =  function defineRouter() {
   // Destination folder path
   const route = express.Router();
-
-  route.get('/totals', async(req, res) => {
-    const { types } = req.query;
-
-    const { statusCode, error, data } = await commonHandler.getTotals(types);
-    res.status(statusCode);
-    if (error) {
-      res.json({ statusCode, error });
-    } else {
-      res.json({ statusCode, data });
-    }
-  });
 
   route.get('/documents/:id', async (req, res) => {
     const { id } = req.params;

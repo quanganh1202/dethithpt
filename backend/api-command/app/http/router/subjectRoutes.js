@@ -31,6 +31,7 @@ const routerDefine =  function defineRouter() {
   });
 
   route.post('/subjects', async (req, res) => {
+    req.body.userId = req.app.locals.id.toString();
     const { error, message, status } = await createSubject(req.body);
     if (!error) {
       return res.status(status || 201).json({

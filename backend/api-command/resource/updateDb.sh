@@ -49,12 +49,11 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     UNIQUE INDEX name_UNIQUE (name ASC));
 
   DROP TABLE $DATABASE.tbCollection;
-
   CREATE TABLE IF NOT EXISTS tbCollection (
     id INT NOT NULL AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL,
     description TEXT(255) NOT NULL,
-    cateId INT NOT NULL,
+    cates INT NOT NULL,
     classId INT NOT NULL,
     subjectId INT NOT NULL,
     userId INT(11) NOT NULL,

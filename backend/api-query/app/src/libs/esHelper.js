@@ -6,17 +6,15 @@ const filterParamsHandler = (filtersParam = {}) => {
     const must = Object.entries(filtersParam).reduce((arrFilters, filter) => {
       if (filter[1]) {
         let should = [];
-        if (Array.isArray(filter[1])) {
-          should = filter[1]
-            .join(',')
-            .split(',')
-            .reduce((pre, cur) => {
-              if (!pre.includes(cur)) {
-                pre.push(cur);
-              }
+        if (Array.isArray(filter[1]) || filter[1].split(',').length) {
+          const filters = Array.isArray(filter[1]) ? filter[1].join(',').split(',') : filter[1].split(',');
+          should = filters.reduce((pre, cur) => {
+            if (!pre.includes(cur)) {
+              pre.push(cur);
+            }
 
-              return pre;
-            }, [])
+            return pre;
+          }, [])
             .map(fval => {
               return {
                 match: {
@@ -67,7 +65,12 @@ const sortParamsHandler = (sort) => {
       if (extractString.length !== 2) {
         throw new Error('Sort param is invalid format');
       }
-      pre[extractString[0]] = extractString[1];
+      if (!['asc', 'desc'].includes(extractString[1])) {
+        throw new Error('Sort type can only be asc or desc');
+      }
+      pre[
+        extractString[0] === 'createdAt' || extractString[0] === 'updatedAt' ? extractString[0] : `${extractString[0]}.raw`
+      ] = extractString[1];
 
       return pre;
     }, {}) : sort ? (() => {
@@ -75,9 +78,14 @@ const sortParamsHandler = (sort) => {
       if (sortToArray.length !== 2) {
         throw new Error('Sort param is invalid format');
       }
+      if (!['asc', 'desc'].includes(sortToArray[1])) {
+        throw new Error('Sort type can only be asc or desc');
+      }
 
       return {
-        [sortToArray[0]]: sortToArray[1],
+        [
+        sortToArray[0] === 'createdAt' || sortToArray[0] === 'updatedAt' ? sortToArray[0] : `${sortToArray[0]}.raw`
+        ]: sortToArray[1],
       };
     })() : undefined;
 
@@ -122,11 +130,46 @@ const insertToTagDoc = (docId, tags, createdAt) => {
   return promiseTagDocRefs;
 };
 
+const updateNumDocRefToCate = (cates, type) => {
+  const cateModel =new ES('categories', 'category');
+  const operation = type === 'increase' ? '+=' : '-=';
+  const promiseUpdateCates = cates.map((cate) => {
+    return cateModel.updateByScrip(
+      cate.cateId,
+      {
+        source: `ctx._source.numDocRefs ${operation} params.numDocRefs;`,
+        lang: 'painless',
+        params : {
+          numDocRefs : 1,
+        },
+      }
+    );
+  });
+
+  return promiseUpdateCates;
+};
+
+const updateNumDocRefToCollection = (collectionId, type) => {
+  const collectionModel =new ES('collections', 'collection');
+  const operation = type === 'increase' ? '+=' : '-=';
+
+  return collectionModel.updateByScrip(
+    collectionId,
+    {
+      source: `ctx._source.numDocRefs ${operation} params.numDocRefs;`,
+      lang: 'painless',
+      params : {
+        numDocRefs : 1,
+      },
+    }
+  );
+};
+
 const insertTag = async (tags, createdAt) => {
   const tagModel = new ES('tags', 'tag');
 
   const getPromises = tags.map(tag => {
-    const filterModel = filterParamsHandler({ tagId: tag }).data;
+    const filterModel = filterParamsHandler({ tagId: tag.tagId }).data;
 
     return tagModel.getList(filterModel);
   });
@@ -169,4 +212,6 @@ export {
   insertToTagDoc,
   removeCateRefToDoc,
   removeTagRefToDoc,
+  updateNumDocRefToCate,
+  updateNumDocRefToCollection,
 };

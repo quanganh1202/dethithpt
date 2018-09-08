@@ -22,23 +22,28 @@ const routerDefine =  function defineRouter() {
     const { error, data, status } = await getCollectionById(req.params.id, req.query.cols);
     if (error)
       return res.status(status || 500).json({
+        statusCode: status,
         error,
       });
 
     res.status(status || 200).json({
+      statusCode: status,
       data,
     });
   });
 
   route.post('/collections', async (req, res) => {
+    req.body.userId = req.app.locals.id.toString();
     const { error, message, status } = await createCollection(req.body);
     if (!error) {
       return res.status(status || 201).json({
+        statusCode: status,
         message,
       });
     }
 
     return res.status(status || 500).json({
+      statusCode: status,
       error,
     });
   });
@@ -61,7 +66,7 @@ const routerDefine =  function defineRouter() {
       return res.status(status || 500).json({ error });
     }
 
-    res.status(status || 200).json({ message });
+    res.status(status || 200).json({ statusCode: status, message });
   });
 
   return route;

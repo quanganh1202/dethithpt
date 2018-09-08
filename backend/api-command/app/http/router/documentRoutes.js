@@ -48,6 +48,7 @@ const routerDefine =  function defineRouter() {
   });
   // Upload
   route.post('/documents', uploader.any(), async (req, res) => {
+    req.body.userId = req.app.locals.id.toString();
     const { error, message, status } = await uploadDocument(req.body, req.files);
     if (!error) {
       return res.status(status || 201).json({

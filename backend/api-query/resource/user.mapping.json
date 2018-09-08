@@ -44,7 +44,7 @@
             }
           }
         },
-        "yearOfBirth": {
+        "bod": {
           "type": "text",
           "fields": {
             "raw": {
@@ -62,7 +62,37 @@
             }
           }
         },
-        "place": {
+        "city": {
+          "type": "text",
+          "analyzer": "autocomplete",
+          "search_analyzer": "standard",
+          "fields": {
+            "raw": {
+              "type": "keyword"
+            }
+          }
+        },
+        "district": {
+          "type": "text",
+          "analyzer": "autocomplete",
+          "search_analyzer": "standard",
+          "fields": {
+            "raw": {
+              "type": "keyword"
+            }
+          }
+        },
+        "level": {
+          "type": "text",
+          "analyzer": "autocomplete",
+          "search_analyzer": "standard",
+          "fields": {
+            "raw": {
+              "type": "keyword"
+            }
+          }
+        },
+        "facebook": {
           "type": "text",
           "analyzer": "autocomplete",
           "search_analyzer": "standard",
@@ -82,7 +112,10 @@
             }
           }
         },
-        "reward": {
+        "position": {
+          "type": "text"
+        },
+        "surplus": {
           "type": "text",
           "analyzer": "autocomplete",
           "search_analyzer": "standard",
@@ -92,7 +125,7 @@
             }
           }
         },
-        "money": {
+        "totalIncome": {
           "type": "text",
           "analyzer": "autocomplete",
           "search_analyzer": "standard",
@@ -101,6 +134,22 @@
               "type": "keyword"
             }
           }
+        },
+        "recharge": {
+          "type": "text",
+          "analyzer": "autocomplete",
+          "search_analyzer": "standard",
+          "fields": {
+            "raw": {
+              "type": "keyword"
+            }
+          }
+        },
+        "status": {
+          "type": "text"
+        },
+        "role": {
+          "type": "text"
         },
         "createdAt": {
         	"type": "date"

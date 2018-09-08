@@ -44,8 +44,15 @@
             }
           }
         },
+        "numDocRefs": {
+          "type": "text",
+          "fields": {
+            "raw":{
+              "type": "integer"
+            }
+          }
+        },
         "cates": {
-          "type": "nested",
           "properties": {
             "cateId": {
               "type": "keyword"
@@ -62,10 +69,24 @@
             }
           }
         },
-        "classId": {
-          "type": "keyword"
+        "classes": {
+          "properties": {
+            "classId": {
+              "type": "keyword"
+            },
+            "className": {
+              "type": "text",
+              "analyzer": "autocomplete",
+              "search_analyzer": "standard",
+              "fields": {
+                "raw": {
+                  "type": "keyword"
+                }
+              }
+            }
+          }
         },
-        "className": {
+        "yearSchools": {
           "type": "text",
           "analyzer": "autocomplete",
           "search_analyzer": "standard",
@@ -75,26 +96,20 @@
             }
           }
         },
-        "yearSchool": {
-          "type": "text",
-          "analyzer": "autocomplete",
-          "search_analyzer": "standard",
-          "fields": {
-            "raw": {
+        "subjects": {
+          "properties": {
+            "subjectId": {
               "type": "keyword"
-            }
-          }
-        },
-        "subjectId": {
-          "type": "keyword"
-        },
-        "subjectName": {
-          "type": "text",
-          "analyzer": "autocomplete",
-          "search_analyzer": "standard",
-          "fields": {
-            "raw": {
-              "type": "keyword"
+            },
+            "subjectName": {
+              "type": "text",
+              "analyzer": "autocomplete",
+              "search_analyzer": "standard",
+              "fields": {
+                "raw": {
+                  "type": "keyword"
+                }
+              }
             }
           }
         },

@@ -59,7 +59,7 @@ async function uploadDocument(body, file) {
       };
     }
 
-    const { tags, cates, subjectId, classId, collectionId, userId } = body;
+    const { tags, cateIds, subjectId, classId, collectionId, userId } = body;
     const userModel = new User();
     const user = await userModel.getById(userId);
     if (!user || !user.length || !user[0].status) {
@@ -70,11 +70,11 @@ async function uploadDocument(body, file) {
     }
 
     let newCate;
-    if (cates && cates.length) {
+    if (cateIds && cateIds.length) {
       const cateModel = new Category();
-      const promises = Array.isArray(cates) ?
-        cates.map(cateId => cateModel.getCategoryById(cateId)) :
-        cates.split(',').map(cateId => cateModel.getCategoryById(cateId));
+      const promises = Array.isArray(cateIds) ?
+        cateIds.map(cateId => cateModel.getCategoryById(cateId)) :
+        cateIds.split(',').map(cateId => cateModel.getCategoryById(cateId));
 
       const categories = await Promise.all(promises);
       // Will replace cates by an array with more than infomation
@@ -82,7 +82,7 @@ async function uploadDocument(body, file) {
         if (!cate || !cate.length) {
           throw {
             status: 400,
-            error: `Category id ${cates.split(',')[i]} does not exists`,
+            error: `Category id ${cateIds.split(',')[i]} does not exists`,
           };
         }
 
@@ -91,7 +91,7 @@ async function uploadDocument(body, file) {
           cateName: cate[0].name,
         };
       });
-
+      delete queryBody.cateIds;
       queryBody.cates = newCate;
     }
 
@@ -134,8 +134,8 @@ async function uploadDocument(body, file) {
       queryBody.collectionName = collection[0].name;
     }
 
-    body.tags = Array.isArray(tags) ? tags.join(',') : tags;
-    body.cates = Array.isArray(cates) ? cates.join(',') : cates;
+    body.tags = Array.isArray(tags) ? tags.join('') : tags;
+    body.cateIds = Array.isArray(cateIds) ? cateIds.join(',') : cateIds;
     const { error, status, fileName } =  fileHelpers.validateExtension(file, body.userId);
     if (error) {
       return {
@@ -155,7 +155,7 @@ async function uploadDocument(body, file) {
 
     // Append data and send to query api
     queryBody.userName = user[0].name;
-    queryBody.tags = body.tags.split(',').map(tag => ({
+    queryBody.tags = body.tags.split('#').map(tag => ({
       tagId: tag,
       tagText: tag,
     }));
@@ -230,11 +230,11 @@ async function updateDocumentInfo(id, body, file) {
       };
     }
 
-    const { tags, cates, subjectId, classId, collectionId } = body;
+    const { tags, catesId, subjectId, classId, collectionId } = body;
 
-    if (cates && cates.length) {
+    if (catesId && catesId.length) {
       const cateModel = new Category();
-      const promises = cates.map(cateId => cateModel.getCategoryById(cateId));
+      const promises = catesId.map(cateId => cateModel.getCategoryById(cateId));
       const categories = await Promise.all(promises);
       // Will replace cates by an array with more than infomation
       newBody.cates = categories.map(cate => {
@@ -331,9 +331,9 @@ async function updateDocumentInfo(id, body, file) {
       };
     }
   } catch (ex) {
-    logger(ex.message || 'Unexpected error');
+    logger(ex.error || ex.message || 'Unexpected error');
 
-    return exception;
+    return ex.error ? ex : exception;
   }
 }
 
@@ -371,9 +371,9 @@ async function deleteDocument(id) {
       };
     }
   } catch (ex) {
-    logger.error(ex.message || 'Unexpect error when delete file');
+    logger.error(ex.error || ex.message || 'Unexpect error when delete file');
 
-    return exception;
+    return ex.error ? ex : exception;
   }
 }
 
