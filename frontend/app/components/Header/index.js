@@ -5,6 +5,7 @@ import MediaQuery from 'react-responsive';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons'
+import { slide as Menu } from 'react-burger-menu';
 
 import A from './A';
 import NavBar from './NavBar';
@@ -31,6 +32,8 @@ const HeaderBar = styled.div`
     text-align: center;
   }
 `;
+
+const PageLink = styled.div``;
 
 /* eslint-disable react/prefer-stateless-function */
 class Header extends React.Component {
@@ -62,7 +65,21 @@ class Header extends React.Component {
             </div>
             <div className="mobile-menu-toggle">
               <FontAwesomeIcon onClick={this.showMenu} className="user-icon" icon={['fas', 'bars']} size="lg" />
-            </div>            
+            </div>
+            <Menu
+              isOpen={this.state.mobileShow}
+              menuClassName={'mobile-burger-menu'}
+            > 
+              <PageLink onClick={() => this.setState({ mobileShow: false })}>
+                <HeaderLink to="/">
+                  <FormattedMessage {...messages.home} />
+                </HeaderLink>
+                <hr />
+                <HeaderLink to="/dang-ban-tai-lieu">
+                  Đăng bán tài liệu
+                </HeaderLink>
+              </PageLink>
+            </Menu> 
           </MediaQuery>
           <MediaQuery minDeviceWidth={480}>
             <HeaderLink to="/">
