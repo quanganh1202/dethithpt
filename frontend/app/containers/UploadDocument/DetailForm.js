@@ -138,9 +138,20 @@ class DetailForm extends React.Component {
     const { formData } = this.state;
     let newData = formData
       .set('tags', formData.get('tags').join(','));
-    Array.from(['cateId', 'subjectId', 'classId', 'yearSchool', 'collectionId']).forEach((field) => {
-      if (formData.has(field)) {
-        newData = formData.set(field, formData.get(field).map((i) => i.value).join(','));
+    Array.from([
+      'cateIds',
+    ]).forEach((field) => {
+      if (newData.has(field) && newData.get(field).length > 0) {
+        newData = newData.set(field, newData.get(field).map((i) => i.value));
+      } else {
+        newData = newData.delete(field);
+      }
+    })
+    Array.from([
+      'subjectId', 'classId', 'yearSchool', 'collectionId'
+    ]).forEach((field) => {
+      if (newData.has(field)) {
+        newData = newData.set(field, newData.get(field).value);
       }
     })
     this.props.onSubmit(newData.toJS());
@@ -166,10 +177,10 @@ class DetailForm extends React.Component {
           <label htmlFor="category">&nbsp;</label>
           <div className="form-control">
             <Select
-              name="cateId"
+              name="cateIds"
               options={categories.map((sj) => ({ value: sj.id, label: sj.name }))}
-              value={formData.get('cateId', '')}
-              onChange={(value) => this.handleChange({ target: { name: 'cateId', value }})}
+              value={formData.get('cateIds', '')}
+              onChange={(value) => this.handleChange({ target: { name: 'cateIds', value }})}
               isMulti
               hideSelectedOptions={false}
               closeMenuOnSelect={false}
@@ -188,7 +199,7 @@ class DetailForm extends React.Component {
               options={subjects.map((sj) => ({ value: sj.id, label: sj.name }))}
               value={formData.get('subjectId', '')}
               onChange={(value) => this.handleChange({ target: { name: 'subjectId', value }})}
-              isMulti
+              
               hideSelectedOptions={false}
               closeMenuOnSelect={false}
               placeholder={'-- Chọn môn --'}
@@ -206,7 +217,7 @@ class DetailForm extends React.Component {
               options={classes.map((sj) => ({ value: sj.id, label: sj.name }))}
               value={formData.get('classId', '')}
               onChange={(value) => this.handleChange({ target: { name: 'classId', value }})}
-              isMulti
+              
               hideSelectedOptions={false}
               closeMenuOnSelect={false}
               placeholder={'-- Chọn lớp --'}
@@ -226,7 +237,7 @@ class DetailForm extends React.Component {
                 .map((y, idx) => ({ value: y + idx, label: y + idx }))}
               value={formData.get('yearSchool', '')}
               onChange={(value) => this.handleChange({ target: { name: 'yearSchool', value }})}
-              isMulti
+              
               hideSelectedOptions={false}
               closeMenuOnSelect={false}
               placeholder={'-- Chọn năm học --'}
@@ -246,7 +257,7 @@ class DetailForm extends React.Component {
               ]}
               value={formData.get('collectionId', '')}
               onChange={(value) => this.handleChange({ target: { name: 'collectionId', value }})}
-              isMulti
+              
               hideSelectedOptions={false}
               closeMenuOnSelect={false}
               placeholder={'-- Chọn bộ sưu tập --'}
