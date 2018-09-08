@@ -1,5 +1,6 @@
 import ES from '../../elastic';
 import logger from './logger';
+import constants from '../constant/common';
 
 const filterParamsHandler = (filtersParam = {}) => {
   try {
@@ -103,37 +104,9 @@ const sortParamsHandler = (sort) => {
   }
 };
 
-const insertToCateDoc = (docId, cates = [], createdAt) => {
-  const cateDocRefs = new ES('catedocrefs', 'cateDocRef');
-  const promiseCateDocRefs = cates.map((cate) => {
-    return cateDocRefs.insert({
-      cateId: cate.cateId,
-      cateName: cate.cateName,
-      docId,
-      createdAt,
-    });
-  });
-
-  return promiseCateDocRefs;
-};
-
-const insertToTagDoc = (docId, docName, tags, createdAt) => {
-  const tagDocRefs = new ES('tagdocrefs', 'tagDocRef');
-  const promiseTagDocRefs = tags.map((tag) => {
-    return tagDocRefs.insert({
-      tagId: tag.trim(),
-      docId,
-      docName,
-      createdAt,
-    });
-  });
-
-  return promiseTagDocRefs;
-};
-
 const updateNumDocRefToCate = (cates, type) => {
   const cateModel =new ES('categories', 'category');
-  const operation = type === 'increase' ? '+=' : '-=';
+  const operation = type === constants.INCREASE ? '+=' : '-=';
   const promiseUpdateCates = cates.map((cate) => {
     return cateModel.updateByScrip(
       cate.cateId,
@@ -152,7 +125,7 @@ const updateNumDocRefToCate = (cates, type) => {
 
 const updateNumDocRefToCollection = (collectionId, type) => {
   const collectionModel =new ES('collections', 'collection');
-  const operation = type === 'increase' ? '+=' : '-=';
+  const operation = type === constants.INCREASE ? '+=' : '-=';
 
   return collectionModel.updateByScrip(
     collectionId,
@@ -191,28 +164,10 @@ const insertTag = async (tags, createdAt) => {
   });
 };
 
-const removeCateRefToDoc = (docId) => {
-  const filters = filterParamsHandler({ docId });
-  const cateDocRefs = new ES('catedocrefs', 'cateDocRef');
-
-  return cateDocRefs.deleteByQuery(filters.data);
-};
-
-const removeTagRefToDoc = (docId) => {
-  const filters = filterParamsHandler({ docId });
-  const tagDocRefs = new ES('tagdocrefs', 'tagDocRef');
-
-  return tagDocRefs.deleteByQuery(filters.data);
-};
-
 export {
   insertTag,
   filterParamsHandler,
   sortParamsHandler,
-  insertToCateDoc,
-  insertToTagDoc,
-  removeCateRefToDoc,
-  removeTagRefToDoc,
   updateNumDocRefToCate,
   updateNumDocRefToCollection,
 };

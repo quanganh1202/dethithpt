@@ -6,10 +6,6 @@ import constant from '../constant/common';
 import {
   filterParamsHandler,
   sortParamsHandler,
-  removeCateRefToDoc,
-  removeTagRefToDoc,
-  insertToCateDoc,
-  insertToTagDoc,
   insertTag,
   updateNumDocRefToCate,
   updateNumDocRefToCollection,
@@ -60,6 +56,7 @@ export default {
         yearSchool,
         name,
         price,
+        tags,
         scroll,
       } = options;
       const numberRegex = new RegExp(/^[0-9]*$/);
@@ -75,6 +72,7 @@ export default {
       const sortObj = sortParamsHandler(sort);
       if (sortObj.statusCode !== 200) return sortObj; // Return error
       const filterBuilt = filterParamsHandler({
+        tags,
         'cates.cateName': cateName,
         'cates.cateId': cateId,
         subjectName,
@@ -110,15 +108,15 @@ export default {
 
   create: async (docId, body) => {
     try {
-      const { name, cates, tags, collectionId } = body;
+      const { cates, tags, collectionId } = body;
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.createdAt = now;
       const promise = [];
-      const { createdId } = await elasticsearch.insert(body, docId);
-      const promiseCateDocRefs = insertToCateDoc(createdId, cates, now);
-      const promiseTagDocRefs = insertToTagDoc(createdId, name, tags, now);
-      const promiseUpdateCates = updateNumDocRefToCate(cates, constant.INCREASE);
-      promise.concat([...promiseCateDocRefs, ...promiseTagDocRefs, ...promiseUpdateCates, insertTag(tags)]);
+      await elasticsearch.insert(body, docId);
+      if (cates && cates.length) {
+        const promiseUpdateCates = updateNumDocRefToCate(cates, constant.INCREASE);
+        promise.concat([...promiseUpdateCates, insertTag(tags)]);
+      }
       if (collectionId) {
         promise.push(updateNumDocRefToCollection(collectionId, constant.INCREASE));
       }
@@ -138,27 +136,10 @@ export default {
           error: 'Missing document id',
         };
       }
-      const { cates, tags } = body;
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.updatedAt = now;
       // Perform update
       const result = await elasticsearch.update(body, docId);
-      const promisesRemove = [];
-      const promiseInsert = [];
-      // Update tags on ref table if user update tags for document
-      if (tags) {
-        promisesRemove.push(removeTagRefToDoc(docId));
-        promiseInsert.concat(insertToTagDoc(docId, tags, now));
-      }
-      // The same to tags
-      if (cates) {
-        promisesRemove.push(removeCateRefToDoc(docId));
-        promiseInsert.concat(insertToCateDoc(docId, cates, now));
-      }
-      // Need to clean all the tags ref to docId before insert new tags
-      await Promise.all(promisesRemove);
-      // Insert new tags
-      await Promise.all(promiseInsert);
 
       return result[0];
     } catch (error) {
@@ -174,16 +155,7 @@ export default {
           error: 'Missing document id',
         };
       }
-      const result = await Promise.all([
-        elasticsearch.remove(docId),
-        removeTagRefToDoc(docId),
-        removeCateRefToDoc(docId),
-      ]);
-
-      await Promise.all([
-        removeTagRefToDoc(docId),
-        removeCateRefToDoc(docId),
-      ]); // Remove all tags & cate refer to this doc
+      const result = elasticsearch.remove(docId);
 
       return result[0];
     } catch (error) {

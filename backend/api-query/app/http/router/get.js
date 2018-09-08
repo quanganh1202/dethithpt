@@ -2,13 +2,11 @@ import express from 'express';
 import { isUndefined } from 'util';
 import documentHandler from '../../src/handlers/documents';
 import trackingHandler from '../../src/handlers/tradingHistories';
-import cateDocRefHandler from '../../src/handlers/cateDoc';
 import categoryHandler from '../../src/handlers/category';
 import userHandler from '../../src/handlers/user';
 import classHandler from '../../src/handlers/class';
 import collectionHandler from '../../src/handlers/collection';
 import subjectHandler from '../../src/handlers/subject';
-import tagHandler from '../../src/handlers/tag';
 
 const routerDefine =  function defineRouter() {
   // Destination folder path
@@ -86,15 +84,6 @@ const routerDefine =  function defineRouter() {
       res.json({ statusCode, error });
     } else {
       res.json({ statusCode, data });
-    }
-  });
-
-  route.get('/categories/aggregation', async (req, res) => {
-    const { statusCode, error, aggs } = await cateDocRefHandler.getAggs();
-    if (error) {
-      res.json({ statusCode, error });
-    } else {
-      res.json({ statusCode, data: aggs });
     }
   });
 
@@ -195,17 +184,6 @@ const routerDefine =  function defineRouter() {
       res.json({ statusCode, error });
     } else {
       res.json({ statusCode, data });
-    }
-  });
-
-  route.get('/tags', async (req, res) => {
-    const queryParams = req.query;
-    const { statusCode, error, data, total } = await tagHandler.getList(queryParams);
-    res.status(statusCode !== 204 ? statusCode : 200);
-    if (error) {
-      res.json({ statusCode, error });
-    } else {
-      res.json({ statusCode, data, total });
     }
   });
 
