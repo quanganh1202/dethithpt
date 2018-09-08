@@ -121,11 +121,13 @@ const Wrapper = styled.div`
           font-weight: bold;
         }
         &.tag-item {
+          margin-right: 10px;
           cursor: pointer;
           border-radius: 3px;
           background-color: lightgrey;
           &:hover {
-            background-color: grey;
+            background-color: dimgrey;
+            color: white;
           }
         }
       }

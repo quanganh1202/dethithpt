@@ -18,7 +18,7 @@ import { faCog, faFolder } from '@fortawesome/free-solid-svg-icons';
 import { faMoneyBillAlt } from '@fortawesome/free-regular-svg-icons';
 import UploadDocument from 'containers/UploadDocument/Loadable';
 import DocumentDetails from 'containers/DocumentDetails/Loadable';
-import styled from 'styled-components';
+import Category from 'containers/Category/Loadable';
 import _ from 'lodash';
 
 import injectReducer from 'utils/injectReducer';
@@ -33,11 +33,19 @@ import List from 'components/List';
 import ListItem from 'components/ListItem';
 import PopUp from 'components/PopUp';
 import SocialButton from 'components/SocialButton';
-import { login, updateUserInfo, getDocumentsList } from './actions';
+import {
+  login,
+  updateUserInfo,
+  getDocumentsList,
+  getCategories,
+  getCollections,
+} from './actions';
 import {
   makeSelectUser,
   makeSelectLoading,
   makeSelectDocuments,
+  makeSelectCategories,
+  makeSelectCollections,
 } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
@@ -45,56 +53,11 @@ import CreateUserForm from '../Login/Form';
 import { getUser } from 'services/auth';
 import GreyTitle from './GreyTitle';
 import HomeWrapper from './Wrapper';
+import UserDashboard from './UserDashboard';
 
 library.add(faMoneyBillAlt, faFolder, faCog);
 
-const categoryItems = [
-  {
-    id: 1,
-    title: 'Đề thi thử THPT Quốc Gia',
-    link: '',
-    quantity: 4,
-  },
-  {
-    id: 2,
-    title: 'Chuyên đề, bài tập, giáo án',
-    link: '',
-    quantity: 4,
-  },
-  {
-    id: 3,
-    title: 'Đề thi thử THPT Quốc Gia',
-    link: '',
-    quantity: 4,
-  },
-  {
-    id: 4,
-    title: 'Đề thi thử THPT Quốc Gia',
-    link: '',
-    quantity: 4,
-  },
-  {
-    id: 5,
-    title: 'Đề thi thử THPT Quốc Gia',
-    link: '',
-    quantity: 4,
-  },
-];
-
-const dataLeft = [
-  {
-    title: 'Danh mục tài liệu',
-    data: categoryItems,
-  },
-];
 const dataRight1 = [
-  {
-    title: 'Bộ sưu tập nổi bật',
-    data: categoryItems,
-    component: ({ data }) => (
-      <List items={data} component={({ item }) => <TabList item={item} />} />
-    ),
-  },
   {
     title: 'Tin tức nổi bật',
   },
@@ -166,46 +129,6 @@ const numberWithCommas = (x) => {
   return parts.join(".");
 }
 
-const UserDashboard = styled.div`
-  &.user-dashboard {
-    padding: 5px 10px;
-    margin-bottom: 15px;
-    a {
-      text-decoration: none;
-    }
-    p {
-      font-size: 0.9em;
-      margin: 0;
-      &.user-payment {
-        text-align: left;
-        .user-icon {
-          margin-right: 5px;
-        }
-      }
-    }
-    text-align: center;
-    & .user-email {
-      color: orange;
-    }
-    & .user-page-link {
-      margin-bottom: 10px;
-      a {
-        color: blue;
-      }
-    }
-  }
-  
-  &.user-login {
-    text-align: center;
-    margin-bottom: 15px;
-    .social-btn {
-      padding: 5px 10px;
-      width: 90%;
-      margin: 0 auto 5px;
-    }
-  }
-`;
-
 /* eslint-disable react/prefer-stateless-function */
 export class HomePage extends React.PureComponent {
   constructor() {
@@ -220,19 +143,23 @@ export class HomePage extends React.PureComponent {
   }
 
   componentWillMount() {
+    // get document list
     if (!this.props.documents.data.length) {
       this.props.getDocumentsList({
-        sortBy: 'createdAt.desc',
-        offset: 0,
-        number: 2,
+        sort: 'createdAt.desc',
+        size: 2,
       });
     }
+    // get document's categories
+    this.props.getCategories();
+    // get document's collections
+    this.props.getCollections();
+
     this.unlisten = this.props.history.listen((location, action) => {
       if (location.pathname === '/') {
         this.props.getDocumentsList({
-          sortBy: 'createdAt.desc',
-          offset: 0,
-          number: 2,
+          sort: 'createdAt.desc',
+          size: 2,
         });
       }
     });
@@ -275,7 +202,7 @@ export class HomePage extends React.PureComponent {
     this.props.getDocumentsList({
       sortBy: 'createdAt.desc',
       offset: this.props.documents.data.length,
-      number: 2,
+      size: 2,
     });
   }
 
@@ -318,19 +245,43 @@ export class HomePage extends React.PureComponent {
             </p>
           </UserDashboard>
         )}
-        {
-          dataLeft.map((item, index) => 
-            <Tab key={`left-${index}`} title={item.title} content={
-              <List
-                items={item.data}
-                component={({ item }) => <TabList item={item} type={LIST_COLOR} />}
+        <Tab key={`danh-muc-tai-lieu`} title={'Danh mục tài liệu'} content={
+          <List
+            items={this.props.categories}
+            component={({ item }) => (
+              <TabList
+                item={{
+                  link: `/danh-muc/${item.id}`,
+                  title: item.name,
+                  quantity: item.quantity || 4,
+                }}
+                type={LIST_COLOR}
               />
-            } />
-          )
-        }
+            )}
+          />
+        } />
       </div>
     );
     const contentRight1 = (<div>
+      <Tab
+        key={'bo-suu-tap'}
+        style={{ background: 'white' }}
+        title={'Bộ sưu tập nổi bật'}
+        content={(
+          <List
+            items={this.props.collections}
+            component={({ item }) => (
+              <TabList
+                item={{
+                  link: `/bo-suu-tap/${item.id}`,
+                  title: item.name,
+                  quantity: item.quantity || 4,
+                }}
+              />
+            )}
+          />
+        )}
+      />
       {
         dataRight1.map((item, index) => {
           const ComponentRendered = item.component;
@@ -421,6 +372,7 @@ export class HomePage extends React.PureComponent {
                   )} />
                   <Route exact path="/dang-ban-tai-lieu" component={UploadDocument} />
                   <Route exact path="/tai-lieu/:id" component={DocumentDetails} />
+                  <Route exact path="/danh-muc/:id" component={Category} />
                 </Switch>
               </div>
             ) },
@@ -458,6 +410,8 @@ export function mapDispatchToProps(dispatch) {
     onLogin: (payload) => dispatch(login(payload)),
     onSubmitUserInfo: (payload) => dispatch(updateUserInfo(payload)),
     getDocumentsList: (query) => dispatch(getDocumentsList(query)),
+    getCategories: () => dispatch(getCategories()),
+    getCollections: () => dispatch(getCollections()),
   };
 }
 
@@ -465,6 +419,8 @@ const mapStateToProps = createStructuredSelector({
   user: makeSelectUser(),
   loading: makeSelectLoading(),
   documents: makeSelectDocuments(),
+  categories: makeSelectCategories(),
+  collections: makeSelectCollections(),
 });
 
 const withConnect = connect(

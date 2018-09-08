@@ -11,8 +11,8 @@
  */
 import { fromJS } from 'immutable';
 import {
-  GET_DOC_DETAILS_REQUEST,
-  GET_DOC_DETAILS_SUCCESS,
+  GET_FILTER_DATA_REQUEST,
+  GET_FILTER_DATA_SUCCESS,
   GET_DOC_LIST_REQUEST,
   GET_DOC_LIST_SUCCESS,
 } from './constants';
@@ -33,17 +33,31 @@ export const initialState = fromJS({
     total: 0,
     query: null,
   },
+  filterData: {
+    subjects: [],
+    classes: [],
+  },
 });
 
-function documentReducer(state = initialState, action) {
+function categoryReducer(state = initialState, action) {
   switch (action.type) {
-    case GET_DOC_DETAILS_REQUEST:
+    case GET_FILTER_DATA_REQUEST:
       return state.set('loading', true);
-    case GET_DOC_DETAILS_SUCCESS:
+    case GET_FILTER_DATA_SUCCESS:
       return state
         .set('loading', false)
-        .set('document', fromJS(action.data));
+        .setIn(['filterData', 'subjects'], action.data.subjects)
+        .setIn(['filterData', 'classes'], action.data.classes);
     case GET_DOC_LIST_REQUEST:
+      if (action.clear) {
+        return state
+          .set('loading', true)
+          .set('documents', fromJS({
+            data: [],
+            total: 0,
+            query: action.query,
+          }))
+      }
       return state
         .set('loading', true)
         .setIn(['documents', 'query'], action.query);
@@ -61,4 +75,4 @@ function documentReducer(state = initialState, action) {
   }
 }
 
-export default documentReducer;
+export default categoryReducer;

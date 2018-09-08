@@ -6,6 +6,10 @@ import {
   UPDATE_USER_INFO_SUCCESS,
   GET_DOC_LIST_REQUEST,
   GET_DOC_LIST_SUCCESS,
+  GET_CATE_LIST_REQUEST,
+  GET_CATE_LIST_SUCCESS,
+  GET_COLLECTION_LIST_REQUEST,
+  GET_COLLECTION_LIST_SUCCESS,
 } from './constants';
 
 /**
@@ -104,5 +108,59 @@ export function getDocumentsListSuccess({ data: documents, total }) {
     type: GET_DOC_LIST_SUCCESS,
     documents,
     total,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} name The new text of the input field
+ *
+ * @return {object}    An action object with a type of GET_CATE_LIST_REQUEST
+ */
+export function getCategories() {
+  return {
+    type: GET_CATE_LIST_REQUEST,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} name The new text of the input field
+ *
+ * @return {object}    An action object with a type of GET_CATE_LIST_SUCCESS
+ */
+export function getCategoriesSuccess(categories) {
+  return {
+    type: GET_CATE_LIST_SUCCESS,
+    categories,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} name The new text of the input field
+ *
+ * @return {object}    An action object with a type of GET_CATE_LIST_REQUEST
+ */
+export function getCollections() {
+  return {
+    type: GET_COLLECTION_LIST_REQUEST,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} name The new text of the input field
+ *
+ * @return {object}    An action object with a type of GET_CATE_LIST_SUCCESS
+ */
+export function getCollectionsSuccess(collections) {
+  return {
+    type: GET_COLLECTION_LIST_SUCCESS,
+    collections,
   };
 }

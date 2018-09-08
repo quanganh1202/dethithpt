@@ -18,13 +18,25 @@ const CreateUser = (props) => {
               <tr>
                 <td>Họ tên:<span className="red">(*)</span></td>
                 <td>
-                  <input type="text" name="name" value={_.get(props.data, 'name') || ''} onChange={props.onChange} />
+                  <input
+                    type="text"
+                    name="name"
+                    value={_.get(props.data, 'name') || ''}
+                    placeholder="Nhập họ và tên bạn"
+                    onChange={props.onChange}
+                  />
                 </td>
               </tr>
               <tr>
                 <td>Số điện thoại:<span className="red">(*)</span></td>
                 <td>
-                  <input type="text" name="phone" value={_.get(props.data, 'phone') || ''} onChange={props.onChange} />
+                  <input
+                    type="text"
+                    name="phone"
+                    value={_.get(props.data, 'phone') || ''}
+                    placeholder="Nhập số điện thoại chính xác"
+                    onChange={props.onChange}
+                  />
                 </td>
               </tr>
               <tr>
@@ -64,6 +76,7 @@ const CreateUser = (props) => {
                       { text: 'Hà Nội', value: 'Hà Nội' },
                     ]}
                     value={_.get(props.data, 'city') || ''}
+                    defaultText={'Chọn Tỉnh/Thành phố'}
                     onChange={props.onChange}
                   />
                 </td>
@@ -91,6 +104,7 @@ const CreateUser = (props) => {
                       { text: 'Lớp 1', value: 'Lớp 1' },
                     ]}
                     value={_.get(props.data, 'level') || ''}
+                    defaultText={'Chọn cấp học'}
                     onChange={props.onChange}
                   />
                 </td>
@@ -104,6 +118,7 @@ const CreateUser = (props) => {
                       { text: 'Quang Trung', value: 'Quang Trung' },
                     ]}
                     value={_.get(props.data, 'school') || ''}
+                    defaultText={'Chọn trường đang và đã học tập'}
                     onChange={props.onChange}
                   />
                 </td>
@@ -111,7 +126,13 @@ const CreateUser = (props) => {
               <tr>
                 <td>Facebook bạn (Nếu có):</td>
                 <td>
-                  <input type="text" name="facebook" value={_.get(props.data, 'facebook') || ''} onChange={props.onChange} />
+                  <input
+                    type="text"
+                    name="facebook"
+                    value={_.get(props.data, 'facebook') || ''}
+                    placeholder="Dán link facebook của bạn"
+                    onChange={props.onChange}
+                  />
                 </td>
               </tr>
             </tbody>

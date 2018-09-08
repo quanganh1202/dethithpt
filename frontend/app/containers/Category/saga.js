@@ -3,11 +3,11 @@
  */
 import axios from 'axios';
 import _ from 'lodash';
-import { call, put, select, takeLatest } from 'redux-saga/effects';
+import { all, call, put, select, takeLatest } from 'redux-saga/effects';
 import request from 'utils/request';
-import { GET_DOC_DETAILS_REQUEST, GET_DOC_LIST_REQUEST } from './constants';
+import { GET_FILTER_DATA_REQUEST, GET_DOC_LIST_REQUEST } from './constants';
 import {
-  getDocumentDetailsSuccess,
+  getFilterDataSuccess,
   getDocumentsListSuccess,
 } from './actions';
 import { makeSelectUsername } from 'containers/HomePage/selectors';
@@ -17,12 +17,15 @@ const root = 'http://125.212.250.92:3000';
 /**
  * Request to get document details by id
  */
-export function* getDocumentDetailsHandler({ id }) {
-  const url = `${root}/documents/${id}`;
-
+export function* getFilterDataHandler() {
   try {
-    const resp = yield call(axios.get, url);
-    yield put(getDocumentDetailsSuccess(_.get(resp.data, 'data')));
+    const resp = yield all([
+      call(axios.get, `${root}/subjects`),
+      call(axios.get, `${root}/classes`),
+    ]);
+    const subjects = _.get(resp, '[0].data.data');
+    const classes = _.get(resp, '[1].data.data');
+    yield put(getFilterDataSuccess({ subjects, classes }));
   } catch (err) {
     console.log(err.message);
     // yield put(loginFailure(err));
@@ -47,6 +50,6 @@ export function* getDocumentsListHandler({ query }) {
  * Root saga manages watcher lifecycle
  */
 export default function* homeSaga() {
-  yield takeLatest(GET_DOC_DETAILS_REQUEST, getDocumentDetailsHandler);
+  yield takeLatest(GET_FILTER_DATA_REQUEST, getFilterDataHandler);
   yield takeLatest(GET_DOC_LIST_REQUEST, getDocumentsListHandler)
 }

@@ -17,6 +17,10 @@ import {
   UPDATE_USER_INFO_SUCCESS,
   GET_DOC_LIST_REQUEST,
   GET_DOC_LIST_SUCCESS,
+  GET_CATE_LIST_REQUEST,
+  GET_CATE_LIST_SUCCESS,
+  GET_COLLECTION_LIST_REQUEST,
+  GET_COLLECTION_LIST_SUCCESS,
 } from './constants';
 import { setToken, mappingUser } from 'services/auth';
 
@@ -35,6 +39,8 @@ export const initialState = fromJS({
     total: 0,
     query: null,
   },
+  categories: [],
+  collections: [],
 });
 
 function homeReducer(state = initialState, action) {
@@ -49,7 +55,7 @@ function homeReducer(state = initialState, action) {
       return state.set('loading', true);
     case LOGIN_SUCCESS: {
       const user = mappingUser(action.payload.token);
-      if (validate(user, requiredFields)) {
+      if (user.status === 2) {
         return state.set('user', user).set('loading', false);
       }
       setToken(action.payload.token);
@@ -73,6 +79,20 @@ function homeReducer(state = initialState, action) {
           total: action.total,
           query: state.getIn(['documents', 'query']),
         }));
+    case GET_CATE_LIST_REQUEST:
+      return state
+        .set('loading', true);
+    case GET_CATE_LIST_SUCCESS:
+      return state
+        .set('loading', false)
+        .set('categories', fromJS(action.categories));
+    case GET_COLLECTION_LIST_REQUEST:
+      return state
+        .set('loading', true);
+    case GET_COLLECTION_LIST_SUCCESS:
+      return state
+        .set('loading', false)
+        .set('collections', fromJS(action.collections));
     default:
       return state;
   }

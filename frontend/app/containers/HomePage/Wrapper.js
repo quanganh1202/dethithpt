@@ -7,7 +7,7 @@ const HomeWrapper = styled.div`
     > .content-notification {
       padding: 5px 10px;
       background-color: white;
-      border: 1px solid grey;
+      border: 1px solid lightgrey;
       text-align: right;
     }
     .content-docs {
