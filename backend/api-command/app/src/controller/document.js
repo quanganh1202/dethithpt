@@ -134,7 +134,7 @@ async function uploadDocument(body, file) {
       queryBody.collectionName = collection[0].name;
     }
 
-    body.tags = Array.isArray(tags) ? tags.join('') : tags;
+    body.tags = Array.isArray(tags) ? tags.map(tag => tag.trim()).join(',') : tags.trim();
     body.cateIds = Array.isArray(cateIds) ? cateIds.join(',') : cateIds;
     const { error, status, fileName } =  fileHelpers.validateExtension(file, body.userId);
     if (error) {
@@ -286,8 +286,8 @@ async function updateDocumentInfo(id, body, file) {
     }
 
     if (tags) {
-      newBody.tags = tags.split(',');
-      body.tags = Array.isArray(tags) ? tags.join(',') : tags;
+      body.tags = Array.isArray(tags) ? tags.map(tag => tag.trim()).join(',') : tags.trim();
+      newBody.tags = body.tags.split(',');
     }
 
     const promise = [docModel.updateDocumentById(id, body)];
