@@ -106,7 +106,7 @@ const sortParamsHandler = (sort) => {
 
 const updateNumDocRefToCate = (cates, type) => {
   const cateModel =new ES('categories', 'category');
-  const operation = type === constants.in ? '+=' : '-=';
+  const operation = type === constants.INCREASE ? '+=' : '-=';
   const promiseUpdateCates = cates.map((cate) => {
     return cateModel.updateByScrip(
       cate.cateId,
