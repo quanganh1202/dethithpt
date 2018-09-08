@@ -13,6 +13,12 @@ const Wrapper = styled.div`
 
   .form-body {
     padding: 15px;
+    .form-error {
+      color: white;
+      background-color: red;
+      font-size: 0.9em;
+      text-align: center;
+    }
     .form-body-note {
       color: blue;
       font-weight: bold;
@@ -32,13 +38,24 @@ const Wrapper = styled.div`
         height: 40px;
         width: 30%;
       }
-      input, select {
+      tr > td > input,
+      tr > td > select,
+      .react-datepicker-wrapper > div > input {
         font-size: 0.8em;
-        border: 1px solid black;
+        border: 1px solid #ccc;
         margin-left: 10px;
         width: 60%;
         height: 30px;
         padding: 0 5px;
+      }
+      .bod-picker {
+        border: 1px solid #ccc;
+      }
+      div.react-datepicker-wrapper {
+        width: 100%;
+        > div {
+          width: 100%;
+        }
       }
       .control-btn {
         text-align: center;

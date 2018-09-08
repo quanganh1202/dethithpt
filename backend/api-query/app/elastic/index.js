@@ -202,7 +202,7 @@ class ES {
       type: this.type,
       id,
     }).then(res => ({
-      statusCode: res.deleted ? 204 : 404,
+      statusCode: res.result === 'deleted' ? 204 : 404,
     })).catch(handleElasticsearchError);
   }
 
