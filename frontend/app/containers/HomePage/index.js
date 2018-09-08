@@ -206,8 +206,6 @@ export class HomePage extends React.PureComponent {
       update.facebook = '';
     }
     const error = validate(update, requiredFields);
-    update.bod = update.bod.format('DD/MM/YYYY');
-    console.log(update);
     if (error) {
       this.setState({
         error: 'Bạn cần điền đủ những thông tin bắt buộc'
@@ -215,6 +213,7 @@ export class HomePage extends React.PureComponent {
       const formError = document.querySelector('.form-header');
       formError.scrollIntoView();
     } else {
+      update.bod = update.bod.format('DD/MM/YYYY');
       this.props.onSubmitUserInfo(update);
     }
   }
