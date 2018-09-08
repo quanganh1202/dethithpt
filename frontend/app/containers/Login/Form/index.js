@@ -1,6 +1,6 @@
 import React from 'react';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+// import DatePicker from 'react-datepicker';
+// import 'react-datepicker/dist/react-datepicker.css';
 import _ from 'lodash';
 import Select from 'components/Select';
 import Wrapper from './Wrapper';
@@ -59,7 +59,7 @@ const CreateUser = (props) => {
               <tr>
                 <td>Năm sinh:<span className="red">(*)</span></td>
                 <td>
-                  <DatePicker
+                  {/* <DatePicker
                     selected={_.get(props.data, 'bod')}
                     onChange={(date) => props.onChange({
                       currentTarget: { name: 'bod', value: date }
@@ -72,6 +72,15 @@ const CreateUser = (props) => {
                     tabIndex={1000}
                     className="bod-picker"
                     dateFormat={'DD/MM/YYYY'}
+                  /> */}
+                  <Select
+                    name="bod"
+                    options={Array(81)
+                      .fill((new Date()).getFullYear() - 80)
+                      .map((y, idx) => ({ value: y + idx, text: y + idx }))}
+                    value={_.get(props.data, 'bod') || ''}
+                    defaultText={'-- Vui lòng chọn năm sinh --'}
+                    onChange={props.onChange}
                   />
                 </td>
               </tr>

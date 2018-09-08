@@ -200,8 +200,6 @@ export class HomePage extends React.PureComponent {
   onSubmit(e) {
     e.preventDefault();
     const update = _.cloneDeep(this.state.user);
-    delete update.exp;
-    delete update.iat;
     if (update.facebook === null) {
       update.facebook = '';
     }
@@ -213,7 +211,10 @@ export class HomePage extends React.PureComponent {
       const formError = document.querySelector('.form-header');
       formError.scrollIntoView();
     } else {
-      update.bod = update.bod.format('DD/MM/YYYY');
+      delete update.exp;
+      delete update.iat;
+      delete update.id;
+      delete update.status;
       this.props.onSubmitUserInfo(update);
     }
   }

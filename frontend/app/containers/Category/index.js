@@ -145,132 +145,128 @@ export class Category extends React.PureComponent {
           <title>Danh mục</title>
           <meta name="description" content="Description of UploadDocument" />
         </Helmet>
-        {this.props.loading
-        ? <LoadingIndicator />
-        : (
-          <React.Fragment>
-            <Tab
-              key="bo-loc-danh-muc"
-              style={{ background: 'white' }}
-              title={'Đề thi thử THPT Quốc Gia'}
-              className="doc-filters"
-              content={
-                <React.Fragment>
-                  <div className="doc-filter">
-                    <Select
-                      key={this.state.resetKey}
-                      name="subjectId"
-                      value={this.state.filter.subjectId}
-                      onChange={this.handleChangeFilter.bind(this, 'subjectId')}
-                      options={this.props.filterData.subjects.map((sj) => ({ value: sj.id, label: sj.name }))}
-                      isMulti
-                      hideSelectedOptions={false}
-                      closeMenuOnSelect={false}
-                      placeholder={'Chọn môn'}
-                      isSearchable={false}
-                      components={{
-                        MultiValueContainer: () => null,
-                        DropdownIndicator: () => (
-                          <FontAwesomeIcon style={{ margin: '0 5px'}} className={'title-icon'} icon={['fas', 'caret-down']} />
-                        ),
-                        IndicatorSeparator: () => null,
-                      }}
-                    />
-                  </div>
-                  <div className="doc-filter">
-                    <Select
-                      key={this.state.resetKey}
-                      name="classId"
-                      value={this.state.filter.classId}
-                      onChange={this.handleChangeFilter.bind(this, 'classId')}
-                      options={this.props.filterData.classes.map((cls) => ({ value: cls.id, label: cls.name }))}
-                      isMulti
-                      hideSelectedOptions={false}
-                      closeMenuOnSelect={false}
-                      placeholder={'Chọn lớp'}
-                      isSearchable={false}
-                      components={{
-                        MultiValueContainer: () => null,
-                        DropdownIndicator: () => (
-                          <FontAwesomeIcon style={{ margin: '0 5px'}} className={'title-icon'} icon={['fas', 'caret-down']} />
-                        ),
-                        IndicatorSeparator: () => null,
-                      }}
-                    />
-                  </div>
-                  <div className="doc-filter">
-                    <Select
-                      key={this.state.resetKey}
-                      name="yearSchool"
-                      value={this.state.filter.yearSchool}
-                      onChange={this.handleChangeFilter.bind(this, 'yearSchool')}
-                      options={Array(21)
-                        .fill((new Date()).getFullYear() - 10)
-                        .map((y, idx) => ({ value: y + idx, label: y + idx }))}
-                      isMulti
-                      hideSelectedOptions={false}
-                      closeMenuOnSelect={false}
-                      placeholder={'Chọn năm học'}
-                      isSearchable={false}
-                      components={{
-                        MultiValueContainer: () => null,
-                        DropdownIndicator: () => (
-                          <FontAwesomeIcon style={{ margin: '0 5px'}} className={'title-icon'} icon={['fas', 'caret-down']} />
-                        ),
-                        IndicatorSeparator: () => null,
-                      }}
-                    />
-                  </div>
-                  <div className="doc-filter">
-                    <Select
-                      key={this.state.resetKey}
-                      name="sort"
-                      value={this.state.filter.sort}
-                      onChange={this.handleChangeFilter.bind(this, 'sort')}
-                      options={[
-                        { value: 'desc', label: 'Mới đăng' },
-                        { value: 'asc', label: 'Cũ đến mới' },
-                      ]}
-                      // isMulti
-                      hideSelectedOptions={false}
-                      defaultValue={{ value: 'desc', label: 'Mới đăng' }}
-                      // closeMenuOnSelect={false}
-                      placeholder={'Sắp xếp'}
-                      isSearchable={false}
-                      components={{
-                        MultiValueContainer: () => null,
-                        DropdownIndicator: () => (
-                          <FontAwesomeIcon style={{ margin: '0 5px'}} className={'title-icon'} icon={['fas', 'caret-down']} />
-                        ),
-                        IndicatorSeparator: () => null,
-                      }}
-                    />
-                  </div>
-                </React.Fragment>
-              }
-            />
-            <Tab
-              key="latest-docs"
-              title="Tài liệu khác liên quan"
-              className="grey-box"
-              customTitle={
-                <GreyTitle className="custom-title">
-                  <p>Hiện có <span className="red">{this.props.documents.total}</span> tài liệu tại phần này</p>
-                </GreyTitle>
-              }
-              content={
-                <div>
-                  <List
-                    items={this.props.documents.data}
-                    component={ListItem}
-                    loadMore={this.props.documents.data.length < this.props.documents.total}
-                    onLoadMore={this.loadMoreDocs}
-                  />
-                </div>
-              }
-            />
-          </React.Fragment>
-        )}
+        <Tab
+          key="bo-loc-danh-muc"
+          style={{ background: 'white' }}
+          title={'Đề thi thử THPT Quốc Gia'}
+          className="doc-filters"
+          content={
+            <React.Fragment>
+              <div className="doc-filter">
+                <Select
+                  key={this.state.resetKey}
+                  name="subjectId"
+                  value={this.state.filter.subjectId}
+                  onChange={this.handleChangeFilter.bind(this, 'subjectId')}
+                  options={this.props.filterData.subjects.map((sj) => ({ value: sj.id, label: sj.name }))}
+                  isMulti
+                  hideSelectedOptions={false}
+                  closeMenuOnSelect={false}
+                  placeholder={'Chọn môn'}
+                  isSearchable={false}
+                  components={{
+                    MultiValueContainer: () => null,
+                    DropdownIndicator: () => (
+                      <FontAwesomeIcon style={{ margin: '0 5px'}} className={'title-icon'} icon={['fas', 'caret-down']} />
+                    ),
+                    IndicatorSeparator: () => null,
+                  }}
+                />
+              </div>
+              <div className="doc-filter">
+                <Select
+                  key={this.state.resetKey}
+                  name="classId"
+                  value={this.state.filter.classId}
+                  onChange={this.handleChangeFilter.bind(this, 'classId')}
+                  options={this.props.filterData.classes.map((cls) => ({ value: cls.id, label: cls.name }))}
+                  isMulti
+                  hideSelectedOptions={false}
+                  closeMenuOnSelect={false}
+                  placeholder={'Chọn lớp'}
+                  isSearchable={false}
+                  components={{
+                    MultiValueContainer: () => null,
+                    DropdownIndicator: () => (
+                      <FontAwesomeIcon style={{ margin: '0 5px'}} className={'title-icon'} icon={['fas', 'caret-down']} />
+                    ),
+                    IndicatorSeparator: () => null,
+                  }}
+                />
+              </div>
+              <div className="doc-filter">
+                <Select
+                  key={this.state.resetKey}
+                  name="yearSchool"
+                  value={this.state.filter.yearSchool}
+                  onChange={this.handleChangeFilter.bind(this, 'yearSchool')}
+                  options={Array(21)
+                    .fill((new Date()).getFullYear() - 10)
+                    .map((y, idx) => ({ value: y + idx, label: y + idx }))}
+                  isMulti
+                  hideSelectedOptions={false}
+                  closeMenuOnSelect={false}
+                  placeholder={'Chọn năm học'}
+                  isSearchable={false}
+                  components={{
+                    MultiValueContainer: () => null,
+                    DropdownIndicator: () => (
+                      <FontAwesomeIcon style={{ margin: '0 5px'}} className={'title-icon'} icon={['fas', 'caret-down']} />
+                    ),
+                    IndicatorSeparator: () => null,
+                  }}
+                />
+              </div>
+              <div className="doc-filter">
+                <Select
+                  key={this.state.resetKey}
+                  name="sort"
+                  value={this.state.filter.sort}
+                  onChange={this.handleChangeFilter.bind(this, 'sort')}
+                  options={[
+                    { value: 'desc', label: 'Mới đăng' },
+                    { value: 'asc', label: 'Cũ đến mới' },
+                  ]}
+                  // isMulti
+                  hideSelectedOptions={false}
+                  defaultValue={{ value: 'desc', label: 'Mới đăng' }}
+                  // closeMenuOnSelect={false}
+                  placeholder={'Sắp xếp'}
+                  isSearchable={false}
+                  components={{
+                    MultiValueContainer: () => null,
+                    DropdownIndicator: () => (
+                      <FontAwesomeIcon style={{ margin: '0 5px'}} className={'title-icon'} icon={['fas', 'caret-down']} />
+                    ),
+                    IndicatorSeparator: () => null,
+                  }}
+                />
+              </div>
+            </React.Fragment>
+          }
+        />
+        <Tab
+          key="latest-docs"
+          title="Tài liệu khác liên quan"
+          className="grey-box"
+          customTitle={
+            <GreyTitle className="custom-title">
+              <p>Hiện có <span className="red">{this.props.documents.total}</span> tài liệu tại phần này</p>
+            </GreyTitle>
+          }
+          content={
+            this.props.load
+              ? <LoadingIndicator />
+              : (<div>
+                <List
+                  items={this.props.documents.data}
+                  component={ListItem}
+                  loadMore={this.props.documents.data.length < this.props.documents.total}
+                  onLoadMore={this.loadMoreDocs}
+                />
+              </div>)
+          }
+        />
       </Wrapper> 
     );
   }
