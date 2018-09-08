@@ -110,13 +110,13 @@ export default {
 
   create: async (docId, body) => {
     try {
-      const { cates, tags, collectionId } = body;
+      const { name, cates, tags, collectionId } = body;
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.createdAt = now;
       const promise = [];
       const { createdId } = await elasticsearch.insert(body, docId);
       const promiseCateDocRefs = insertToCateDoc(createdId, cates, now);
-      const promiseTagDocRefs = insertToTagDoc(createdId, tags, now);
+      const promiseTagDocRefs = insertToTagDoc(createdId, name, tags, now);
       const promiseUpdateCates = updateNumDocRefToCate(cates, constant.INCREASE);
       promise.concat([...promiseCateDocRefs, ...promiseTagDocRefs, ...promiseUpdateCates, insertTag(tags)]);
       if (collectionId) {
