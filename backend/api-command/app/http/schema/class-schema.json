@@ -4,10 +4,19 @@
   "description": "Class schema validation",
   "type": "object",
   "additionalProperties": false,
-  "required":[ "name", "description" ],
+  "required": ["name", "description"],
   "properties": {
-    "name": { "type": "string", "maxLength": 255 },
-    "description": { "type": "string" },
-    "userId": { "type": "string" }
+    "name": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "userId": {
+      "type": "string",
+      "minLength": 1
+    }
   }
 }

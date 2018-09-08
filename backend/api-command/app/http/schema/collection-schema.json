@@ -11,52 +11,61 @@
       "maxLength": 255
     },
     "description": {
-      "type": "string"
+      "type": "string",
+      "minLength": 1
     },
     "cateIds": {
       "anyOf": [{
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         {
           "type": "array",
           "items": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           }
         }
       ]
     },
     "classIds": {
       "anyOf": [{
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         {
           "type": "array",
           "items": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           }
         }
       ]
     },
     "yearSchools": {
       "anyOf": [{
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         {
           "type": "array",
           "items": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           }
         }
       ]
     },
     "subjectIds": {
       "anyOf": [{
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         {
           "type": "array",
           "items": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           }
         }
       ]
