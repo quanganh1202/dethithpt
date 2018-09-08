@@ -71,7 +71,7 @@ class App extends React.Component {
             <Route path="/" component={HomePage} />
           {/* <Route path="" component={NotFoundPage} /> */}
           </Switch>
-          <Footer />
+          {/* <Footer /> */}
         </AppWrapper>
       </ThemeProvider>
     );

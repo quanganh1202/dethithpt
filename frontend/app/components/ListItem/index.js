@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
+import _ from 'lodash';
 import { Link } from 'react-router-dom';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -31,13 +32,21 @@ function ListItem(props) {
       </div>
       <div className="doc-category">
         <ul>
-          <li>{props.item.category || 'Đề thi THPT Quốc Gia'}</li>
-          <li>{props.item.subject || 'Môn Toán'}</li>
-          <li>{props.item.class || '12'}</li>
-          <li>{props.item.year || '2018 - 2019'}</li>
+          <li>{_.get(props.item, 'cates[0].cateName')}</li>
+          <li>
+            {props.item.subjectName.includes('Môn') 
+              ? props.item.subjectName
+              : `Môn ${props.item.subjectName}`}
+          </li>
+          <li>
+            {props.item.className.includes('Lớp') 
+              ? props.item.className
+              : `Lớp ${props.item.className}`}
+          </li>
+          <li>{props.item.yearSchool}</li>
           <li>
             <FontAwesomeIcon className={'specific-icon'} icon={['far', 'folder-open']} />
-            {props.item.specific || 'Đề thi thử trường chuyên'}
+            {props.item.collectionName}
           </li>
         </ul>
       </div>
@@ -49,7 +58,7 @@ function ListItem(props) {
           </p>
           <p>
             <FontAwesomeIcon className={'info-icon'} icon={['fas', 'dollar-sign']} />
-            {numberWithCommas(props.item.price || 10000)}đ
+            {numberWithCommas(props.item.price)}đ
           </p>
           <p>
             <FontAwesomeIcon className={'info-icon'} icon={['fas', 'eye']} />

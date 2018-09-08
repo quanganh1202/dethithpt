@@ -11,28 +11,18 @@ import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
-import { Switch, Route, Link } from 'react-router-dom';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCog, faFolder, faCloudDownloadAlt } from '@fortawesome/free-solid-svg-icons';
 import { faMoneyBillAlt } from '@fortawesome/free-regular-svg-icons';
-import UploadDocument from 'containers/UploadDocument/Loadable';
-import styled from 'styled-components';
 import _ from 'lodash';
 import moment from 'moment';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
-import { LIST_COLOR } from 'utils/constants';
-import FacebookLogin from 'containers/Login/Facebook';
-import GoogleLogin from 'containers/Login/Google';
-import Layout from 'components/Layout';
 import Tab from 'components/Tab';
-import TabList from 'components/Tab/TabList';
 import List from 'components/List';
 import ListItem from 'components/ListItem';
-import PopUp from 'components/PopUp';
-import SocialButton from 'components/SocialButton';
 import { getDocumentDetails, getDocumentsList } from './actions';
 import {
   makeSelectDocument,
@@ -46,48 +36,6 @@ import GreyTitle from 'containers/HomePage/GreyTitle';
 import Wrapper from './Wrapper';
 
 library.add(faMoneyBillAlt, faFolder, faCog, faCloudDownloadAlt);
-
-const items = [
-  {
-    id: '1',
-    title: 'Đề thi THPT quốc gia chính thức - 2016 - Môn Địa lí - Bộ Giáo dục',
-    category: 'Đề thi THPT Quốc Gia',
-    subject: 'Môn Toán',
-    class: '12',
-    year: '2018 - 2019',
-    specific: 'Đề thi thử trường chuyên',
-    pages: 24,
-    price: 10000,
-    views: 28960,
-    createdAt: '30/12/2017'
-  },
-  {
-    id: '2',
-    title: 'Đề thi THPT quốc gia chính thức - 2016 - Môn Địa lí - Bộ Giáo dục',
-    category: 'Đề thi THPT Quốc Gia',
-    subject: 'Môn Toán',
-    class: '12',
-    year: '2018 - 2019',
-    specific: 'Đề thi thử trường chuyên',
-    pages: 24,
-    price: 10000,
-    views: 28960,
-    createdAt: '30/12/2017'
-  },
-  {
-    id: '3',
-    title: 'Đề thi THPT quốc gia chính thức - 2016 - Môn Địa lí - Bộ Giáo dục',
-    category: 'Đề thi THPT Quốc Gia',
-    subject: 'Môn Toán',
-    class: '12',
-    year: '2018 - 2019',
-    specific: 'Đề thi thử trường chuyên',
-    pages: 24,
-    price: 10000,
-    views: 28960,
-    createdAt: '30/12/2017'
-  },
-];
 
 const numberWithCommas = (x) => {
   var parts = x.toString().split(".");
@@ -111,54 +59,63 @@ export class DocumentDetails extends React.PureComponent {
     }
     if (!this.props.documents.data.length) {
       this.props.getDocumentsList({
-        sortBy: 'createdAt.desc',
+        sort: 'createdAt.desc',
         offset: 0,
-        number: 2,
+        size: 2,
       });
     }
   }
 
   loadMoreDocs() {
     this.props.getDocumentsList({
-      sortBy: 'createdAt.desc',
+      sort: 'createdAt.desc',
       offset: this.props.documents.data.length,
-      number: 2,
+      size: 2,
     });
   }
 
   render() {
+    const { document } = this.props;
     return (
       <Wrapper>
         <Helmet>
-          <title>UploadDocument</title>
+          <title>Tài liệu</title>
           <meta name="description" content="Description of UploadDocument" />
         </Helmet>
         <Tab
-          key="dang-ban-tai-lieu"
+          key="chi-tiet-tai-lieu"
           style={{ background: 'white' }}
           title={'Đề thi thử THPT Quốc Gia'}
           className="doc-details"
           content={
-            !_.isEmpty(this.props.document) ? (
+            !_.isEmpty(document) ? (
             <div style={{ padding: "0px 20px 10px" }}>
               <div className="doc-title">
-                <p>{this.props.document.name}</p>
+                <p>{_.get(document, 'name')}</p>
               </div>
               <div className="doc-category">
                 <ul>
-                  <li>{'Đề thi THPT Quốc Gia'}</li>
-                  <li>{'Môn Toán'}</li>
-                  <li>{'12'}</li>
-                  <li>{'2018 - 2019'}</li>
+                  <li>{_.get(document, 'cates[0].cateName')}</li>
+                  <li>
+                    {document.subjectName.includes('Môn') 
+                      ? document.subjectName
+                      : `Môn ${document.subjectName}`}
+                  </li>
+                  <li>
+                    {document.className.includes('Lớp') 
+                      ? document.className
+                      : `Lớp ${document.className}`}
+                  </li>
+                  <li>{document.yearSchool}</li>
                   <li>
                     <FontAwesomeIcon className={'specific-icon'} icon={['far', 'folder-open']} />
-                    {'Đề thi thử trường chuyên'}
+                    {document.collectionName}
                   </li>
                 </ul>
               </div>
               <div className="doc-action">
                 <button className="btn-download">
-                  <FontAwesomeIcon className={'title-icon'} icon={['fas', 'cloud-download-alt']} /> Tải file word (10,000đ)
+                  <FontAwesomeIcon className={'title-icon'} icon={['fas', 'cloud-download-alt']} /> Tải file word ({numberWithCommas(document.price)}đ)
                 </button>
                 <button className="btn-view">
                   <FontAwesomeIcon className={'title-icon'} icon={['far', 'eye']} /> Xem thử (52 trang)
@@ -173,11 +130,13 @@ export class DocumentDetails extends React.PureComponent {
               </div>
               <div className="doc-description">
                 <p>Mô tả đề thi</p>
-                <p>{this.props.document.description || 'description'}</p>
+                <p>{document.description || 'description'}</p>
               </div>
               <div className="doc-tags">
                 <p>Từ khóa:</p>
-                <p className="tag-item">#test</p>
+                {document.tags.map((t) => (
+                  t.tagText && <p className="tag-item">#{t.tagText}</p>
+                ))}
               </div>
             </div>) : null
           }
@@ -188,7 +147,7 @@ export class DocumentDetails extends React.PureComponent {
           className="grey-box"
           customTitle={
             <GreyTitle className="custom-title">
-              <p>Tài liệu mới đăng</p>
+              <p>Tài liệu khác liên quan</p>
             </GreyTitle>
           }
           content={

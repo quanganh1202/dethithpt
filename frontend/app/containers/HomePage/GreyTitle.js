@@ -5,7 +5,7 @@ const GreyTitle = styled.h2`
   padding: 5px 10px;
   margin: 0;
   color: #fff;
-  background: grey;
+  background: silver;
   overflow: auto;
   > p {
     margin: 0;

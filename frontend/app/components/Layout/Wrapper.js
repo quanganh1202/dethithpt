@@ -4,7 +4,7 @@ const Wrapper = styled.div`
   & .column {
     float: left;
     width: 45%;
-    padding-right: 15px;
+    padding: 0 5px;
 
     :first-child, :nth-child(3) {
       width: 20%;
@@ -23,6 +23,20 @@ const Wrapper = styled.div`
 
   & .widget {
 
+  }
+
+  /* 
+    ##Device = Most of the Smartphones Mobiles (Portrait)
+    ##Screen = B/w 320px to 479px
+  */
+  @media (min-width: 320px) and (max-width: 480px) {
+    & .column {
+      width: 100% !important;
+      &:nth-child(2) {
+        width: 100%;
+      }
+    }
+    
   }
 `;
 

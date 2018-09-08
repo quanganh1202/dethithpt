@@ -25,6 +25,15 @@ const Wrapper = styled.div`
       right: -20px;
     }
   }
+  /* 
+    ##Device = Most of the Smartphones Mobiles (Portrait)
+    ##Screen = B/w 320px to 479px
+  */
+  @media (min-width: 320px) and (max-width: 480px) {
+    > .popup-content {
+      width: 100%;
+    }
+  }
 `;
 
 export default Wrapper;

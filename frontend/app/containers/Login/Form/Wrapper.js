@@ -6,8 +6,9 @@ const Wrapper = styled.div`
     color: white;
     text-align: center;
     font-weight: bold;
-    font-size: 1.2em;
+    font-size: 1.1em;
     line-height: 40px;
+    padding: 0 10px;
   }
 
   .form-body {
@@ -15,7 +16,7 @@ const Wrapper = styled.div`
     .form-body-note {
       color: blue;
       font-weight: bold;
-      font-size: 1.1em;
+      font-size: 1em;
       text-align: center;
       margin: 0;
     }
@@ -26,12 +27,13 @@ const Wrapper = styled.div`
       }
       tr > td:first-child {
         font-weight: bold;
-        font-size: 0.9em;
+        font-size: 0.8em;
         text-align: right;
         height: 40px;
         width: 30%;
       }
       input, select {
+        font-size: 0.8em;
         border: 1px solid black;
         margin-left: 10px;
         width: 60%;
@@ -43,11 +45,30 @@ const Wrapper = styled.div`
         .submit-btn {
           margin: 15px auto 0;
           padding: 15px 50px;
-          background-color: orange;
+          background-color: sandybrown;
           color: white;
           border-radius: 10px;
         }
       }
+    }
+  }
+  /* 
+    ##Device = Most of the Smartphones Mobiles (Portrait)
+    ##Screen = B/w 320px to 479px
+  */
+  @media (min-width: 320px) and (max-width: 480px) {
+    .form-body {
+      form {
+        input, select {
+          width: 90%;
+        }
+      }
+      .form-body-note {
+        font-size: 0.9em;
+      }
+    }
+    .form-header {
+      font-size: 1em;
     }
   }
 `;
