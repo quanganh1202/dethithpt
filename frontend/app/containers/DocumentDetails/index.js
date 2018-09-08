@@ -43,6 +43,8 @@ const numberWithCommas = (x) => {
   return parts.join(".");
 }
 
+const itemsPerLoad = 10;
+
 /* eslint-disable react/prefer-stateless-function */
 export class DocumentDetails extends React.PureComponent {
   constructor() {
@@ -61,7 +63,7 @@ export class DocumentDetails extends React.PureComponent {
       this.props.getDocumentsList({
         sort: 'createdAt.desc',
         offset: 0,
-        size: 2,
+        size: itemsPerLoad,
       });
     }
   }
@@ -73,7 +75,7 @@ export class DocumentDetails extends React.PureComponent {
       this.props.getDocumentsList({
         sort: 'createdAt.desc',
         offset: 0,
-        size: 2,
+        size: itemsPerLoad,
       }, true);
     }
   }
@@ -82,7 +84,7 @@ export class DocumentDetails extends React.PureComponent {
     this.props.getDocumentsList({
       sort: 'createdAt.desc',
       offset: this.props.documents.data.length,
-      size: 2,
+      size: itemsPerLoad,
     });
   }
 

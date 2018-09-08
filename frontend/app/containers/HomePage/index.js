@@ -128,6 +128,7 @@ const numberWithCommas = (x) => {
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   return parts.join(".");
 }
+const itemsPerLoad = 10;
 const requiredFields = ['name', 'phone', 'bod', 'role', 'city', 'district', 'level', 'school'];
 const validate = (input, req) => {
   return req.find((f) => !input[f]);
@@ -152,7 +153,7 @@ export class HomePage extends React.PureComponent {
     if (!this.props.documents.data.length) {
       this.props.getDocumentsList({
         sort: 'createdAt.desc',
-        size: 2,
+        size: itemsPerLoad,
       });
     }
     // get document's categories
@@ -164,7 +165,7 @@ export class HomePage extends React.PureComponent {
       if (location.pathname === '/') {
         this.props.getDocumentsList({
           sort: 'createdAt.desc',
-          size: 2,
+          size: itemsPerLoad,
         });
       }
     });
@@ -223,7 +224,7 @@ export class HomePage extends React.PureComponent {
     this.props.getDocumentsList({
       sort: 'createdAt.desc',
       offset: this.props.documents.data.length,
-      size: 2,
+      size: itemsPerLoad,
     });
   }
 
