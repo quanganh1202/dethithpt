@@ -31,7 +31,6 @@ const routerDefine =  function defineRouter() {
       });
     }
     res.status(status || 201).json({
-      message: 'Has registered',
       token,
       expiresIn,
       statusCode: status,
