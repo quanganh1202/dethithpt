@@ -159,7 +159,7 @@ async function deleteUser(id) {
   try {
     await userModel.deleteUser(id);
     const serverNotify = await rabbitSender('user.delete', { id });
-    if (serverNotify.statusCode === 200) {
+    if (serverNotify.statusCode === 200 || serverNotify.statusCode === 204) {
       return {
         status: 200,
         message: 'Deleted',
