@@ -2,7 +2,7 @@ import { isUndefined } from 'util';
 import moment from 'moment';
 import ES from '../../elastic';
 import logger from '../libs/logger';
-import { filterParamsHandler, sortParamsHandler, removeCateRefToDoc } from '../libs/esHelper';
+import { filterParamsHandler, sortParamsHandler } from '../libs/esHelper';
 const type = process.env.ES_TYPE_CATEGORY || 'category';
 const index = process.env.ES_INDEX_CATEGORY || 'categories';
 const elasticsearch = new ES(index, type);
@@ -127,17 +127,8 @@ export default {
           error: 'Missing category id',
         };
       }
-      const elCateRefs = new ES('catedocrefs', 'cateDocRef');
-      const filterBuilt = filterParamsHandler({ cateId });
-      const cateRefs = await elCateRefs.getList(filterBuilt.data);
-      if (cateRefs && cateRefs.length) {
-        return {
-          statusCode: 400,
-          error: 'This category has been reference to document',
-        };
-      }
+
       const result = await elasticsearch.remove(cateId);
-      await removeCateRefToDoc(cateId);
 
       return result;
     } catch (error) {

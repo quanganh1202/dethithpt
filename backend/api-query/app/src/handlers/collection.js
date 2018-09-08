@@ -7,7 +7,7 @@ const type = process.env.ES_TYPE_COLLECTION || 'collection';
 const index = process.env.ES_INDEX_COLLECTION || 'collections';
 const elasticsearch = new ES(index, type);
 
-const handleCategoryError = (error) => {
+const handleCollectionError = (error) => {
   logger.error(`[COLLECTION] - ${error.message || error}`);
 
   return {
@@ -29,7 +29,7 @@ export default {
 
       return result;
     } catch(error) {
-      return handleCategoryError(error);
+      return handleCollectionError(error);
     }
   },
 
@@ -73,7 +73,7 @@ export default {
 
       return result;
     } catch (err) {
-      return handleCategoryError(err);
+      return handleCollectionError(err);
     }
   },
 
@@ -83,7 +83,7 @@ export default {
 
       return result;
     } catch (err) {
-      return handleCategoryError(err);
+      return handleCollectionError(err);
     }
   },
 
@@ -96,7 +96,7 @@ export default {
 
       return result;
     } catch (error) {
-      return handleCategoryError(error);
+      return handleCollectionError(error);
     }
   },
 
@@ -114,7 +114,7 @@ export default {
 
       return result;
     } catch (error) {
-      return handleCategoryError(error);
+      return handleCollectionError(error);
     }
   },
 
@@ -130,7 +130,7 @@ export default {
 
       return result;
     } catch (error) {
-      return handleCategoryError(error);
+      return handleCollectionError(error);
     }
   },
 };
