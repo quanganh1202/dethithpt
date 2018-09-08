@@ -95,7 +95,7 @@ async function addUser(userInfo) {
     if (user && user.length) {
       if (user[0].status !== 2) {
         return {
-          error: 'User email or phone number already existed',
+          error: 'User email or phone number has registed',
           status: 400,
         };
       } else {
@@ -159,7 +159,7 @@ async function deleteUser(id) {
   try {
     await userModel.deleteUser(id);
     const serverNotify = await rabbitSender('user.delete', { id });
-    if (serverNotify.statusCode === 200) {
+    if (serverNotify.statusCode === 200 || serverNotify.statusCode === 204) {
       return {
         status: 200,
         message: 'Deleted',
