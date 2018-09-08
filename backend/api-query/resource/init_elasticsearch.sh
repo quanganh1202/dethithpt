@@ -44,12 +44,4 @@ echo
 curl -X PUT "$ES_HOST/histories" -H 'Content-Type: application/json' -d @'./resource/history.mapping.json'
 echo
 
-# Init cate doc ref
-curl -X PUT "$ES_HOST/catedocrefs" -H 'Content-Type: application/json' -d @'./resource/catedocref.mapping.json'
-echo
-
-# Init tag doc ref
-curl -X PUT "$ES_HOST/tagdocrefs" -H 'Content-Type: application/json' -d @'./resource/tagdocref.mapping.json'
-echo
-
 echo 'DONE !';
