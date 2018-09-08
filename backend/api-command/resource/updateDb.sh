@@ -27,38 +27,12 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     userId INT(11) NOT NULL,
     price VARCHAR(50) NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    cates VARCHAR(255) NULL,
+    cateIds VARCHAR(255) NULL,
     path MEDIUMTEXT NULL,
     subjectId INT(11) NULL,
     classId INT(11) NULL,
     yearSchool INT(11) NULL,
     collectionId INT(11) NULL,
-    PRIMARY KEY (id),
-    UNIQUE INDEX id_UNIQUE (id ASC));
-
-  DROP TABLE $DATABASE.tbCategory;
-
-  CREATE TABLE IF NOT EXISTS tbCategory (
-    id INT NOT NULL AUTO_INCREMENT,
-    name VARCHAR(50) NOT NULL,
-    description TEXT(255) NOT NULL,
-    userId TEXT(15) NOT NULL,
-    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (id),
-    UNIQUE INDEX id_UNIQUE (id ASC),
-    UNIQUE INDEX name_UNIQUE (name ASC));
-
-  DROP TABLE $DATABASE.tbCollection;
-  CREATE TABLE IF NOT EXISTS tbCollection (
-    id INT NOT NULL AUTO_INCREMENT,
-    name VARCHAR(50) NOT NULL,
-    description TEXT(255) NOT NULL,
-    cates INT NOT NULL,
-    classId INT NOT NULL,
-    subjectId INT NOT NULL,
-    userId INT(11) NOT NULL,
-    yearSchool INT NOT NULL,
-    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE INDEX id_UNIQUE (id ASC));
 "
