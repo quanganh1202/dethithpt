@@ -128,6 +128,10 @@ const numberWithCommas = (x) => {
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   return parts.join(".");
 }
+const requiredFields = ['name', 'phone', 'bod', 'role', 'city', 'district', 'level', 'school'];
+const validate = (input, req) => {
+  return req.find((f) => !input[f]);
+}
 
 /* eslint-disable react/prefer-stateless-function */
 export class HomePage extends React.PureComponent {
@@ -135,6 +139,7 @@ export class HomePage extends React.PureComponent {
     super();
     this.state = {
       user: null,
+      error: '',
     };
     this.onLogin = this.onLogin.bind(this);
     this.onChange = this.onChange.bind(this);
@@ -181,10 +186,15 @@ export class HomePage extends React.PureComponent {
 
   onChange(e) {
     const { name, value } = e.currentTarget;
-    this.setState({ user: {
+    const updateUser = {
       ...this.state.user,
       [name]: value,
-    } });
+    }
+    if (updateUser.facebook === null) {
+      updateUser.facebook = '';
+    }
+    const error = validate(updateUser, requiredFields);
+    this.setState({ user: updateUser, error: error ? this.state.error : '' });
   }
 
   onSubmit(e) {
@@ -195,7 +205,17 @@ export class HomePage extends React.PureComponent {
     if (update.facebook === null) {
       update.facebook = '';
     }
-    this.props.onSubmitUserInfo(update);
+    const error = validate(update, requiredFields);
+    if (error) {
+      this.setState({
+        error: 'Bạn cần điền đủ những thông tin bắt buộc'
+      })
+      const formError = document.querySelector('.form-header');
+      formError.scrollIntoView();
+    } else {
+      update.bod = update.bod.format('DD/MM/YYYY');
+      this.props.onSubmitUserInfo(update);
+    }
   }
 
   loadMoreDocs() {
@@ -387,7 +407,7 @@ export class HomePage extends React.PureComponent {
             show={this.state.user}
             onClose={() => this.setState({ showCreateUserForm: false })}
             content={
-              <CreateUserForm data={this.state.user} onSubmit={this.onSubmit} onChange={this.onChange} />
+              <CreateUserForm error={this.state.error} data={this.state.user} onSubmit={this.onSubmit} onChange={this.onChange} />
             }
           />
         </div>

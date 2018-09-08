@@ -1,4 +1,6 @@
 import React from 'react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import _ from 'lodash';
 import Select from 'components/Select';
 import Wrapper from './Wrapper';
@@ -13,6 +15,7 @@ const CreateUser = (props) => {
         <p className="form-body-note">Hãy nhập chính xác thông tin để website có thể hỗ trợ bạn kịp thời khi cần.</p>
         <p className="form-body-note">Chúng tôi xin lỗi vì sự bất tiện này. Xin cám ơn!</p>
         <form onSubmit={props.onSubmit}>
+          <p className="form-error">{props.error}</p>
           <table>
             <tbody>
               <tr>
@@ -56,14 +59,19 @@ const CreateUser = (props) => {
               <tr>
                 <td>Năm sinh:<span className="red">(*)</span></td>
                 <td>
-                  <Select
-                    name="bod"
-                    options={[
-                      { text: '12/02/1990', value: '1990'}
-                    ]}
-                    value={_.get(props.data, 'bod') || ''}
-                    defaultText={'-- Vui lòng chọn năm sinh --'}
-                    onChange={props.onChange}
+                  <DatePicker
+                    selected={_.get(props.data, 'bod')}
+                    onChange={(date) => props.onChange({
+                      currentTarget: { name: 'bod', value: date }
+                    })}
+                    peekNextMonth
+                    showMonthDropdown
+                    showYearDropdown
+                    dropdownMode="select"
+                    placeholderText={'-- Vui lòng chọn năm sinh --'}
+                    tabIndex={1000}
+                    className="bod-picker"
+                    dateFormat={'DD/MM/YYYY'}
                   />
                 </td>
               </tr>
