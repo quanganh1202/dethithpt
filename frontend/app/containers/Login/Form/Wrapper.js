@@ -60,6 +60,7 @@ const Wrapper = styled.div`
       .control-btn {
         text-align: center;
         .submit-btn {
+          cursor: pointer;
           margin: 15px auto 0;
           padding: 15px 50px;
           background-color: sandybrown;
