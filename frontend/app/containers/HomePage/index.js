@@ -200,7 +200,7 @@ export class HomePage extends React.PureComponent {
 
   loadMoreDocs() {
     this.props.getDocumentsList({
-      sortBy: 'createdAt.desc',
+      sort: 'createdAt.desc',
       offset: this.props.documents.data.length,
       size: 2,
     });

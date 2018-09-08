@@ -94,7 +94,7 @@ export class Category extends React.PureComponent {
           subjectId: '',
           classId: '',
           yearSchool: '',
-          sort: '',
+          sort: { value: 'desc', label: 'Mới đăng' },
         },
         resetKey: Math.random(),
       })
