@@ -95,7 +95,7 @@ async function addUser(userInfo) {
     if (user && user.length) {
       if (user[0].status !== 2) {
         return {
-          error: 'User email or phone number already existed',
+          error: 'User email or phone number has registed',
           status: 400,
         };
       } else {
