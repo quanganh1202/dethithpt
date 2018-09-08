@@ -134,7 +134,7 @@ async function uploadDocument(body, file) {
       queryBody.collectionName = collection[0].name;
     }
 
-    body.tags = Array.isArray(tags) ? tags.map(tag => tag.trim()).join(',') : tags.trim();
+    body.tags = Array.isArray(tags) ? tags.map(tag => tag.trim()).join(',') : tags.split(',').map(tag => tag.trim()).join(',');
     body.cateIds = Array.isArray(cateIds) ? cateIds.join(',') : cateIds;
     const { error, status, fileName } =  fileHelpers.validateExtension(file, body.userId);
     if (error) {
@@ -286,7 +286,7 @@ async function updateDocumentInfo(id, body, file) {
     }
 
     if (tags) {
-      body.tags = Array.isArray(tags) ? tags.map(tag => tag.trim()).join(',') : tags.trim();
+      body.tags = Array.isArray(tags) ? tags.map(tag => tag.trim()).join(',') : tags.split(',').map(tag => tag.trim()).join(',');
       newBody.tags = body.tags.split(',');
     }
 
