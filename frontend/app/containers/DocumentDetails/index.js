@@ -23,6 +23,7 @@ import injectSaga from 'utils/injectSaga';
 import Tab from 'components/Tab';
 import List from 'components/List';
 import ListItem from 'components/ListItem';
+import LoadingIndicator from 'components/LoadingIndicator';
 import { getDocumentDetails, getDocumentsList } from './actions';
 import {
   makeSelectDocument,
@@ -31,7 +32,6 @@ import {
 } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
-import { getUser } from 'services/auth';
 import GreyTitle from 'containers/HomePage/GreyTitle';
 import Wrapper from './Wrapper';
 
@@ -66,6 +66,18 @@ export class DocumentDetails extends React.PureComponent {
     }
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (this.props.match.params.id !== nextProps.match.params.id) {
+      window.scrollTo(0, 0);
+      this.props.getDocumentDetails(nextProps.match.params.id);
+      this.props.getDocumentsList({
+        sort: 'createdAt.desc',
+        offset: 0,
+        size: 2,
+      }, true);
+    }
+  }
+
   loadMoreDocs() {
     this.props.getDocumentsList({
       sort: 'createdAt.desc',
@@ -88,6 +100,9 @@ export class DocumentDetails extends React.PureComponent {
           title={'Đề thi thử THPT Quốc Gia'}
           className="doc-details"
           content={
+            this.props.loading ? (
+              <LoadingIndicator />
+            ) : (
             !_.isEmpty(document) ? (
             <div style={{ padding: "0px 20px 10px" }}>
               <div className="doc-title">
@@ -95,38 +110,40 @@ export class DocumentDetails extends React.PureComponent {
               </div>
               <div className="doc-category">
                 <ul>
-                  <li>{_.get(document, 'cates[0].cateName')}</li>
-                  <li>
+                  {_.get(document, 'cates[0].cateName') && <li>
+                    {_.get(document, 'cates[0].cateName')}
+                  </li>}
+                  {document.subjectName && <li>
                     {document.subjectName.includes('Môn') 
                       ? document.subjectName
                       : `Môn ${document.subjectName}`}
-                  </li>
-                  <li>
+                  </li>}
+                  {document.className && <li>
                     {document.className.includes('Lớp') 
                       ? document.className
                       : `Lớp ${document.className}`}
-                  </li>
-                  <li>{document.yearSchool}</li>
-                  <li>
+                  </li>}
+                  {document.yearSchool && <li>{document.yearSchool}</li>}
+                  {document.collectionName && <li>
                     <FontAwesomeIcon className={'specific-icon'} icon={['far', 'folder-open']} />
                     {document.collectionName}
-                  </li>
+                  </li>}
                 </ul>
               </div>
               <div className="doc-action">
                 <button className="btn-download">
-                  <FontAwesomeIcon className={'title-icon'} icon={['fas', 'cloud-download-alt']} /> Tải file word ({numberWithCommas(document.price)}đ)
+                  <FontAwesomeIcon className={'title-icon'} icon={['fas', 'cloud-download-alt']} /> Tải file word ({numberWithCommas((document.price || 0).toString())}đ)
                 </button>
                 <button className="btn-view">
-                  <FontAwesomeIcon className={'title-icon'} icon={['far', 'eye']} /> Xem thử (52 trang)
+                  <FontAwesomeIcon className={'title-icon'} icon={['far', 'eye']} /> Xem thử ({numberWithCommas((document.views || 0).toString())} trang)
                 </button>
               </div>
               <div className="doc-action">
                 <button className="btn-report">Báo lỗi tài liệu</button>
                 <button className="btn-favorite">Lưu tài liệu</button>
-                <p className="created-date">
-                  <FontAwesomeIcon className={'info-icon'} icon={['far', 'clock']} /> {moment(this.props.document.createdAt).format('DD/MM/YYYY')}
-                </p>
+                {document.createdAt && <p className="created-date">
+                  <FontAwesomeIcon className={'info-icon'} icon={['far', 'clock']} /> {moment(document.createdAt).format('DD/MM/YYYY')}
+                </p>}
               </div>
               <div className="doc-description">
                 <p>Mô tả đề thi</p>
@@ -134,11 +151,11 @@ export class DocumentDetails extends React.PureComponent {
               </div>
               <div className="doc-tags">
                 <p>Từ khóa:</p>
-                {document.tags.map((t) => (
+                {document.tags && document.tags.map((t) => (
                   t.tagText && <p className="tag-item">#{t.tagText}</p>
                 ))}
               </div>
-            </div>) : null
+            </div>) : null)
           }
         />
         <Tab
@@ -178,13 +195,14 @@ DocumentDetails.propTypes = {
 export function mapDispatchToProps(dispatch) {
   return {
     getDocumentDetails: (id) => dispatch(getDocumentDetails(id)),
-    getDocumentsList: (query) => dispatch(getDocumentsList(query)),
+    getDocumentsList: (query, clear) => dispatch(getDocumentsList(query, clear)),
   };
 }
 
 const mapStateToProps = createStructuredSelector({
   document: makeSelectDocument(),
   documents: makeSelectDocuments(),
+  loading: makeSelectLoading(),
 });
 
 const withConnect = connect(

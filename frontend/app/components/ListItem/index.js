@@ -32,37 +32,39 @@ function ListItem(props) {
       </div>
       <div className="doc-category">
         <ul>
-          <li>{_.get(props.item, 'cates[0].cateName')}</li>
-          <li>
-            {_.get(props.item, 'subjectName', '').includes('Môn') 
+          {_.get(props.item, 'cates[0].cateName') && <li>
+            {_.get(props.item, 'cates[0].cateName')}
+          </li>}
+          {props.item.subjectName && <li>
+            {props.item.subjectName.includes('Môn') 
               ? props.item.subjectName
               : `Môn ${props.item.subjectName}`}
-          </li>
-          <li>
-            {_.get(props.item, 'class', '').includes('Lớp') 
+          </li>}
+          {props.item.className && (<li>
+            {props.item.className.includes('Lớp') 
               ? props.item.className
               : `Lớp ${props.item.className}`}
-          </li>
-          <li>{props.item.yearSchool}</li>
-          <li>
+          </li>)}
+          {props.item.yearSchool && <li>{props.item.yearSchool}</li>}
+          {props.item.collectionName && <li>
             <FontAwesomeIcon className={'specific-icon'} icon={['far', 'folder-open']} />
             {props.item.collectionName}
-          </li>
+          </li>}
         </ul>
       </div>
       <div className="doc-information">
         <div className="left-info">
           <p>
             <FontAwesomeIcon className={'info-icon'} icon={['far', 'file-alt']} />
-            {props.item.pages || 24} trang
+            {props.item.pages || 0} trang
           </p>
           <p>
             <FontAwesomeIcon className={'info-icon'} icon={['fas', 'dollar-sign']} />
-            {numberWithCommas(props.item.price)}đ
+            {numberWithCommas((props.item.price || 0).toString())}đ
           </p>
           <p>
             <FontAwesomeIcon className={'info-icon'} icon={['fas', 'eye']} />
-            {numberWithCommas(props.item.views || 28960)}
+            {numberWithCommas((props.item.views || 0).toString())}
           </p>
         </div>
         <div className="right-info">
