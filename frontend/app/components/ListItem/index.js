@@ -34,12 +34,12 @@ function ListItem(props) {
         <ul>
           <li>{_.get(props.item, 'cates[0].cateName')}</li>
           <li>
-            {props.item.subjectName.includes('Môn') 
+            {_.get(props.item, 'subjectName', '').includes('Môn') 
               ? props.item.subjectName
               : `Môn ${props.item.subjectName}`}
           </li>
           <li>
-            {props.item.className.includes('Lớp') 
+            {_.get(props.item, 'class', '').includes('Lớp') 
               ? props.item.className
               : `Lớp ${props.item.className}`}
           </li>
@@ -68,7 +68,7 @@ function ListItem(props) {
         <div className="right-info">
           <p>
             <FontAwesomeIcon className={'info-icon'} icon={['far', 'clock']} />
-            {moment(props.item.createdAt).format('DD/MM/YYYY')}
+            {moment(_.get(props.item, 'createdAt', '')).format('DD/MM/YYYY')}
           </p>
         </div>
       </div>

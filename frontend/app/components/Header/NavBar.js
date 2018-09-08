@@ -11,6 +11,10 @@ export default styled.div`
   */
   @media (min-width: 320px) and (max-width: 480px) {
     text-align: center;
+    .bm-item-list a {
+      display: inline-block;
+      width: 100%;
+    }
   }
 
   .mobile-search-box {
@@ -31,5 +35,21 @@ export default styled.div`
     float: right;
     padding: 10px;
     color: white;
+  }
+  .mobile-burger-menu {
+    background-color: #3c75a9;
+    > .bm-item-list {
+      hr {
+        width: 90%;
+        margin: 0 auto;
+      }
+    }
+  }
+  .bm-overlay,
+  .bm-menu-wrap {
+    top: 0;
+  }
+  .bm-burger-button {
+    display: none;
   }
 `;
