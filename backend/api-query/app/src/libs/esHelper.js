@@ -117,12 +117,13 @@ const insertToCateDoc = (docId, cates = [], createdAt) => {
   return promiseCateDocRefs;
 };
 
-const insertToTagDoc = (docId, tags, createdAt) => {
+const insertToTagDoc = (docId, docName, tags, createdAt) => {
   const tagDocRefs = new ES('tagdocrefs', 'tagDocRef');
   const promiseTagDocRefs = tags.map((tag) => {
     return tagDocRefs.insert({
-      tagId: tag.tagId,
+      tagId: tag.trim(),
       docId,
+      docName,
       createdAt,
     });
   });
@@ -169,7 +170,7 @@ const insertTag = async (tags, createdAt) => {
   const tagModel = new ES('tags', 'tag');
 
   const getPromises = tags.map(tag => {
-    const filterModel = filterParamsHandler({ tagId: tag.tagId }).data;
+    const filterModel = filterParamsHandler({ tagId: tag }).data;
 
     return tagModel.getList(filterModel);
   });
@@ -183,7 +184,7 @@ const insertTag = async (tags, createdAt) => {
 
     if (tag.data && !tag.data.length){
       return tagModel.insert({
-        tagId: tags[i].tagId,
+        tagId: tags[i],
         createdAt,
       });
     }

@@ -155,10 +155,7 @@ async function uploadDocument(body, file) {
 
     // Append data and send to query api
     queryBody.userName = user[0].name;
-    queryBody.tags = body.tags.split('#').map(tag => ({
-      tagId: tag,
-      tagText: tag,
-    }));
+    queryBody.tags = body.tags.split(',');
     const serverNotify = await rabbitSender('document.create', { body: queryBody, id: res[0].insertId });
     if (serverNotify.statusCode === 200) {
       return {
@@ -289,10 +286,7 @@ async function updateDocumentInfo(id, body, file) {
     }
 
     if (tags) {
-      newBody.tags = tags.split(',').map(tag => ({
-        tagId: tag,
-        tagText: tag,
-      }));
+      newBody.tags = tags.split(',');
       body.tags = Array.isArray(tags) ? tags.join(',') : tags;
     }
 
