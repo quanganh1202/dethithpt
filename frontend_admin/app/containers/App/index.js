@@ -17,6 +17,19 @@ import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import Header from 'components/Header';
 import Footer from 'components/Footer';
 import { getUser } from 'services/auth';
+import DefaultLayout from 'containers/DefaultLayout';
+
+// Styles
+// CoreUI Icons Set
+import '@coreui/icons/css/coreui-icons.min.css';
+// Import Flag Icons Set
+import 'flag-icon-css/css/flag-icon.min.css';
+// Import Font Awesome Icons Set
+import 'font-awesome/css/font-awesome.min.css';
+// Import Simple Line Icons Set
+import 'simple-line-icons/css/simple-line-icons.css';
+// Import Main styles for this application
+import 'assets/scss/style.css';
 
 const AppWrapper = styled.div`
   margin: 0 auto;
@@ -59,24 +72,10 @@ class App extends React.Component {
 
   render() {
     const user = getUser();
-    console.log(user)
     return (
-      <ThemeProvider theme={theme}>
-        <AppWrapper>
-          <Helmet
-            titleTemplate="%s - DethiTHPT"
-            defaultTitle="DethiTHPT"
-          >
-            <meta name="description" content="DethiTHPT" />
-          </Helmet>
-          <Header user={user} />
-          <Switch>
-            <Route path="/" component={HomePage} />
-          {/* <Route path="" component={NotFoundPage} /> */}
-          </Switch>
-          {/* <Footer /> */}
-        </AppWrapper>
-      </ThemeProvider>
+      <Switch>
+        <Route path="/" name="Home" component={DefaultLayout} />
+      </Switch>
     );
   }
 }

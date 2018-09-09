@@ -7,22 +7,14 @@ import { initialState } from './reducer';
 
 const selectHome = state => state.get('category', initialState);
 
-const makeSelectDocument = () =>
-  createSelector(selectHome, categoryState => categoryState.get('document').toJS());
+const makeSelectCategories = () =>
+  createSelector(selectHome, categoryState => categoryState.get('categories').toJS());
 
 const makeSelectLoading = () =>
   createSelector(selectHome, categoryState => categoryState.get('loading'));
 
-const makeSelectDocuments = () =>
-  createSelector(selectHome, categoryState => categoryState.get('documents').toJS());
-
-const makeSelectFilterData = () =>
-  createSelector(selectHome, categoryState => categoryState.get('filterData').toJS());
-
 export {
   selectHome,
-  makeSelectDocument,
+  makeSelectCategories,
   makeSelectLoading,
-  makeSelectDocuments,
-  makeSelectFilterData,
 };
