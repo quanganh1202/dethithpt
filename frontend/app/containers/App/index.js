@@ -16,6 +16,7 @@ import HomePage from 'containers/HomePage/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import Header from 'components/Header';
 import Footer from 'components/Footer';
+import { getUser } from 'services/auth';
 
 const AppWrapper = styled.div`
   margin: 0 auto;
@@ -57,6 +58,8 @@ class App extends React.Component {
   }
 
   render() {
+    const user = getUser();
+    console.log(user)
     return (
       <ThemeProvider theme={theme}>
         <AppWrapper>
@@ -66,7 +69,7 @@ class App extends React.Component {
           >
             <meta name="description" content="DethiTHPT" />
           </Helmet>
-          <Header />
+          <Header user={user} />
           <Switch>
             <Route path="/" component={HomePage} />
           {/* <Route path="" component={NotFoundPage} /> */}
