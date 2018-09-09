@@ -16,8 +16,6 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCog, faFolder } from '@fortawesome/free-solid-svg-icons';
 import { faMoneyBillAlt } from '@fortawesome/free-regular-svg-icons';
-import UploadDocument from 'containers/UploadDocument/Loadable';
-import DocumentDetails from 'containers/DocumentDetails/Loadable';
 import Category from 'containers/Category/Loadable';
 import _ from 'lodash';
 
@@ -392,8 +390,6 @@ export class HomePage extends React.PureComponent {
                       </Tab>
                     </HomeWrapper>
                   )} />
-                  <Route exact path="/dang-ban-tai-lieu" component={UploadDocument} />
-                  <Route exact path="/tai-lieu/:id" component={DocumentDetails} />
                   <Route exact path="/danh-muc/:id" component={Category} />
                 </Switch>
               </div>
