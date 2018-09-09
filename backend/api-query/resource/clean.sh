@@ -12,8 +12,6 @@ echo
 echo -n "ES HOST: "
 read ES_HOST
 
-curl -X DELETE "$ES_HOST/tagdocrefs"
-curl -X DELETE "$ES_HOST/catedocrefs"
 curl -X DELETE "$ES_HOST/histories"
 curl -X DELETE "$ES_HOST/tags"
 curl -X DELETE "$ES_HOST/categories"

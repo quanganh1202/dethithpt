@@ -2,7 +2,6 @@ import express from 'express';
 import { isUndefined } from 'util';
 import documentHandler from '../../src/handlers/documents';
 import trackingHandler from '../../src/handlers/tradingHistories';
-import cateDocRefHandler from '../../src/handlers/cateDoc';
 import categoryHandler from '../../src/handlers/category';
 import userHandler from '../../src/handlers/user';
 import classHandler from '../../src/handlers/class';
@@ -85,15 +84,6 @@ const routerDefine =  function defineRouter() {
       res.json({ statusCode, error });
     } else {
       res.json({ statusCode, data });
-    }
-  });
-
-  route.get('/categories/aggregation', async (req, res) => {
-    const { statusCode, error, aggs } = await cateDocRefHandler.getAggs();
-    if (error) {
-      res.json({ statusCode, error });
-    } else {
-      res.json({ statusCode, data: aggs });
     }
   });
 

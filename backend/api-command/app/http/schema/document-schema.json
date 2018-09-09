@@ -4,29 +4,70 @@
   "description": "Document schema validation",
   "type": "object",
   "additionalProperties": false,
-  "required":[ "name", "tags" ],
+  "required": ["name", "tags"],
   "properties": {
-    "name": { "type": "string", "maxLength": 255 },
-    "tags": {
-      "type": "string"
+    "name": {
+      "type": "string",
+      "maxLength": 255
     },
-    "description": { "type": "string" },
-    "price": { "type": "string", "maxLength": 50, "pattern": "^[0-9]+$"},
-    "cateIds": {
-      "anyOf": [
-        { "type": "string" },
+    "tags": {
+      "anyOf": [{
+          "type": "string",
+          "minLength": 1
+        },
         {
           "type": "array",
           "items": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           }
         }
       ]
     },
-    "subjectId": { "type": "string", "maxLength": 11 },
-    "classId": { "type": "string", "maxLength": 11 },
-    "yearSchool": { "type": "string", "maxLength": 4 },
-    "collectionId": { "type": "string", "maxLength": 11 },
-    "userId": { "type": "string" }
+    "description": {
+      "type": "string"
+    },
+    "price": {
+      "type": "string",
+      "maxLength": 50,
+      "pattern": "^[0-9]+$"
+    },
+    "cateIds": {
+      "anyOf": [{
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "subjectId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 11
+    },
+    "classId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 11
+    },
+    "yearSchool": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4
+    },
+    "collectionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 11
+    },
+    "userId": {
+      "type": "string"
+    }
   }
 }

@@ -52,19 +52,12 @@
           }
         },
         "tags": {
-          "properties": {
-            "tagId": {
+          "type": "text",
+          "analyzer": "autocomplete",
+          "search_analyzer": "standard",
+          "fields": {
+            "raw": {
               "type": "keyword"
-            },
-            "tagText": {
-              "type": "text",
-              "analyzer": "autocomplete",
-              "search_analyzer": "standard",
-              "fields": {
-                "raw": {
-                  "type": "keyword"
-                }
-              }
             }
           }
         },
@@ -135,7 +128,7 @@
           }
         },
         "path": {
-        	"type": "text"
+          "type": "text"
         },
         "createdAt": {
           "type": "date"

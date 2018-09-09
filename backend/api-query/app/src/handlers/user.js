@@ -7,7 +7,7 @@ const type = process.env.ES_TYPE_USER || 'user';
 const index = process.env.ES_INDEX_USER || 'users';
 const elasticsearch = new ES(index, type);
 
-const handleCategoryError = (error) => {
+const handleUserError = (error) => {
   logger.error(`[USER] - ${error.message || error}`);
 
   return {
@@ -29,7 +29,7 @@ export default {
 
       return result;
     } catch(error) {
-      return handleCategoryError(error);
+      return handleUserError(error);
     }
   },
 
@@ -73,7 +73,7 @@ export default {
 
       return result;
     } catch (err) {
-      return handleCategoryError(err);
+      return handleUserError(err);
     }
   },
 
@@ -83,7 +83,7 @@ export default {
 
       return result;
     } catch (err) {
-      return handleCategoryError(err);
+      return handleUserError(err);
     }
   },
 
@@ -95,7 +95,7 @@ export default {
 
       return result;
     } catch (error) {
-      return handleCategoryError(error);
+      return handleUserError(error);
     }
   },
 
@@ -113,7 +113,7 @@ export default {
 
       return result;
     } catch (error) {
-      return handleCategoryError(error);
+      return handleUserError(error);
     }
   },
 
@@ -129,7 +129,7 @@ export default {
 
       return result;
     } catch (error) {
-      return handleCategoryError(error);
+      return handleUserError(error);
     }
   },
 };

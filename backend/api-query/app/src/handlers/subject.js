@@ -7,7 +7,7 @@ const type = process.env.ES_TYPE_SUBJECT || 'subject';
 const index = process.env.ES_INDEX_SUBJECT || 'subjects';
 const elasticsearch = new ES(index, type);
 
-const handleCategoryError = (error) => {
+const handleSubjectError = (error) => {
   logger.error(`[SUBJECT] - ${error.message || error}`);
 
   return {
@@ -29,7 +29,7 @@ export default {
 
       return result;
     } catch(error) {
-      return handleCategoryError(error);
+      return handleSubjectError(error);
     }
   },
 
@@ -73,7 +73,7 @@ export default {
 
       return result;
     } catch (err) {
-      return handleCategoryError(err);
+      return handleSubjectError(err);
     }
   },
 
@@ -83,7 +83,7 @@ export default {
 
       return result;
     } catch (err) {
-      return handleCategoryError(err);
+      return handleSubjectError(err);
     }
   },
 
@@ -95,7 +95,7 @@ export default {
 
       return result;
     } catch (error) {
-      return handleCategoryError(error);
+      return handleSubjectError(error);
     }
   },
 
@@ -113,7 +113,7 @@ export default {
 
       return result;
     } catch (error) {
-      return handleCategoryError(error);
+      return handleSubjectError(error);
     }
   },
 
@@ -129,7 +129,7 @@ export default {
 
       return result;
     } catch (error) {
-      return handleCategoryError(error);
+      return handleSubjectError(error);
     }
   },
 };

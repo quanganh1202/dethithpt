@@ -134,7 +134,7 @@ async function uploadDocument(body, file) {
       queryBody.collectionName = collection[0].name;
     }
 
-    body.tags = Array.isArray(tags) ? tags.join('') : tags;
+    body.tags = Array.isArray(tags) ? tags.map(tag => tag.trim()).join(',') : tags.split(',').map(tag => tag.trim()).join(',');
     body.cateIds = Array.isArray(cateIds) ? cateIds.join(',') : cateIds;
     const { error, status, fileName } =  fileHelpers.validateExtension(file, body.userId);
     if (error) {
@@ -155,10 +155,7 @@ async function uploadDocument(body, file) {
 
     // Append data and send to query api
     queryBody.userName = user[0].name;
-    queryBody.tags = body.tags.split('#').map(tag => ({
-      tagId: tag,
-      tagText: tag,
-    }));
+    queryBody.tags = body.tags.split(',');
     const serverNotify = await rabbitSender('document.create', { body: queryBody, id: res[0].insertId });
     if (serverNotify.statusCode === 200) {
       return {
@@ -289,11 +286,8 @@ async function updateDocumentInfo(id, body, file) {
     }
 
     if (tags) {
-      newBody.tags = tags.split(',').map(tag => ({
-        tagId: tag,
-        tagText: tag,
-      }));
-      body.tags = Array.isArray(tags) ? tags.join(',') : tags;
+      body.tags = Array.isArray(tags) ? tags.map(tag => tag.trim()).join(',') : tags.split(',').map(tag => tag.trim()).join(',');
+      newBody.tags = body.tags.split(',');
     }
 
     const promise = [docModel.updateDocumentById(id, body)];

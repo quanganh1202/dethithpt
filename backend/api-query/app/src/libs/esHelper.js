@@ -1,5 +1,6 @@
 import ES from '../../elastic';
 import logger from './logger';
+import constants from '../constant/common';
 
 const filterParamsHandler = (filtersParam = {}) => {
   try {
@@ -103,36 +104,9 @@ const sortParamsHandler = (sort) => {
   }
 };
 
-const insertToCateDoc = (docId, cates = [], createdAt) => {
-  const cateDocRefs = new ES('catedocrefs', 'cateDocRef');
-  const promiseCateDocRefs = cates.map((cate) => {
-    return cateDocRefs.insert({
-      cateId: cate.cateId,
-      cateName: cate.cateName,
-      docId,
-      createdAt,
-    });
-  });
-
-  return promiseCateDocRefs;
-};
-
-const insertToTagDoc = (docId, tags, createdAt) => {
-  const tagDocRefs = new ES('tagdocrefs', 'tagDocRef');
-  const promiseTagDocRefs = tags.map((tag) => {
-    return tagDocRefs.insert({
-      tagId: tag.tagId,
-      docId,
-      createdAt,
-    });
-  });
-
-  return promiseTagDocRefs;
-};
-
 const updateNumDocRefToCate = (cates, type) => {
   const cateModel =new ES('categories', 'category');
-  const operation = type === 'increase' ? '+=' : '-=';
+  const operation = type === constants.INCREASE ? '+=' : '-=';
   const promiseUpdateCates = cates.map((cate) => {
     return cateModel.updateByScrip(
       cate.cateId,
@@ -151,7 +125,7 @@ const updateNumDocRefToCate = (cates, type) => {
 
 const updateNumDocRefToCollection = (collectionId, type) => {
   const collectionModel =new ES('collections', 'collection');
-  const operation = type === 'increase' ? '+=' : '-=';
+  const operation = type === constants.INCREASE ? '+=' : '-=';
 
   return collectionModel.updateByScrip(
     collectionId,
@@ -169,7 +143,7 @@ const insertTag = async (tags, createdAt) => {
   const tagModel = new ES('tags', 'tag');
 
   const getPromises = tags.map(tag => {
-    const filterModel = filterParamsHandler({ tagId: tag.tagId }).data;
+    const filterModel = filterParamsHandler({ tagId: tag }).data;
 
     return tagModel.getList(filterModel);
   });
@@ -183,35 +157,17 @@ const insertTag = async (tags, createdAt) => {
 
     if (tag.data && !tag.data.length){
       return tagModel.insert({
-        tagId: tags[i].tagId,
+        tagId: tags[i],
         createdAt,
       });
     }
   });
 };
 
-const removeCateRefToDoc = (docId) => {
-  const filters = filterParamsHandler({ docId });
-  const cateDocRefs = new ES('catedocrefs', 'cateDocRef');
-
-  return cateDocRefs.deleteByQuery(filters.data);
-};
-
-const removeTagRefToDoc = (docId) => {
-  const filters = filterParamsHandler({ docId });
-  const tagDocRefs = new ES('tagdocrefs', 'tagDocRef');
-
-  return tagDocRefs.deleteByQuery(filters.data);
-};
-
 export {
   insertTag,
   filterParamsHandler,
   sortParamsHandler,
-  insertToCateDoc,
-  insertToTagDoc,
-  removeCateRefToDoc,
-  removeTagRefToDoc,
   updateNumDocRefToCate,
   updateNumDocRefToCollection,
 };
