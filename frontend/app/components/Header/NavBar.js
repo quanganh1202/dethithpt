@@ -11,7 +11,7 @@ export default styled.div`
   */
   @media (min-width: 320px) and (max-width: 480px) {
     text-align: center;
-    .bm-item-list a {
+    .bm-item-list .mobile-nav-menu a {
       display: inline-block;
       width: 100%;
     }
@@ -51,5 +51,43 @@ export default styled.div`
   }
   .bm-burger-button {
     display: none;
+  }
+
+  .mobile-user-dashboard {
+    padding: 20px 30px 10px;
+    > div {
+      margin-bottom: 10px;
+      > .social-btn {
+        font-size: 0.9em;
+        height: 30px;
+        line-height: 30px;
+      }
+    }
+    &.logged-in {
+      color: white;
+      a {
+        text-decoration: none;
+      }
+      p {
+        font-size: 0.9em;
+        margin: 0;
+        &.user-payment {
+          text-align: left;
+          .user-icon {
+            margin-right: 5px;
+          }
+        }
+      }
+      text-align: center;
+      & .user-email {
+        color: orange;
+      }
+      & .user-page-link {
+        margin-bottom: 10px;
+        a {
+          color: blue;
+        }
+      }
+    }
   }
 `;

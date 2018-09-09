@@ -2,10 +2,15 @@ import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import styled from 'styled-components';
 import MediaQuery from 'react-responsive';
+import { Link } from 'react-router-dom';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars } from '@fortawesome/free-solid-svg-icons'
+import { faBars, faFolder, faCog } from '@fortawesome/free-solid-svg-icons';
+import { faFileAlt } from '@fortawesome/free-solid-svg-icons';
 import { slide as Menu } from 'react-burger-menu';
+import SocialButton from 'components/SocialButton';
+import FacebookLogin from 'containers/Login/Facebook';
+import GoogleLogin from 'containers/Login/Google';
 
 import A from './A';
 import NavBar from './NavBar';
@@ -13,7 +18,7 @@ import HeaderLink from './HeaderLink';
 import Banner from './banner.png';
 import messages from './messages';
 
-library.add(faBars);
+library.add(faBars, faFolder, faCog, faFileAlt);
 
 const HeaderBar = styled.div`
   height: 100px;
@@ -34,6 +39,11 @@ const HeaderBar = styled.div`
 `;
 
 const PageLink = styled.div``;
+const numberWithCommas = (x) => {
+  var parts = x.toString().split(".");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return parts.join(".");
+}
 
 /* eslint-disable react/prefer-stateless-function */
 class Header extends React.Component {
@@ -51,6 +61,8 @@ class Header extends React.Component {
     this.setState({ mobileShow: true });
   }
   render() {
+    const { user } = this.props;
+    console.log(user);
     return (
       <div>
         <HeaderBar>
@@ -70,7 +82,43 @@ class Header extends React.Component {
               isOpen={this.state.mobileShow}
               menuClassName={'mobile-burger-menu'}
             > 
-              <PageLink onClick={() => this.setState({ mobileShow: false })}>
+              {!this.props.user ?
+                (<div className="mobile-user-dashboard">
+                  <FacebookLogin onLogin={this.onLogin}>
+                    <SocialButton
+                      text={'Đăng nhập bằng facebook'}
+                      background={'blue'}
+                      className={'social-btn'}
+                    />
+                  </FacebookLogin>
+                  <GoogleLogin onLogin={this.onLogin}>
+                    <SocialButton
+                      text={'Đăng nhập bằng google'}
+                      background={'red'}
+                      className={'social-btn'}
+                    />
+                  </GoogleLogin>
+                </div>) : (
+                  <div className="mobile-user-dashboard logged-in">
+                    <p className="user-email">{user.email}</p>
+                    <p className="user-page-link"><Link to="/">(Trang cá nhân)</Link></p>
+                    <p className="user-payment">
+                      <FontAwesomeIcon className="user-icon" icon={['far', 'file-alt']} />
+                      Số dư : <span className="red bold">{numberWithCommas(50000)}</span>đ (HSD: <span className="green bold">5</span> ngày)
+                    </p>
+                    <p className="user-payment">
+                      <FontAwesomeIcon className="user-icon" icon={['fas', 'folder']} />
+                      Đã tải: <span className="bold">550</span> tài liệu (<Link to="/">Chi tiết</Link>)
+                    </p>
+                    <p className="user-payment">
+                      <FontAwesomeIcon className="user-icon" icon={['fas', 'cog']} />
+                      Đã đăng: <span className="bold">35</span> tài liệu (<Link to="/">Chi tiết</Link>)
+                    </p>
+                  </div>
+                )
+              }
+              <PageLink className={'mobile-nav-menu'} onClick={() => this.setState({ mobileShow: false })}>
+                <hr />
                 <HeaderLink to="/">
                   <FormattedMessage {...messages.home} />
                 </HeaderLink>

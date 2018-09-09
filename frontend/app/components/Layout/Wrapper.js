@@ -32,9 +32,6 @@ const Wrapper = styled.div`
   @media (min-width: 320px) and (max-width: 480px) {
     & .column {
       width: 100% !important;
-      &:nth-child(2) {
-        width: 100%;
-      }
     }
     
   }
