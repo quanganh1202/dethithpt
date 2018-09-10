@@ -69,7 +69,7 @@ class App extends React.Component {
     const url = window.location.href;
     const arr = url.split("/");
     const result = arr[0] + "//" + arr[2];
-
+    console.log(1);
     return user ? (
       <div>
         <Helmet>
@@ -80,7 +80,8 @@ class App extends React.Component {
         </Switch>
       </div>
     ) : 
-    window.location.replace(result);
+    null
+    // window.location.replace(result);
   }
 }
 
