@@ -66,11 +66,19 @@ class App extends React.Component {
 
   render() {
     const user = getUser();
-    console.log(user);
+    const url = window.location.href;
+    const arr = url.split("/");
+    const result = arr[0] + "//" + arr[2];
+
     return user ? (
-      <Switch>
-        <Route path="/" name="Home" component={DefaultLayout} />
-      </Switch>
+      <div>
+        <Helmet>
+          <base href={`${result}/admin/`} />
+        </Helmet>
+        <Switch>
+          <Route path="/" name="Home" component={DefaultLayout} />
+        </Switch>
+      </div>
     ) : 
     <Redirect to="/" />;
   }
