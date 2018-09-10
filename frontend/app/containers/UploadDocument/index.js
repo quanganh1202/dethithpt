@@ -78,7 +78,7 @@ export class UploadDocument extends React.PureComponent {
 
   componentWillMount() {
     // get filter data
-    const url = 'http://125.212.250.92:3000';
+    const url = '/api';
     get(`${url}/subjects`).then((res) => {
       this.initData('subjects', res.data.data);
     });

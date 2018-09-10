@@ -20,8 +20,8 @@ import {
   getCollectionsSuccess,
 } from './actions';
 
-const root = 'http://125.212.250.92:3000';
-const rootCommand = 'http://125.212.250.92:3001';
+const root = '/api';
+const rootCommand = '/api';
 /**
  * Request to login using social network token
  */

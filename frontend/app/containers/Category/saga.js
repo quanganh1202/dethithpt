@@ -12,7 +12,7 @@ import {
 } from './actions';
 import { makeSelectUsername } from 'containers/HomePage/selectors';
 
-const root = 'http://125.212.250.92:3000';
+const root = '/api';
 
 /**
  * Request to get document details by id
