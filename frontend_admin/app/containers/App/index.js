@@ -9,7 +9,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import styled from 'styled-components';
-import { Redirect, Switch, Route } from 'react-router-dom';
+import { Switch, Route } from 'react-router-dom';
 import { getUser } from 'services/auth';
 import DefaultLayout from 'containers/DefaultLayout';
 
@@ -80,7 +80,7 @@ class App extends React.Component {
         </Switch>
       </div>
     ) : 
-    <Redirect to="/" />;
+    window.location.replace(result);
   }
 }
 
