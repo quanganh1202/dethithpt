@@ -248,8 +248,19 @@ class ES {
     })).catch(handleElasticsearchError);
   }
 
-  updateByScrip(id, script) {
-    return esClient.update({
+  updateByQuery(script, query) {
+    return esClient.updateByQuery({
+      index: this.index,
+      type: this.type,
+      body:{
+        query,
+        script,
+      },
+    });
+  }
+
+  updateByScript(script, id) {
+    return esClient.updateByQuery({
       index: this.index,
       type: this.type,
       id,
