@@ -171,6 +171,7 @@ class ES {
       index: this.index,
       type: this.type,
       id, // If no id is provided, elasticsearch auto generate unique id
+      refresh: 'wait_for',
       body,
     }).then((result) => {
       return {
@@ -185,6 +186,7 @@ class ES {
       index: this.index,
       type: this.type,
       id, // If no id is provided, elasticsearch auto generate unique id
+      refresh: 'wait_for',
       body: {
         doc: body,
       },
@@ -252,6 +254,7 @@ class ES {
     return esClient.updateByQuery({
       index: this.index,
       type: this.type,
+      refresh: 'wait_for',
       body:{
         query,
         script,
@@ -264,6 +267,7 @@ class ES {
       index: this.index,
       type: this.type,
       id,
+      refresh: 'wait_for',
       body:{
         script,
       },

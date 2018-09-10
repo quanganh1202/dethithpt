@@ -10,6 +10,7 @@ import {
   updateNumDocRefToCate,
   updateNumDocRefToCollection,
   updateTagView,
+  updateDocumentView,
 } from '../libs/esHelper';
 const documentType = process.env.ES_TYPE_DOCUMENT || 'document';
 const index = process.env.ES_INDEX_DOCUMENT || 'documents';
@@ -35,6 +36,7 @@ export default {
       }
       const result = await elasticsearch.get(docId);
       const { tags } = result.data;
+      updateDocumentView(docId, constant.INCREASE);
       updateTagView(tags, constant.INCREASE);
 
       return result;
