@@ -7,11 +7,9 @@
  */
 
 import React from 'react';
-
+import { Helmet } from 'react-helmet';
 import styled from 'styled-components';
-import { Redirect } from 'react-router'
-import { Switch, Route } from 'react-router-dom';
-
+import { Redirect, Switch, Route } from 'react-router-dom';
 import { getUser } from 'services/auth';
 import DefaultLayout from 'containers/DefaultLayout';
 
@@ -68,18 +66,13 @@ class App extends React.Component {
 
   render() {
     const user = getUser();
-    console.log(user, 123)
-    return (
+    console.log(user);
+    return user ? (
       <Switch>
-        <Route exact path="/admin" render={() => (
-          user ? (
-            <DefaultLayout />
-          ) : (
-            <Redirect to="/"/>
-          )
-        )}/>
+        <Route path="/" name="Home" component={DefaultLayout} />
       </Switch>
-    );
+    ) : 
+    <Redirect to="/" />;
   }
 }
 
