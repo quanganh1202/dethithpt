@@ -7,15 +7,11 @@
  */
 
 import React from 'react';
-import { Helmet } from 'react-helmet';
-import styled from 'styled-components';
-import { Switch, Route } from 'react-router-dom';
-import { ThemeProvider } from 'styled-components';
 
-import HomePage from 'containers/HomePage/Loadable';
-import NotFoundPage from 'containers/NotFoundPage/Loadable';
-import Header from 'components/Header';
-import Footer from 'components/Footer';
+import styled from 'styled-components';
+import { Redirect } from 'react-router'
+import { Switch, Route } from 'react-router-dom';
+
 import { getUser } from 'services/auth';
 import DefaultLayout from 'containers/DefaultLayout';
 
@@ -72,9 +68,16 @@ class App extends React.Component {
 
   render() {
     const user = getUser();
+    console.log(user, 123)
     return (
       <Switch>
-        <Route path="/" name="Home" component={DefaultLayout} />
+        <Route exact path="/admin" render={() => (
+          user ? (
+            <DefaultLayout />
+          ) : (
+            <Redirect to="/"/>
+          )
+        )}/>
       </Switch>
     );
   }

@@ -51,9 +51,9 @@ class DefaultLayout extends Component {
                   },
                 )} */}
                 {/* <Route path="/" exact name="Home" component={() => <div>abc</div>} /> */}
-                <Route path="/dashboard" exact name="Dashboard" component={() => <div>Dashboard</div>} />
-                <Route path="/categories" exact name="Category" component={Category} />
-                <Redirect from="/" to="/dashboard" />
+                <Route path="/admin/dashboard" exact name="Dashboard" component={() => <div>Dashboard</div>} />
+                <Route path="/admin/categories" exact name="Category" component={Category} />
+                <Redirect from="/" to="/admin/dashboard" />
               </Switch>
             </Container>
           </main>
