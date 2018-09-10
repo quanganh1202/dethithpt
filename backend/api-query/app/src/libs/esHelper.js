@@ -141,13 +141,11 @@ const updateNumDocRefToCollection = (collectionId, type) => {
 
 const insertTag = async (tags, createdAt) => {
   const tagModel = new ES('tags', 'tag');
-
   const getPromises = tags.map(tag => {
-    const filterModel = filterParamsHandler({ tagId: tag }).data;
+    const filterModel = filterParamsHandler({ tag }).data;
 
     return tagModel.getList(filterModel);
   });
-
   const tagInfo = await Promise.all(getPromises);
 
   return tagInfo.map((tag, i) => {
@@ -157,7 +155,8 @@ const insertTag = async (tags, createdAt) => {
 
     if (tag.data && !tag.data.length){
       return tagModel.insert({
-        tagId: tags[i],
+        tag: tags[i],
+        view: 1,
         createdAt,
       });
     }

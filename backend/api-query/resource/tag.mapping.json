@@ -24,7 +24,7 @@
     "tag": {
       "dynamic": "strict",
       "properties": {
-        "tagId": {
+        "tag": {
           "type": "text",
           "analyzer": "autocomplete",
           "search_analyzer": "standard",
@@ -34,8 +34,8 @@
             }
           }
         },
-        "createdAt": {
-          "type": "date"
+        "view": {
+          "type": "integer"
         }
       }
     }
