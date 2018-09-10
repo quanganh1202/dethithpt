@@ -106,16 +106,13 @@ const sortParamsHandler = (sort) => {
 
 const updateNumDocRefToCate = (cates, type) => {
   const cateModel =new ES('categories', 'category');
-  const operation = type === constants.INCREASE ? '+=' : '-=';
+  const operation = type === constants.INCREASE ? '++' : '--';
   const promiseUpdateCates = cates.map((cate) => {
     return cateModel.updateByScrip(
       cate.cateId,
       {
-        source: `ctx._source.numDocRefs ${operation} params.numDocRefs;`,
+        source: `ctx._source.numDocRefs${operation};`,
         lang: 'painless',
-        params : {
-          numDocRefs : 1,
-        },
       }
     );
   });
@@ -125,18 +122,49 @@ const updateNumDocRefToCate = (cates, type) => {
 
 const updateNumDocRefToCollection = (collectionId, type) => {
   const collectionModel =new ES('collections', 'collection');
-  const operation = type === constants.INCREASE ? '+=' : '-=';
+  const operation = type === constants.INCREASE ? '++' : '--';
 
   return collectionModel.updateByScrip(
     collectionId,
     {
-      source: `ctx._source.numDocRefs ${operation} params.numDocRefs;`,
+      source: `ctx._source.numDocRefs${operation};`,
       lang: 'painless',
-      params : {
-        numDocRefs : 1,
-      },
     }
   );
+};
+
+const updateDocumentView = (documentId, type) => {
+  const docModel =new ES('documents', 'document');
+  const operation = type === constants.INCREASE ? '++' : '--';
+
+  return docModel.updateByScrip(
+    documentId,
+    {
+      source: `ctx._source.view${operation};`,
+      lang: 'painless',
+    }
+  );
+};
+
+const updateTagView = (tags = [], type) => {
+  const tagModel =new ES('tags', 'tag');
+  const operation = type === constants.INCREASE ? '++' : '--';
+
+  const promiseUpdateTags = tags.map(tag => {
+    return tagModel.updateByQuery(
+      {
+        source: `ctx._source.view${operation};`,
+        lang: 'painless',
+      },
+      {
+        match: {
+          tag,
+        },
+      }
+    );
+  });
+
+  return promiseUpdateTags;
 };
 
 const insertTag = async (tags, createdAt) => {
@@ -169,4 +197,6 @@ export {
   sortParamsHandler,
   updateNumDocRefToCate,
   updateNumDocRefToCollection,
+  updateTagView,
+  updateDocumentView,
 };
