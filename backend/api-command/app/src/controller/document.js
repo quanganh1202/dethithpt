@@ -145,6 +145,7 @@ async function uploadDocument(body, file) {
     }
     body.path = fileName;
     queryBody.path = fileName;
+    queryBody.view = 1;
     const res = await Promise.all([
       docModel.addNewDocument(body),
       fileHelpers.storeFile(file, fileName),

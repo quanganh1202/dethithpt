@@ -127,6 +127,9 @@
             }
           }
         },
+        "view": {
+          "type": "integer"
+        },
         "path": {
           "type": "text"
         },
