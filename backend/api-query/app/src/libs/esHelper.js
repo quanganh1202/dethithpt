@@ -108,7 +108,7 @@ const updateNumDocRefToCate = (cates, type) => {
   const cateModel =new ES('categories', 'category');
   const operation = type === constants.INCREASE ? '++' : '--';
   const promiseUpdateCates = cates.map((cate) => {
-    return cateModel.updateByScrip(
+    return cateModel.updateByScript(
       cate.cateId,
       {
         source: `ctx._source.numDocRefs${operation};`,
@@ -124,7 +124,7 @@ const updateNumDocRefToCollection = (collectionId, type) => {
   const collectionModel =new ES('collections', 'collection');
   const operation = type === constants.INCREASE ? '++' : '--';
 
-  return collectionModel.updateByScrip(
+  return collectionModel.updateByScript(
     collectionId,
     {
       source: `ctx._source.numDocRefs${operation};`,
@@ -137,8 +137,21 @@ const updateDocumentView = (documentId, type) => {
   const docModel =new ES('documents', 'document');
   const operation = type === constants.INCREASE ? '++' : '--';
 
-  return docModel.updateByScrip(
+  return docModel.updateByScript(
     documentId,
+    {
+      source: `ctx._source.view${operation};`,
+      lang: 'painless',
+    }
+  );
+};
+
+const updateTagViewById = (tagId, type) => {
+  const tagModel =new ES('tags', 'tag');
+  const operation = type === constants.INCREASE ? '++' : '--';
+
+  return tagModel.updateByScript(
+    tagId,
     {
       source: `ctx._source.view${operation};`,
       lang: 'painless',
@@ -199,4 +212,5 @@ export {
   updateNumDocRefToCollection,
   updateTagView,
   updateDocumentView,
+  updateTagViewById,
 };

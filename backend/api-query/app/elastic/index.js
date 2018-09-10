@@ -259,8 +259,8 @@ class ES {
     });
   }
 
-  updateByScript(script, id) {
-    return esClient.updateByQuery({
+  updateByScript(id, script) {
+    return esClient.update({
       index: this.index,
       type: this.type,
       id,
