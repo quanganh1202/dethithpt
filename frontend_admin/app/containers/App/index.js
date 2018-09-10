@@ -73,7 +73,7 @@ class App extends React.Component {
     return user ? (
       <div>
         <Helmet>
-          <base href={`${result}/admin/`} />
+          <base href={`${result}/admin`} />
         </Helmet>
         <Switch>
           <Route path="/" name="Home" component={DefaultLayout} />
