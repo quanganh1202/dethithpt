@@ -28,5 +28,15 @@ services:
     ports: # Expose ElasticSearch ports
       - "9300:9300"
       - "9200:9200"
-volumes:
-  esdata:
+  mysql:
+    container_name: mysql
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345678
+    ports:
+      - "3306:3306"
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq
+    restart: always
