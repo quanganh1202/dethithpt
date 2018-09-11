@@ -12,6 +12,7 @@ RUN npm install
 
 # Copy sourcecode
 COPY . .
-
+COPY wait-for-it.sh /
+RUN chmod 755 /wait-for-it.sh
 # Start app
-CMD [ "npm", "start" ]
+CMD /wait-for-it.sh rabbitmq:5672 -- npm start
