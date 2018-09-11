@@ -5,6 +5,9 @@ services:
     build: ./backend/api-query
     ports:
      - "3000:3000"
+    environment:
+      - RABBIT_HOST=rabbitmq
+      - ES_HOST=elasticsearch
     depends_on:
       - elasticsearch
       - rabbitmq
@@ -12,6 +15,9 @@ services:
     build: ./backend/api-command
     ports:
      - "3001:3001"
+    environment:
+      - RABBIT_HOST=rabbitmq
+      - MYSQL_HOST=mysql
     depends_on:
      - mysql
      - rabbitmq
