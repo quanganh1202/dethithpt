@@ -63,6 +63,7 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     classId INT(11) NULL,
     yearSchool INT(11) NULL,
     collectionId INT(11) NULL,
+    totalPages INT(11) NULL,
     PRIMARY KEY (id),
     UNIQUE INDEX id_UNIQUE (id ASC));
 
