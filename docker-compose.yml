@@ -6,8 +6,8 @@ services:
     ports:
      - "3000:3000"
     environment:
-      - RABBIT_HOST=rabbitmq
-      - ES_HOST=elasticsearch
+      - RABBIT_HOST=0.0.0.0
+      - ES_HOST=0.0.0.0
     depends_on:
       - elasticsearch
       - rabbitmq
@@ -16,8 +16,8 @@ services:
     ports:
      - "3001:3001"
     environment:
-      - RABBIT_HOST=rabbitmq
-      - MYSQL_HOST=mysql
+      - RABBIT_HOST=0.0.0.0
+      - MYSQL_HOST=0.0.0.0
     depends_on:
      - mysql
      - rabbitmq

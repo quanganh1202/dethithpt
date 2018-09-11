@@ -12,6 +12,6 @@ RUN npm install
 
 # Copy sourcecode
 COPY . .
-
+COPY wait-for-it.sh /
 # Start app
-CMD [ "npm", "start" ]
+CMD /wait-for-it.sh db:3306 -- [ "npm", "start" ]
