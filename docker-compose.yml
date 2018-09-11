@@ -5,16 +5,18 @@ services:
     build: ./backend/api-query
     ports:
      - "3000:3000"
-    volumes:
-     - ./api:/app/api-query
-     - /usr/src/app/node_modules/
   api-command:
     build: ./backend/api-command
     ports:
      - "3001:3001"
-    volumes:
-     - ./api:/app/api-command
-     - /usr/src/app/node_modules/
+
+  frontend: # Nginx Server For Frontend App
+    container_name: frontend
+    image: nginx
+    volumes: # Serve local "public" dir
+      - ./frontend/build:/usr/share/nginx/html
+    ports:
+      - "8080:80" # Forward site to localhost:8080
 
   elasticsearch: # Elasticsearch Instance
     container_name: elasticsearch
