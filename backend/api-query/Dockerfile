@@ -8,6 +8,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install app dependencies
+RUN npm install babel-cli -g --save
 RUN npm install --only=production
 
 # Copy sourcecode
