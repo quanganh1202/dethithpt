@@ -2,7 +2,9 @@ version: '3'
 
 services:
   api-query:
-    build: ./backend/api-query
+    build:
+      context: .
+      dockerfile: backend/api-query
     ports:
      - "3000:3000"
     environment:
