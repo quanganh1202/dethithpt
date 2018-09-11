@@ -12,7 +12,7 @@ services:
     build: ./backend/api-command
     ports:
      - "3001:3001"
-  depends_on:
+    depends_on:
      - mysql
      - rabbitmq
 
