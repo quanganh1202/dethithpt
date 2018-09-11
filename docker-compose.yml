@@ -5,10 +5,16 @@ services:
     build: ./backend/api-query
     ports:
      - "3000:3000"
+    depends_on:
+      - elasticsearch
+      - rabbitmq
   api-command:
     build: ./backend/api-command
     ports:
      - "3001:3001"
+  depends_on:
+     - mysql
+     - rabbitmq
 
   frontend: # Nginx Server For Frontend App
     container_name: frontend
