@@ -10,13 +10,6 @@ services:
     volumes:
      - ./api:/app/api-query
 
-  mysql:
-    container_name: mysql
-    image: mysql
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: 12345678
-
   elasticsearch: # Elasticsearch Instance
     container_name: elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch:6.1.1
