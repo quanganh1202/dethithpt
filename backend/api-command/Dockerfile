@@ -15,4 +15,4 @@ COPY . .
 COPY wait-for-it.sh /
 RUN chmod 755 /wait-for-it.sh
 # Start app
-CMD /wait-for-it.sh mysql:3306 rabbitmq:5672 -- [ "npm", "start" ]
+CMD /wait-for-it.sh mysql:3306 rabbitmq:5672 -- npm start
