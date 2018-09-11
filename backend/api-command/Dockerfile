@@ -9,7 +9,7 @@ COPY package*.json ./
 
 # Install app dependencies
 RUN npm install
-RUN npm run initDb
+RUN npm run init
 
 # Copy sourcecode
 COPY . .
