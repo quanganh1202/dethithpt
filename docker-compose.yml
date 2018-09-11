@@ -18,9 +18,6 @@ services:
     environment:
       - RABBIT_HOST=0.0.0.0
       - MYSQL_HOST=mysql
-      - MYSQL_DATABASE=dethithpt
-      - MYSQL_USER=dethithpt
-      - MYSQL_PASSWORD=12345678
     depends_on:
      - mysql
      - rabbitmq
@@ -45,13 +42,10 @@ services:
       - "9200:9200"
   mysql:
     container_name: mysql
-    image: mysql
+    image: mysql:5.7.23
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: 12345678
-      MYSQL_DATABASE: dethithpt
-      MYSQL_USER: dethithpt
-      MYSQL_PASSWORD: 12345678
     ports:
       - "3306:3306"
   rabbitmq:
