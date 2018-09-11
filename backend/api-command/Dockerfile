@@ -9,11 +9,13 @@ COPY package*.json ./
 
 # Install app dependencies
 RUN npm install
-RUN npm run init
 
 # Copy sourcecode
 COPY . .
+
 COPY wait-for-it.sh /
 RUN chmod 755 /wait-for-it.sh
+RUN npm run init
+
 # Start app
 CMD /wait-for-it.sh mysql:3306 -- npm start
