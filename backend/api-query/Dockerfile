@@ -9,7 +9,7 @@ COPY package*.json ./
 
 # Install app dependencies
 RUN npm install babel-cli -g --save
-RUN npm install --only=production
+RUN npm install --only=production --no-optional
 
 # Copy sourcecode
 COPY . .
