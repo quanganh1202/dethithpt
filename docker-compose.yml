@@ -2,15 +2,13 @@ version: '3'
 
 services:
   api-query:
-    build:
-      context: .
-      dockerfile: backend/api-query
+    build: ./backend/api-query
     ports:
      - "3000:3000"
     environment:
      - DATABASE_HOST=db
     volumes:
-     - .:/usr/src/app
+     - ./api:/app/api-query
      - /usr/src/app/node_modules/
 
 #   elasticsearch: # Elasticsearch Instance
