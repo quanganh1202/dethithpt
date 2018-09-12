@@ -8,6 +8,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import styled from 'styled-components';
+import { get } from 'axios';
 
 import Tab from 'components/Tab';
 import UploadPost from './UploadPost';
@@ -45,7 +46,7 @@ export class UploadDocument extends React.PureComponent {
     this.state = {
       step: 0,
       stepDefinitions: [
-        { id: "step1", title: "", component: () => <div>
+        { id: "step1", title: "", component: (props) => <div>
           <label>Nội quy:</label>
           <div style={{ width: '100%', height: '200px' }}></div>
           <label>
@@ -63,11 +64,36 @@ export class UploadDocument extends React.PureComponent {
           {this.state.error ? <ErrorMessage>{this.state.error}</ErrorMessage> : null}
           <Button onClick={() => this.nextStep('step2')} className="continue-button">Tiếp</Button>
         </div> },
-        { id: "step2", title: "", component: () => (
-          <UploadPost />
+        { id: "step2", title: "", component: (props) => (
+          <UploadPost {...props} />
         )},
-      ]
+      ],
+      subjects: [],
+      classes: [],
+      categories: [],
     };
+
+    this.initData = this.initData.bind(this);
+  }
+
+  componentWillMount() {
+    // get filter data
+    const url = '/api';
+    get(`${url}/subjects`).then((res) => {
+      this.initData('subjects', res.data.data);
+    });
+    get(`${url}/classes`).then((res) => {
+      this.initData('classes', res.data.data);
+    });
+    get(`${url}/categories`).then((res) => {
+      this.initData('categories', res.data.data);
+    });
+  }
+
+  initData(name, data) {
+    const newState = {};
+    newState[name] = data;
+    this.setState(newState);
   }
 
   nextStep(step) {
@@ -86,8 +112,7 @@ export class UploadDocument extends React.PureComponent {
   }
 
   render() {
-    const { stepDefinitions } = this.state;
-
+    const { stepDefinitions, subjects, classes, categories } = this.state;
     const content = stepDefinitions.map((item, key) => {
       const Component = item.component;
       return <div
@@ -96,7 +121,7 @@ export class UploadDocument extends React.PureComponent {
         key={`tab-content-${key}`}
         style={{ display: key === 0 ? '' : 'none' }}
         >
-        <Component />
+        <Component subjects={subjects} classes={classes} categories={categories} />
       </div>;
     });
     return (

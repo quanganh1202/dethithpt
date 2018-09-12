@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { getUser } from 'services/auth';
 import DetailForm from './DetailForm';
 import ErrorMessage from './ErrorMessage';
+import { getToken } from 'services/auth';
 
 const Wrapper = styled.li`
   position: relative;
@@ -39,8 +40,6 @@ const Wrapper = styled.li`
   }
 `;
 
-const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7Im5hbWUiOiJOZ3V54buFbiDEkMOsbmggSHV5w6puIiwiZW1haWwiOiJuZ3VvaXJhbjIwMDBAZ21haWwuY29tIiwic3RhdHVzIjoyfSwiaWF0IjoxNTM0NjA0Mzk0LCJleHAiOjE1MzgyMDQzOTR9.8ecwPSZDBY3erg_K0ZiSgs1Nq9YWSmtJKeVfJb47qXk';
-
 class UploadProgress extends React.Component {
   constructor() {
     super()
@@ -60,7 +59,7 @@ class UploadProgress extends React.Component {
 
   fileUpload(form) {
     const { file } = this.props;
-    const url = 'http://125.212.250.92:3000/documents';
+    const url = '/api/documents';
     const formData = new FormData();
     Object.keys(form).forEach((f) => formData.append(f, form[f]));
     const currentUser = getUser();
@@ -68,7 +67,7 @@ class UploadProgress extends React.Component {
     const config = {
       headers: {
           'content-type': 'multipart/form-data',
-          'x-access-token': token,
+          'x-access-token': getToken(),
       },
       onUploadProgress: progressEvent => {
         const percentCompleted = Math.floor((progressEvent.loaded * 100) / progressEvent.total);
@@ -104,7 +103,7 @@ class UploadProgress extends React.Component {
   }
 
   render() {
-    const { file, fileIndex, add2All, showSelected, handleChangeSelected } = this.props;
+    const { file, fileIndex, add2All, showSelected, handleChangeSelected, subjects, classes, categories } = this.props;
     const { percent } = this.state;
 
     return (
@@ -131,7 +130,8 @@ class UploadProgress extends React.Component {
           </span>
         </div>
         {percent ? <progress value={percent} max={100} className={`${ this.state.successId ? 'success' : '' }`}></progress> : null}
-        {!showSelected && !this.state.successId ? <DetailForm name={file.name} onSubmit={this.fileUpload} /> : null}
+        {!showSelected && !this.state.successId ? 
+          <DetailForm subjects={subjects} classes={classes} categories={categories} name={file.name} onSubmit={this.fileUpload} /> : null}
         {this.state.error ? <ErrorMessage>{this.state.error}</ErrorMessage> : null}
       </Wrapper>
     );

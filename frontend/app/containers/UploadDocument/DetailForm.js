@@ -2,10 +2,20 @@ import React from 'react';
 import styled from 'styled-components';
 import TagsInput from 'react-tagsinput'
 import { fromJS } from 'immutable';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faCog,
+  faFolder,
+  faCloudDownloadAlt,
+  faCaretDown,
+} from '@fortawesome/free-solid-svg-icons';
+import { faMoneyBillAlt } from '@fortawesome/free-regular-svg-icons';
 
-
-import Select from 'components/Select';
+import Select from 'react-select';
 import Button from './Button';
+
+library.add(faMoneyBillAlt, faFolder, faCog, faCloudDownloadAlt, faCaretDown);
 
 const Wrapper = styled.section`
   margin-top: 10px;
@@ -103,6 +113,7 @@ class DetailForm extends React.Component {
     if (event.preventDefault) event.preventDefault();
     const { formData } = this.state;
     const { name, value } = event.target;
+    console.log(name, value);
     let newValue = value;
     switch (name) {
       case 'price': {
@@ -115,6 +126,7 @@ class DetailForm extends React.Component {
     }
     
     const temp = formData.set(name, newValue)
+    console.log(temp.toJS());
     this.setState({ formData: temp });
   }
 
@@ -124,12 +136,30 @@ class DetailForm extends React.Component {
 
   onSubmit() {
     const { formData } = this.state;
-    const newData = formData.set('tags', formData.get('tags').join(','));
+    let newData = formData
+      .set('tags', formData.get('tags').join(','));
+    Array.from([
+      'cateIds',
+    ]).forEach((field) => {
+      if (newData.has(field) && newData.get(field).length > 0) {
+        newData = newData.set(field, newData.get(field).map((i) => i.value));
+      } else {
+        newData = newData.delete(field);
+      }
+    })
+    Array.from([
+      'subjectId', 'classId', 'yearSchool', 'collectionId'
+    ]).forEach((field) => {
+      if (newData.has(field)) {
+        newData = newData.set(field, newData.get(field).value);
+      }
+    })
     this.props.onSubmit(newData.toJS());
   }
 
   render() {
     const { formData } = this.state;
+    const { subjects, classes, categories } = this.props;
 
     return (
       <Wrapper>
@@ -147,49 +177,98 @@ class DetailForm extends React.Component {
           <label htmlFor="category">&nbsp;</label>
           <div className="form-control">
             <Select
-              name="cateId"
-              options={[
-                { text: 'Đề thi', value: 1 },
-              ]}
-              value={formData.get('cateId', '')}
-              defaultText={'-- Chọn danh mục --'}
-              onChange={this.handleChange}
+              name="cateIds"
+              options={categories.map((sj) => ({ value: sj.id, label: sj.name }))}
+              value={formData.get('cateIds', '')}
+              onChange={(value) => this.handleChange({ target: { name: 'cateIds', value }})}
+              isMulti
+              hideSelectedOptions={false}
+              closeMenuOnSelect={false}
+              placeholder={'-- Chọn danh mục --'}
+              isSearchable={false}
+              components={{
+                MultiValueContainer: () => null,
+                DropdownIndicator: () => (
+                  <FontAwesomeIcon style={{ margin: '0 5px'}} className={'title-icon'} icon={['fas', 'caret-down']} />
+                ),
+                IndicatorSeparator: () => null,
+              }}
             />
             <Select
               name="subjectId"
-              options={[
-                { text: 'Môn Toán', value: 1 },
-              ]}
+              options={subjects.map((sj) => ({ value: sj.id, label: sj.name }))}
               value={formData.get('subjectId', '')}
-              defaultText={'-- Chọn môn --'}
-              onChange={this.handleChange}
+              onChange={(value) => this.handleChange({ target: { name: 'subjectId', value }})}
+              
+              hideSelectedOptions={false}
+              closeMenuOnSelect={false}
+              placeholder={'-- Chọn môn --'}
+              isSearchable={false}
+              components={{
+                MultiValueContainer: () => null,
+                DropdownIndicator: () => (
+                  <FontAwesomeIcon style={{ margin: '0 5px'}} className={'title-icon'} icon={['fas', 'caret-down']} />
+                ),
+                IndicatorSeparator: () => null,
+              }}
             />
             <Select
               name="classId"
-              options={[
-                { text: 'Lớp 12', value: 1 },
-              ]}
+              options={classes.map((sj) => ({ value: sj.id, label: sj.name }))}
               value={formData.get('classId', '')}
-              defaultText={'-- Chọn lớp --'}
-              onChange={this.handleChange}
+              onChange={(value) => this.handleChange({ target: { name: 'classId', value }})}
+              
+              hideSelectedOptions={false}
+              closeMenuOnSelect={false}
+              placeholder={'-- Chọn lớp --'}
+              isSearchable={false}
+              components={{
+                MultiValueContainer: () => null,
+                DropdownIndicator: () => (
+                  <FontAwesomeIcon style={{ margin: '0 5px'}} className={'title-icon'} icon={['fas', 'caret-down']} />
+                ),
+                IndicatorSeparator: () => null,
+              }}
             />
             <Select
-              name="yearSchoolId"
-              options={[
-                { text: 'năm 2018', value: 1 },
-              ]}
-              value={formData.get('yearSchoolId', '')}
-              defaultText={'-- Chọn năm học --'}
-              onChange={this.handleChange}
+              name="yearSchool"
+              options={Array(21)
+                .fill((new Date()).getFullYear() - 10)
+                .map((y, idx) => ({ value: y + idx, label: y + idx }))}
+              value={formData.get('yearSchool', '')}
+              onChange={(value) => this.handleChange({ target: { name: 'yearSchool', value }})}
+              
+              hideSelectedOptions={false}
+              closeMenuOnSelect={false}
+              placeholder={'-- Chọn năm học --'}
+              isSearchable={false}
+              components={{
+                MultiValueContainer: () => null,
+                DropdownIndicator: () => (
+                  <FontAwesomeIcon style={{ margin: '0 5px'}} className={'title-icon'} icon={['fas', 'caret-down']} />
+                ),
+                IndicatorSeparator: () => null,
+              }}
             />
             <Select
               name="collectionId"
               options={[
-                { text: 'Bộ sưu tập 1', value: 1 },
+                { label: 'Bộ sưu tập 1', value: 1 },
               ]}
               value={formData.get('collectionId', '')}
-              defaultText={'-- Chọn bộ sưu tập --'}
-              onChange={this.handleChange}
+              onChange={(value) => this.handleChange({ target: { name: 'collectionId', value }})}
+              
+              hideSelectedOptions={false}
+              closeMenuOnSelect={false}
+              placeholder={'-- Chọn bộ sưu tập --'}
+              isSearchable={false}
+              components={{
+                MultiValueContainer: () => null,
+                DropdownIndicator: () => (
+                  <FontAwesomeIcon style={{ margin: '0 5px'}} className={'title-icon'} icon={['fas', 'caret-down']} />
+                ),
+                IndicatorSeparator: () => null,
+              }}
             />
           </div>
         </div>

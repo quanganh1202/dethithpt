@@ -251,6 +251,7 @@ class UploadPost extends React.Component {
                   file={f.get('content')}
                   key={`file-${ind}`}
                   handleChangeSelected={this.handleChangeSelected}
+                  {...this.props}
                 />
               )
             }

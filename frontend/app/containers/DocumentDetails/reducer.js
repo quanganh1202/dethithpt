@@ -35,7 +35,7 @@ export const initialState = fromJS({
   },
 });
 
-function homeReducer(state = initialState, action) {
+function documentReducer(state = initialState, action) {
   switch (action.type) {
     case GET_DOC_DETAILS_REQUEST:
       return state.set('loading', true);
@@ -44,6 +44,15 @@ function homeReducer(state = initialState, action) {
         .set('loading', false)
         .set('document', fromJS(action.data));
     case GET_DOC_LIST_REQUEST:
+      if (action.clear) {
+        return state
+          .set('loading', true)
+          .set('documents', fromJS({
+            data: [],
+            total: 0,
+            query: action.query,
+          }))
+      }
       return state
         .set('loading', true)
         .setIn(['documents', 'query'], action.query);
@@ -61,4 +70,4 @@ function homeReducer(state = initialState, action) {
   }
 }
 
-export default homeReducer;
+export default documentReducer;

@@ -12,15 +12,17 @@ import {
 } from './actions';
 import { makeSelectUsername } from 'containers/HomePage/selectors';
 
+const root = '/api';
+
 /**
  * Request to get document details by id
  */
 export function* getDocumentDetailsHandler({ id }) {
-  const url = `http://125.212.250.92:3000/documents/${id}`;
+  const url = `${root}/documents/${id}`;
 
   try {
     const resp = yield call(axios.get, url);
-    yield put(getDocumentDetailsSuccess(_.get(resp.data, 'data[0]')));
+    yield put(getDocumentDetailsSuccess(_.get(resp.data, 'data')));
   } catch (err) {
     console.log(err.message);
     // yield put(loginFailure(err));
@@ -31,7 +33,7 @@ export function* getDocumentDetailsHandler({ id }) {
  * Request get document list
  */
 export function* getDocumentsListHandler({ query }) {
-  const url = `http://125.212.250.92:3000/documents`;
+  const url = `${root}/documents`;
 
   try {
     const resp = yield call(axios.get, url, { params: query });
