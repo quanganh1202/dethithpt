@@ -1,6 +1,6 @@
 import fs from 'fs-extra';
 import path from 'path';
-import pdfjs from 'pdfjs-dist/build/pdf';
+import pageCounter from 'docx-pdf-pagecount';
 import Document from '../model/document';
 import User from '../model/user';
 import Category from '../model/category';
@@ -148,9 +148,9 @@ async function uploadDocument(body, file) {
     queryBody.path = fileName;
     queryBody.view = 1;
     await fileHelpers.storeFile(file, fileName);
-    const doc = await pdfjs.getDocument(path.resolve(__dirname, fileName));
-    body.totalPages = doc.numPages;
-    queryBody.totalPages = doc.numPages;
+    const numPages = await pageCounter(path.resolve(__dirname, fileName));
+    body.totalPages = numPages;
+    queryBody.totalPages = numPages;
     const res = await docModel.addNewDocument(body);
     // Append data and send to query api
     queryBody.userName = user[0].name;
