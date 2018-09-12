@@ -18,7 +18,7 @@ const rabbitProducer = (key, msg) => {
         error: 'Routing key unsupported',
       });
     }
-    const rabbitHost = process.env.RABBIT_HOST || 'amqp://localhost';
+    const rabbitHost = `amqp://${process.env.RABBIT_HOST}` || 'amqp://localhost';
     amqp.connect(rabbitHost, (err, conn) => {
       if (err) {
         logger.error(`[RABBIT]: ${err.message || JSON.stringify(err)}`);

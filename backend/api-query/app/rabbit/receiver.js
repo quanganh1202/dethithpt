@@ -29,7 +29,7 @@ const routingKey = [
 
 const rabbitMQConnector = () => {
   return new Promise((resolve, reject) => {
-    const rabbitHost = process.env.RABBIT_HOST || 'amqp://localhost';
+    const rabbitHost = `amqp://${process.env.RABBIT_HOST}` || 'amqp://localhost';
     amqp.connect(rabbitHost, (err, conn) => {
       if (err) {
         logger.error(err.message || JSON.stringify(err) || '[RabbitMQ]: AMQP connection fail');
