@@ -18,7 +18,7 @@ services:
     env_file:
       - ./.env
     ports:
-      - "${COMMAND_PORT}:${COMMAND_PORT}"
+      - "${API_COMMAND_PORT}:${API_COMMAND_PORT}"
     depends_on:
       - "${MYSQL_HOST}"
 
