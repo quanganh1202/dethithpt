@@ -3,6 +3,8 @@ version: '3'
 services:
   api-query:
     build: ./backend/api-query
+    env_file:
+      - ./.env
     ports:
      - "3000:3000"
     environment:
@@ -13,14 +15,13 @@ services:
       - rabbitmq
   api-command:
     build: ./backend/api-command
+    env_file:
+      - ./.env
     ports:
-     - "3001:3001"
-    environment:
-      - RABBIT_HOST=0.0.0.0
-      - MYSQL_HOST=0.0.0.0
+      - "${COMMAND_PORT}:${COMMAND_PORT}"
     depends_on:
-     - mysql
-     - rabbitmq
+      - "${MYSQL_HOST}"
+
 
   frontend: # Nginx Server For Frontend App
     container_name: frontend
@@ -41,13 +42,12 @@ services:
       - "9300:9300"
       - "9200:9200"
   mysql:
-    container_name: mysql
-    image: mysql:5.7.23
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: 12345678
+    build: ./db
     ports:
       - "3306:3306"
+    env_file:
+      - ./.env
+
   rabbitmq:
     container_name: rabbitmq
     image: rabbitmq
