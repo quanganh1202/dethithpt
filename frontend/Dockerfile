@@ -10,5 +10,5 @@ COPY --chown=node . .
 RUN npm run build
 
 FROM nginx
-WORKDIR /var/www/app
-COPY --from=builder /tmp/app/build/ /var/www/app/
+WORKDIR /usr/share/nginx/html
+COPY --from=builder /tmp/app/build/ /usr/share/nginx/html/
