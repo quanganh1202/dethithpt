@@ -1,5 +1,6 @@
 import fs from 'fs-extra';
 import path from 'path';
+import pageCounter from 'docx-pdf-pagecount';
 import Document from '../model/document';
 import User from '../model/user';
 import Category from '../model/category';
@@ -146,22 +147,19 @@ async function uploadDocument(body, file) {
     body.path = fileName;
     queryBody.path = fileName;
     queryBody.view = 1;
-    const res = await Promise.all([
-      docModel.addNewDocument(body),
-      fileHelpers.storeFile(file, fileName),
-    ]).catch(ex => {
-      // TODO: Need to ROLLBACK
-      throw ex;
-    });
-
+    await fileHelpers.storeFile(file, fileName);
+    const numPages = await pageCounter(path.resolve(__dirname, fileName));
+    body.totalPages = numPages;
+    queryBody.totalPages = numPages;
+    const res = await docModel.addNewDocument(body);
     // Append data and send to query api
     queryBody.userName = user[0].name;
     queryBody.tags = body.tags.split(',');
-    const serverNotify = await rabbitSender('document.create', { body: queryBody, id: res[0].insertId });
+    const serverNotify = await rabbitSender('document.create', { body: queryBody, id: res.insertId });
     if (serverNotify.statusCode === 200) {
       return {
         status: 201,
-        message: `Document created with insertId = ${res[0].insertId}`,
+        message: `Document created with insertId = ${res.insertId}`,
       };
     } else {
       // HERE IS CASE API QUERY iS NOT RESOLVED

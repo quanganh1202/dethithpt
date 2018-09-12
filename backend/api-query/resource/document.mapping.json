@@ -127,6 +127,9 @@
             }
           }
         },
+        "totalPages": {
+          "type": "integer"
+        },
         "view": {
           "type": "integer"
         },
