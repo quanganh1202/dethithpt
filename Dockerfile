@@ -4,16 +4,16 @@ USER node
 
 RUN mkdir -p /tmp/app
 WORKDIR /tmp/app
-COPY ./package*.json ./
+COPY ./frontend/package*.json ./
 RUN npm install
-COPY --chown=node . .
+COPY --chown=node ./frontend/ .
 RUN npm run build
 
 RUN mkdir -p /tmp/admin
 WORKDIR /tmp/admin
-COPY ../frontend_admin/package*.json ./
+COPY ./frontend_admin/package*.json ./
 RUN npm install
-COPY --chown=node ../frontend_admin/ .
+COPY --chown=node ./frontend_admin/ .
 RUN npm run build
 
 FROM nginx
