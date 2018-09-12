@@ -12,3 +12,4 @@ RUN npm run build
 FROM nginx
 WORKDIR /usr/share/nginx/html
 COPY --from=builder /tmp/app/build/ /usr/share/nginx/html/
+COPY nginx.conf.default /etc/nginx/conf.d/default.conf
