@@ -8,7 +8,7 @@ server {
   listen   80;
   server_name ${DOMAIN_NAME} www.${DOMAIN_NAME};
   index index.html index.htm;
-  root /opt/dethithpt/frontend/build;
+  root /usr/share/nginx/html;
 
   location / {
     try_files $uri $uri/ /index.html;
@@ -34,6 +34,6 @@ server {
   }
 
   location ^~ /admin {
-    alias /opt/dethithpt/frontend_admin/build/;
+    alias /usr/share/nginx/html/admin;
   }
 }
