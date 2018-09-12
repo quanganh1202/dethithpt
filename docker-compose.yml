@@ -20,16 +20,6 @@ services:
       - "${MYSQL_HOST}"
       - "${RABBIT_HOST}"
 
-
-  frontend: # Nginx Server For Frontend App
-    env_file:
-      - ./.env
-    image: nginx
-    volumes: # Serve local "public" dir
-      - ./frontend/build:/usr/share/nginx/html
-    ports:
-      - "8080:80" # Forward site to localhost:8080
-
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.1.1
     env_file:
@@ -49,3 +39,11 @@ services:
     image: rabbitmq
     ports:
       - "5672:5672"
+
+  
+  frontend: # Nginx Server For Frontend App
+    build: frontend
+    env_file:
+      - ./.env
+    ports:
+      - "8080:80" # Forward site to localhost:8080
