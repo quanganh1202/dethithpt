@@ -19,6 +19,7 @@ const initialExpress = async function startServer() {
   const port = process.env.EXPRESS_PORT || 3000;
   app.use(cors()); // Allow cors
   app.use(bodyParser.json());
+  app.use('/public', express.static('storage'));
   app.use(bodyParser.urlencoded());
   app.use(express.static(path.resolve(__dirname, './public')));
   app.use((req, res, next) => {
