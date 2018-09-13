@@ -15,8 +15,21 @@ server {
     }
 
     location /api {
-      proxy_pass http://api_query;
-      
+      if ($request_method = GET ) {
+        proxy_pass http://api_query;
+      }
+      if ($request_method = POST) {
+        proxy_pass http://api_command;
+      }
+      if ($request_method = PUT) {
+        proxy_pass http://api_command;
+      }
+      if ($request_method = DELETE) {
+        proxy_pass http://api_command;
+      }
+      if ($request_method = UPDATE) {
+        proxy_pass http://api_command;
+      }
       proxy_ssl_verify             off;
     }
 
