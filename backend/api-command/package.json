@@ -9,8 +9,8 @@
     "production": "node ./dist/main.js",
     "build": "./resource/build.sh",
     "dev": "cross-env NODE_ENV=dev EXPRESS_PORT=3001 MYSQL_PASSWORD=12345678 MYSQL_DATABASE=dethithpt nodemon ./app/index.js --exec babel-node",
-    "init": "bash ./resource/initDb.sh",
-    "updateDb": "bash ./resource/updateDb.sh"
+    "init": "cross-env ACCOUNT=root PASSWORD=3JocyT024e DATABASE=dethithpt EMAIL=administator@gmail.com bash ./resource/initDb.sh",
+    "updateDb": "cross-env ACCOUNT=root PASSWORD=3JocyT024e DATABASE=dethithpt bash ./resource/updateDb.sh"
   },
   "keywords": [],
   "author": {
