@@ -9,8 +9,7 @@ echo
 echo "------------------------------------------------------"
 echo
 
-echo -n "ES HOST: "
-read ES_HOST
+ES_HOST='localhost:9200'
 
 # Init document
 curl -X PUT "$ES_HOST/documents" -H 'Content-Type: application/json' -d @'./resource/document.mapping.json'

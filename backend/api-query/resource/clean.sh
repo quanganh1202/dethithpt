@@ -9,8 +9,7 @@ echo
 echo "------------------------------------------------------"
 echo
 
-echo -n "ES HOST: "
-read ES_HOST
+ES_HOST='localhost:9200'
 
 curl -X DELETE "$ES_HOST/histories"
 curl -X DELETE "$ES_HOST/tags"
