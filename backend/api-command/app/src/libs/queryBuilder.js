@@ -6,11 +6,11 @@ import searchTypeConst from '../constant/searchType';
    * @return will be generated became ((a = '1' OR a = '4') AND b = '2') OR (c = '3')
 */
 const queryBuilder = function buildQuery(criteriaList = [], searchType = searchTypeConst.EXACTLY) {
-  let patern = '';
+  let pattern = '';
   let operator = '=';
   if (searchType === searchTypeConst.FULLTEXT) {
     operator = 'LIKE';
-    patern = '%';
+    pattern = '%';
   }
 
   return criteriaList.reduce((criteriaString, criteriaObj) => {
@@ -18,16 +18,16 @@ const queryBuilder = function buildQuery(criteriaList = [], searchType = searchT
     const criteria = Object.entries(criteriaObj).reduce((pre, cur) => {
       const valueCriteria = cur[1] && cur[1].length === 1 ? cur[1] :
         Array.isArray(cur[1]) ? cur[1].reduce((preVal, curVal) => {
-          if (preVal) return `${preVal} OR ${cur[0]} ${operator} '${patern}${curVal}${patern}'`;
+          if (preVal) return `${preVal} OR ${cur[0]} ${operator} '${pattern}${curVal}${pattern}'`;
 
-          return `${cur[0]} ${operator} '${patern}${curVal}${patern}'`;
+          return `${cur[0]} ${operator} '${pattern}${curVal}${pattern}'`;
         }, undefined) : cur[1];
 
       if (pre) return Array.isArray(cur[1]) ? `${pre} AND (${valueCriteria})` :
-        `${pre} AND ${cur[0]} ${operator} '${patern}${valueCriteria}${patern}'`;
+        `${pre} AND ${cur[0]} ${operator} '${pattern}${valueCriteria}${pattern}'`;
 
       return Array.isArray(cur[1]) ? `(${valueCriteria})` :
-        `${cur[0]} ${operator} '${patern}${valueCriteria}${patern}'`;
+        `${cur[0]} ${operator} '${pattern}${valueCriteria}${pattern}'`;
     }, undefined);
 
     if (!criteriaString) return criteria;
