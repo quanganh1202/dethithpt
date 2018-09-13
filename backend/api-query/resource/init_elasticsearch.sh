@@ -4,12 +4,10 @@ NC='\033[0m' # No Color
 
 echo
 echo
-echo -e "${GREEN} Please enter elasticsearch host${NC}"
+echo -e "${GREEN} Initial Processing ${NC}"
 echo
 echo "------------------------------------------------------"
 echo
-
-ES_HOST=$1
 
 # Init document
 curl -X PUT "$ES_HOST/documents" -H 'Content-Type: application/json' -d @'./resource/document.mapping.json'
