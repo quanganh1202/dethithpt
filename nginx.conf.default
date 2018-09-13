@@ -4,36 +4,41 @@ upstream api_command {
 upstream api_query {
   server ${API_QUERY_HOST}:3000 fail_timeout=0;
 }
+
 server {
-  listen   80;
-  server_name ${DOMAIN_NAME} www.${DOMAIN_NAME};
-  index index.html index.htm;
-  root /usr/share/nginx/html;
+    listen       80;
+    server_name ${DOMAIN_NAME} www.${DOMAIN_NAME};
 
-  location / {
-    try_files $uri $uri/ /index.html;
-  }
+    location / {
+        root   /usr/share/nginx/html;
+        index  index.html index.htm;
+    }
 
-  location /api {
-    if ($request_method = GET ) {
-      proxy_pass http://api_query;
+    location /api {
+      if ($request_method = GET ) {
+        proxy_pass http://api_query;
+      }
+      if ($request_method = POST) {
+        proxy_pass http://api_command;
+      }
+      if ($request_method = PUT) {
+        proxy_pass http://api_command;
+      }
+      if ($request_method = DELETE) {
+        proxy_pass http://api_command;
+      }
+      if ($request_method = UPDATE) {
+        proxy_pass http://api_command;
+      }
+      proxy_ssl_verify             off;
     }
-    if ($request_method = POST) {
-      proxy_pass http://api_command;
-    }
-    if ($request_method = PUT) {
-      proxy_pass http://api_command;
-    }
-    if ($request_method = DELETE) {
-      proxy_pass http://api_command;
-    }
-    if ($request_method = UPDATE) {
-      proxy_pass http://api_command;
-    }
-    proxy_ssl_verify             off;
-  }
 
-  location ^~ /admin {
-    alias /usr/share/nginx/html/admin;
-  }
+    location ^~ /admin {
+      alias /usr/share/nginx/html/admin;
+    }
+
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
+    }
 }
