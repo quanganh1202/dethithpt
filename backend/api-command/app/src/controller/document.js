@@ -370,6 +370,102 @@ async function deleteDocument(id) {
   }
 }
 
+async function purchaseDocument(docId, userId) {
+  try {
+    const filter = [
+      {
+        docId,
+      }, {
+        userId,
+      },
+    ];
+    const options = {
+      searchType: 'EXACTLY',
+    };
+    const purchased = await docModel.getPurchased(filter, options);
+    if (purchased && purchased.length) {
+      return {
+        status: 400,
+        error: 'You have purchased this document',
+      };
+    }
+    const doc = await docModel.getDocumentById(docId);
+    if (!doc || !doc.length) {
+      return {
+        status: 400,
+        error: 'Document not found',
+      };
+    }
+    const userModel = new User();
+    const user = await userModel.getById(userId);
+    if (!user || !user.length) {
+      return {
+        status: 400,
+        error: 'User not found',
+      };
+    }
+
+    await docModel.purchase({ docId, userId });
+
+    return {
+      status: 200,
+      message: `Purchase document ${doc[0].name} success`,
+    };
+  }
+  catch (ex) {
+    logger(ex.error || ex.message || `Unexpected error when purchase document ${docId}`);
+
+    return ex.error ? ex : exception;
+  }
+}
+
+async function downloadDocument(docId, userId) {
+  try {
+    const doc = await docModel.getDocumentById(docId);
+    if (!doc || !doc.length) {
+      return {
+        status: 400,
+        error: 'Document not found',
+      };
+    }
+    const userModel = new User();
+    const user = await userModel.getById(userId);
+    if (!user || !user.length) {
+      return {
+        status: 400,
+        error: 'User not found',
+      };
+    }
+    const filter = [
+      {
+        docId,
+      }, {
+        userId,
+      },
+    ];
+    const options = {
+      searchType: 'EXACTLY',
+    };
+    const purchased = await docModel.getPurchased(filter, options);
+
+    if (!purchased || !purchased.length) {
+      return {
+        status: 400,
+        error: `You have not purchased document ${doc[0].name}`,
+      };
+    }
+
+    return {
+      status: 200,
+      path: doc[0].path,
+    };
+  } catch (ex) {
+    logger(ex.error || ex.message || `Unexpected error when download file document ${docId}`);
+
+    return ex.error ? ex : exception;
+  }
+}
+
 export {
   uploadDocument,
   getListDocuments,
@@ -377,4 +473,6 @@ export {
   updateDocumentInfo,
   viewContent,
   deleteDocument,
+  purchaseDocument,
+  downloadDocument,
 };
