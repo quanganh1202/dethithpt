@@ -15,12 +15,12 @@ server {
     }
 
     location /api {
-      #if ($request_method = GET ) {
+      if ($request_method ~ GET ) {
         proxy_pass http://api_query;
-      #}
-      #if ($request_method = POST) {
+      }
+      if ($request_method = POST) {
         proxy_pass http://api_command;
-      #}
+      }
       #if ($request_method = PUT) {
       #  proxy_pass http://api_command;
       #}
