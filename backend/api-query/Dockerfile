@@ -10,6 +10,8 @@ COPY package*.json ./
 # Install app dependencies
 RUN npm install
 
+RUN npm run init
+
 # Copy sourcecode
 COPY . .
 COPY wait-for-it.sh /
