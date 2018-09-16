@@ -12,7 +12,7 @@ RUN npm install
 
 # Copy sourcecode
 COPY . .
-RUN npm run init
+
 COPY wait-for-it.sh /
 RUN chmod 755 /wait-for-it.sh
 # Start app
