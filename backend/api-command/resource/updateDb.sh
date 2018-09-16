@@ -1,17 +1,3 @@
-
-echo "Please enter account, password"
-echo "------------------------------------------------------"
-
-echo -n "Account: "
-read ACCOUNT
-
-echo -n "Password: "
-read -s PASSWORD
-
-echo
-echo -n "Database: "
-read DATABASE
-
 echo "-------------------Updating database-------------------"
 
 mysql -u$ACCOUNT -p$PASSWORD -e "

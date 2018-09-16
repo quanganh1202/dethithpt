@@ -6,19 +6,6 @@ mkdir -p logs
 # Init folder store
 mkdir -p storage
 
-echo "Please enter account, password"
-echo "------------------------------------------------------"
-
-echo -n "Account: "
-read ACCOUNT
-
-echo -n "Password: "
-read -s PASSWORD
-
-echo
-echo -n "Database: "
-read DATABASE
-
 echo "-------------------Creating database-------------------"
 
 mysql -u$ACCOUNT -p$PASSWORD -e "
@@ -112,6 +99,16 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     id INT NOT NULL AUTO_INCREMENT,
     userId VARCHAR(255) NOT NULL,
     docId VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE INDEX id_UNIQUE (id ASC));
+
+  CREATE TABLE IF NOT EXISTS dethithpt.tbRole (
+    id INT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    userId VARCHAR(255) NOT NULL,
+    roles VARCHAR(255) NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE INDEX id_UNIQUE (id ASC));
 "
