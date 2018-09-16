@@ -1,19 +1,7 @@
-upstream api_POST {
+upstream api_command {
   server ${API_COMMAND_HOST}:3001 fail_timeout=0;
 }
-upstream api_PUT {
-  server ${API_COMMAND_HOST}:3001 fail_timeout=0;
-}
-upstream api_UPDATE {
-  server ${API_COMMAND_HOST}:3001 fail_timeout=0;
-}
-upstream api_DELETE {
-  server ${API_COMMAND_HOST}:3001 fail_timeout=0;
-}
-upstream api_GET {
-  server ${API_QUERY_HOST}:3000 fail_timeout=0;
-}
-upstream api_ {
+upstream api_query {
   server ${API_QUERY_HOST}:3000 fail_timeout=0;
 }
 
@@ -27,7 +15,21 @@ server {
     }
 
     location /api {
-      proxy_pass http://api_$request_method;
+      if ($request_method = GET ) {
+        proxy_pass http://api_query;
+      }
+      if ($request_method = POST) {
+        proxy_pass http://api_command;
+      }
+      if ($request_method = PUT) {
+        proxy_pass http://api_command;
+      }
+      if ($request_method = DELETE) {
+        proxy_pass http://api_command;
+      }
+      if ($request_method = UPDATE) {
+        proxy_pass http://api_command;
+      }
       proxy_ssl_verify             off;
     }
 
