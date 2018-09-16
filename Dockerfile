@@ -20,6 +20,6 @@ FROM nginx:1.10.2
 RUN ["apt-get", "update"]
 RUN ["apt-get", "install", "-y", "vim"]
 WORKDIR /usr/share/nginx/html
-COPY --from=builder /tmp/app/build/ /usr/share/nginx/html/
+COPY --from=builder /tmp/app/build/ /usr/share/nginx/html/frontend/
 COPY --from=builder /tmp/admin/build/ /usr/share/nginx/html/admin/
 COPY nginx.conf.default /etc/nginx/conf.d/mysite.template
