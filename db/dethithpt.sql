@@ -1,4 +1,4 @@
-CREATE SCHEMA `dethithpt` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+ALTER DATABASE `dethithpt` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 USE dethithpt;
 
