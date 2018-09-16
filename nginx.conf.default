@@ -1,8 +1,8 @@
 upstream api_command {
-  server ${API_COMMAND_HOST}:3001 fail_timeout=0;
+  server 103.92.29.145:3001 fail_timeout=0;
 }
 upstream api_query {
-  server ${API_QUERY_HOST}:3000 fail_timeout=0;
+  server 103.92.29.145:3000 fail_timeout=0;
 }
 
 server {
