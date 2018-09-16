@@ -31,11 +31,15 @@ services:
     ports:
       - "9300:9300"
       - "9200:9200"
+    networks:
+      - overlay
 
   mysql:
     build: ./db
     ports:
       - "3306:3306"
+    networks:
+      - overlay
     env_file:
       - ./.env
 
@@ -43,6 +47,8 @@ services:
     image: rabbitmq
     ports:
       - "5672:5672"
+    networks:
+      - overlay
 
   
   frontend:
