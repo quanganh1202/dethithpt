@@ -375,7 +375,6 @@ async function purchaseDocument(docId, userId) {
     const filter = [
       {
         docId,
-      }, {
         userId,
       },
     ];
@@ -439,7 +438,6 @@ async function downloadDocument(docId, userId) {
     const filter = [
       {
         docId,
-      }, {
         userId,
       },
     ];

@@ -56,6 +56,13 @@ async function auth(info) {
         };
       }
     } else {
+      if (user[0].status === 0) {
+        return {
+          status: 423,
+          error: 'Account has been locked',
+        };
+      }
+
       sign = {
         id: user[0].id,
         name: user[0].name,

@@ -41,4 +41,12 @@ echo
 curl -X PUT "$ES_HOST:9200/histories" -H 'Content-Type: application/json' -d @'./resource/history.mapping.json'
 echo
 
+# Init purchase
+curl -X PUT "$ES_HOST/purchases" -H 'Content-Type: application/json' -d @'./resource/purchase.mapping.json'
+echo
+
+# Init roles
+curl -X PUT "$ES_HOST/roles" -H 'Content-Type: application/json' -d @'./resource/role.mapping.json'
+echo
+
 echo 'DONE !';

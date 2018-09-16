@@ -88,5 +88,15 @@ USE dethithpt;
     `id` INT NOT NULL AUTO_INCREMENT,
     `userId` VARCHAR(255) NOT NULL,
     `docId` VARCHAR(255) NOT NULL,
+    `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `id_UNIQUE` (`id` ASC));
+
+  CREATE TABLE IF NOT EXISTS `dethithpt`.`tbRole` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(255) NOT NULL,
+    `userId` VARCHAR(255) NOT NULL,
+    `roles` VARCHAR(255) NOT NULL,
+    `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `id_UNIQUE` (`id` ASC));

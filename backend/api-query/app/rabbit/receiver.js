@@ -29,17 +29,17 @@ const routingKey = [
 
 const rabbitMQConnector = () => {
   return new Promise((resolve, reject) => {
-    const rabbitHost = `amqp://${process.env.RABBIT_HOST}` || 'amqp://localhost';
+    const rabbitHost = `amqp://${process.env.RABBIT_HOST || 'localhost'}`;
     amqp.connect(rabbitHost, (err, conn) => {
       if (err) {
-        logger.error(err.message || JSON.stringify(err) || '[RabbitMQ]: AMQP connection fail');
+        logger.error(`[RabbitMQ]: ${err.message || JSON.stringify(err) || 'AMQP connection fail'}`);
         reject();
         process.exit(1); // Exit
       }
       logger.info('[RabbitMQ]: AMQP connection success');
       conn.createChannel((errCh, ch) => {
         if (errCh) {
-          logger.error(errCh.message || JSON.stringify(errCh) || '[RabbitMQ]: Create channel fail');
+          logger.error(`[RabbitMQ]: ${errCh.message || JSON.stringify(errCh) || 'Create channel fail'}`);
           reject();
           process.exit(1);
         }
