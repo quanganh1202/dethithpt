@@ -16,4 +16,4 @@ RUN npm run init
 COPY wait-for-it.sh /
 RUN chmod 755 /wait-for-it.sh
 # Start app
-CMD /wait-for-it.sh rabbitmq:5672 -- npm start
+CMD /wait-for-it.sh rabbitmq:5672 /wait-for-it.sh elasticsearch:9200 -- npm start
