@@ -14,6 +14,10 @@ upstream api_GET {
   server ${API_QUERY_HOST}:3000 fail_timeout=0;
 }
 
+upstream api_ {
+  server ${API_QUERY_HOST}:3000 fail_timeout=0;
+}
+
 server {
     listen       80;
     server_name ${DOMAIN_NAME} www.${DOMAIN_NAME};
