@@ -5,11 +5,11 @@
   "main": "./app/index.js",
   "scripts": {
     "test": "mocha",
-    "start": "cross-env NODE_ENV=production EXPRESS_PORT=3001 MYSQL_PASSWORD=12345678 MYSQL_DATABASE=dethithpt npm run init babel-node ./app/index.js",
+    "start": "cross-env NODE_ENV=production EXPRESS_PORT=3001 MYSQL_PASSWORD=12345678 MYSQL_DATABASE=dethithpt babel-node ./app/index.js",
     "production": "node ./dist/main.js",
     "build": "./resource/build.sh",
     "dev": "cross-env NODE_ENV=dev EXPRESS_PORT=3001 MYSQL_PASSWORD=12345678 MYSQL_DATABASE=dethithpt nodemon ./app/index.js --exec babel-node",
-    "init": "cross-env ACCOUNT=root PASSWORD=12345678 DATABASE=dethithpt EMAIL=nguoiran2000@gmail.com bash ./resource/initDb.sh",
+    "init": "cross-env ACCOUNT=root PASSWORD=3JocyT024e DATABASE=dethithpt EMAIL=administator@gmail.com bash ./resource/initDb.sh",
     "updateDb": "cross-env ACCOUNT=root PASSWORD=3JocyT024e DATABASE=dethithpt bash ./resource/updateDb.sh"
   },
   "keywords": [],
