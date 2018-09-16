@@ -7,6 +7,8 @@ services:
       - ./.env
     ports:
      - "${API_QUERY_PORT}:${API_QUERY_PORT}"
+    networks:
+      - overlay
     depends_on:
       - "${ES_HOST}"
       - "${RABBIT_HOST}"
@@ -16,6 +18,8 @@ services:
       - ./.env
     ports:
       - "${API_COMMAND_PORT}:${API_COMMAND_PORT}"
+    networks:
+      - overlay
     depends_on:
       - "${MYSQL_HOST}"
       - "${RABBIT_HOST}"
@@ -47,7 +51,12 @@ services:
       - ./.env
     ports:
       - "80:80"
+    networks:
+      - overlay
     command: /bin/bash -c "mv /etc/nginx/conf.d/mysite.template /etc/nginx/conf.d/node.conf && exec nginx -g 'daemon off;'"
     depends_on:
       - api-query
       - api-command
+
+networks:
+  overlay:
