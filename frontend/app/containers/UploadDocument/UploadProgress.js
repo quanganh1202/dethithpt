@@ -2,10 +2,9 @@ import React from 'react';
 import { post, put } from 'axios';
 import styled from 'styled-components';
 
-import { getUser } from 'services/auth';
+import { getUser, getToken } from 'services/auth';
 import DetailForm from './DetailForm';
 import ErrorMessage from './ErrorMessage';
-import { getToken } from 'services/auth';
 
 const Wrapper = styled.li`
   position: relative;
@@ -59,7 +58,7 @@ class UploadProgress extends React.Component {
 
   fileUpload(form) {
     const { file } = this.props;
-    const url = '/api/documents';
+    const url = 'http://103.92.29.145:3001/api/documents';
     const formData = new FormData();
     Object.keys(form).forEach((f) => formData.append(f, form[f]));
     const currentUser = getUser();
@@ -79,6 +78,7 @@ class UploadProgress extends React.Component {
       return put(url, formData,config).then((res) => {
         this.setState({
           successId: true,
+          error: null,
         });
       }).catch((err) => {
         this.setState({
@@ -90,6 +90,7 @@ class UploadProgress extends React.Component {
       return post(url, formData,config).then((res) => {
         this.setState({
           successId: true,
+          error: null,
         });
       }).catch((err) => {
         this.setState({
@@ -103,9 +104,9 @@ class UploadProgress extends React.Component {
   }
 
   render() {
-    const { file, fileIndex, add2All, showSelected, handleChangeSelected, subjects, classes, categories } = this.props;
+    const { file, fileIndex, add2All, showSelected, handleChangeSelected, subjects, classes, categories, tags } = this.props;
     const { percent } = this.state;
-
+    
     return (
       <Wrapper>
         <div className="docs-name">
@@ -131,7 +132,7 @@ class UploadProgress extends React.Component {
         </div>
         {percent ? <progress value={percent} max={100} className={`${ this.state.successId ? 'success' : '' }`}></progress> : null}
         {!showSelected && !this.state.successId ? 
-          <DetailForm subjects={subjects} classes={classes} categories={categories} name={file.name} onSubmit={this.fileUpload} /> : null}
+          <DetailForm subjects={subjects} classes={classes} categories={categories} tags={tags} name={file.name} onSubmit={this.fileUpload} /> : null}
         {this.state.error ? <ErrorMessage>{this.state.error}</ErrorMessage> : null}
       </Wrapper>
     );
