@@ -1,5 +1,6 @@
 import fs from 'fs-extra';
 import path from 'path';
+import pdf2img from 'pdf-poppler';
 import fileTypeAllowed from '../constant/fileType';
 import logger from '../../src/libs/logger';
 
@@ -43,4 +44,15 @@ const removeFile = async function removeFile(pathOld) {
   }
 };
 
-export { initStoreFolder, storeFile, validateExtension, removeFile };
+const convertPdfToImage = async function convert(file, page = 1) {
+  let opts = {
+    format: 'jpeg',
+    out_dir: path.dirname(file), // eslint-disable-line
+    out_prefix: path.basename(file, path.extname(file)), // eslint-disable-line
+    page,
+  };
+
+  await pdf2img.convert(file, opts);
+};
+
+export { convertPdfToImage, initStoreFolder, storeFile, validateExtension, removeFile };

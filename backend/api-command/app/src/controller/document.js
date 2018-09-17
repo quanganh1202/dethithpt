@@ -148,6 +148,8 @@ async function uploadDocument(body, file) {
     queryBody.path = fileName;
     queryBody.view = 1;
     await fileHelpers.storeFile(file, fileName);
+    // Get preview file
+    await fileHelpers.convertPdfToImage(fileName);
     const numPages = await pageCounter(path.resolve(__dirname, fileName));
     body.totalPages = numPages;
     queryBody.totalPages = numPages;
@@ -191,23 +193,6 @@ async function getDocument(id, cols) {
     };
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when get document');
-
-    return exception;
-  }
-
-}
-
-async function viewContent(fileName) {
-  try {
-    const filePath = `${process.env.PATH_FOLDER_STORE || path.resolve(__dirname, '../../storage')}/${fileName}`;
-    const existed = await fs.pathExists(filePath);
-    if (existed) return { status: 200, filePath };
-    else return {
-      error: 'File not found',
-      status: 404,
-    };
-  } catch (ex) {
-    logger.error(ex.message || 'Unexpected error');
 
     return exception;
   }
@@ -469,7 +454,6 @@ export {
   getListDocuments,
   getDocument,
   updateDocumentInfo,
-  viewContent,
   deleteDocument,
   purchaseDocument,
   downloadDocument,
