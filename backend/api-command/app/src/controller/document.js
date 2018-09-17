@@ -1,4 +1,3 @@
-import fs from 'fs-extra';
 import path from 'path';
 import pageCounter from 'docx-pdf-pagecount';
 import Document from '../model/document';
