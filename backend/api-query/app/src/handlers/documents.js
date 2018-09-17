@@ -147,11 +147,11 @@ export default {
       const { cates, tags, collectionId } = body;
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.createdAt = now;
-      const promise = [];
       await elasticsearch.insert(body, docId);
+      const promise = [insertTag(tags)];
       if (cates && cates.length) {
         const promiseUpdateCates = updateNumDocRefToCate(cates, constant.INCREASE);
-        promise.concat([...promiseUpdateCates, insertTag(tags)]);
+        promise.concat([...promiseUpdateCates]);
       }
       if (collectionId) {
         promise.push(updateNumDocRefToCollection(collectionId, constant.INCREASE));
