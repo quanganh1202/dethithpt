@@ -2,9 +2,9 @@ import ES from '../../elastic';
 import logger from './logger';
 import constants from '../constant/common';
 
-const filterParamsHandler = (filtersParam = {}) => {
+const filterParamsHandler = (filtersParam = {}, filterType = 'AND') => {
   try {
-    const must = Object.entries(filtersParam).reduce((arrFilters, filter) => {
+    const filterBody = Object.entries(filtersParam).reduce((arrFilters, filter) => {
       if (filter[1]) {
         let should = [];
         if (Array.isArray(filter[1]) || filter[1].split(',').length) {
@@ -45,7 +45,7 @@ const filterParamsHandler = (filtersParam = {}) => {
       statusCode: 200,
       data: {
         bool: {
-          must,
+          [filterType === 'AND' ? 'must': 'should']: filterBody,
         },
       },
     };
