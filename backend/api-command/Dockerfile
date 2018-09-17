@@ -16,7 +16,6 @@ COPY . .
 COPY wait-for-it.sh /
 RUN chmod 755 /wait-for-it.sh
 
-RUN apt-get update && apt-get install -y \ graphicsmagick
-
+RUN apt-get update && apt-get install graphicsmagick -y
 # Start app
 CMD /wait-for-it.sh mysql:3306 -- npm start
