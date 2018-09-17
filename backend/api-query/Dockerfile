@@ -13,8 +13,9 @@ RUN npm install
 # Copy sourcecode
 COPY . .
 
-# COPY wait-for-it.sh /
-RUN chmod 755 /wait-for-it.sh
-RUN resource/init_elasticsearch.sh
+COPY wait-for-it.sh /
+COPY resource/init_elasticsearch.sh /
+RUN chmod 755 /wait-for-it.sh init_elasticsearch.sh
+RUN init_elasticsearch.sh
 # Start app
 CMD /wait-for-it.sh elasticsearch:9200 -- npm start
