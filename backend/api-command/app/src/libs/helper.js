@@ -27,7 +27,7 @@ const validateExtension = function validate(file, userId) {
 };
 
 const storeFile = async function store(file, fileName) {
-  await fs.rename(
+  await fs.move(
     file[0].path,
     path.resolve(__dirname, fileName)
   );
