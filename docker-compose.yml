@@ -14,6 +14,7 @@ services:
       - "${RABBIT_HOST}"
     volumes:
       - app-volume:/usr/src/app/storage
+      - tmp-volume:/tmp
 
   api-command:
     build: ./backend/api-command
@@ -28,6 +29,7 @@ services:
       - "${RABBIT_HOST}"
     volumes:
       - app-volume:/usr/src/app/storage
+      - tmp-volume:/tmp
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.1.1
@@ -79,3 +81,4 @@ networks:
   overlay:
 volumes:
   app-volume:
+  tmp-volume:
