@@ -2,9 +2,9 @@ version: '3'
 
 services:
   api-query:
-    build: ./backend/api-query
     env_file:
       - ./.env
+    build: ./backend/api-query
     ports:
      - "${API_QUERY_PORT}:${API_QUERY_PORT}"
     networks:
