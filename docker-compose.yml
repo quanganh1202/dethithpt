@@ -12,6 +12,9 @@ services:
     depends_on:
       - "${ES_HOST}"
       - "${RABBIT_HOST}"
+    volumes:
+      - app-volume:/usr/src/app/storage
+
   api-command:
     build: ./backend/api-command
     env_file:
@@ -23,6 +26,8 @@ services:
     depends_on:
       - "${MYSQL_HOST}"
       - "${RABBIT_HOST}"
+    volumes:
+      - app-volume:/usr/src/app/storage
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.1.1
@@ -72,3 +77,5 @@ services:
 
 networks:
   overlay:
+volumes:
+  app-volume:
