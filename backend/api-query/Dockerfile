@@ -15,5 +15,6 @@ COPY . .
 
 COPY wait-for-it.sh /
 RUN chmod 755 /wait-for-it.sh
+RUN /resource/init_elasticsearch.sh
 # Start app
 CMD /wait-for-it.sh elasticsearch:9200 -- npm start
