@@ -1,4 +1,5 @@
 import path from 'path';
+import pdfjs from 'pdfjs-dist/build/pdf';
 import pageCounter from 'docx-pdf-pagecount';
 import Document from '../model/document';
 import User from '../model/user';
@@ -147,7 +148,11 @@ async function uploadDocument(body, file) {
     queryBody.path = fileName;
     queryBody.view = 1;
     await fileHelpers.storeFile(file, fileName);
-    const numPages = await pageCounter(path.resolve(__dirname, fileName));
+    await fileHelpers.preview(fileName);
+    const extension = file[0].originalname.split('.').pop();
+    const { numPages } = extension === 'pdf' ?
+      await pdfjs.getDocument(path.resolve(__dirname, fileName)) :
+      { numPages: await pageCounter(path.resolve(__dirname, fileName)) };
     body.totalPages = numPages;
     queryBody.totalPages = numPages;
     const res = await docModel.addNewDocument(body);
