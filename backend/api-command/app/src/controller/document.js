@@ -147,8 +147,6 @@ async function uploadDocument(body, file) {
     queryBody.path = fileName;
     queryBody.view = 1;
     await fileHelpers.storeFile(file, fileName);
-    // Get preview file
-    await fileHelpers.convertPdfToImage(fileName);
     const numPages = await pageCounter(path.resolve(__dirname, fileName));
     body.totalPages = numPages;
     queryBody.totalPages = numPages;
