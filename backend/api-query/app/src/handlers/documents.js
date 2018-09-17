@@ -86,6 +86,7 @@ export default {
         cateName,
         cateId,
         subjectName,
+        description,
         subjectId,
         className,
         classId,
@@ -108,6 +109,7 @@ export default {
       const sortObj = sortParamsHandler(sort);
       if (sortObj.statusCode !== 200) return sortObj; // Return error
       const filterBuilt = filterParamsHandler({
+        description,
         tags,
         'cates.cateName': cateName,
         'cates.cateId': cateId,
