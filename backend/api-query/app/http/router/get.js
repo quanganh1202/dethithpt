@@ -199,6 +199,18 @@ const routerDefine =  function defineRouter() {
     }
   });
 
+  route.get('/documents/:id/preview', async (req, res) => {
+    const { id } = req.params;
+
+    const { statusCode, error, filePreview } = await documentHandler.getPreview(id);
+    if (error) {
+      res.json({ statusCode, error });
+    } else {
+      res.setHeader('Content-Type', 'image/jpg');
+      res.sendFile(filePreview);
+    }
+  });
+
   return route;
 };
 

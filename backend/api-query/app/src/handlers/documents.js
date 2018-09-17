@@ -1,4 +1,5 @@
 import { isUndefined } from 'util';
+import path from 'path';
 import moment from 'moment';
 import ES from '../../elastic';
 import logger from '../libs/logger';
@@ -35,11 +36,41 @@ export default {
         };
       }
       const result = await elasticsearch.get(docId);
+      if (result.error) {
+        return result;
+      }
       const { tags } = result.data;
       updateDocumentView(docId, constant.INCREASE);
       updateTagView(tags, constant.INCREASE);
 
       return result;
+    } catch(error) {
+      return handleDocumentError(error);
+    }
+  },
+
+  getPreview: async (docId) => {
+    try {
+      if (!docId) {
+        return {
+          statusCode: 400,
+          error: 'Document ID can not be null or undefined',
+        };
+      }
+      const result = await elasticsearch.get(docId);
+      if (!result || !result.data) {
+        return result;
+      }
+
+      const file = result.data.path;
+      const dirname = path.dirname(file);
+      const filename = path.basename(file, path.extname(file));
+      const filePreview = path.join(dirname, `${filename}-1.jpg`);
+
+      return {
+        statusCode: 200,
+        filePreview,
+      };
     } catch(error) {
       return handleDocumentError(error);
     }

@@ -5,7 +5,6 @@ import {
   uploadDocument,
   getDocument,
   updateDocumentInfo,
-  viewContent,
   deleteDocument,
   purchaseDocument,
   downloadDocument,
@@ -36,17 +35,6 @@ const routerDefine =  function defineRouter() {
     res.status(status || 200).json({
       data,
     });
-  });
-
-  route.get('/documents/:fileName/view', async (req, res) => {
-    const { error, filePath, status } = await viewContent(req.params.fileName);
-    if (error) {
-      return res.status(status || 500).json({
-        error,
-      });
-    }
-    res.setHeader('Content-Type', `application/${filePath.split('.').pop()}`);
-    res.status(status || 200).sendFile(filePath);
   });
   // Upload
   route.post('/documents', uploader.any(), async (req, res) => {
