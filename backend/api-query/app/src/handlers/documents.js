@@ -65,7 +65,7 @@ export default {
       const file = result.data.path;
       const dirname = path.dirname(file);
       const filename = path.basename(file, path.extname(file));
-      const filePreview = path.join(dirname, `${filename}-1.jpg`);
+      const filePreview = path.join(dirname, `${filename}.png`);
 
       return {
         statusCode: 200,
