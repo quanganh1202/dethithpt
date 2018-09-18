@@ -88,6 +88,9 @@ export class UploadDocument extends React.PureComponent {
     get(`${url}/categories`).then((res) => {
       this.initData('categories', res.data.data);
     });
+    get(`${url}/tags`).then((res) => {
+      this.initData('tags', res.data.data);
+    });
   }
 
   initData(name, data) {
@@ -112,7 +115,7 @@ export class UploadDocument extends React.PureComponent {
   }
 
   render() {
-    const { stepDefinitions, subjects, classes, categories } = this.state;
+    const { stepDefinitions, subjects, classes, categories, tags } = this.state;
     const content = stepDefinitions.map((item, key) => {
       const Component = item.component;
       return <div
@@ -121,7 +124,7 @@ export class UploadDocument extends React.PureComponent {
         key={`tab-content-${key}`}
         style={{ display: key === 0 ? '' : 'none' }}
         >
-        <Component subjects={subjects} classes={classes} categories={categories} />
+        <Component subjects={subjects} classes={classes} categories={categories} tags={tags} />
       </div>;
     });
     return (

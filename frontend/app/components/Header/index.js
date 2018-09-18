@@ -66,7 +66,7 @@ class Header extends React.Component {
     return (
       <div>
         <HeaderBar>
-          <A href="https://twitter.com/mxstbr">
+          <A href="/">
             <img src={Banner} alt="DethiTHPT" />
           </A>
         </HeaderBar>
