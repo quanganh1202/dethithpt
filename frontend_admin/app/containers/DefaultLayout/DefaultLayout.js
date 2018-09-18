@@ -24,6 +24,14 @@ import DefaultHeader from './DefaultHeader';
 
 import Category from 'containers/Category/Loadable';
 import CategoryCreate from 'containers/CategoryCreate/Loadable';
+import Class from 'containers/Class/Loadable';
+import ClassCreate from 'containers/ClassCreate/Loadable';
+import Subject from 'containers/Subject/Loadable';
+import SubjectCreate from 'containers/SubjectCreate/Loadable';
+import School from 'containers/School/Loadable';
+import SchoolCreate from 'containers/SchoolCreate/Loadable';
+import Collection from 'containers/Collection/Loadable';
+import CollectionCreate from 'containers/CollectionCreate/Loadable';
 import { getUser, setToken } from 'services/auth';
 
 class DefaultLayout extends Component {
@@ -55,6 +63,14 @@ class DefaultLayout extends Component {
               <Route path="/dashboard" exact name="Dashboard" component={() => <div>Dashboard</div>} />
               <Route path="/categories" exact name="Category" component={Category} />
               <Route path="/categories/create" exact name="Create category" component={CategoryCreate} />
+              <Route path="/classes" exact name="Class" component={Class} />
+              <Route path="/classes/create" exact name="Create class" component={ClassCreate} />
+              <Route path="/subjects" exact name="Subject" component={Subject} />
+              <Route path="/subjects/create" exact name="Create subject" component={SubjectCreate} />
+              {/* <Route path="/schools" exact name="School" component={School} />
+              <Route path="/schools/create" exact name="Create school" component={SchoolCreate} /> */}
+              <Route path="/collections" exact name="Collection" component={Collection} />
+              <Route path="/collections/create" exact name="Create collection" component={CollectionCreate} />
               <Redirect from="/" to="/dashboard" />
             </Switch>
           </main>

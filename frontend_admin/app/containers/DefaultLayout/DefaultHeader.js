@@ -38,10 +38,19 @@ class DefaultHeader extends Component {
 
         <Nav className="d-md-down-none" navbar>
           <NavItem className="px-3">
-            <Link className="nav-link" to="/">Dashboard</Link>
+            <Link className="nav-link" to="/">Trang chủ</Link>
           </NavItem>
           <NavItem className="px-3">
-            <Link className="nav-link" to="/categories">Categories</Link>
+            <Link className="nav-link" to="/collections">Bộ sưu tập</Link>
+          </NavItem>
+          <NavItem className="px-3">
+            <Link className="nav-link" to="/categories">Danh mục</Link>
+          </NavItem>
+          <NavItem className="px-3">
+            <Link className="nav-link" to="/subjects">Môn học</Link>
+          </NavItem>
+          <NavItem className="px-3">
+            <Link className="nav-link" to="/classes">Lớp</Link>
           </NavItem>
         </Nav>
         <Nav className="ml-auto" navbar>
