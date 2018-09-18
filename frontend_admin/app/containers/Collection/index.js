@@ -55,7 +55,6 @@ export class Collection extends React.PureComponent {
           <td>{cate.name}</td>
           <td>{cate.description}</td>
           <td>{cate.userName}</td>
-          <td>{cate.numDocRefs}</td>
           <td>{moment(cate.createdAt).format('DD/MM/YYYY')}</td>
       </tr>
     ))
@@ -96,7 +95,6 @@ export class Collection extends React.PureComponent {
                         <th scope="col">Tên</th>
                         <th scope="col">Mô tả</th>
                         <th scope="col">Người tạo</th>
-                        <th scope="col">Số tài liệu</th>
                         <th scope="col">Ngày tạo</th>
                       </tr>
                     </thead>

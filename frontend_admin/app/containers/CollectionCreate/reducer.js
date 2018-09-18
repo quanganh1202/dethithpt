@@ -12,12 +12,18 @@
 import { fromJS } from 'immutable';
 import {
   CREATE_COLLECTION,
+  GET_INIT_DATA,
   CLEAR_MESSAGE,
 } from './constants';
 
 // The initial state of the App
 export const initialState = fromJS({
-  message: ''
+  message: '',
+  initData: {
+    categories: [],
+    subjects: [],
+    classes: [],
+  },
 });
 
 function collectionCreateReducer(state = initialState, action) {
@@ -27,6 +33,18 @@ function collectionCreateReducer(state = initialState, action) {
     case CREATE_COLLECTION.SUCCESS:
       return state.set('loading', false);
     case CREATE_COLLECTION.FAILURE:
+      return state
+        .set('loading', false)
+        .set('message', action.error);
+    case GET_INIT_DATA.REQUEST:
+      return state.set('loading', true);
+    case GET_INIT_DATA.SUCCESS:
+      return state
+        .set('loading', false)
+        .setIn(['initData', 'categories'], action.categories)
+        .setIn(['initData', 'subjects'], action.subjects)
+        .setIn(['initData', 'classes'], action.classes);
+    case GET_INIT_DATA.FAILURE:
       return state
         .set('loading', false)
         .set('message', action.error);
