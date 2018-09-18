@@ -42,7 +42,7 @@ services:
       - overlay
 
   mysql:
-    build: ./db
+    build: ./backend/api-command/resource/
     ports:
       - "3306:3306"
     networks:
