@@ -50,7 +50,7 @@ export function* getDocumentsListHandler({ query }) {
  * Request download document
  */
 export function* requestDownloadHandler({ id }) {
-  const url = `${'http://103.92.29.145:3001/api'}/download/${id}`;
+  const url = `${root}/download/${id}`;
   const options = {
     headers: {
       ['x-access-token']: getToken(),
@@ -74,7 +74,7 @@ export function* requestDownloadHandler({ id }) {
 }
 
 export function* purchaseDocumentHandler({ id }) {
-  const url = `${'http://103.92.29.145:3001/api'}/documents/${id}/purchase`;
+  const url = `${root}/documents/${id}/purchase`;
   const options = {
     headers: {
       ['x-access-token']: getToken(),
