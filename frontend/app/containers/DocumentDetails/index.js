@@ -17,18 +17,22 @@ import { faCog, faFolder, faCloudDownloadAlt } from '@fortawesome/free-solid-svg
 import { faMoneyBillAlt } from '@fortawesome/free-regular-svg-icons';
 import _ from 'lodash';
 import moment from 'moment';
+import FileSaver from 'file-saver';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
 import Tab from 'components/Tab';
 import List from 'components/List';
 import ListItem from 'components/ListItem';
+import PopUp from 'components/PopUp';
 import LoadingIndicator from 'components/LoadingIndicator';
-import { getDocumentDetails, getDocumentsList } from './actions';
+import { getDocumentDetails, getDocumentsList, requestDownload, removeFileSave, removeMessage } from './actions';
 import {
   makeSelectDocument,
   makeSelectLoading,
+  makeSelectFile,
   makeSelectDocuments,
+  makeSelectMessage,
 } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
@@ -53,6 +57,8 @@ export class DocumentDetails extends React.PureComponent {
       data: null,
     };
     this.loadMoreDocs = this.loadMoreDocs.bind(this);
+    this.handleDownloadFile = this.handleDownloadFile.bind(this);
+    this.showPreview = this.showPreview.bind(this);
   }
 
   componentWillMount() {
@@ -78,6 +84,16 @@ export class DocumentDetails extends React.PureComponent {
         size: itemsPerLoad,
       }, true);
     }
+    if (!this.props.file && nextProps.file) {
+      // console.log(JSON.stringify(nextProps.file))
+      // const blob = new Blob(nextProps.file, { type: 'application/pdf' });
+      // FileSaver.saveAs(blob);
+      // this.props.removeFileSave()
+    }
+  }
+
+  componentWillUnmount() {
+    this.props.removeMessage();
   }
 
   loadMoreDocs() {
@@ -86,6 +102,18 @@ export class DocumentDetails extends React.PureComponent {
       offset: this.props.documents.data.length,
       size: itemsPerLoad,
     });
+  }
+  
+  handleDownloadFile() {
+//     const aFileParts = ['<a id="a"><b id="b">hey!</b></a>']; // an array consisting of a single DOMString
+// const oMyBlob = new Blob(aFileParts, {type : 'text/html'}); // the blob
+
+// FileSaver.saveAs(oMyBlob, 'test');
+    this.props.requestDownload(this.props.match.params.id);
+  }
+
+  showPreview() {
+    this.setState({ preview: true });
   }
 
   render() {
@@ -107,6 +135,9 @@ export class DocumentDetails extends React.PureComponent {
             ) : (
             !_.isEmpty(document) ? (
             <div style={{ padding: "0px 20px 10px" }}>
+              <div className={`error-document ${this.props.message && 'show'}`}>
+                Tài liệu không còn tồn tại hoặc có lỗi, vui lòng báo lại cho admin!
+              </div>
               <div className="doc-title">
                 <p>{_.get(document, 'name')}</p>
               </div>
@@ -133,10 +164,10 @@ export class DocumentDetails extends React.PureComponent {
                 </ul>
               </div>
               <div className="doc-action">
-                <button className="btn-download">
+                <button className="btn-download" onClick={this.handleDownloadFile}>
                   <FontAwesomeIcon className={'title-icon'} icon={['fas', 'cloud-download-alt']} /> Tải file word ({numberWithCommas((document.price || 0).toString())}đ)
                 </button>
-                <button className="btn-view">
+                <button className="btn-view" onClick={this.showPreview}>
                   <FontAwesomeIcon className={'title-icon'} icon={['far', 'eye']} /> Xem thử ({numberWithCommas((document.views || 0).toString())} trang)
                 </button>
               </div>
@@ -180,6 +211,14 @@ export class DocumentDetails extends React.PureComponent {
             </div>
           }
         />
+        <PopUp
+          show={this.state.preview}
+          close
+          onClose={() => this.setState({ preview: false })}
+          content={
+            <img src={`http://103.92.29.145/api/documents/${this.props.match.params.id}/preview`} alt="preview" />
+          }
+        />
       </Wrapper> 
     );
   }
@@ -198,6 +237,9 @@ export function mapDispatchToProps(dispatch) {
   return {
     getDocumentDetails: (id) => dispatch(getDocumentDetails(id)),
     getDocumentsList: (query, clear) => dispatch(getDocumentsList(query, clear)),
+    requestDownload: (id) => dispatch(requestDownload(id)),
+    removeFileSave: () => dispatch(removeFileSave()),
+    removeMessage: () => dispatch(removeMessage()),
   };
 }
 
@@ -205,6 +247,8 @@ const mapStateToProps = createStructuredSelector({
   document: makeSelectDocument(),
   documents: makeSelectDocuments(),
   loading: makeSelectLoading(),
+  file: makeSelectFile(),
+  message: makeSelectMessage(),
 });
 
 const withConnect = connect(

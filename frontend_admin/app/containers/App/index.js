@@ -9,7 +9,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import styled from 'styled-components';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, withRouter } from 'react-router-dom';
 import { getUser } from 'services/auth';
 import DefaultLayout from 'containers/DefaultLayout';
 
@@ -24,6 +24,8 @@ import 'font-awesome/css/font-awesome.min.css';
 import 'simple-line-icons/css/simple-line-icons.css';
 // Import Main styles for this application
 import 'assets/scss/style.css';
+
+import Login from 'containers/Login/Admin';
 
 const AppWrapper = styled.div`
   margin: 0 auto;
@@ -69,7 +71,9 @@ class App extends React.Component {
     const url = window.location.href;
     const arr = url.split("/");
     const result = arr[0] + "//" + arr[2];
-    console.log(1);
+    if (!user) {
+      return <Login />
+    }
     return user ? (
       <div>
         <Helmet>
@@ -85,4 +89,4 @@ class App extends React.Component {
   }
 }
 
-export default App;
+export default withRouter(App);

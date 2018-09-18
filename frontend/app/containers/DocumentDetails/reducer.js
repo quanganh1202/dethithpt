@@ -15,14 +15,10 @@ import {
   GET_DOC_DETAILS_SUCCESS,
   GET_DOC_LIST_REQUEST,
   GET_DOC_LIST_SUCCESS,
+  REQUEST_DOWNLOAD,
+  REMOVE_FILE_SAVE,
+  REMOVE_MESSAGE,
 } from './constants';
-import { setToken, mappingUser } from 'services/auth';
-
-const requiredFields = ['name', 'phone', 'bod', 'role', 'city', 'district', 'level', 'school'];
-
-const validate = (input, req) => {
-  return req.find((f) => !input[f]);
-}
 
 // The initial state of the App
 export const initialState = fromJS({
@@ -33,6 +29,8 @@ export const initialState = fromJS({
     total: 0,
     query: null,
   },
+  file: null,
+  message: '',
 });
 
 function documentReducer(state = initialState, action) {
@@ -65,6 +63,16 @@ function documentReducer(state = initialState, action) {
           total: action.total,
           query: state.getIn(['documents', 'query']),
         }));
+    case REQUEST_DOWNLOAD.REQUEST:
+      return state.set('loading', true);
+    case REQUEST_DOWNLOAD.SUCCESS:
+      return state.set('loading', false).set('file', action.file);
+    case REQUEST_DOWNLOAD.FAILURE:
+      return state.set('loading', false).set('message', action.message);
+    case REMOVE_FILE_SAVE:
+      return state.set('file', null);
+    case REMOVE_MESSAGE:
+      return state.set('message', '');
     default:
       return state;
   }
