@@ -1,3 +1,5 @@
 FROM mysql:5.6
 
-ADD dethithpt.sql /docker-entrypoint-initdb.d
+
+
+ADD ../backend/api-command/resource/initDb.sql /docker-entrypoint-initdb.d
