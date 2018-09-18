@@ -1,4 +1,3 @@
-DROP DATABASE `dethithpt`;
 CREATE SCHEMA `dethithpt` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 USE dethithpt;
