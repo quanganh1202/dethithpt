@@ -45,6 +45,24 @@ class Document {
 
     return result;
   }
+
+  async purchase(body) {
+    const purchaseDb = new MySQL('tbPurchase');
+    const result = await purchaseDb.insert(body);
+
+    return result;
+  }
+
+  async getPurchased(filter, options = {}) {
+    const purchaseDb = new MySQL('tbPurchase');
+    const criteria = queryBuilder(
+      filter,
+      options.searchType ? options.searchType.toUpperCase(): undefined
+    );
+    const result = await purchaseDb.filter(criteria, options);
+
+    return result;
+  }
 }
 
 export default Document;

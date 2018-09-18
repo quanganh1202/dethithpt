@@ -2,23 +2,34 @@ version: '3'
 
 services:
   api-query:
-    build: ./backend/api-query
     env_file:
       - ./.env
+    build: ./backend/api-query
     ports:
      - "${API_QUERY_PORT}:${API_QUERY_PORT}"
+    networks:
+      - overlay
     depends_on:
       - "${ES_HOST}"
       - "${RABBIT_HOST}"
+    volumes:
+      - app-volume:/usr/src/app/storage
+      - tmp-volume:/tmp
+
   api-command:
     build: ./backend/api-command
     env_file:
       - ./.env
     ports:
       - "${API_COMMAND_PORT}:${API_COMMAND_PORT}"
+    networks:
+      - overlay
     depends_on:
       - "${MYSQL_HOST}"
       - "${RABBIT_HOST}"
+    volumes:
+      - app-volume:/usr/src/app/storage
+      - tmp-volume:/tmp
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.1.1
@@ -27,18 +38,34 @@ services:
     ports:
       - "9300:9300"
       - "9200:9200"
+    networks:
+      - overlay
 
   mysql:
-    build: ./db
+    build: ./backend/api-command/resource/
     ports:
       - "3306:3306"
+    networks:
+      - overlay
     env_file:
       - ./.env
+
+  adminer:
+    image: adminer
+    restart: always
+    env_file:
+      - ./.env
+    depends_on:
+      - "${MYSQL_HOST}"
+    ports:
+      - 8080:8080
 
   rabbitmq:
     image: rabbitmq
     ports:
       - "5672:5672"
+    networks:
+      - overlay
 
   
   frontend:
@@ -47,4 +74,15 @@ services:
       - ./.env
     ports:
       - "80:80"
-    command: /bin/bash -c "envsubst < /etc/nginx/conf.d/mysite.template > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"
+    networks:
+      - overlay
+    command: /bin/bash -c "mv /etc/nginx/conf.d/mysite.template /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"
+    depends_on:
+      - api-query
+      - api-command
+
+networks:
+  overlay:
+volumes:
+  app-volume:
+  tmp-volume:

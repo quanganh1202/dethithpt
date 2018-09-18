@@ -5,12 +5,13 @@
   "main": "app/index.js",
   "scripts": {
     "test": "mocha",
-    "start": "cross-env NODE_ENV=production babel-node app/index.js",
+    "start": "cross-env NODE_ENV=production bash ./resource/init_elasticsearch.sh && babel-node app/index.js",
     "production": "node ./dist/main.js",
     "build": "./resource/build.sh",
     "dev": "cross-env NODE_ENV=dev nodemon app/index.js --exec babel-node",
-    "init": "bash ./resource/init_elasticsearch.sh",
-    "updateDb": "bash ./resource/updateDb.sh"
+    "init": "cross-env ES_HOST=localhost:9200 bash ./resource/init_elasticsearch.sh",
+    "updateDb": "cross-env ES_HOST=localhost:9200 bash ./resource/updateDb.sh",
+    "cleanDb": "cross-env ES_HOST=localhost:9200 bash ./resource/clean.sh"
   },
   "keywords": [],
   "author": {

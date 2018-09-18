@@ -5,8 +5,9 @@ import {
   uploadDocument,
   getDocument,
   updateDocumentInfo,
-  viewContent,
   deleteDocument,
+  purchaseDocument,
+  downloadDocument,
 } from '../../src/controller/document';
 
 const routerDefine =  function defineRouter() {
@@ -34,17 +35,6 @@ const routerDefine =  function defineRouter() {
     res.status(status || 200).json({
       data,
     });
-  });
-
-  route.get('/documents/:fileName/view', async (req, res) => {
-    const { error, filePath, status } = await viewContent(req.params.fileName);
-    if (error) {
-      return res.status(status || 500).json({
-        error,
-      });
-    }
-    res.setHeader('Content-Type', `application/${filePath.split('.').pop()}`);
-    res.status(status || 200).sendFile(filePath);
   });
   // Upload
   route.post('/documents', uploader.any(), async (req, res) => {
@@ -80,6 +70,33 @@ const routerDefine =  function defineRouter() {
     }
 
     res.status(status || 200).json({ message });
+  });
+
+  route.post('/download/:docId', async (req, res) => {
+    const userId = req.app.locals.id.toString();
+    const docId = req.params.docId;
+    const { error, status, path } = await downloadDocument(docId, userId);
+    if (error) {
+      return res.status(status).json({
+        error,
+      });
+    }
+    res.setHeader('Content-Type', 'application/pdf');
+    res.status(status).download(path);
+  });
+
+  route.post('/documents/:id/purchase', async (req, res) => {
+    const userId = req.app.locals.id.toString();
+    const docId = req.params.id;
+    const { error, status, message } = await purchaseDocument(docId, userId);
+    if (error) {
+      return res.status(status).json({
+        error,
+      });
+    }
+    res.status(status).json({
+      data: message,
+    });
   });
 
   return route;

@@ -115,27 +115,7 @@
         "position": {
           "type": "text"
         },
-        "surplus": {
-          "type": "text",
-          "analyzer": "autocomplete",
-          "search_analyzer": "standard",
-          "fields": {
-            "raw": {
-              "type": "keyword"
-            }
-          }
-        },
-        "totalIncome": {
-          "type": "text",
-          "analyzer": "autocomplete",
-          "search_analyzer": "standard",
-          "fields": {
-            "raw": {
-              "type": "keyword"
-            }
-          }
-        },
-        "recharge": {
+        "money": {
           "type": "text",
           "analyzer": "autocomplete",
           "search_analyzer": "standard",

@@ -1,6 +1,4 @@
 export default {
-  INCREASE: 'INCREASE',
-  DECREASE: 'DECREASE',
   RECHARGE: 'RECHARGE',
   PURCHASE: 'PURCHASE',
 };

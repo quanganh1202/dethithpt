@@ -6,19 +6,6 @@ mkdir -p logs
 # Init folder store
 mkdir -p storage
 
-echo "Please enter account, password"
-echo "------------------------------------------------------"
-
-echo -n "Account: "
-read ACCOUNT
-
-echo -n "Password: "
-read -s PASSWORD
-
-echo
-echo -n "Database: "
-read DATABASE
-
 echo "-------------------Creating database-------------------"
 
 mysql -u$ACCOUNT -p$PASSWORD -e "
@@ -39,9 +26,7 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     school VARCHAR(45) NULL,
     facebook VARCHAR(45) NULL,
     position VARCHAR(45) NULL,
-    surplus VARCHAR(45) DEFAULT '0',
-    totalIncome VARCHAR(45) DEFAULT '0',
-    recharge VARCHAR(45) DEFAULT '0',
+    money VARCHAR(45) DEFAULT '0',
     status TINYINT DEFAULT '2',
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
@@ -104,6 +89,25 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     subjectIds VARCHAR(255) NOT NULL,
     userId INT(11) NOT NULL,
     yearSchools VARCHAR(255) NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE INDEX id_UNIQUE (id ASC));
+
+  CREATE TABLE IF NOT EXISTS $DATABASE.tbPurchase(
+    id INT NOT NULL AUTO_INCREMENT,
+    userId VARCHAR(255) NOT NULL,
+    docId VARCHAR(255),
+    action VARCHAR(255) NOT NULL,
+    money VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE INDEX id_UNIQUE (id ASC));
+
+  CREATE TABLE IF NOT EXISTS $DATABASE.tbRole (
+    id INT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    userId VARCHAR(255) NOT NULL,
+    roles VARCHAR(255) NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE INDEX id_UNIQUE (id ASC));

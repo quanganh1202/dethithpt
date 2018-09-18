@@ -1,5 +1,6 @@
 import fs from 'fs-extra';
 import path from 'path';
+import gm from 'gm';
 import fileTypeAllowed from '../constant/fileType';
 import logger from '../../src/libs/logger';
 
@@ -26,7 +27,7 @@ const validateExtension = function validate(file, userId) {
 };
 
 const storeFile = async function store(file, fileName) {
-  await fs.rename(
+  await fs.move(
     file[0].path,
     path.resolve(__dirname, fileName)
   );
@@ -43,4 +44,34 @@ const removeFile = async function removeFile(pathOld) {
   }
 };
 
-export { initStoreFolder, storeFile, validateExtension, removeFile };
+const preview = async function getPreview(fileName) {
+  return new Promise((resolve, reject) => {
+    const dirname = path.dirname(fileName);
+    const filename = path.basename(fileName, path.extname(fileName));
+    const previewFIle = `${dirname}/${filename}.png`;
+    if (path.extname(fileName) === '.pdf') {
+      gm(fileName)
+        .page(860, 1240)
+        .write(previewFIle, (err) => {
+          if (err) {
+            reject({
+              statusCode: 500,
+              error: err.message || 'Create thumb file failed',
+            });
+          } else {
+            resolve({
+              statusCode: 200,
+              message: 'Thumb file is created',
+            });
+          }
+        });
+    } else {
+      resolve({
+        statusCode: 200,
+        message: 'Need to convert from docx to pdf then get a thumb file',
+      });
+    }
+  });
+};
+
+export { preview, initStoreFolder, storeFile, validateExtension, removeFile };

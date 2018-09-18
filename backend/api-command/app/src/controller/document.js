@@ -1,5 +1,5 @@
-import fs from 'fs-extra';
 import path from 'path';
+import pdfjs from 'pdfjs-dist/build/pdf';
 import pageCounter from 'docx-pdf-pagecount';
 import Document from '../model/document';
 import User from '../model/user';
@@ -12,6 +12,7 @@ import logger from '../libs/logger';
 import * as fileHelpers from '../libs/helper';
 import { exception } from '../constant/error';
 import rabbitSender from '../../rabbit/sender';
+import action from '../constant/action';
 
 const docModel = new Document();
 const schemaId = 'http://dethithpt.com/document-schema#';
@@ -148,7 +149,11 @@ async function uploadDocument(body, file) {
     queryBody.path = fileName;
     queryBody.view = 1;
     await fileHelpers.storeFile(file, fileName);
-    const numPages = await pageCounter(path.resolve(__dirname, fileName));
+    await fileHelpers.preview(fileName);
+    const extension = file[0].originalname.split('.').pop();
+    const { numPages } = extension === 'pdf' ?
+      await pdfjs.getDocument(path.resolve(__dirname, fileName)) :
+      { numPages: await pageCounter(path.resolve(__dirname, fileName)) };
     body.totalPages = numPages;
     queryBody.totalPages = numPages;
     const res = await docModel.addNewDocument(body);
@@ -191,23 +196,6 @@ async function getDocument(id, cols) {
     };
   } catch (ex) {
     logger.error(ex.message || 'Unexpected error when get document');
-
-    return exception;
-  }
-
-}
-
-async function viewContent(fileName) {
-  try {
-    const filePath = `${process.env.PATH_FOLDER_STORE || path.resolve(__dirname, '../../storage')}/${fileName}`;
-    const existed = await fs.pathExists(filePath);
-    if (existed) return { status: 200, filePath };
-    else return {
-      error: 'File not found',
-      status: 404,
-    };
-  } catch (ex) {
-    logger.error(ex.message || 'Unexpected error');
 
     return exception;
   }
@@ -370,11 +358,138 @@ async function deleteDocument(id) {
   }
 }
 
+async function purchaseDocument(docId, userId) {
+  try {
+    const filter = [
+      {
+        docId,
+        userId,
+      },
+    ];
+    const options = {
+      searchType: 'EXACTLY',
+    };
+    const purchased = await docModel.getPurchased(filter, options);
+    if (purchased && purchased.length) {
+      return {
+        status: 400,
+        error: 'You have purchased this document',
+      };
+    }
+    const doc = await docModel.getDocumentById(docId);
+    if (!doc || !doc.length) {
+      return {
+        status: 400,
+        error: 'Document not found',
+      };
+    }
+    const userModel = new User();
+    const user = await userModel.getById(userId);
+    if (!user || !user.length) {
+      return {
+        status: 400,
+        error: 'User not found',
+      };
+    }
+    if (doc[0].price > user[0].money) {
+      return {
+        status: 400,
+        error: 'Not enough money',
+      };
+    }
+    const moneyAfterPurchase =  parseFloat(user[0].money) - parseFloat(doc[0].price);
+    const res = await Promise.all([
+      docModel.purchase({ docId, userId, money: doc[0].price, action: action.PURCHASE }),
+      userModel.updateUser(userId, { money: moneyAfterPurchase }),
+    ]);
+
+    const serverNotify = await rabbitSender('purchase.create', {
+      id: res[0].insertId,
+      body: {
+        docId,
+        docName: doc[0].name,
+        userId,
+        userName: user[0].name,
+        money: doc[0].price,
+        action: action.PURCHASE,
+      },
+    });
+
+    if (serverNotify.statusCode === 200) {
+      return {
+        status: 200,
+        message: `Purchase document ${doc[0].name} success`,
+      };
+    } else {
+      // HERE IS CASE API QUERY iS NOT RESOLVED
+      // TODO: ROLLBACK HERE
+      logger.error(`[PURCHASE]: ${serverNotify.error}`);
+
+      return {
+        status: serverNotify.statusCode,
+        message: serverNotify.error,
+      };
+    }
+  }
+  catch (ex) {
+    logger.error(ex.error || ex.message || `Unexpected error when purchase document ${docId}`);
+
+    return ex.error ? ex : exception;
+  }
+}
+
+async function downloadDocument(docId, userId) {
+  try {
+    const doc = await docModel.getDocumentById(docId);
+    if (!doc || !doc.length) {
+      return {
+        status: 400,
+        error: 'Document not found',
+      };
+    }
+    const userModel = new User();
+    const user = await userModel.getById(userId);
+    if (!user || !user.length) {
+      return {
+        status: 400,
+        error: 'User not found',
+      };
+    }
+    const filter = [
+      {
+        docId,
+        userId,
+      },
+    ];
+    const options = {
+      searchType: 'EXACTLY',
+    };
+    const purchased = await docModel.getPurchased(filter, options);
+
+    if (!purchased || !purchased.length) {
+      return {
+        status: 400,
+        error: `You have not purchased document ${doc[0].name} yet`,
+      };
+    }
+
+    return {
+      status: 200,
+      path: doc[0].path,
+    };
+  } catch (ex) {
+    logger(ex.error || ex.message || `Unexpected error when download file document ${docId}`);
+
+    return ex.error ? ex : exception;
+  }
+}
+
 export {
   uploadDocument,
   getListDocuments,
   getDocument,
   updateDocumentInfo,
-  viewContent,
   deleteDocument,
+  purchaseDocument,
+  downloadDocument,
 };
