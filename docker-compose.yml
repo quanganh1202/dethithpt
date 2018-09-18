@@ -53,6 +53,8 @@ services:
   adminer:
     image: adminer
     restart: always
+    depends_on:
+      - "${MYSQL_HOST}"
     ports:
       - 8080:8080
 
