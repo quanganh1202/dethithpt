@@ -1,10 +1,12 @@
 import { isUndefined } from 'util';
+import moment from 'moment';
 import ES from '../../elastic';
+import { updateMoneyUserById } from '../libs/esHelper';
 import logger from '../libs/logger';
 import { filterParamsHandler, sortParamsHandler } from '../libs/esHelper';
 
-const handleDocumentError = (error) => {
-  logger.error(`[HISTORY] - ${error.message || error}`);
+const handlePurchaseError = (error) => {
+  logger.error(`[PURCHASE] - ${error.message || error}`);
 
   return {
     statusCode: error.status || error.code || 500,
@@ -12,11 +14,16 @@ const handleDocumentError = (error) => {
   };
 };
 
-const elasticsearch = new ES('histories', 'history');
+const elasticsearch = new ES('purchases', 'history');
 
 export default {
-  getList: async (userId, options) => {
+  getList: async (options) => {
     const {
+      userId,
+      userName,
+      docName,
+      docId,
+      action,
       sort,
       scroll,
     } = options;
@@ -24,7 +31,7 @@ export default {
       const isScroll = !isUndefined(scroll);
       const sortObj = sortParamsHandler(sort);
       if (sortObj.statusCode !== 200) return sortObj; // Return error
-      const filterBuilt = filterParamsHandler({ userId });
+      const filterBuilt = filterParamsHandler({ userId, action, userName, docName, docId });
       if (filterBuilt.statusCode !== 200) return filterBuilt; // Return error
       const result = isScroll ?
         await elasticsearch.getInitialScroll(filterBuilt.data, undefined, sortObj.data):
@@ -32,29 +39,23 @@ export default {
 
       return result;
     } catch (err) {
-      return handleDocumentError(err);
+      return handlePurchaseError(err);
     }
   },
 
-  getIncome: async (userId) => {
+  create: async (id, options) => {
     try {
-      const filterBuilt = filterParamsHandler({ userId });
-      if (filterBuilt.statusCode !== 200) return filterBuilt; // Return error
-      const result = await elasticsearch.getList(filterBuilt.data, ['money', 'tradingType']);
+      const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
+      options.createdAt = now;
+      await elasticsearch.insert(options, id);
+      await updateMoneyUserById(options.userId, options.money, options.action);
 
-      const income = result.data.reduce((pre, cur) => {
-        if (cur.tradingType === 'sub') {
-          pre -= parseInt(cur.money);
-        } else {
-          pre += parseInt(cur.money);
-        }
-
-        return pre;
-      }, 0);
-
-      return { data: income, statusCode: 200 };
+      return {
+        statusCode: 200,
+        message: 'Success',
+      };
     } catch (err) {
-      return handleDocumentError(err);
+      return handlePurchaseError(err);
     }
   },
 };

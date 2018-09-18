@@ -8,7 +8,6 @@ echo
 echo "------------------------------------------------------"
 echo
 
-curl -X DELETE "$ES_HOST/histories"
 curl -X DELETE "$ES_HOST/tags"
 curl -X DELETE "$ES_HOST/categories"
 curl -X DELETE "$ES_HOST/users"

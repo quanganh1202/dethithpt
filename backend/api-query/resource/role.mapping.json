@@ -21,7 +21,7 @@
     }
   },
   "mappings": {
-    "history": {
+    "role": {
       "dynamic": "strict",
       "properties": {
         "userId": {

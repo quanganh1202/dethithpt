@@ -1,5 +1,5 @@
 import express from 'express';
-import { auth, addUser, getAllUsers, deleteUser, updateUser, blockUser } from '../../src/controller/user';
+import { auth, addUser, getAllUsers, deleteUser, updateUser, blockUser, recharge } from '../../src/controller/user';
 
 const routerDefine =  function defineRouter() {
   // Destination folder path
@@ -67,6 +67,18 @@ const routerDefine =  function defineRouter() {
 
   route.put('/users/:id/block', async (req, res) => {
     const { error, message, status } = await blockUser(req.params.id);
+    res.status(status);
+    if (error) {
+      return res.json({ statusCode: status, error });
+    }
+
+    res.json({ statusCode: status, message });
+  });
+
+  route.post('/users/recharge', async (req, res) => {
+    const userId = req.app.locals.id.toString();
+    const money = req.body.money;
+    const { error, status, message } = await recharge(userId, money);
     res.status(status);
     if (error) {
       return res.json({ statusCode: status, error });

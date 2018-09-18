@@ -12,6 +12,7 @@ import logger from '../libs/logger';
 import * as fileHelpers from '../libs/helper';
 import { exception } from '../constant/error';
 import rabbitSender from '../../rabbit/sender';
+import action from '../constant/action';
 
 const docModel = new Document();
 const schemaId = 'http://dethithpt.com/document-schema#';
@@ -390,16 +391,48 @@ async function purchaseDocument(docId, userId) {
         error: 'User not found',
       };
     }
+    if (doc[0].price > user[0].money) {
+      return {
+        status: 400,
+        error: 'Not enough money',
+      };
+    }
+    const moneyAfterPurchase =  parseFloat(user[0].money) - parseFloat(doc[0].price);
+    const res = await Promise.all([
+      docModel.purchase({ docId, userId, money: doc[0].price, action: action.PURCHASE }),
+      userModel.updateUser(userId, { money: moneyAfterPurchase }),
+    ]);
 
-    await docModel.purchase({ docId, userId });
+    const serverNotify = await rabbitSender('purchase.create', {
+      id: res[0].insertId,
+      body: {
+        docId,
+        docName: doc[0].name,
+        userId,
+        userName: user[0].name,
+        money: doc[0].price,
+        action: action.PURCHASE,
+      },
+    });
 
-    return {
-      status: 200,
-      message: `Purchase document ${doc[0].name} success`,
-    };
+    if (serverNotify.statusCode === 200) {
+      return {
+        status: 200,
+        message: `Purchase document ${doc[0].name} success`,
+      };
+    } else {
+      // HERE IS CASE API QUERY iS NOT RESOLVED
+      // TODO: ROLLBACK HERE
+      logger.error(`[PURCHASE]: ${serverNotify.error}`);
+
+      return {
+        status: serverNotify.statusCode,
+        message: serverNotify.error,
+      };
+    }
   }
   catch (ex) {
-    logger(ex.error || ex.message || `Unexpected error when purchase document ${docId}`);
+    logger.error(ex.error || ex.message || `Unexpected error when purchase document ${docId}`);
 
     return ex.error ? ex : exception;
   }
@@ -436,7 +469,7 @@ async function downloadDocument(docId, userId) {
     if (!purchased || !purchased.length) {
       return {
         status: 400,
-        error: `You have not purchased document ${doc[0].name}`,
+        error: `You have not purchased document ${doc[0].name} yet`,
       };
     }
 

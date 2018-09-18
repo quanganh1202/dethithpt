@@ -1,11 +1,13 @@
 import request from 'request-promise';
 import User from '../model/user';
+import Document from '../model/document';
 import { tokenGenerator }  from '../../http/middleware/jwt';
 import logger from '../libs/logger';
 import { dataValidator } from '../libs/ajv';
 import { exception } from '../constant/error';
 import social from '../constant/socialApiUrl';
 import rabbitSender from '../../rabbit/sender';
+import action from '../constant/action';
 
 const userModel = new User();
 const schemaId = 'http://dethithpt.com/user-schema#';
@@ -273,4 +275,57 @@ async function blockUser(id) {
   }
 }
 
-export { auth, addUser, getAllUsers, deleteUser, updateUser, blockUser };
+async function recharge(id, money) {
+  try {
+    const user = await userModel.getById(id);
+    if (!user || !user.length || !user[0].status) {
+      return {
+        error: 'User does not exists',
+        status: 400,
+      };
+    }
+    const moneyAfterRecharge = parseFloat(money) + parseFloat(user[0].money);
+    const docModel = new Document();
+    const res = await Promise.all([
+      docModel.purchase({
+        userId: id,
+        action: action.RECHARGE,
+        money,
+      }),
+      userModel.updateUser(id, { money: moneyAfterRecharge }),
+    ]);
+
+    const serverNotify = await rabbitSender('purchase.create', {
+      id: res[0].insertId,
+      body: {
+        userId: id,
+        userName: user[0].name,
+        money,
+        action: action.RECHARGE,
+      },
+    });
+
+    if (serverNotify.statusCode === 200) {
+      return {
+        status: 200,
+        message: `Your money: ${moneyAfterRecharge}`,
+      };
+    } else {
+      // HERE IS CASE API QUERY iS NOT RESOLVED
+      // TODO: ROLLBACK HERE
+      logger.error(`[PURCHASE]: ${serverNotify.error}`);
+
+      return {
+        status: serverNotify.statusCode,
+        message: serverNotify.error,
+      };
+    }
+
+  } catch (ex) {
+    logger.error(ex.error || ex.message || 'Unexpected error when recharge money');
+
+    return exception;
+  }
+}
+
+export { recharge, auth, addUser, getAllUsers, deleteUser, updateUser, blockUser };

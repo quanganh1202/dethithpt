@@ -26,9 +26,7 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     school VARCHAR(45) NULL,
     facebook VARCHAR(45) NULL,
     position VARCHAR(45) NULL,
-    surplus VARCHAR(45) DEFAULT '0',
-    totalIncome VARCHAR(45) DEFAULT '0',
-    recharge VARCHAR(45) DEFAULT '0',
+    money VARCHAR(45) DEFAULT '0',
     status TINYINT DEFAULT '2',
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
@@ -98,7 +96,9 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
   CREATE TABLE IF NOT EXISTS $DATABASE.tbPurchase(
     id INT NOT NULL AUTO_INCREMENT,
     userId VARCHAR(255) NOT NULL,
-    docId VARCHAR(255) NOT NULL,
+    docId VARCHAR(255),
+    action VARCHAR(255) NOT NULL,
+    money VARCHAR(255) NOT NULL,
     PRIMARY KEY (id),
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE INDEX id_UNIQUE (id ASC));

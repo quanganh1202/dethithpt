@@ -17,4 +17,5 @@ export default [
   'subject.create',
   'subject.update',
   'subject.delete',
+  'purchase.create',
 ];
