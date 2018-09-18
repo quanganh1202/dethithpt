@@ -16,4 +16,3 @@ export const GET_DOC_LIST_REQUEST = 'thpt/DocumentDetails/GET_DOC_LIST/REQUEST';
 export const GET_DOC_LIST_SUCCESS = 'thpt/DocumentDetails/GET_DOC_LIST/SUCCESS';
 export const REQUEST_DOWNLOAD = defineAction('REQUEST_DOWNLOAD', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
 export const REMOVE_FILE_SAVE = defineAction('REMOVE_FILE_SAVE', container);
-export const REMOVE_MESSAGE = defineAction('REMOVE_MESSAGE', container);

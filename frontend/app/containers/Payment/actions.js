@@ -5,7 +5,6 @@ import {
   GET_DOC_LIST_SUCCESS,
   REQUEST_DOWNLOAD,
   REMOVE_FILE_SAVE,
-  REMOVE_MESSAGE,
 } from './constants';
 
 /**
@@ -118,18 +117,5 @@ export function requestDownloadFailure(message) {
 export function removeFileSave() {
   return {
     type: REMOVE_FILE_SAVE,
-  };
-}
-
-/**
- * Changes the input field of the form
- *
- * @param  {name} name The new text of the input field
- *
- * @return {object}    An action object with a type of REMOVE_FILE_SAVE
- */
-export function removeMessage() {
-  return {
-    type: REMOVE_MESSAGE,
   };
 }

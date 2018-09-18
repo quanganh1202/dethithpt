@@ -26,7 +26,7 @@ const rootCommand = '/api';
  * Request to login using social network token
  */
 export function* loginHandler({ payload }) {
-  const url = `${rootCommand}/login`;
+  const url = `${root}/login`;
 
   try {
     const resp = yield call(axios.post, url, payload);
@@ -40,7 +40,7 @@ export function* loginHandler({ payload }) {
  * Request update user info
  */
 export function* updateUserHandler({ payload }) {
-  const url = `${rootCommand}/register`;
+  const url = `${root}/register`;
 
   try {
     const resp = yield call(axios.post, url, payload);
@@ -54,7 +54,7 @@ export function* updateUserHandler({ payload }) {
  * Request get document list
  */
 export function* getDocumentsListHandler({ query }) {
-  const url = `${root}/documents`;
+  const url = `${rootCommand}/documents`;
 
   try {
     const resp = yield call(axios.get, url, { params: query });
@@ -68,7 +68,7 @@ export function* getDocumentsListHandler({ query }) {
  * Request get categories list
  */
 export function* getCategoriesHandler() {
-  const url = `${root}/categories`;
+  const url = `${rootCommand}/categories`;
 
   try {
     const resp = yield call(axios.get, url);
@@ -82,7 +82,7 @@ export function* getCategoriesHandler() {
  * Request get collections list
  */
 export function* getCollectionsHandler() {
-  const url = `${root}/collections`;
+  const url = `${rootCommand}/collections`;
 
   try {
     const resp = yield call(axios.get, url);

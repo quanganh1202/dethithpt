@@ -133,20 +133,6 @@ const Wrapper = styled.div`
       }
     }
   }
-
-  .error-document {
-    display: none;
-    &.show {
-      display: block;
-      height: 30px;
-      line-height: 30px;
-      color: white;
-      background-color: red;
-      font-size: 0.9em;
-      padding: 0 10px;
-      margin-bottom: 10px;
-    }
-  }
 `;
 
 export default Wrapper;

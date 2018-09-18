@@ -13,30 +13,13 @@ import FacebookLogin from 'containers/Login/Facebook';
 import GoogleLogin from 'containers/Login/Google';
 
 import A from './A';
+import HeaderBar from './HeaderBar';
 import NavBar from './NavBar';
 import HeaderLink from './HeaderLink';
 import Banner from './banner.png';
 import messages from './messages';
 
 library.add(faBars, faFolder, faCog, faFileAlt);
-
-const HeaderBar = styled.div`
-  height: 100px;
-  background: #fff;
-
-  & img {
-    height: 70px;
-    margin-top: 10px;
-  }
-
-  /* 
-    ##Device = Most of the Smartphones Mobiles (Portrait)
-    ##Screen = B/w 320px to 479px
-  */
-  @media (min-width: 320px) and (max-width: 480px) {
-    text-align: center;
-  }
-`;
 
 const PageLink = styled.div``;
 const numberWithCommas = (x) => {
@@ -53,6 +36,7 @@ class Header extends React.Component {
       mobileShow: false,
     }
     this.showMenu = this.showMenu.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
   }
   showSettings(e) {
     e.preventDefault();
@@ -60,20 +44,34 @@ class Header extends React.Component {
   showMenu() {
     this.setState({ mobileShow: true });
   }
+  onSubmit(e) {
+    e.preventDefault();
+    this.props.push('/tim-kiem?q=test')
+  }
   render() {
     const { user } = this.props;
-    console.log(user);
     return (
       <div>
         <HeaderBar>
-          <A href="https://twitter.com/mxstbr">
-            <img src={Banner} alt="DethiTHPT" />
-          </A>
+          <div>
+            <A href="/">
+              <img src={Banner} alt="DethiTHPT" />
+            </A>
+          </div>
+          <div className="header-search-box">
+            <form id="search-form" onSubmit={this.onSubmit}>
+              <input className="search-input" placeholder="Tìm kiếm tài liệu......." type="text" />
+              <button className="search-btn" type="submit" />
+            </form>
+          </div>
         </HeaderBar>
         <NavBar>
           <MediaQuery minDeviceWidth={320} maxDeviceWidth={480}>
-            <div className="mobile-search-box">
-              <input type="search" />
+            <div className="header-search-box mobile">
+              <form id="search-form" onSubmit={this.onSubmit}>
+                <input className="search-input" placeholder="Tìm kiếm tài liệu......." type="text" />
+                <button className="search-btn" type="submit" />
+              </form>
             </div>
             <div className="mobile-menu-toggle">
               <FontAwesomeIcon onClick={this.showMenu} className="user-icon" icon={['fas', 'bars']} size="lg" />
@@ -101,7 +99,7 @@ class Header extends React.Component {
                 </div>) : (
                   <div className="mobile-user-dashboard logged-in">
                     <p className="user-email">{user.email}</p>
-                    <p className="user-page-link"><Link to="/">(Trang cá nhân)</Link></p>
+                    <p className="user-page-link"><Link to="/trang-ca-nhan">(Trang cá nhân)</Link></p>
                     <p className="user-payment">
                       <FontAwesomeIcon className="user-icon" icon={['far', 'file-alt']} />
                       Số dư : <span className="red bold">{numberWithCommas(50000)}</span>đ (HSD: <span className="green bold">5</span> ngày)

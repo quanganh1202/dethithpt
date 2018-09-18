@@ -24,15 +24,13 @@ import injectSaga from 'utils/injectSaga';
 import Tab from 'components/Tab';
 import List from 'components/List';
 import ListItem from 'components/ListItem';
-import PopUp from 'components/PopUp';
 import LoadingIndicator from 'components/LoadingIndicator';
-import { getDocumentDetails, getDocumentsList, requestDownload, removeFileSave, removeMessage } from './actions';
+import { getDocumentDetails, getDocumentsList, requestDownload, removeFileSave } from './actions';
 import {
   makeSelectDocument,
   makeSelectLoading,
   makeSelectFile,
   makeSelectDocuments,
-  makeSelectMessage,
 } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
@@ -50,7 +48,7 @@ const numberWithCommas = (x) => {
 const itemsPerLoad = 10;
 
 /* eslint-disable react/prefer-stateless-function */
-export class DocumentDetails extends React.PureComponent {
+export class Payment extends React.PureComponent {
   constructor() {
     super();
     this.state = {
@@ -58,20 +56,19 @@ export class DocumentDetails extends React.PureComponent {
     };
     this.loadMoreDocs = this.loadMoreDocs.bind(this);
     this.handleDownloadFile = this.handleDownloadFile.bind(this);
-    this.showPreview = this.showPreview.bind(this);
   }
 
   componentWillMount() {
-    if (this.props.match.params.id) {
-      this.props.getDocumentDetails(this.props.match.params.id);
-    }
-    if (!this.props.documents.data.length) {
-      this.props.getDocumentsList({
-        sort: 'createdAt.desc',
-        offset: 0,
-        size: itemsPerLoad,
-      });
-    }
+    // if (this.props.match.params.id) {
+    //   this.props.getDocumentDetails(this.props.match.params.id);
+    // }
+    // if (!this.props.documents.data.length) {
+    //   this.props.getDocumentsList({
+    //     sort: 'createdAt.desc',
+    //     offset: 0,
+    //     size: itemsPerLoad,
+    //   });
+    // }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -92,10 +89,6 @@ export class DocumentDetails extends React.PureComponent {
     }
   }
 
-  componentWillUnmount() {
-    this.props.removeMessage();
-  }
-
   loadMoreDocs() {
     this.props.getDocumentsList({
       sort: 'createdAt.desc',
@@ -112,11 +105,8 @@ export class DocumentDetails extends React.PureComponent {
     this.props.requestDownload(this.props.match.params.id);
   }
 
-  showPreview() {
-    this.setState({ preview: true });
-  }
-
   render() {
+    console.log('here')
     const { document } = this.props;
     return (
       <Wrapper>
@@ -125,9 +115,9 @@ export class DocumentDetails extends React.PureComponent {
           <meta name="description" content="Description of UploadDocument" />
         </Helmet>
         <Tab
-          key="chi-tiet-tai-lieu"
+          key="thanh-toan"
           style={{ background: 'white' }}
-          title={'Đề thi thử THPT Quốc Gia'}
+          title={'NẠP TIỀN VÀO TÀI KHOẢN'}
           className="doc-details"
           content={
             this.props.loading ? (
@@ -135,9 +125,6 @@ export class DocumentDetails extends React.PureComponent {
             ) : (
             !_.isEmpty(document) ? (
             <div style={{ padding: "0px 20px 10px" }}>
-              <div className={`error-document ${this.props.message && 'show'}`}>
-                Tài liệu không còn tồn tại hoặc có lỗi, vui lòng báo lại cho admin!
-              </div>
               <div className="doc-title">
                 <p>{_.get(document, 'name')}</p>
               </div>
@@ -167,7 +154,7 @@ export class DocumentDetails extends React.PureComponent {
                 <button className="btn-download" onClick={this.handleDownloadFile}>
                   <FontAwesomeIcon className={'title-icon'} icon={['fas', 'cloud-download-alt']} /> Tải file word ({numberWithCommas((document.price || 0).toString())}đ)
                 </button>
-                <button className="btn-view" onClick={this.showPreview}>
+                <button className="btn-view">
                   <FontAwesomeIcon className={'title-icon'} icon={['far', 'eye']} /> Xem thử ({numberWithCommas((document.views || 0).toString())} trang)
                 </button>
               </div>
@@ -211,20 +198,12 @@ export class DocumentDetails extends React.PureComponent {
             </div>
           }
         />
-        <PopUp
-          show={this.state.preview}
-          close
-          onClose={() => this.setState({ preview: false })}
-          content={
-            <img src={`http://103.92.29.145/api/documents/${this.props.match.params.id}/preview`} alt="preview" />
-          }
-        />
       </Wrapper> 
     );
   }
 }
 
-DocumentDetails.propTypes = {
+Payment.propTypes = {
   loading: PropTypes.bool,
   error: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
   repos: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
@@ -239,7 +218,6 @@ export function mapDispatchToProps(dispatch) {
     getDocumentsList: (query, clear) => dispatch(getDocumentsList(query, clear)),
     requestDownload: (id) => dispatch(requestDownload(id)),
     removeFileSave: () => dispatch(removeFileSave()),
-    removeMessage: () => dispatch(removeMessage()),
   };
 }
 
@@ -248,7 +226,6 @@ const mapStateToProps = createStructuredSelector({
   documents: makeSelectDocuments(),
   loading: makeSelectLoading(),
   file: makeSelectFile(),
-  message: makeSelectMessage(),
 });
 
 const withConnect = connect(

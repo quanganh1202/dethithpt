@@ -16,17 +16,9 @@ const makeSelectLoading = () =>
 const makeSelectDocuments = () =>
   createSelector(selectHome, homeState => homeState.get('documents').toJS());
 
-const makeSelectFile = () =>
-  createSelector(selectHome, homeState => homeState.get('file'));
-
-const makeSelectMessage = () =>
-  createSelector(selectHome, homeState => homeState.get('message'));
-
 export {
   selectHome,
   makeSelectDocument,
   makeSelectLoading,
   makeSelectDocuments,
-  makeSelectFile,
-  makeSelectMessage,
 };

@@ -17,7 +17,6 @@ import {
   GET_DOC_LIST_SUCCESS,
   REQUEST_DOWNLOAD,
   REMOVE_FILE_SAVE,
-  REMOVE_MESSAGE,
 } from './constants';
 
 // The initial state of the App
@@ -30,7 +29,6 @@ export const initialState = fromJS({
     query: null,
   },
   file: null,
-  message: '',
 });
 
 function documentReducer(state = initialState, action) {
@@ -71,8 +69,6 @@ function documentReducer(state = initialState, action) {
       return state.set('loading', false).set('message', action.message);
     case REMOVE_FILE_SAVE:
       return state.set('file', null);
-    case REMOVE_MESSAGE:
-      return state.set('message', '');
     default:
       return state;
   }

@@ -12,10 +12,10 @@ import {
   getDocumentDetailsSuccess,
   getDocumentsListSuccess,
   requestDownloadSuccess,
-  requestDownloadFailure,
+  // requestDownloadFailure,
 } from './actions';
 
-const root = '/api';
+const root = 'http://103.92.29.145/api';
 
 /**
  * Request to get document details by id
@@ -61,31 +61,8 @@ export function* requestDownloadHandler({ id }) {
     const resp = yield call(axios.post, url, {}, options);
     yield put(requestDownloadSuccess(resp.data));
   } catch (err) {
-    const errorMessage = _.get(err, 'response.data.error', 'Unknown server error');
-    if (errorMessage.includes('You have not purchased document')) {
-      yield purchaseDocumentHandler({ id });
-      const resp = yield call(axios.post, url, {}, options);
-      yield put(requestDownloadSuccess(resp.data));
-    } else {
-      yield put(requestDownloadFailure('not_found'));
-    }
+    yield put(push(`/thanh-toan/${id}`));
     // yield put(requestDownloadFailure(_.get(err, 'response.data.error', 'Unknown server error')));
-  }
-}
-
-export function* purchaseDocumentHandler({ id }) {
-  const url = `${'http://103.92.29.145:3001/api'}/documents/${id}/purchase`;
-  const options = {
-    headers: {
-      ['x-access-token']: getToken(),
-    }
-  }
-
-  try {
-    const resp = yield call(axios.post, url, {}, options);
-    // yield put(requestDownloadSuccess(resp.data));
-  } catch (err) {
-    console.log(error)
   }
 }
 

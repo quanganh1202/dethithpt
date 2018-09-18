@@ -8,12 +8,9 @@
  * Follow this format:
  * export const YOUR_ACTION_CONSTANT = 'yourproject/YourContainer/YOUR_ACTION_CONSTANT';
  */
-import { defineAction } from 'redux-define';
+
 const container = 'thpt/DocumentDetails';
 export const GET_DOC_DETAILS_REQUEST = 'thpt/DocumentDetails/GET_DOC_DETAILS/REQUEST';
 export const GET_DOC_DETAILS_SUCCESS = 'thpt/DocumentDetails/GET_DOC_DETAILS/SUCCESS';
 export const GET_DOC_LIST_REQUEST = 'thpt/DocumentDetails/GET_DOC_LIST/REQUEST';
 export const GET_DOC_LIST_SUCCESS = 'thpt/DocumentDetails/GET_DOC_LIST/SUCCESS';
-export const REQUEST_DOWNLOAD = defineAction('REQUEST_DOWNLOAD', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
-export const REMOVE_FILE_SAVE = defineAction('REMOVE_FILE_SAVE', container);
-export const REMOVE_MESSAGE = defineAction('REMOVE_MESSAGE', container);
