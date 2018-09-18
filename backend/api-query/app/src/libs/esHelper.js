@@ -159,6 +159,19 @@ const updateTagViewById = (tagId, type) => {
   );
 };
 
+const updateMoneyUserById = (userId, money, type) => {
+  const tagModel =new ES('users', 'user');
+  const operation = type === constants.RECHARGE ? '+=' : '-=';
+
+  return tagModel.updateByScript(
+    userId,
+    {
+      source: `ctx._source.money${operation}${money};`,
+      lang: 'painless',
+    }
+  );
+};
+
 const updateTagView = (tags = [], type) => {
   const tagModel =new ES('tags', 'tag');
   const operation = type === constants.INCREASE ? '++' : '--';
@@ -205,6 +218,7 @@ const insertTag = async (tags, createdAt) => {
 };
 
 export {
+  updateMoneyUserById,
   insertTag,
   filterParamsHandler,
   sortParamsHandler,

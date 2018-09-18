@@ -6,6 +6,7 @@ import collection from '../src/handlers/collection';
 import subject from '../src/handlers/subject';
 import _class from '../src/handlers/class';
 import user from '../src/handlers/user';
+import purchase from '../src/handlers/purchase';
 const routingKey = [
   'document.create',
   'document.update',
@@ -25,6 +26,7 @@ const routingKey = [
   'subject.create',
   'subject.update',
   'subject.delete',
+  'purchase.create',
 ];
 
 const rabbitMQConnector = () => {
@@ -78,6 +80,9 @@ const rabbitMQConnector = () => {
               break;
             case 'subject':
               replyMessage = await subject[actor[1]](content.id, content.body).catch(e => e);
+              break;
+            case 'purchase':
+              replyMessage = await purchase[actor[1]](content.id, content.body).catch(e => e);
               break;
             default:
               replyMessage = {

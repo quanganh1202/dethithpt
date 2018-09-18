@@ -54,15 +54,7 @@
       "type": "string",
       "minLength": 1
     },
-    "surplus": {
-      "type": "string",
-      "minLength": 1
-    },
-    "totalIncome": {
-      "type": "string",
-      "minLength": 1
-    },
-    "recharge": {
+    "money": {
       "type": "string",
       "minLength": 1
     }

@@ -1,4 +1,3 @@
-import moment from 'moment';
 import Role from '../model/role';
 import logger from '../libs/logger';
 import { dataValidator } from '../libs/ajv';
