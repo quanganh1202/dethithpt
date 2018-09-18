@@ -85,7 +85,7 @@ export function* purchaseDocumentHandler({ id }) {
     const resp = yield call(axios.post, url, {}, options);
     // yield put(requestDownloadSuccess(resp.data));
   } catch (err) {
-    console.log(error)
+    yield put(requestDownloadFailure('not_found'));
   }
 }
 
