@@ -59,6 +59,8 @@ services:
       - "${MYSQL_HOST}"
     ports:
       - 8080:8080
+    networks:
+      - overlay
 
   rabbitmq:
     image: rabbitmq
