@@ -10,7 +10,7 @@ import {
   getCategoriesSuccess,
 } from './actions';
 
-const root = 'http://125.212.250.92:3000';
+const root = 'http://103.92.29.145:3000/api';
 
 /**
  * Request get document list

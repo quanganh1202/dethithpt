@@ -11,7 +11,7 @@ import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
-import { Switch, Route, Link } from 'react-router-dom';
+import { Switch, Route, Link, Redirect } from 'react-router-dom';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCog, faFolder } from '@fortawesome/free-solid-svg-icons';
@@ -19,6 +19,7 @@ import { faMoneyBillAlt } from '@fortawesome/free-regular-svg-icons';
 import UploadDocument from 'containers/UploadDocument/Loadable';
 import DocumentDetails from 'containers/DocumentDetails/Loadable';
 import Category from 'containers/Category/Loadable';
+import Payment from 'containers/Payment/Loadable';
 import _ from 'lodash';
 
 import injectReducer from 'utils/injectReducer';
@@ -50,10 +51,11 @@ import {
 import reducer from './reducer';
 import saga from './saga';
 import CreateUserForm from '../Login/Form';
-import { getUser } from 'services/auth';
+import { getUser, setToken } from 'services/auth';
 import GreyTitle from './GreyTitle';
 import HomeWrapper from './Wrapper';
 import UserDashboard from './UserDashboard';
+import Button from './Button';
 
 library.add(faMoneyBillAlt, faFolder, faCog);
 
@@ -143,6 +145,7 @@ export class HomePage extends React.PureComponent {
       error: '',
     };
     this.onLogin = this.onLogin.bind(this);
+    this.onLogout = this.onLogout.bind(this);
     this.onChange = this.onChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
     this.loadMoreDocs = this.loadMoreDocs.bind(this);
@@ -183,6 +186,11 @@ export class HomePage extends React.PureComponent {
 
   onLogin(data) {
     this.props.onLogin(data);
+  }
+
+  onLogout() {
+    setToken();
+    this.props.history.push('/');
   }
 
   onChange(e) {
@@ -252,7 +260,7 @@ export class HomePage extends React.PureComponent {
         ) : (
           <UserDashboard className="user-dashboard">
             <p className="user-email">{user.email}</p>
-            <p className="user-page-link"><Link to="/">(Trang cá nhân)</Link></p>
+            <p className="user-page-link"><Link to="/trang-ca-nhan">(Trang cá nhân)</Link></p>
             <p className="user-payment">
               <FontAwesomeIcon className="user-icon" icon={['far', 'file-alt']} />
               Số dư : <span className="red bold">{numberWithCommas(50000)}</span>đ (HSD: <span className="green bold">5</span> ngày)
@@ -265,6 +273,11 @@ export class HomePage extends React.PureComponent {
               <FontAwesomeIcon className="user-icon" icon={['fas', 'cog']} />
               Đã đăng: <span className="bold">35</span> tài liệu (<Link to="/">Chi tiết</Link>)
             </p>
+            <div className="control-btns">
+              <Button color="#D9534F">Nạp tiền</Button>
+              <Button onClick={() => this.props.history.push('/dang-ban-tai-lieu')} color="#5CB85C">Đăng tài liệu</Button>
+              <Button onClick={this.onLogout} color="blue">Đăng xuất</Button>
+            </div>
           </UserDashboard>
         )}
         <Tab key={`danh-muc-tai-lieu`} title={'Danh mục tài liệu'} content={
@@ -275,7 +288,7 @@ export class HomePage extends React.PureComponent {
                 item={{
                   link: `/danh-muc/${item.id}`,
                   title: item.name,
-                  quantity: item.quantity || 4,
+                  quantity: item.numDocRefs,
                 }}
                 type={LIST_COLOR}
               />
@@ -329,7 +342,7 @@ export class HomePage extends React.PureComponent {
         })
       }
     </div>);
-
+  
     return (
       <article>
         <Helmet>
@@ -343,9 +356,10 @@ export class HomePage extends React.PureComponent {
           <Layout content={[
             {
               children: contentLeft,
+              className: 'md-column',
             },
             { children: (
-              <div>
+              <div style={{ width: '100%', minHeight: '200px' }}>
                 <Switch>
                   <Route exact path="/" component={() => (
                     <HomeWrapper>
@@ -395,14 +409,19 @@ export class HomePage extends React.PureComponent {
                   <Route exact path="/dang-ban-tai-lieu" component={UploadDocument} />
                   <Route exact path="/tai-lieu/:id" component={DocumentDetails} />
                   <Route exact path="/danh-muc/:id" component={Category} />
+                  <Route exact path="/tim-kiem" component={() => <div>Tim kiem</div>} />
+                  {/* <Route exact path="/thanh-toan/:id" component={Payment} /> */}
+                  <Route path="" component={() => <Redirect to="/404" />} />
                 </Switch>
               </div>
             ) },
             {
               children: contentRight1,
+              className: 'md-column',
             },
             { 
               children: contentRight2,
+              className: 'sm-column',
             },
           ]} />
           <PopUp

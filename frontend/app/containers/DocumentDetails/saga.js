@@ -3,14 +3,17 @@
  */
 import axios from 'axios';
 import _ from 'lodash';
-import { call, put, select, takeLatest } from 'redux-saga/effects';
+import { call, put, takeLatest } from 'redux-saga/effects';
+import { push } from 'react-router-redux';
+import { getToken } from 'services/auth';
 import request from 'utils/request';
-import { GET_DOC_DETAILS_REQUEST, GET_DOC_LIST_REQUEST } from './constants';
+import { GET_DOC_DETAILS_REQUEST, GET_DOC_LIST_REQUEST, REQUEST_DOWNLOAD } from './constants';
 import {
   getDocumentDetailsSuccess,
   getDocumentsListSuccess,
+  requestDownloadSuccess,
+  requestDownloadFailure,
 } from './actions';
-import { makeSelectUsername } from 'containers/HomePage/selectors';
 
 const root = '/api';
 
@@ -44,9 +47,53 @@ export function* getDocumentsListHandler({ query }) {
 }
 
 /**
+ * Request download document
+ */
+export function* requestDownloadHandler({ id }) {
+  const url = `${root}/download/${id}`;
+  const options = {
+    headers: {
+      ['x-access-token']: getToken(),
+    }
+  }
+
+  try {
+    const resp = yield call(axios.post, url, {}, options);
+    yield put(requestDownloadSuccess(resp.data));
+  } catch (err) {
+    const errorMessage = _.get(err, 'response.data.error', 'Unknown server error');
+    if (errorMessage.includes('You have not purchased document')) {
+      yield purchaseDocumentHandler({ id });
+      const resp = yield call(axios.post, url, {}, options);
+      yield put(requestDownloadSuccess(resp.data));
+    } else {
+      yield put(requestDownloadFailure('not_found'));
+    }
+    // yield put(requestDownloadFailure(_.get(err, 'response.data.error', 'Unknown server error')));
+  }
+}
+
+export function* purchaseDocumentHandler({ id }) {
+  const url = `${root}/documents/${id}/purchase`;
+  const options = {
+    headers: {
+      ['x-access-token']: getToken(),
+    }
+  }
+
+  try {
+    const resp = yield call(axios.post, url, {}, options);
+    // yield put(requestDownloadSuccess(resp.data));
+  } catch (err) {
+    yield put(requestDownloadFailure('not_found'));
+  }
+}
+
+/**
  * Root saga manages watcher lifecycle
  */
-export default function* homeSaga() {
+export default function* documentDetailsSaga() {
   yield takeLatest(GET_DOC_DETAILS_REQUEST, getDocumentDetailsHandler);
-  yield takeLatest(GET_DOC_LIST_REQUEST, getDocumentsListHandler)
+  yield takeLatest(GET_DOC_LIST_REQUEST, getDocumentsListHandler);
+  yield takeLatest(REQUEST_DOWNLOAD.REQUEST, requestDownloadHandler);
 }

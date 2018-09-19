@@ -7,11 +7,23 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
+import { Link } from 'react-router-dom';
 // import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
-import { Badge, Card, CardBody, CardHeader, Col, Row, Table } from 'reactstrap';
+import {
+  Container,
+  Breadcrumb,
+  BreadcrumbItem,
+  Card,
+  CardBody,
+  CardHeader,
+  Col,
+  Row,
+  Table,
+  Button,
+} from 'reactstrap';
 import moment from 'moment';
 
 import injectReducer from 'utils/injectReducer';
@@ -52,38 +64,52 @@ export class Category extends React.PureComponent {
   }
 
   render() {
-    console.log(this.props.categories)
     return (
       <div className="animated fadeIn">
         <Row>
           <Col xl={12}>
-            <Card>
-              <CardHeader>
-                <i className="fa fa-align-justify"></i> Danh mục
-              </CardHeader>
-              <CardBody>
-                <Table responsive hover>
-                  <thead>
-                    <tr>
-                      <th scope="col">Id</th>
-                      <th scope="col">Tên</th>
-                      <th scope="col">Mô tả</th>
-                      <th scope="col">Người tạo</th>
-                      <th scope="col">Số tài liệu</th>
-                      <th scope="col">Ngày tạo</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {this.renderCategoryRow(this.props.categories)}
-                    {/* {userList.map((user, index) =>
-                      <UserRow key={index} user={user}/>
-                    )} */}
-                  </tbody>
-                </Table>
-              </CardBody>
-            </Card>
+            <Breadcrumb>
+              <BreadcrumbItem><Link to="/">Trang chủ</Link></BreadcrumbItem>
+              <BreadcrumbItem active>Danh mục</BreadcrumbItem>
+            </Breadcrumb>
           </Col>
         </Row>
+        <Container fluid>
+          <Row>
+            <Col xl={12}>
+              <Card>
+                <CardHeader>
+                  <i className="fa fa-align-justify"></i> Danh mục
+                  <div className="float-right">
+                    <Button
+                      block
+                      color="primary"
+                      size="sm"
+                      onClick={() => this.props.history.push('/categories/create')}
+                    >Tạo mới</Button>
+                  </div>
+                </CardHeader>
+                <CardBody>
+                  <Table responsive hover>
+                    <thead>
+                      <tr>
+                        <th scope="col">Id</th>
+                        <th scope="col">Tên</th>
+                        <th scope="col">Mô tả</th>
+                        <th scope="col">Người tạo</th>
+                        <th scope="col">Số tài liệu</th>
+                        <th scope="col">Ngày tạo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {this.renderCategoryRow(this.props.categories)}
+                    </tbody>
+                  </Table>
+                </CardBody>
+              </Card>
+            </Col>
+          </Row>
+        </Container>
       </div>
     );
   }

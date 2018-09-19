@@ -19,10 +19,13 @@ const Wrapper = styled.div`
     border: 2px solid black;
     max-height: calc(100vh - 20px);
     overflow: auto;
-    > .close-btn {
+    > .popup-close-btn {
+      background-color: blue;
       position: absolute;
-      top: -20px;
-      right: -20px;
+      top: 0;
+      right: 0;
+      color: red;
+      z-index: 11;
     }
   }
   /* 

@@ -9,11 +9,12 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import styled from 'styled-components';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, withRouter } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 
 import HomePage from 'containers/HomePage/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
+import UserInformation from 'containers/UserInformation/Loadable';
 import Header from 'components/Header';
 import Footer from 'components/Footer';
 import { getUser } from 'services/auth';
@@ -59,7 +60,6 @@ class App extends React.Component {
 
   render() {
     const user = getUser();
-    console.log(user)
     return (
       <ThemeProvider theme={theme}>
         <AppWrapper>
@@ -69,10 +69,11 @@ class App extends React.Component {
           >
             <meta name="description" content="DethiTHPT" />
           </Helmet>
-          <Header user={user} />
+          <Header push={this.props.history.push} user={user} />
           <Switch>
+            <Route exact path="/404" component={NotFoundPage} />
+            <Route exact path="/trang-ca-nhan" component={UserInformation} />
             <Route path="/" component={HomePage} />
-          {/* <Route path="" component={NotFoundPage} /> */}
           </Switch>
           {/* <Footer /> */}
         </AppWrapper>
@@ -81,4 +82,4 @@ class App extends React.Component {
   }
 }
 
-export default App;
+export default withRouter(App);

@@ -5,12 +5,17 @@ const Wrapper = styled.div`
     float: left;
     width: 45%;
     padding: 0 5px;
-
-    :first-child, :nth-child(3) {
+    &.lg-column {
+      width: 65%;
+    }
+    &.md-column {
       width: 20%;
     }
-    :nth-child(4) {
+    &.sm-column {
       width: 15%;
+    }
+    &:first-child {
+      padding-left: 10px;
     }
   }
 
