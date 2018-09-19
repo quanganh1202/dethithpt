@@ -45,6 +45,7 @@ async function getListDocuments(args) {
 
 async function uploadDocument(body, file) {
   try {
+    if (!body.price) body.price = '0';
     const queryBody = Object.assign({}, body);
     const resValidate = dataValidator(body, schemaId);
     if (!resValidate.valid) {
