@@ -104,6 +104,7 @@ async function addUser(userInfo) {
     userInfo.status = 1;
     delete userInfo.money;
     let id;
+    let action = 'create';
     if (user && user.length) {
       if (user[0].status !== 2) {
         return {
@@ -111,11 +112,13 @@ async function addUser(userInfo) {
           status: 400,
         };
       } else {
-        id = user[0].id;
+        id = user[0].id.toString();
         await userModel.updateUser(id, userInfo);
+        action = 'update';
       }
     } else {
       const { insertId } = await userModel.addNewUser(userInfo);
+      userInfo.money = 0;
       id = insertId;
     }
     const sign = {
@@ -126,7 +129,7 @@ async function addUser(userInfo) {
     };
     const body = Object.assign({}, sign);
     delete body.id;
-    const serverNotify = await rabbitSender('user.create', { id: user[0].id, body: userInfo });
+    const serverNotify = await rabbitSender(`user.${action}`, { id: id.toString(), body: userInfo });
     if (serverNotify.statusCode === 200) {
       const { token, expiresIn } = tokenGenerator(sign);
 
