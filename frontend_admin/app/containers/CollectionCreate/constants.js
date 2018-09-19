@@ -12,4 +12,5 @@ import { defineAction } from 'redux-define';
 
 const container = 'thpt/collectionCreate';
 export const CREATE_COLLECTION = defineAction('CREATE_COLLECTION', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
+export const GET_INIT_DATA = defineAction('GET_INIT_DATA', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
 export const CLEAR_MESSAGE = defineAction('CLEAR_MESSAGE', container);
