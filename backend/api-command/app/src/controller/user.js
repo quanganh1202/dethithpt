@@ -287,7 +287,7 @@ async function recharge(id, money) {
         status: 400,
       };
     }
-    const moneyAfterRecharge = parseFloat(money) + parseFloat(user[0].money);
+    const moneyAfterRecharge = parseInt(money) + parseInt(user[0].money);
     const docModel = new Document();
     const res = await Promise.all([
       docModel.purchase({
