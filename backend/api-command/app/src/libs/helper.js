@@ -1,5 +1,6 @@
 import fs from 'fs-extra';
 import path from 'path';
+import doc2Pdf from 'docx-pdf';
 import gm from 'gm';
 import fileTypeAllowed from '../constant/fileType';
 import logger from '../../src/libs/logger';
@@ -49,7 +50,39 @@ const preview = async function getPreview(fileName) {
     const dirname = path.dirname(fileName);
     const filename = path.basename(fileName, path.extname(fileName));
     const previewFIle = `${dirname}/${filename}.png`;
-    if (path.extname(fileName) === '.pdf') {
+    const extension = path.extname(fileName);
+    if (extension === '.docx' || extension === '.doc') {
+      const pdfName = `${dirname}/${filename}.pdf`;
+      doc2Pdf(fileName, pdfName, (err) => {
+        if (err) {
+          reject({
+            statusCode: 500,
+            error: err.message || 'Create thumb file failed',
+          });
+        } else {
+          gm(pdfName)
+            .page(860, 1240)
+            .draw(['rotate 40 text 200,200 "TAILIEUDOC.VN"'])
+            .fontSize(80)
+            .write(previewFIle, (err) => {
+              if (err) {
+                reject({
+                  statusCode: 500,
+                  error: err.message || 'Create thumb file failed',
+                });
+              } else {
+                resolve({
+                  statusCode: 200,
+                  message: 'Thumb file is created',
+                });
+              }
+              fs.unlink(pdfName);
+            });
+        }
+      });
+    }
+
+    if ( extension === '.pdf') {
       gm(fileName)
         .page(860, 1240)
         .draw(['rotate 40 text 200,200 "TAILIEUDOC.VN"'])
@@ -67,13 +100,9 @@ const preview = async function getPreview(fileName) {
             });
           }
         });
-    } else {
-      resolve({
-        statusCode: 200,
-        message: 'Need to convert from docx to pdf then get a thumb file',
-      });
     }
   });
 };
+
 
 export { preview, initStoreFolder, storeFile, validateExtension, removeFile };
