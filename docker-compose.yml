@@ -76,7 +76,7 @@ services:
       - "80:80"
     networks:
       - overlay
-    command: /bin/bash -c "mv /etc/nginx/conf.d/mysite.template /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"
+    command: /bin/bash -c "cp /etc/nginx/conf.d/mysite.template /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"
     depends_on:
       - api-query
       - api-command
