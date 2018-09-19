@@ -2,7 +2,7 @@ CREATE SCHEMA `dethithpt` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 USE dethithpt;
 
-   CREATE TABLE IF NOT EXISTS `dethithpt`.`tbUser` (
+  CREATE TABLE IF NOT EXISTS `dethithpt`.`tbUser` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(50) NOT NULL,
     `email` VARCHAR(45) NULL,
@@ -29,7 +29,7 @@ USE dethithpt;
     `tags` VARCHAR(255) NOT NULL,
     `description` LONGTEXT NULL,
     `userId` INT(11) NOT NULL,
-    `price` VARCHAR(50) NULL,
+    `price` VARCHAR(50) NOT NULL DEFAULT '0',
     `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `cateIds` VARCHAR(255) NULL,
     `path` MEDIUMTEXT NULL,
@@ -86,7 +86,7 @@ USE dethithpt;
     `id` INT NOT NULL AUTO_INCREMENT,
     `userId` VARCHAR(255) NOT NULL,
     `docId` VARCHAR(255),
-    `money` VARCHAR(255) NOT NULL,
+    `money` VARCHAR(255) NOT NULL DEFAULT '0',
     `action` VARCHAR(255) NOT NULL,
     `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
