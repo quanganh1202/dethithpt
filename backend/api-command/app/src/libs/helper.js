@@ -52,6 +52,8 @@ const preview = async function getPreview(fileName) {
     if (path.extname(fileName) === '.pdf') {
       gm(fileName)
         .page(860, 1240)
+        .draw(['rotate 40 text 200,200 "TAILIEUDOC.VN"'])
+        .fontSize(80)
         .write(previewFIle, (err) => {
           if (err) {
             reject({

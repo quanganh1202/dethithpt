@@ -42,10 +42,12 @@ async function auth(info) {
         name,
         email,
         status: 2, // Inactive
+        money: 0,
       };
       const { insertId } = await userModel.addNewUser(user);
       sign = Object.assign({}, user);
       sign.id = insertId;
+      delete sign.money;
       const serverNotify = await rabbitSender('user.create', { id: insertId, body: user });
       if (serverNotify.statusCode !== 200) {
         // HERE IS CASE API QUERY iS NOT RESOLVED
@@ -100,6 +102,7 @@ async function addUser(userInfo) {
     const criteria = [ { email }, { phone }];
     const user = await userModel.getList(criteria);
     userInfo.status = 1;
+    delete userInfo.money;
     let id;
     if (user && user.length) {
       if (user[0].status !== 2) {
@@ -210,7 +213,7 @@ async function updateUser(id, userInfo) {
         status: 400,
       };
     }
-
+    delete userInfo.money;
     await userModel.updateUser(id, userInfo);
     const serverNotify = await rabbitSender('user.update', { id, body: userInfo });
     if (serverNotify.statusCode === 200) {
@@ -284,7 +287,7 @@ async function recharge(id, money) {
         status: 400,
       };
     }
-    const moneyAfterRecharge = parseFloat(money) + parseFloat(user[0].money);
+    const moneyAfterRecharge = parseInt(money) + parseInt(user[0].money);
     const docModel = new Document();
     const res = await Promise.all([
       docModel.purchase({
