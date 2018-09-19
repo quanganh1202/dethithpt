@@ -112,7 +112,7 @@ async function addUser(userInfo) {
           status: 400,
         };
       } else {
-        id = user[0].id.toString();
+        id = user[0].id;
         await userModel.updateUser(id, userInfo);
         action = 'update';
       }
@@ -129,7 +129,7 @@ async function addUser(userInfo) {
     };
     const body = Object.assign({}, sign);
     delete body.id;
-    const serverNotify = await rabbitSender(`user.${action}`, { id: id.toString(), body: userInfo });
+    const serverNotify = await rabbitSender(`user.${action}`, { id, body: userInfo });
     if (serverNotify.statusCode === 200) {
       const { token, expiresIn } = tokenGenerator(sign);
 
