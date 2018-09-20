@@ -46,9 +46,9 @@ async function auth(info) {
       };
       const { insertId } = await userModel.addNewUser(user);
       sign = Object.assign({}, user);
+      const serverNotify = await rabbitSender('user.create', { id: insertId, body: user });
       sign.id = insertId;
       delete sign.money;
-      const serverNotify = await rabbitSender('user.create', { id: insertId, body: user });
       if (serverNotify.statusCode !== 200) {
         // HERE IS CASE API QUERY iS NOT RESOLVED
         // TODO: ROLLBACK HERE
@@ -117,8 +117,8 @@ async function addUser(userInfo) {
         action = 'update';
       }
     } else {
-      const { insertId } = await userModel.addNewUser(userInfo);
       userInfo.money = 0;
+      const { insertId } = await userModel.addNewUser(userInfo);
       id = insertId;
     }
     const sign = {
