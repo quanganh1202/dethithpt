@@ -25,12 +25,13 @@ import {
   Button,
 } from 'reactstrap';
 import moment from 'moment';
+import styled from 'styled-components';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
-import { getSubjects } from './actions';
+import { getUsers } from './actions';
 import {
-  makeSelectSubjects,
+  makeSelectUsers,
   makeSelectLoading,
 } from './selectors';
 import reducer from './reducer';
@@ -38,8 +39,16 @@ import saga from './saga';
 
 const itemsPerLoad = 10;
 
+const Wrapper = styled.div`
+  table {
+    tr > td, tr > th {
+      white-space: nowrap;
+    }
+  }
+`;
+
 /* eslint-disable react/prefer-stateless-function */
-export class Subject extends React.PureComponent {
+export class User extends React.PureComponent {
   constructor() {
     super();
     this.state = {};
@@ -47,29 +56,41 @@ export class Subject extends React.PureComponent {
 
   componentWillMount() {
     // get subjects
-    this.props.getSubjects();
+    this.props.getUsers();
   }
 
-  renderSubjectRow(subjects) {
-    return subjects.map((item) => (
+  renderUserRow(users) {
+    return users.map((item) => (
       <tr key={item.id}>
           <th scope="row">{item.id}</th>
+          <td>{moment(item.createdAt).format('DD/MM/YYYY')}</td>
           <td>{item.name}</td>
+          <td>{item.email}</td>
+          <td>{item.role}</td>
+          <td>{item.phone}</td>
+          <td>{item.bod}</td>
+          <td>{item.school}</td>
+          <td>{item.city}</td>
+          <td>{item.download}</td>
+          <td>{item.upload}</td>
+          <td>{item.deposit}</td>
+          <td>{item.amount}</td>
+          <td>{item.group}</td>
           <td>{item.description}</td>
           <td>{item.userName}</td>
-          <td>{moment(item.createdAt).format('DD/MM/YYYY')}</td>
+          <td></td>
       </tr>
     ))
   }
 
   render() {
     return (
-      <div className="animated fadeIn">
+      <Wrapper className="animated fadeIn">
         <Row>
           <Col xl={12}>
             <Breadcrumb>
               <BreadcrumbItem><Link to="/">Trang chủ</Link></BreadcrumbItem>
-              <BreadcrumbItem active>Môn học</BreadcrumbItem>
+              <BreadcrumbItem active>Thành viên</BreadcrumbItem>
             </Breadcrumb>
           </Col>
         </Row>
@@ -78,29 +99,41 @@ export class Subject extends React.PureComponent {
             <Col xl={12}>
               <Card>
                 <CardHeader>
-                  <i className="fa fa-align-justify"></i> Môn học
-                  <div className="float-right">
+                  <i className="fa fa-align-justify"></i> Thành viên
+                  {/* <div className="float-right">
                     <Button
                       block
                       color="primary"
                       size="sm"
-                      onClick={() => this.props.history.push('/subjects/create')}
+                      onClick={() => this.props.history.push('/users/create')}
                     >Tạo mới</Button>
-                  </div>
+                  </div> */}
                 </CardHeader>
                 <CardBody>
                   <Table responsive hover>
                     <thead>
                       <tr>
                         <th scope="col">Id</th>
-                        <th scope="col">Tên</th>
-                        <th scope="col">Mô tả</th>
-                        <th scope="col">Người tạo</th>
                         <th scope="col">Ngày tạo</th>
+                        <th scope="col">Tên</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Bạn là</th>
+                        <th scope="col">SĐT</th>
+                        <th scope="col">Năm sinh</th>
+                        <th scope="col">Trường</th>
+                        <th scope="col">Thành phố</th>
+                        <th scope="col">Đã tải</th>
+                        <th scope="col">Đã đăng</th>
+                        <th scope="col">Đã nạp</th>
+                        <th scope="col">Số dư</th>
+                        <th scope="col">Group</th>
+                        <th scope="col">Ghi chú</th>
+                        <th scope="col">Người tạo</th>
+                        <th scope="col">Thao tác</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {this.renderSubjectRow(this.props.subjects)}
+                      {this.renderUserRow(this.props.users)}
                     </tbody>
                   </Table>
                 </CardBody>
@@ -108,23 +141,23 @@ export class Subject extends React.PureComponent {
             </Col>
           </Row>
         </Container>
-      </div>
+      </Wrapper>
     );
   }
 }
 
-Subject.propTypes = {
+User.propTypes = {
   loading: PropTypes.bool,
 };
 
 export function mapDispatchToProps(dispatch) {
   return {
-    getSubjects: () => dispatch(getSubjects()),
+    getUsers: () => dispatch(getUsers()),
   };
 }
 
 const mapStateToProps = createStructuredSelector({
-  subjects: makeSelectSubjects(),
+  users: makeSelectUsers(),
   loading: makeSelectLoading(),
 });
 
@@ -133,11 +166,11 @@ const withConnect = connect(
   mapDispatchToProps,
 );
 
-const withReducer = injectReducer({ key: 'subject', reducer });
-const withSaga = injectSaga({ key: 'subject', saga });
+const withReducer = injectReducer({ key: 'user', reducer });
+const withSaga = injectSaga({ key: 'user', saga });
 
 export default compose(
   withReducer,
   withSaga,
   withConnect,
-)(Subject);
+)(User);

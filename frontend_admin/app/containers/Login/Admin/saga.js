@@ -14,7 +14,7 @@ import {
 } from './actions';
 import { setToken } from 'services/auth';
 
-const root = 'http://103.92.29.145:3001/api';
+const root = '/api';
 /**
  * Request to login using social network token
  */

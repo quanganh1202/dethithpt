@@ -61,7 +61,6 @@ export class Collection extends React.PureComponent {
   }
 
   render() {
-    console.log('here');
     return (
       <div className="animated fadeIn">
         <Row>

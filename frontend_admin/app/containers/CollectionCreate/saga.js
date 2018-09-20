@@ -14,7 +14,7 @@ import {
   getInitDataSuccess,
 } from './actions';
 
-const root = 'http://103.92.29.145:3001/api';
+const root = '/api';
 
 /**
  * Request create category
