@@ -46,6 +46,7 @@ async function getListDocuments(args) {
 async function uploadDocument(body, file) {
   try {
     if (!body.price) body.price = '0';
+    body.approved = 0;
     const queryBody = Object.assign({}, body);
     const resValidate = dataValidator(body, schemaId);
     if (!resValidate.valid) {
@@ -485,6 +486,58 @@ async function downloadDocument(docId, userId) {
   }
 }
 
+async function approveDocument(docId, userId) {
+  try {
+    const doc = await docModel.getDocumentById(docId);
+    if (!doc || !doc.length) {
+      return {
+        status: 400,
+        error: 'Document not found',
+      };
+    }
+
+    if(doc[0].approved === 1) {
+      return {
+        status: 400,
+        error: 'Document has approved',
+      };
+    }
+    const userModel = new User();
+    const user = await userModel.getById(userId);
+    if (!user || !user.length) {
+      return {
+        status: 400,
+        error: 'User not found',
+      };
+    }
+    const body = {
+      approved: 1,
+      approverId: userId,
+    };
+
+    const res = await Promise.all([
+      docModel.updateDocumentById(docId, body),
+      rabbitSender('document.update', {
+        id: docId,
+        body: Object.assign({ approverName: user[0].name }, body),
+      }),
+    ]);
+
+    if (res[1].error) {
+      return res[1];
+    }
+
+    return {
+      status: 200,
+      message: 'Approved success',
+    };
+  } catch (ex) {
+    logger(ex.error || ex.message || `Unexpected error when approve file document ${docId}`);
+
+    return ex.error ? ex : exception;
+  }
+}
+
 export {
   uploadDocument,
   getListDocuments,
@@ -493,4 +546,5 @@ export {
   deleteDocument,
   purchaseDocument,
   downloadDocument,
+  approveDocument,
 };

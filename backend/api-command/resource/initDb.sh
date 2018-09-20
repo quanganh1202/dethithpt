@@ -49,6 +49,8 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     yearSchool INT(11) NULL,
     collectionId INT(11) NULL,
     totalPages INT(11) NULL,
+    approved TINYINT DEFAULT '0',
+    approverId VARCHAR(255),
     PRIMARY KEY (id),
     UNIQUE INDEX id_UNIQUE (id ASC));
 
