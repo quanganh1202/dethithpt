@@ -45,6 +45,7 @@ async function getListDocuments(args) {
 
 async function uploadDocument(body, file) {
   try {
+    if (!body.price) body.price = '0';
     const queryBody = Object.assign({}, body);
     const resValidate = dataValidator(body, schemaId);
     if (!resValidate.valid) {
@@ -397,7 +398,7 @@ async function purchaseDocument(docId, userId) {
         error: 'Not enough money',
       };
     }
-    const moneyAfterPurchase =  parseFloat(user[0].money) - parseFloat(doc[0].price);
+    const moneyAfterPurchase =  parseInt(user[0].money) - parseInt(doc[0].price);
     const res = await Promise.all([
       docModel.purchase({ docId, userId, money: doc[0].price, action: action.PURCHASE }),
       userModel.updateUser(userId, { money: moneyAfterPurchase }),

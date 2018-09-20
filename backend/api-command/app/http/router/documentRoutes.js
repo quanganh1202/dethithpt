@@ -9,6 +9,7 @@ import {
   purchaseDocument,
   downloadDocument,
 } from '../../src/controller/document';
+import { isUndefined } from 'util';
 
 const routerDefine =  function defineRouter() {
   // Destination folder path
@@ -75,10 +76,16 @@ const routerDefine =  function defineRouter() {
   route.post('/download/:docId', async (req, res) => {
     const userId = req.app.locals.id.toString();
     const docId = req.params.docId;
+    const download = req.query.download;
     const { error, status, path } = await downloadDocument(docId, userId);
     if (error) {
       return res.status(status).json({
         error,
+      });
+    }
+    if (isUndefined(download)) {
+      return res.status(status).json({
+        message: 'OK',
       });
     }
     res.setHeader('Content-Type', 'application/pdf');
