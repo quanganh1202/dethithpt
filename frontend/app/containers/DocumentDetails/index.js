@@ -49,6 +49,11 @@ const numberWithCommas = (x) => {
 
 const itemsPerLoad = 10;
 
+const errorMapping = {
+  unknown_error_download: 'Tài liệu không còn tồn tại hoặc có lỗi, vui lòng báo lại cho admin!',
+  not_enough_money: 'Tài khoản không còn đủ tiền để thanh toán, vui lòng nạp thêm!',
+}
+
 /* eslint-disable react/prefer-stateless-function */
 export class DocumentDetails extends React.PureComponent {
   constructor() {
@@ -85,10 +90,9 @@ export class DocumentDetails extends React.PureComponent {
       }, true);
     }
     if (!this.props.file && nextProps.file) {
-      // console.log(JSON.stringify(nextProps.file))
-      // const blob = new Blob(nextProps.file, { type: 'application/pdf' });
-      // FileSaver.saveAs(blob);
-      // this.props.removeFileSave()
+      const blob = new Blob([nextProps.file], { type: 'application/pdf' });
+      FileSaver.saveAs(blob, _.get(this.props, 'document.name', 'download'));
+      this.props.removeFileSave();
     }
   }
 
@@ -105,10 +109,6 @@ export class DocumentDetails extends React.PureComponent {
   }
   
   handleDownloadFile() {
-//     const aFileParts = ['<a id="a"><b id="b">hey!</b></a>']; // an array consisting of a single DOMString
-// const oMyBlob = new Blob(aFileParts, {type : 'text/html'}); // the blob
-
-// FileSaver.saveAs(oMyBlob, 'test');
     this.props.requestDownload(this.props.match.params.id);
   }
 
@@ -136,7 +136,7 @@ export class DocumentDetails extends React.PureComponent {
             !_.isEmpty(document) ? (
             <div style={{ padding: "0px 20px 10px" }}>
               <div className={`error-document ${this.props.message && 'show'}`}>
-                Tài liệu không còn tồn tại hoặc có lỗi, vui lòng báo lại cho admin!
+                {errorMapping[this.props.message] || 'Có lỗi xảy ra, vui lòng báo lại cho admin!'}
               </div>
               <div className="doc-title">
                 <p>{_.get(document, 'name')}</p>
@@ -214,9 +214,15 @@ export class DocumentDetails extends React.PureComponent {
         <PopUp
           show={this.state.preview}
           close
+          width="auto"
           onClose={() => this.setState({ preview: false })}
           content={
-            <img src={`http://103.92.29.145/api/documents/${this.props.match.params.id}/preview`} alt="preview" />
+            <div style={{ textAlign: 'center' }}>
+              <div className="document-title">
+                <span className="bold">Đọc thử:</span> {this.props.document.name}
+              </div>
+              <img src={`/api/documents/${this.props.match.params.id}/preview`} alt="preview" />
+            </div>
           }
         />
       </Wrapper> 

@@ -16,13 +16,13 @@ const { resolve } = require('path');
 const app = express();
 
 // If you need a backend, e.g. an API, add your custom backend-specific middleware here
-app.use('/api', function(req, res){
-  request('http://localhost:3001', function (error, response, body) { 
-    if (!error && response.statusCode === 200) {
-      res.send(body); 
-    } 
-   }); 
-});
+// app.use('/api', function(req, res){
+//   request('http://localhost:3001', function (error, response, body) { 
+//     if (!error && response.statusCode === 200) {
+//       res.send(body); 
+//     } 
+//    }); 
+// });
 
 // In production we need to pass these values in instead of relying on webpack
 setup(app, {
