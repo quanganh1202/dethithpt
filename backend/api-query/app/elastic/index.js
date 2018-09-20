@@ -193,7 +193,7 @@ class ES {
     }).then((result) => {
       return {
         statusCode: 200,
-        createdId: result._id,
+        updatedId: result._id,
       };
     }).catch(handleElasticsearchError);
   }
