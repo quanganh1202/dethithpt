@@ -81,7 +81,7 @@ const routerDefine =  function defineRouter() {
         error,
       });
     }
-    res.setHeader('Content-Type', 'application/blob');
+    res.setHeader('Content-Type', 'application/pdf');
     res.status(status).download(path);
   });
 
