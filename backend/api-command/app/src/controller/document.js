@@ -393,7 +393,7 @@ async function purchaseDocument(docId, userId) {
         error: 'User not found',
       };
     }
-    if (doc[0].price > user[0].money) {
+    if (parseInt(doc[0].price) > parseInt(user[0].money)) {
       return {
         status: 400,
         error: 'Not enough money',
