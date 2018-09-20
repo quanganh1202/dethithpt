@@ -7,12 +7,19 @@ import { call, put, takeLatest } from 'redux-saga/effects';
 import { push } from 'react-router-redux';
 import { getToken } from 'services/auth';
 import request from 'utils/request';
-import { GET_DOC_DETAILS_REQUEST, GET_DOC_LIST_REQUEST, REQUEST_DOWNLOAD } from './constants';
+import {
+  GET_DOC_DETAILS_REQUEST,
+  GET_DOC_LIST_REQUEST,
+  REQUEST_DOWNLOAD,
+  REQUEST_PURCHASE,
+} from './constants';
 import {
   getDocumentDetailsSuccess,
   getDocumentsListSuccess,
   requestDownloadSuccess,
   requestDownloadFailure,
+  requestPurchase,
+  requestPurchaseFailure,
 } from './actions';
 
 const root = '/api';
@@ -54,26 +61,25 @@ export function* requestDownloadHandler({ id }) {
   const options = {
     headers: {
       ['x-access-token']: getToken(),
-    }
+      ['Content-Type']: 'application/pdf',
+    },
   }
 
   try {
-    const resp = yield call(axios.post, url, {}, options);
+    yield call(axios.post, url, {}, options);
+    const resp = yield call(axios.post, `${url}?download`, {}, { ...options, responseType: 'blob' });
     yield put(requestDownloadSuccess(resp.data));
   } catch (err) {
     const errorMessage = _.get(err, 'response.data.error', 'Unknown server error');
     if (errorMessage.includes('You have not purchased document')) {
-      yield purchaseDocumentHandler({ id });
-      const resp = yield call(axios.post, url, {}, options);
-      yield put(requestDownloadSuccess(resp.data));
+      yield put(requestPurchase(id, true));
     } else {
-      yield put(requestDownloadFailure('not_found'));
+      yield put(requestDownloadFailure('unknown_error_download'));
     }
-    // yield put(requestDownloadFailure(_.get(err, 'response.data.error', 'Unknown server error')));
   }
 }
 
-export function* purchaseDocumentHandler({ id }) {
+export function* purchaseDocumentHandler({ id, download }) {
   const url = `${root}/documents/${id}/purchase`;
   const options = {
     headers: {
@@ -82,10 +88,18 @@ export function* purchaseDocumentHandler({ id }) {
   }
 
   try {
-    const resp = yield call(axios.post, url, {}, options);
-    // yield put(requestDownloadSuccess(resp.data));
+    yield call(axios.post, url, {}, options);
+    if (download) {
+      const downloadUrl = `${root}/download/${id}?download`
+      const downloadRes = yield call(axios.post, downloadUrl, {}, { ...options, responseType: 'blob', });
+      yield put(requestDownloadSuccess(downloadRes.data));
+    }
   } catch (err) {
-    yield put(requestDownloadFailure('not_found'));
+    if (_.get(err, 'response.data.error', 'Unknown server error') === 'Not enough money') {
+      yield put(requestPurchaseFailure('not_enough_money'));
+    } else {
+      yield put(requestDownloadFailure('unknown_error_download'));
+    }
   }
 }
 
@@ -96,4 +110,5 @@ export default function* documentDetailsSaga() {
   yield takeLatest(GET_DOC_DETAILS_REQUEST, getDocumentDetailsHandler);
   yield takeLatest(GET_DOC_LIST_REQUEST, getDocumentsListHandler);
   yield takeLatest(REQUEST_DOWNLOAD.REQUEST, requestDownloadHandler);
+  yield takeLatest(REQUEST_PURCHASE.REQUEST, purchaseDocumentHandler);
 }

@@ -16,6 +16,7 @@ import {
   GET_DOC_LIST_REQUEST,
   GET_DOC_LIST_SUCCESS,
   REQUEST_DOWNLOAD,
+  REQUEST_PURCHASE,
   REMOVE_FILE_SAVE,
   REMOVE_MESSAGE,
 } from './constants';
@@ -68,6 +69,12 @@ function documentReducer(state = initialState, action) {
     case REQUEST_DOWNLOAD.SUCCESS:
       return state.set('loading', false).set('file', action.file);
     case REQUEST_DOWNLOAD.FAILURE:
+      return state.set('loading', false).set('message', action.message);
+    case REQUEST_PURCHASE.REQUEST:
+      return state.set('loading', true);
+    case REQUEST_PURCHASE.SUCCESS:
+      return state.set('loading', false);
+    case REQUEST_PURCHASE.FAILURE:
       return state.set('loading', false).set('message', action.message);
     case REMOVE_FILE_SAVE:
       return state.set('file', null);

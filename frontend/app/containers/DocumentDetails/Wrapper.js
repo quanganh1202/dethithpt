@@ -147,6 +147,17 @@ const Wrapper = styled.div`
       margin-bottom: 10px;
     }
   }
+  .document-title {
+    text-align: left;
+    font-size: 0.9em;
+    font-weight: bold;
+    padding: 5px 10px;
+    color: #3f48cc;
+    background-color: #E5E5E5;
+    > span.bold {
+      color: black;
+    }
+  }
 `;
 
 export default Wrapper;

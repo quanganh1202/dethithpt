@@ -22,14 +22,15 @@ import DefaultAside from './DefaultAside';
 import DefaultFooter from './DefaultFooter';
 import DefaultHeader from './DefaultHeader';
 
+import User from 'containers/User/Loadable';
 import Category from 'containers/Category/Loadable';
 import CategoryCreate from 'containers/CategoryCreate/Loadable';
 import Class from 'containers/Class/Loadable';
 import ClassCreate from 'containers/ClassCreate/Loadable';
 import Subject from 'containers/Subject/Loadable';
 import SubjectCreate from 'containers/SubjectCreate/Loadable';
-import School from 'containers/School/Loadable';
-import SchoolCreate from 'containers/SchoolCreate/Loadable';
+// import School from 'containers/School/Loadable';
+// import SchoolCreate from 'containers/SchoolCreate/Loadable';
 import Collection from 'containers/Collection/Loadable';
 import CollectionCreate from 'containers/CollectionCreate/Loadable';
 import { getUser, setToken } from 'services/auth';
@@ -61,6 +62,7 @@ class DefaultLayout extends Component {
               )} */}
               {/* <Route path="/" exact name="Home" component={() => <div>abc</div>} /> */}
               <Route path="/dashboard" exact name="Dashboard" component={() => <div>Dashboard</div>} />
+              <Route path="/users" exact name="User" component={User} />
               <Route path="/categories" exact name="Category" component={Category} />
               <Route path="/categories/create" exact name="Create category" component={CategoryCreate} />
               <Route path="/classes" exact name="Class" component={Class} />
