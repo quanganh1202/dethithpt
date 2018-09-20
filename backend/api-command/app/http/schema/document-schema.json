@@ -24,6 +24,9 @@
         }
       ]
     },
+    "approved": {
+      "type": "integer"
+    },
     "description": {
       "type": "string"
     },

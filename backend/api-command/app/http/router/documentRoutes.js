@@ -8,6 +8,7 @@ import {
   deleteDocument,
   purchaseDocument,
   downloadDocument,
+  approveDocument,
 } from '../../src/controller/document';
 import { isUndefined } from 'util';
 
@@ -96,6 +97,20 @@ const routerDefine =  function defineRouter() {
     const userId = req.app.locals.id.toString();
     const docId = req.params.id;
     const { error, status, message } = await purchaseDocument(docId, userId);
+    if (error) {
+      return res.status(status).json({
+        error,
+      });
+    }
+    res.status(status).json({
+      data: message,
+    });
+  });
+
+  route.post('/documents/:id/approve', async (req, res) => {
+    const userId = req.app.locals.id.toString();
+    const docId = req.params.id;
+    const { error, status, message } = await approveDocument(docId, userId);
     if (error) {
       return res.status(status).json({
         error,

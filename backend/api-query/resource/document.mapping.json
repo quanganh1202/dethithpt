@@ -136,6 +136,22 @@
         "path": {
           "type": "text"
         },
+        "approved": {
+          "type": "integer"
+        },
+        "approverId": {
+          "type": "keyword"
+        },
+        "approverName": {
+          "type": "text",
+          "analyzer": "autocomplete",
+          "search_analyzer": "standard",
+          "fields": {
+            "raw": {
+              "type": "keyword"
+            }
+          }
+        },
         "createdAt": {
           "type": "date"
         },
