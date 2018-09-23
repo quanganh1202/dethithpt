@@ -113,6 +113,9 @@
             }
           }
         },
+        "priority": {
+          "type": "integer"
+        },
         "userId": {
           "type": "keyword"
         },

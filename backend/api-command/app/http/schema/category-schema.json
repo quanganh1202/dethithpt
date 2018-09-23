@@ -18,6 +18,9 @@
     "userId": {
       "type": "string",
       "minLength": 1
+    },
+    "prioriy": {
+      "type": "string"
     }
   }
 }

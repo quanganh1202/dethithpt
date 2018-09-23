@@ -54,6 +54,7 @@ async function createCategory(body) {
 
     const { insertId } = await cateModel.addNewCategory(body);
     body.userName = user[0].name;
+    body.priority = body.priority || '0';
     const serverNotify = await rabbitSender('category.create', { body, id: insertId });
     if (serverNotify.statusCode === 200) {
       return {
