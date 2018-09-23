@@ -4,4 +4,6 @@ export default  [
   'docx',
   'xlsx',
   'xls',
+  'rar',
+  'zip',
 ];
