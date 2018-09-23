@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import PropTypes from 'prop-types';
 import TagsInput from 'react-tagsinput';
 import { fromJS } from 'immutable';
 import { library } from '@fortawesome/fontawesome-svg-core';
@@ -13,13 +14,29 @@ import {
 import { faMoneyBillAlt } from '@fortawesome/free-regular-svg-icons';
 import Autosuggest from 'react-autosuggest';
 
-import Select from 'react-select';
+import Select, { Creatable } from 'react-select';
+import { EditorState, convertToRaw } from 'draft-js';
+import { Editor } from 'react-draft-wysiwyg';
+import draftToHtml from 'draftjs-to-html';
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
+
 import Button from './Button';
 
 library.add(faMoneyBillAlt, faFolder, faCog, faCloudDownloadAlt, faCaretDown);
 
 const Wrapper = styled.section`
   margin-top: 10px;
+
+  .rdw-editor-main {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    padding: 0 10px;
+  }
+
+  .rdw-editor-toolbar {
+    border: 1px solid #ccc;
+  }
 
   label {
     /* Other styling.. */
@@ -97,18 +114,29 @@ class DetailForm extends React.Component {
         name: this.props.name,
         tags: [],
       }),
-      files: [],
+      editorState: EditorState.createEmpty(),
     };
     this.handleDelete = this.handleDelete.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
     this.handleChangeTag = this.handleChangeTag.bind(this);
     this.handleOnChange = this.handleOnChange.bind(this);
+    this.onEditorStateChange = this.onEditorStateChange.bind(this);
+  }
+
+  onEditorStateChange(editorState) {
+    this.setState({
+      editorState,
+      formData: this.state.formData.set(
+        'description',
+        draftToHtml(convertToRaw(this.state.editorState.getCurrentContent())),
+      ),
+    });
   }
 
   handleDelete(i) {
     const { tags } = this.state;
-    this.setState({
+    this. setState({
       tags: tags.filter((tag, index) => index !== i),
     });
   }
@@ -126,6 +154,8 @@ class DetailForm extends React.Component {
         }
         break;
       }
+      default:
+        break;
     }
 
     const temp = formData.set(name, newValue);
@@ -139,43 +169,40 @@ class DetailForm extends React.Component {
   onSubmit() {
     const { formData } = this.state;
     let newData = formData.set('tags', formData.get('tags').join(','));
-    Array.from(['cateIds']).forEach(field => {
-      if (newData.has(field) && newData.get(field).length > 0) {
-        newData = newData.set(field, newData.get(field).map(i => i.value));
-      } else {
-        newData = newData.delete(field);
-      }
-    });
-    Array.from(['subjectId', 'classId', 'yearSchool', 'collectionId']).forEach(
+    Array.from(['subjectId', 'classId', 'cateIds', 'collectionId']).forEach(
       field => {
-        if (newData.has(field)) {
-          newData = newData.set(field, newData.get(field).value);
+        if (newData.has(field) && newData.get(field).length > 0) {
+          newData = newData.set(field, newData.get(field).map(i => i.value));
+        } else {
+          newData = newData.delete(field);
         }
       },
     );
+    Array.from(['yearSchool']).forEach(field => {
+      if (newData.has(field)) {
+        newData = newData.set(field, newData.get(field).value);
+      }
+    });
+
     this.props.onSubmit(newData.toJS());
   }
 
   handleOnChange(e) {
     if (e.type === 'enter') {
       e.preventDefault();
-    } else {
-      this.setState({
-        inputValue: e.target.value,
-      });
     }
   }
 
   render() {
     const { formData } = this.state;
-    const { subjects, classes, categories, tags } = this.props;
+    const { subjects, classes, categories, tags, collections } = this.props;
     const dataSuggestions = tags.map(tag => ({
       name: tag.tag,
       value: tag.tag,
     }));
 
     function autocompleteRenderInput({ addTag, ...props }) {
-      const handleOnChange = (e, { newValue, method }) => {
+      const handleOnChange = (e, { method }) => {
         if (method === 'enter') {
           e.preventDefault();
         } else {
@@ -198,7 +225,11 @@ class DetailForm extends React.Component {
           shouldRenderSuggestions={value => value && value.trim().length > 0}
           getSuggestionValue={suggestion => suggestion.name}
           renderSuggestion={suggestion => <span>{suggestion.name}</span>}
-          inputProps={{ ...props, onChange: handleOnChange }}
+          inputProps={{
+            ...props,
+            onChange: handleOnChange,
+            placeholder: 'Enter để thêm',
+          }}
           onSuggestionSelected={(e, { suggestion }) => {
             addTag(suggestion.name);
           }}
@@ -225,7 +256,7 @@ class DetailForm extends React.Component {
           </div>
         ) : null}
         <div className="form-group">
-          <label htmlFor="category">&nbsp;</label>
+          <label htmlFor="cateIds">&nbsp;</label>
           <div className="form-control">
             <Select
               name="cateIds"
@@ -240,7 +271,6 @@ class DetailForm extends React.Component {
               placeholder="-- Chọn danh mục --"
               isSearchable={false}
               components={{
-                MultiValueContainer: () => null,
                 DropdownIndicator: () => (
                   <FontAwesomeIcon
                     style={{ margin: '0 5px' }}
@@ -248,7 +278,6 @@ class DetailForm extends React.Component {
                     icon={['fas', 'caret-down']}
                   />
                 ),
-                IndicatorSeparator: () => null,
               }}
             />
             <Select
@@ -261,9 +290,8 @@ class DetailForm extends React.Component {
               hideSelectedOptions={false}
               closeMenuOnSelect={false}
               placeholder="-- Chọn môn --"
-              isSearchable={false}
+              isMulti
               components={{
-                MultiValueContainer: () => null,
                 DropdownIndicator: () => (
                   <FontAwesomeIcon
                     style={{ margin: '0 5px' }}
@@ -271,7 +299,6 @@ class DetailForm extends React.Component {
                     icon={['fas', 'caret-down']}
                   />
                 ),
-                IndicatorSeparator: () => null,
               }}
             />
             <Select
@@ -285,8 +312,8 @@ class DetailForm extends React.Component {
               closeMenuOnSelect={false}
               placeholder="-- Chọn lớp --"
               isSearchable={false}
+              isMulti
               components={{
-                MultiValueContainer: () => null,
                 DropdownIndicator: () => (
                   <FontAwesomeIcon
                     style={{ margin: '0 5px' }}
@@ -309,9 +336,7 @@ class DetailForm extends React.Component {
               hideSelectedOptions={false}
               closeMenuOnSelect={false}
               placeholder="-- Chọn năm học --"
-              isSearchable={false}
               components={{
-                MultiValueContainer: () => null,
                 DropdownIndicator: () => (
                   <FontAwesomeIcon
                     style={{ margin: '0 5px' }}
@@ -319,12 +344,14 @@ class DetailForm extends React.Component {
                     icon={['fas', 'caret-down']}
                   />
                 ),
-                IndicatorSeparator: () => null,
               }}
             />
-            <Select
+            <Creatable
               name="collectionId"
-              options={[{ label: 'Bộ sưu tập 1', value: 1 }]}
+              options={collections.map(sj => ({
+                value: sj.id,
+                label: sj.name,
+              }))}
               value={formData.get('collectionId', '')}
               onChange={value =>
                 this.handleChange({ target: { name: 'collectionId', value } })
@@ -332,9 +359,8 @@ class DetailForm extends React.Component {
               hideSelectedOptions={false}
               closeMenuOnSelect={false}
               placeholder="-- Chọn bộ sưu tập --"
-              isSearchable={false}
+              isMulti
               components={{
-                MultiValueContainer: () => null,
                 DropdownIndicator: () => (
                   <FontAwesomeIcon
                     style={{ margin: '0 5px' }}
@@ -342,7 +368,6 @@ class DetailForm extends React.Component {
                     icon={['fas', 'caret-down']}
                   />
                 ),
-                IndicatorSeparator: () => null,
               }}
             />
           </div>
@@ -360,16 +385,17 @@ class DetailForm extends React.Component {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="name">Mô tả</label>
-          <textarea
-            className="form-control"
+          <label htmlFor="description">Mô tả</label>
+        </div>
+        <div className="form-group">
+          <Editor
+            editorState={this.state.editorState}
             name="description"
-            value={formData.get('description', '')}
-            onChange={this.handleChange}
+            onEditorStateChange={this.onEditorStateChange}
           />
         </div>
         <div className="form-group">
-          <label htmlFor="name">Giá bán</label>
+          <label htmlFor="price">Giá bán</label>
           <input
             className="form-control"
             name="price"
@@ -378,7 +404,7 @@ class DetailForm extends React.Component {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="button-save">&nbsp;</label>
+          <label>&nbsp;</label>
           <Button name="button-save" onClick={this.onSubmit}>
             Lưu
           </Button>
@@ -387,5 +413,15 @@ class DetailForm extends React.Component {
     );
   }
 }
+
+DetailForm.propTypes = {
+  onSubmit: PropTypes.func,
+  subjects: PropTypes.any,
+  classes: PropTypes.any,
+  categories: PropTypes.any,
+  tags: PropTypes.any,
+  collections: PropTypes.any,
+  name: PropTypes.any,
+};
 
 export default DetailForm;
