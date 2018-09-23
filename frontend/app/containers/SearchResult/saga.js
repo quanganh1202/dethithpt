@@ -3,31 +3,11 @@
  */
 import axios from 'axios';
 import _ from 'lodash';
-import { call, put, select, takeLatest } from 'redux-saga/effects';
-import request from 'utils/request';
+import { call, put, takeLatest } from 'redux-saga/effects';
 import { GET_DOC_DETAILS_REQUEST, GET_DOC_LIST_REQUEST } from './constants';
-import {
-  getDocumentDetailsSuccess,
-  getDocumentsListSuccess,
-} from './actions';
-import { makeSelectUsername } from 'containers/HomePage/selectors';
+import { getDocumentDetailsSuccess, getDocumentsListSuccess } from './actions';
 
 const root = '/api';
-
-/**
- * Request to get document details by id
- */
-export function* getDocumentDetailsHandler({ id }) {
-  const url = `${root}/documents/${id}`;
-
-  try {
-    const resp = yield call(axios.get, url);
-    yield put(getDocumentDetailsSuccess(_.get(resp.data, 'data')));
-  } catch (err) {
-    console.log(err.message);
-    // yield put(loginFailure(err));
-  }
-}
 
 /**
  * Request get document list
@@ -47,6 +27,5 @@ export function* getDocumentsListHandler({ query }) {
  * Root saga manages watcher lifecycle
  */
 export default function* homeSaga() {
-  yield takeLatest(GET_DOC_DETAILS_REQUEST, getDocumentDetailsHandler);
-  yield takeLatest(GET_DOC_LIST_REQUEST, getDocumentsListHandler)
+  yield takeLatest(GET_DOC_LIST_REQUEST, getDocumentsListHandler);
 }

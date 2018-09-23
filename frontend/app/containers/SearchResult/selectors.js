@@ -1,24 +1,18 @@
 /**
- * Homepage selectors
+ * SearchResult selectors
  */
 
 import { createSelector } from 'reselect';
 import { initialState } from './reducer';
 
-const selectHome = state => state.get('documentDetails', initialState);
-
-const makeSelectDocument = () =>
-  createSelector(selectHome, homeState => homeState.get('document').toJS());
+const selectHome = state => state.get('searchResult', initialState);
 
 const makeSelectLoading = () =>
-  createSelector(selectHome, homeState => homeState.get('loading'));
+  createSelector(selectHome, searchState => searchState.get('loading'));
 
 const makeSelectDocuments = () =>
-  createSelector(selectHome, homeState => homeState.get('documents').toJS());
+  createSelector(selectHome, searchState =>
+    searchState.get('documents').toJS(),
+  );
 
-export {
-  selectHome,
-  makeSelectDocument,
-  makeSelectLoading,
-  makeSelectDocuments,
-};
+export { selectHome, makeSelectLoading, makeSelectDocuments };

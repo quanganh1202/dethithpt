@@ -10,6 +10,8 @@ import {
   GET_CATE_LIST_SUCCESS,
   GET_COLLECTION_LIST_REQUEST,
   GET_COLLECTION_LIST_SUCCESS,
+  GET_TAGS_REQUEST,
+  GET_TAGS_SUCCESS,
 } from './constants';
 
 /**
@@ -84,15 +86,16 @@ export function updateUserInfoSuccess(payload) {
 
 /**
  * Changes the input field of the form
- *
+ *GET_TAGS_REQUEST
  * @param  {name} name The new text of the input field
  *
  * @return {object}    An action object with a type of CHANGE_USERNAME
  */
-export function getDocumentsList(query) {
+export function getDocumentsList(query, tag) {
   return {
     type: GET_DOC_LIST_REQUEST,
     query,
+    tag,
   };
 }
 
@@ -162,5 +165,18 @@ export function getCollectionsSuccess(collections) {
   return {
     type: GET_COLLECTION_LIST_SUCCESS,
     collections,
+  };
+}
+
+export function getTags() {
+  return {
+    type: GET_TAGS_REQUEST,
+  };
+}
+
+export function getTagsSuccess(tags) {
+  return {
+    type: GET_TAGS_SUCCESS,
+    tags,
   };
 }

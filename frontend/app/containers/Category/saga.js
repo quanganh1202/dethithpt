@@ -27,7 +27,6 @@ export function* getFilterDataHandler() {
     const classes = _.get(resp, '[1].data.data');
     yield put(getFilterDataSuccess({ subjects, classes }));
   } catch (err) {
-    console.log(err.message);
     // yield put(loginFailure(err));
   }
 }
