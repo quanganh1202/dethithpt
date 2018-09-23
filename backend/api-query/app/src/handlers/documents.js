@@ -1,4 +1,5 @@
 import { isUndefined } from 'util';
+import _ from 'lodash';
 import path from 'path';
 import moment from 'moment';
 import ES from '../../elastic';
@@ -90,7 +91,7 @@ export default {
         subjectId,
         className,
         classId,
-        yearSchool,
+        yearSchools,
         name,
         price,
         tags,
@@ -113,11 +114,11 @@ export default {
         tags,
         'cates.cateName': cateName,
         'cates.cateId': cateId,
-        subjectName,
-        subjectId,
-        className,
-        classId,
-        yearSchool,
+        'subjects.subjectName': subjectName,
+        'subjects.subjectId': subjectId,
+        'classes.className': className,
+        'classes.classId': classId,
+        yearSchools,
         name,
         price,
       });
@@ -146,7 +147,7 @@ export default {
 
   create: async (docId, body) => {
     try {
-      const { cates, tags, collectionId } = body;
+      const { cates, tags, collections } = body;
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.createdAt = now;
       await elasticsearch.insert(body, docId);
@@ -155,8 +156,9 @@ export default {
         const promiseUpdateCates = updateNumDocRefToCate(cates, constant.INCREASE);
         promise.concat([...promiseUpdateCates]);
       }
-      if (collectionId) {
-        promise.push(updateNumDocRefToCollection(collectionId, constant.INCREASE));
+      if (collections && collections.length) {
+        const promiseUpdateCollections = updateNumDocRefToCollection(collections, constant.INCREASE);
+        promise.concat([...promiseUpdateCollections]);
       }
       await Promise.all(promise);
 
@@ -174,10 +176,62 @@ export default {
           error: 'Missing document id',
         };
       }
+      const oldDoc = await elasticsearch.get(docId);
+      if (oldDoc.error) {
+        return oldDoc;
+      }
+      const { cates, collections } = body;
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.updatedAt = now;
+      const promise = [];
+      const descreaseCate = oldDoc.data.cates && oldDoc.data.cates.length ? oldDoc.data.cates.reduce((pre, cur) => {
+        const ft = _.filter(cates, cur);
+        if (!ft.length) {
+          pre.push(cur);
+        }
+
+        return pre;
+      }, []) : [];
+
+      const increaseCate = cates && cates.length ? cates.reduce((pre, cur) => {
+        const ft = _.filter(oldDoc.data.cates, cur);
+        if (!ft.length) {
+          pre.push(cur);
+        }
+
+        return pre;
+      }, []): [];
+
+      const descreaseCollection = oldDoc.data.collections && oldDoc.data.collections.length ? oldDoc.data.collections.reduce((pre, cur) => {
+        const ft = _.filter(collections, cur);
+        if (!ft.length) {
+          pre.push(cur);
+        }
+
+        return pre;
+      }, []) : [];
+
+      const increaseCollection = collections && collections.length ? cates.reduce((pre, cur) => {
+        const ft = _.filter(oldDoc.data.collections, cur);
+        if (!ft.length) {
+          pre.push(cur);
+        }
+
+        return pre;
+      }, []): [];
+      if (cates && cates.length) {
+        const upCate = updateNumDocRefToCate(increaseCate, constant.INCREASE);
+        const downCate = updateNumDocRefToCate(descreaseCate, constant.DECREASE);
+        promise.concat([...upCate, ...downCate]);
+      }
+      if (collections && collections.length) {
+        const upCollection = updateNumDocRefToCollection(increaseCollection, constant.INCREASE);
+        const downCollection = updateNumDocRefToCollection(descreaseCollection, constant.DECREASE);
+        promise.concat([...upCollection, ...downCollection]);
+      }
       // Perform update
       const result = await elasticsearch.update(body, docId);
+      await Promise.all(promise);
 
       return result;
     } catch (error) {
@@ -193,9 +247,19 @@ export default {
           error: 'Missing document id',
         };
       }
-      const result = elasticsearch.remove(docId);
+      const oldDoc = await elasticsearch.get(docId);
+      if (oldDoc.error) {
+        return oldDoc;
+      }
+      if (oldDoc.data.collections && oldDoc.data.collections.length) {
+        await updateNumDocRefToCollection(oldDoc.data.collections, constant.DECREASE);
+      }
+      await elasticsearch.remove(docId);
 
-      return result[0];
+      return {
+        statusCode: 201,
+        message: 'Deleted',
+      };
     } catch (error) {
       return handleDocumentError(error);
     }
