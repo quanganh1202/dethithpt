@@ -104,7 +104,7 @@ export default {
       if (!subjectId) {
         return {
           statusCode: 400,
-          error: 'Missing class id',
+          error: 'Missing subject id',
         };
       }
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');

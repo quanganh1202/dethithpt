@@ -45,7 +45,7 @@ async function getListDocuments(args) {
 
 async function uploadDocument(body, file) {
   try {
-    if (!body.price) body.price = '0';
+    if (!body.price) body.price = '0'; // Default price of document is 0
     body.approved = 0;
     const queryBody = Object.assign({}, body);
     const resValidate = dataValidator(body, schemaId);
@@ -63,7 +63,7 @@ async function uploadDocument(body, file) {
       };
     }
 
-    const { tags, cateIds, subjectId, classId, collectionId, userId } = body;
+    const { tags, cateIds, subjectIds, classIds, collectionIds, yearSchools, userId } = body;
     const userModel = new User();
     const user = await userModel.getById(userId);
     if (!user || !user.length || !user[0].status) {
@@ -73,16 +73,13 @@ async function uploadDocument(body, file) {
       };
     }
 
-    let newCate;
-    if (cateIds && cateIds.length) {
+    if (cateIds) {
       const cateModel = new Category();
-      const promises = Array.isArray(cateIds) ?
-        cateIds.map(cateId => cateModel.getCategoryById(cateId)) :
-        cateIds.split(',').map(cateId => cateModel.getCategoryById(cateId));
+      const promises = cateIds.split(',').map(cateId => cateModel.getCategoryById(cateId));
 
       const categories = await Promise.all(promises);
       // Will replace cates by an array with more than infomation
-      newCate = categories.map((cate, i) => {
+      queryBody.cates = categories.map((cate, i) => {
         if (!cate || !cate.length) {
           throw {
             status: 400,
@@ -96,50 +93,75 @@ async function uploadDocument(body, file) {
         };
       });
       delete queryBody.cateIds;
-      queryBody.cates = newCate;
     }
 
-    if (subjectId) {
+    if (subjectIds) {
       const subModel = new Subject();
-      const subject = await subModel.getSubjectById(subjectId);
-      if (!subject || !subject.length) {
-        return {
-          status: 400,
-          error: 'Subject id does not exists',
-        };
-      }
+      const promises = subjectIds.split(',').map(subjectId => subModel.getSubjectById(subjectId));
 
-      queryBody.subjectName =subject[0].name;
+      const subjects = await Promise.all(promises);
+      // Will replace cates by an array with more than infomation
+      queryBody.subjects = subjects.map((sub, i) => {
+        if (!sub || !sub.length) {
+          throw {
+            status: 400,
+            error: `Subject id ${subjectIds.split(',')[i]} does not exists`,
+          };
+        }
+
+        return {
+          subjectId: sub[0].id,
+          subjectName: sub[0].name,
+        };
+      });
+      delete queryBody.subjectIds;
     }
 
-    if (classId) {
+    if (classIds && classIds.length) {
       const classModel = new Class();
-      const _class = await classModel.getClassById(classId);
-      if (!_class || !_class.length) {
-        return {
-          status: 400,
-          error: 'Class id does not exists',
-        };
-      }
+      const promises = classIds.split(',').map(classId => classModel.getClassById(classId));
 
-      queryBody.className = _class[0].name;
+      const classes = await Promise.all(promises);
+      // Will replace cates by an array with more than infomation
+      queryBody.classes = classes.map((classes, i) => {
+        if (!classes || !classes.length) {
+          throw {
+            status: 400,
+            error: `CLass id ${classIds.split(',')[i]} does not exists`,
+          };
+        }
+
+        return {
+          classId: classes[0].id,
+          className: classes[0].name,
+        };
+      });
+      delete queryBody.classIds;
     }
 
-    if (collectionId) {
+    if (collectionIds && collectionIds.length) {
       const collectionModel = new Collection();
-      const collection = await collectionModel.getCollectionById(collectionId);
-      if (!collection || !collection.length) {
-        return {
-          status: 400,
-          error: 'Collection id does not exists',
-        };
-      }
+      const promises = collectionIds.split(',').map(collectionId => collectionModel.getCollectionById(collectionId));
 
-      queryBody.collectionName = collection[0].name;
+      const collections = await Promise.all(promises);
+      queryBody.collections = collections.map((collection, i) => {
+        if (!collection || !collection.length) {
+          throw {
+            status: 400,
+            error: `CLass id ${collectionIds.split(',')[i]} does not exists`,
+          };
+        }
+
+        return {
+          collectionId: collection[0].id,
+          collectionName: collection[0].name,
+        };
+      });
+      delete queryBody.collectionIds;
     }
 
-    body.tags = Array.isArray(tags) ? tags.map(tag => tag.trim()).join(',') : tags.split(',').map(tag => tag.trim()).join(',');
-    body.cateIds = Array.isArray(cateIds) ? cateIds.join(',') : cateIds;
+    if(yearSchools) queryBody.yearSchools = yearSchools.split(',');
+    body.tags = tags.split(',').map(tag => tag.trim()).join(',');
     const { error, status, fileName } =  fileHelpers.validateExtension(file, body.userId);
     if (error) {
       return {
@@ -204,104 +226,156 @@ async function getDocument(id, cols) {
 
 }
 
-async function updateDocumentInfo(id, body, file) {
+async function updateDocumentById(id, body, file) {
   try {
-    const existed = await docModel.getDocumentById(id);
-    const newBody = Object.assign({}, body);
-
-    if (!existed || !existed.length) {
+    const queryBody = Object.assign({}, body);
+    const resValidate = dataValidator(body, schemaId);
+    if (!resValidate.valid) {
       return {
-        status: 400,
-        error: 'Document not found',
+        status: 403,
+        error: resValidate.errors,
       };
     }
 
-    const { tags, catesId, subjectId, classId, collectionId } = body;
+    const doc = await docModel.getDocumentById(id);
+    if (!doc || !doc.length) {
+      return {
+        status: 400,
+        error: `Document ${id} does not exist`,
+      };
+    }
 
-    if (catesId && catesId.length) {
+    const { tags, cateIds, subjectIds, classIds, collectionIds, yearSchools, userId } = body;
+    const userModel = new User();
+    const user = await userModel.getById(userId);
+    if (!user || !user.length || !user[0].status) {
+      return {
+        status: 400,
+        error: 'User id does not exists',
+      };
+    }
+
+    if (cateIds) {
       const cateModel = new Category();
-      const promises = catesId.map(cateId => cateModel.getCategoryById(cateId));
+      const promises = cateIds.split(',').map(cateId => cateModel.getCategoryById(cateId));
+
       const categories = await Promise.all(promises);
       // Will replace cates by an array with more than infomation
-      newBody.cates = categories.map(cate => {
+      queryBody.cates = categories.map((cate, i) => {
         if (!cate || !cate.length) {
           throw {
             status: 400,
-            error: 'Category id does not exists',
+            error: `Category id ${cateIds.split(',')[i]} does not exists`,
           };
         }
 
         return {
-          cateId: cate.id,
-          cateName: cate.name,
+          cateId: cate[0].id,
+          cateName: cate[0].name,
         };
       });
+      delete queryBody.cateIds;
     }
 
-    if(subjectId) {
+    if (subjectIds) {
       const subModel = new Subject();
-      const subject = await subModel.getSubjectById(subjectId);
-      if (!subject || !subject.length) {
+      const promises = subjectIds.split(',').map(subjectId => subModel.getSubjectById(subjectId));
+
+      const subjects = await Promise.all(promises);
+      // Will replace cates by an array with more than infomation
+      queryBody.subjects = subjects.map((sub, i) => {
+        if (!sub || !sub.length) {
+          throw {
+            status: 400,
+            error: `Subject id ${subjectIds.split(',')[i]} does not exists`,
+          };
+        }
+
         return {
-          status: 400,
-          error: 'Subject id does not exists',
+          subjectId: sub[0].id,
+          subjectName: sub[0].name,
         };
-      }
-      newBody.subjectName = subject[0].name;
+      });
+      delete queryBody.subjectIds;
     }
 
-    if (classId) {
+    if (classIds && classIds.length) {
       const classModel = new Class();
-      const _class = await classModel.getClassById(classId);
-      if (!_class || !_class.length) {
+      const promises = classIds.split(',').map(classId => classModel.getClassById(classId));
+
+      const classes = await Promise.all(promises);
+      // Will replace cates by an array with more than infomation
+      queryBody.classes = classes.map((classes, i) => {
+        if (!classes || !classes.length) {
+          throw {
+            status: 400,
+            error: `CLass id ${classIds.split(',')[i]} does not exists`,
+          };
+        }
+
         return {
-          status: 400,
-          error: 'Class id does not exists',
+          classId: classes[0].id,
+          className: classes[0].name,
         };
-      }
-      newBody.subjectName = _class[0].name;
+      });
+      delete queryBody.classIds;
     }
 
-    if (collectionId) {
+    if (collectionIds && collectionIds.length) {
       const collectionModel = new Collection();
-      const collection = await collectionModel.getCollectionById(collectionId);
-      if (!collection || !collection.length) {
+      const promises = collectionIds.split(',').map(collectionId => collectionModel.getCollectionById(collectionId));
+
+      const collections = await Promise.all(promises);
+      queryBody.collections = collections.map((collection, i) => {
+        if (!collection || !collection.length) {
+          throw {
+            status: 400,
+            error: `CLass id ${collectionIds.split(',')[i]} does not exists`,
+          };
+        }
+
         return {
-          status: 400,
-          error: 'Collection id does not exists',
+          collectionId: collection[0].id,
+          collectionName: collection[0].name,
         };
-      }
-      newBody.collectionName = collection[0].name;
+      });
+      delete queryBody.collectionIds;
     }
 
-    if (tags) {
-      body.tags = Array.isArray(tags) ? tags.map(tag => tag.trim()).join(',') : tags.split(',').map(tag => tag.trim()).join(',');
-      newBody.tags = body.tags.split(',');
-    }
-
-    const promise = [docModel.updateDocumentById(id, body)];
-
-    if (file && file.length) {
-      const { error, status, fileName } =  fileHelpers.validateExtension(file, id);
-      if (error)
+    if (yearSchools) queryBody.yearSchools = yearSchools.split(',');
+    body.tags = tags.split(',').map(tag => tag.trim()).join(',');
+    if (file.length) {
+      const { error, status, fileName } =  fileHelpers.validateExtension(file, body.userId);
+      if (error) {
         return {
           error,
           status,
         };
-
+      }
       body.path = fileName;
-      promise.concat([
-        fileHelpers.storeFile(file, fileName),
-        fileHelpers.removeFile(existed[0].path),
-      ]);
+      queryBody.path = fileName;
+      await fileHelpers.storeFile(file, fileName);
+      await fileHelpers.preview(fileName);
+      const oldFileName = path.basename(doc[0].path, path.extname(doc[0].path));
+      const thumbFile = `${path.dirname(doc[0].path)}/${oldFileName}.png`;
+      await fileHelpers.removeFile(doc[0].path);
+      await fileHelpers.removeFile(thumbFile);
+      const extension = file[0].originalname.split('.').pop();
+      const { numPages } = extension === 'pdf' ?
+        await pdfjs.getDocument(path.resolve(__dirname, fileName)) :
+        { numPages: await pageCounter(path.resolve(__dirname, fileName)) };
+      body.totalPages = numPages;
+      queryBody.totalPages = numPages;
     }
-    await Promise.all(promise).catch((ex) => { throw ex; });
-    const serverNotify = await rabbitSender('document.update', { body: newBody, id });
-
+    await docModel.updateDocumentById(id, body);
+    // Append data and send to query api
+    queryBody.userName = user[0].name;
+    queryBody.tags = body.tags.split(',');
+    const serverNotify = await rabbitSender('document.update', { body: queryBody, id });
     if (serverNotify.statusCode === 200) {
       return {
-        status: 200,
-        message: `Document with id = ${id} is updated`,
+        status: 201,
+        message: `Document ${id} updated`,
       };
     } else {
       // HERE IS CASE API QUERY iS NOT RESOLVED
@@ -314,9 +388,12 @@ async function updateDocumentInfo(id, body, file) {
       };
     }
   } catch (ex) {
-    logger(ex.error || ex.message || 'Unexpected error');
+    logger.error(ex.message || ex.error || 'Unexpected error when update file');
 
-    return ex.error ? ex : exception;
+    return {
+      status: ex.status || ex.statusCode || 500,
+      error: ex.error || 'Unexpected error when update file',
+    };
   }
 }
 
@@ -331,26 +408,29 @@ async function deleteDocument(id) {
       };
     }
 
+    const oldPath= result[0].path;
+    const thumbFile = `${path.dirname(oldPath)}/${path.basename(oldPath, path.extname(oldPath))}.png`;
     await Promise.all([
       docModel.deleteDocumentById(id),
-      fileHelpers.removeFile(result[0].path),
+      fileHelpers.removeFile(oldPath),
+      fileHelpers.removeFile(thumbFile),
     ]);
 
-    const serverNotify = await rabbitSender('document.delete', { id });
+    const { statusCode, error, message } = await rabbitSender('document.delete', { id });
 
-    if (serverNotify.statusCode === 200) {
+    if (!error) {
       return {
-        status: 200,
-        message: 'Deleted',
+        status: statusCode,
+        message,
       };
     } else {
       // HERE IS CASE API QUERY iS NOT RESOLVED
       // TODO: ROLLBACK HERE
-      logger.error(`[DOCUMENT]: ${serverNotify.error}`);
+      logger.error(`[DOCUMENT]: ${error}`);
 
       return {
-        status: serverNotify.statusCode,
-        message: serverNotify.error,
+        status: statusCode,
+        message: error,
       };
     }
   } catch (ex) {
@@ -542,7 +622,7 @@ export {
   uploadDocument,
   getListDocuments,
   getDocument,
-  updateDocumentInfo,
+  updateDocumentById,
   deleteDocument,
   purchaseDocument,
   downloadDocument,

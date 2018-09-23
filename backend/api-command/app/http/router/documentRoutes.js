@@ -4,7 +4,7 @@ import {
   getListDocuments,
   uploadDocument,
   getDocument,
-  updateDocumentInfo,
+  updateDocumentById,
   deleteDocument,
   purchaseDocument,
   downloadDocument,
@@ -54,7 +54,8 @@ const routerDefine =  function defineRouter() {
   });
   // Update documents
   route.post('/documents/:id', uploader.any(), async (req, res) => {
-    const { error, message, status } = await updateDocumentInfo(req.params.id, req.body, req.files);
+    req.body.userId = req.app.locals.id.toString();
+    const { error, message, status } = await updateDocumentById(req.params.id, req.body, req.files);
     if (error) {
       return res.status(status).json({
         error,

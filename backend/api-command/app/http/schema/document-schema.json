@@ -11,18 +11,8 @@
       "maxLength": 255
     },
     "tags": {
-      "anyOf": [{
-          "type": "string",
-          "minLength": 1
-        },
-        {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "minLength": 1
-          }
-        }
-      ]
+      "type": "string",
+      "minLength": 1
     },
     "approved": {
       "type": "integer"
@@ -36,38 +26,24 @@
       "pattern": "^[0-9]+$"
     },
     "cateIds": {
-      "anyOf": [{
-          "type": "string",
-          "minLength": 1
-        },
-        {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "minLength": 1
-          }
-        }
-      ]
-    },
-    "subjectId": {
       "type": "string",
-      "minLength": 1,
-      "maxLength": 11
+      "minLength": 1
     },
-    "classId": {
+    "subjectIds": {
       "type": "string",
-      "minLength": 1,
-      "maxLength": 11
+      "minLength": 1
     },
-    "yearSchool": {
+    "classIds": {
       "type": "string",
-      "minLength": 1,
-      "maxLength": 4
+      "minLength": 1
     },
-    "collectionId": {
+    "yearSchools": {
       "type": "string",
-      "minLength": 1,
-      "maxLength": 11
+      "minLength": 1
+    },
+    "collectionIds": {
+      "type": "string",
+      "minLength": 1
     },
     "userId": {
       "type": "string"

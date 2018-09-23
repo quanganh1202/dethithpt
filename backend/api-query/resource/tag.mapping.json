@@ -36,6 +36,9 @@
         },
         "view": {
           "type": "integer"
+        },
+        "priority": {
+          "type": "integer"
         }
       }
     }
