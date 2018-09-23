@@ -215,6 +215,7 @@ const insertTag = async (tags, createdAt) => {
       return tagModel.insert({
         tag: tags[i],
         view: 1,
+        priority: 0,
         createdAt,
       });
     }

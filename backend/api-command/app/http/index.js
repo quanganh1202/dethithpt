@@ -8,6 +8,7 @@ import categoryRoutes from './router/cateRoutes';
 import classRoutes from './router/classRoutes';
 import subjectRoutes from './router/subjectRoutes';
 import collectionRoutes from './router/collectionRoutes';
+import tagRoutes from './router/tag';
 import { tokenVerifier } from './middleware/jwt';
 import logger from '../src/libs/logger';
 import { addSchema } from '../src/libs/ajv';
@@ -37,6 +38,7 @@ const initialExpress = async function startServer() {
     classRoutes(),
     subjectRoutes(),
     collectionRoutes(),
+    tagRoutes(),
   ]);
   // Loading schema validation file in folder ./schema
   await addSchema();

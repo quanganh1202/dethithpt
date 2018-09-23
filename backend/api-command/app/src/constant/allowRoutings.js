@@ -18,4 +18,5 @@ export default [
   'subject.update',
   'subject.delete',
   'purchase.create',
+  'tag.update',
 ];
