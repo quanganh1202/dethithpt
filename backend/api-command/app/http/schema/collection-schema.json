@@ -72,6 +72,9 @@
     },
     "userId": {
       "type": "string"
+    },
+    "prioriy": {
+      "type": "string"
     }
   }
 }

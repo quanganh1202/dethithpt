@@ -21,17 +21,31 @@ const validateExtension = function validate(file, userId) {
       error: `This file extenstion does not support. Only support [${fileTypeAllowed}]`,
     };
   }
+  if (['zip', 'rar'].includes(extension)) {
+    if (!file[1] || file[1].fieldname !== 'filePreview') {
+      return {
+        status: 400,
+        error: 'Should be provide a file preview for zip, rar file',
+      };
+    }
+  }
 
   return {
     fileName: `${pathFolderStore}/${userId}_${Date.now()}.${extension}`,
+    filePreview: `${pathFolderStore}/${userId}_${Date.now()}.png`,
   };
 };
 
-const storeFile = async function store(file, fileName) {
-  await fs.move(
-    file[0].path,
-    path.resolve(__dirname, fileName)
-  );
+const storeFile = async function store(file, fileName, preview) {
+  try {
+    await fs.move(
+      preview ? file[1].path : file[0].path,
+      path.resolve(__dirname, fileName)
+    );
+  } catch(ex) {
+    console.log('-=-=-=-', ex);
+  }
+
 };
 
 const removeFile = async function removeFile(pathOld) {

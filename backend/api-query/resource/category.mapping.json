@@ -65,6 +65,9 @@
               "type": "integer"
             }
           }
+        },
+        "priority": {
+          "type": "integer"
         }
       }
     }

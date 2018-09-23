@@ -38,6 +38,7 @@ async function createCollection(body) {
         error: resValidate.errors,
       };
     }
+    body.priority = body.priority || '0';
     const { name, cateIds, userId, subjectIds, classIds } = body;
     const collection = await collectionModel.getListCollection([{ 'name': name }]);
     if (collection && collection.length) {
