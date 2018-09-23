@@ -48,6 +48,7 @@ USE dethithpt;
     `name` VARCHAR(50) NOT NULL,
     `description` TEXT(255) NOT NULL,
     `userId` TEXT(15) NOT NULL,
+    `priority` VARCHAR(1) NOT NULL,
     `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `id_UNIQUE` (`id` ASC),
@@ -80,6 +81,7 @@ USE dethithpt;
     `subjectIds` VARCHAR(255) NOT NULL,
     `userId` INT(11) NOT NULL,
     `yearSchools` VARCHAR(255) NOT NULL,
+    `priority` VARCHAR(1) NOT NULL,
     `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `id_UNIQUE` (`id` ASC));

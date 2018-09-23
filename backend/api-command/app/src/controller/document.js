@@ -162,7 +162,7 @@ async function uploadDocument(body, file) {
 
     if(yearSchools) queryBody.yearSchools = yearSchools.split(',');
     body.tags = tags.split(',').map(tag => tag.trim()).join(',');
-    const { error, status, fileName } =  fileHelpers.validateExtension(file, body.userId);
+    const { error, status, fileName, filePreview } =  fileHelpers.validateExtension(file, body.userId);
     if (error) {
       return {
         error,
@@ -173,11 +173,15 @@ async function uploadDocument(body, file) {
     queryBody.path = fileName;
     queryBody.view = 1;
     await fileHelpers.storeFile(file, fileName);
-    await fileHelpers.preview(fileName);
+    if (filePreview) {
+      await fileHelpers.storeFile(file, filePreview, true);
+    } else {
+      await fileHelpers.preview(fileName);
+    }
     const extension = file[0].originalname.split('.').pop();
     const { numPages } = extension === 'pdf' ?
-      await pdfjs.getDocument(path.resolve(__dirname, fileName)) :
-      { numPages: await pageCounter(path.resolve(__dirname, fileName)) };
+      await pdfjs.getDocument(path.resolve(__dirname, fileName)) : extension === 'docx' ?
+        { numPages: await pageCounter(path.resolve(__dirname, fileName)) } : 0;
     body.totalPages = numPages;
     queryBody.totalPages = numPages;
     const res = await docModel.addNewDocument(body);
@@ -201,11 +205,11 @@ async function uploadDocument(body, file) {
       };
     }
   } catch (ex) {
-    logger.error(ex.message || ex.error || 'Unexpected error when upload file');
+    logger.error(ex.message || ex.error || ex || 'Unexpected error when upload file');
 
     return {
       status: ex.status || ex.statusCode || 500,
-      error: ex.error || 'Unexpected error when upload file',
+      error: ex.error || ex || 'Unexpected error when upload file',
     };
   }
 }
