@@ -21,6 +21,8 @@ import {
   GET_CATE_LIST_SUCCESS,
   GET_COLLECTION_LIST_REQUEST,
   GET_COLLECTION_LIST_SUCCESS,
+  GET_TAGS_REQUEST,
+  GET_TAGS_SUCCESS,
 } from './constants';
 import { setToken, mappingUser } from 'services/auth';
 
@@ -41,6 +43,7 @@ export const initialState = fromJS({
   },
   categories: [],
   collections: [],
+  tags: [],
 });
 
 function homeReducer(state = initialState, action) {
@@ -93,6 +96,13 @@ function homeReducer(state = initialState, action) {
       return state
         .set('loading', false)
         .set('collections', fromJS(action.collections));
+    case GET_TAGS_REQUEST:
+        return state
+          .set('loading', true);
+    case GET_TAGS_SUCCESS:
+      return state
+        .set('loading', false)
+        .set('tags', fromJS(action.tags));
     default:
       return state;
   }

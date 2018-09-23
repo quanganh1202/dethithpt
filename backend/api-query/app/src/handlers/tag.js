@@ -54,4 +54,35 @@ export default {
       return handleTagError(err);
     }
   },
+  update: async(id, body) => {
+    try {
+      if (!id) {
+        return {
+          statusCode: 400,
+          error: 'Missing tag id',
+        };
+      }
+      const tag = await elasticsearch.get(id);
+      if (tag.error) {
+        return {
+          statusCode: tag.statusCode,
+          error: tag.error,
+        };
+      }
+      const { error, statusCode } = await elasticsearch.update(body, id);
+      if (error) {
+        return {
+          statusCode,
+          error,
+        };
+      }
+
+      return {
+        statusCode: 200,
+        message: 'Updated',
+      };
+    } catch (err) {
+      return handleTagError(err);
+    }
+  },
 };

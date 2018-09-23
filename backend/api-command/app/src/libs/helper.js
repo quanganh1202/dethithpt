@@ -35,11 +35,9 @@ const storeFile = async function store(file, fileName) {
 };
 
 const removeFile = async function removeFile(pathOld) {
-  const fileName = pathOld.split('/').pop();
-  const pathFolderArchived = process.env.PATH_FOLDER_ARCHIVED || path.resolve(__dirname, '../../archived');
   const existed = await fs.pathExists(pathOld);
   if (existed) {
-    await fs.move(pathOld, `${pathFolderArchived}/${fileName}`);
+    await fs.unlink(pathOld);
   } else {
     logger.error('Unexpect error when delete file');
   }

@@ -10,6 +10,7 @@ import {
   GET_DOC_LIST_REQUEST,
   GET_CATE_LIST_REQUEST,
   GET_COLLECTION_LIST_REQUEST,
+  GET_TAGS_REQUEST,
 } from './constants';
 import {
   loginSuccess,
@@ -18,6 +19,7 @@ import {
   getDocumentsListSuccess,
   getCategoriesSuccess,
   getCollectionsSuccess,
+  getTagsSuccess,
 } from './actions';
 
 const root = '/api';
@@ -92,6 +94,20 @@ export function* getCollectionsHandler() {
 }
 
 /**
+ * Request get tags list
+ */
+export function* getTagsHandler() {
+  const url = `${root}/tags`;
+
+  try {
+    const resp = yield call(axios.get, url);
+    yield put(getTagsSuccess(resp.data.data));
+  } catch (err) {
+    // yield put(loginFailure(err));
+  }
+}
+
+/**
  * Root saga manages watcher lifecycle
  */
 export default function* homeSaga() {
@@ -100,4 +116,5 @@ export default function* homeSaga() {
   yield takeLatest(GET_DOC_LIST_REQUEST, getDocumentsListHandler);
   yield takeLatest(GET_CATE_LIST_REQUEST, getCategoriesHandler);
   yield takeLatest(GET_COLLECTION_LIST_REQUEST, getCollectionsHandler);
+  yield takeLatest(GET_TAGS_REQUEST, getTagsHandler);
 }

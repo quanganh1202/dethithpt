@@ -9,7 +9,7 @@ mkdir -p storage
 echo "-------------------Creating database-------------------"
 
 mysql -u$ACCOUNT -p$PASSWORD -e "
-  CREATE SCHEMA $DATABASE DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+  CREATE SCHEMA IF NOT EXISTS $DATABASE DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
   USE $DATABASE;
 
@@ -42,12 +42,12 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     userId INT(11) NOT NULL,
     price VARCHAR(255) NOT NULL DEFAULT '0',
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    cateIds VARCHAR(255) NULL,
     path MEDIUMTEXT NULL,
-    subjectId INT(11) NULL,
-    classId INT(11) NULL,
-    yearSchool INT(11) NULL,
-    collectionId INT(11) NULL,
+    cateIds VARCHAR(255) NULL,
+    subjectIds VARCHAR(255) NULL,
+    classIds VARCHAR(255) NULL,
+    yearSchools VARCHAR(255) NULL,
+    collectionIds VARCHAR(255) NULL,
     totalPages INT(11) NULL,
     approved TINYINT DEFAULT '0',
     approverId VARCHAR(255),

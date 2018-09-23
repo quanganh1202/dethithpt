@@ -61,48 +61,60 @@
             }
           }
         },
-        "subjectId": {
-          "type": "keyword"
-        },
-        "subjectName": {
-          "type": "text",
-          "analyzer": "autocomplete",
-          "search_analyzer": "standard",
-          "fields": {
-            "raw": {
+        "subjects": {
+          "properties": {
+            "subjectId": {
               "type": "keyword"
+            },
+            "subjectName": {
+              "type": "text",
+              "analyzer": "autocomplete",
+              "search_analyzer": "standard",
+              "fields": {
+                "raw": {
+                  "type": "keyword"
+                }
+              }
             }
           }
         },
         "description": {
           "type": "text"
         },
-        "classId": {
-          "type": "keyword"
-        },
-        "className": {
-          "type": "text",
-          "analyzer": "autocomplete",
-          "search_analyzer": "standard",
-          "fields": {
-            "raw": {
+        "classes": {
+          "properties": {
+            "classId": {
               "type": "keyword"
+            },
+            "className": {
+              "type": "text",
+              "analyzer": "autocomplete",
+              "search_analyzer": "standard",
+              "fields": {
+                "raw": {
+                  "type": "keyword"
+                }
+              }
             }
           }
         },
-        "yearSchool": {
-          "type": "keyword"
+        "yearSchools": {
+          "type": "text"
         },
-        "collectionId": {
-          "type": "keyword"
-        },
-        "collectionName": {
-          "type": "text",
-          "analyzer": "autocomplete",
-          "search_analyzer": "standard",
-          "fields": {
-            "raw": {
+        "collections": {
+          "properties": {
+            "collectionId": {
               "type": "keyword"
+            },
+            "collectionName": {
+              "type": "text",
+              "analyzer": "autocomplete",
+              "search_analyzer": "standard",
+              "fields": {
+                "raw": {
+                  "type": "keyword"
+                }
+              }
             }
           }
         },

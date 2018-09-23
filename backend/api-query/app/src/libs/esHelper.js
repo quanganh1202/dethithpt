@@ -120,17 +120,21 @@ const updateNumDocRefToCate = (cates, type) => {
   return promiseUpdateCates;
 };
 
-const updateNumDocRefToCollection = (collectionId, type) => {
+const updateNumDocRefToCollection = (collections, type) => {
   const collectionModel =new ES('collections', 'collection');
   const operation = type === constants.INCREASE ? '++' : '--';
 
-  return collectionModel.updateByScript(
-    collectionId,
-    {
-      source: `ctx._source.numDocRefs${operation};`,
-      lang: 'painless',
-    }
-  );
+  const promiseUpdateCates = collections.map((collection) => {
+    return collectionModel.updateByScript(
+      collection.collectionId,
+      {
+        source: `ctx._source.numDocRefs${operation};`,
+        lang: 'painless',
+      }
+    );
+  });
+
+  return promiseUpdateCates;
 };
 
 const updateDocumentView = (documentId, type) => {
@@ -211,6 +215,7 @@ const insertTag = async (tags, createdAt) => {
       return tagModel.insert({
         tag: tags[i],
         view: 1,
+        priority: 0,
         createdAt,
       });
     }

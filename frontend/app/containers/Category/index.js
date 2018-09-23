@@ -70,17 +70,15 @@ export class Category extends React.PureComponent {
   componentWillMount() {
     // get filter data
     this.props.getFilterData();
-    
-    if (!this.props.documents.data.length) {
-      const queries = {
-        sort: 'createdAt.desc',
-        size: itemsPerLoad,
-      };
-      if (this.props.match.params.id) {
-        queries.cateId = this.props.match.params.id
-      }
-      this.props.getDocumentsList(queries);
+
+    const queries = {
+      sort: 'createdAt.desc',
+      size: itemsPerLoad,
+    };
+    if (this.props.match.params.id) {
+      queries.cateId = this.props.match.params.id;
     }
+    this.props.getDocumentsList(queries, true);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -89,7 +87,7 @@ export class Category extends React.PureComponent {
         sort: 'createdAt.desc',
         size: itemsPerLoad,
         cateId: nextProps.match.params.id,
-      }
+      };
       this.props.getDocumentsList(queries, true);
       this.setState({
         filter: {
@@ -99,7 +97,7 @@ export class Category extends React.PureComponent {
           sort: { value: 'desc', label: 'Mới đăng' },
         },
         resetKey: Math.random(),
-      })
+      });
     }
   }
 
@@ -269,7 +267,7 @@ export class Category extends React.PureComponent {
               </div>)
           }
         />
-      </Wrapper> 
+      </Wrapper>
     );
   }
 }
