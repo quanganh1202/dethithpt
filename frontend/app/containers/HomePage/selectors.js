@@ -22,6 +22,9 @@ const makeSelectCategories = () =>
 const makeSelectCollections = () =>
   createSelector(selectHome, homeState => homeState.get('collections').toJS());
 
+const makeSelectTags = () =>
+  createSelector(selectHome, homeState => homeState.get('tags').toJS());
+
 export {
   selectHome,
   makeSelectUser,
@@ -29,4 +32,5 @@ export {
   makeSelectDocuments,
   makeSelectCategories,
   makeSelectCollections,
+  makeSelectTags,
 };

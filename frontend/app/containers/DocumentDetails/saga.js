@@ -34,7 +34,6 @@ export function* getDocumentDetailsHandler({ id }) {
     const resp = yield call(axios.get, url);
     yield put(getDocumentDetailsSuccess(_.get(resp.data, 'data')));
   } catch (err) {
-    console.log(err.message);
     // yield put(loginFailure(err));
   }
 }
