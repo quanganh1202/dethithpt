@@ -82,6 +82,7 @@ const DocType = (props) => {
   let src;
   switch (props.type) {
     case 'application/msword':
+    case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
       src = word;
       break;
     case 'application/pdf':

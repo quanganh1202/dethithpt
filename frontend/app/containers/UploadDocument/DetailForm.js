@@ -154,6 +154,9 @@ class DetailForm extends React.Component {
         }
         break;
       }
+      case 'filePreview':
+        newValue = event.target.files[0];
+      break;
       default:
         break;
     }
@@ -255,6 +258,19 @@ class DetailForm extends React.Component {
             />
           </div>
         ) : null}
+        {
+          (this.props.name.split('.')[1] === 'zip' || this.props.name.split('.')[1] === 'rar') ?
+          <div className="form-group">
+            <label htmlFor="cateIds">&nbsp;</label>
+            <input
+              className="form-control"
+              name="filePreview"
+              onChange={this.handleChange}
+              type="file"
+              required
+            />
+          </div> : null
+        }
         <div className="form-group">
           <label htmlFor="cateIds">&nbsp;</label>
           <div className="form-control">
