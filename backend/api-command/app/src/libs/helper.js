@@ -16,7 +16,6 @@ const validateExtension = function validate(file, userId) {
   const pathFolderStore = process.env.PATH_FOLDER_STORE || path.resolve(__dirname, '../../../storage');
   const extension = file[0].originalname.split('.').pop();
   const response = {};
-  console.log(extension, 123);
   if (!fileTypeAllowed.includes(extension)) {
     return {
       status: 400,
