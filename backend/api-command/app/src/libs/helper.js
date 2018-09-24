@@ -15,6 +15,7 @@ const initStoreFolder = async function initStoreFolder(pathFolder) {
 const validateExtension = function validate(file, userId) {
   const pathFolderStore = process.env.PATH_FOLDER_STORE || path.resolve(__dirname, '../../../storage');
   const extension = file[0].originalname.split('.').pop();
+  const response = {};
   if (!fileTypeAllowed.includes(extension)) {
     return {
       status: 400,
@@ -28,12 +29,11 @@ const validateExtension = function validate(file, userId) {
         error: 'Should be provide a file preview for zip, rar file',
       };
     }
+    response.filePreview = `${pathFolderStore}/${userId}_${Date.now()}.png`;
   }
+  response.fileName = `${pathFolderStore}/${userId}_${Date.now()}.${extension}`;
 
-  return {
-    fileName: `${pathFolderStore}/${userId}_${Date.now()}.${extension}`,
-    filePreview: `${pathFolderStore}/${userId}_${Date.now()}.png`,
-  };
+  return response;
 };
 
 const storeFile = async function store(file, fileName, preview) {
@@ -43,7 +43,7 @@ const storeFile = async function store(file, fileName, preview) {
       path.resolve(__dirname, fileName)
     );
   } catch(ex) {
-    console.log('-=-=-=-', ex);
+    logger.error(ex.message || ex || 'Unexpected error when store file');
   }
 
 };
