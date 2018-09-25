@@ -65,7 +65,7 @@ const preview = async function getPreview(fileName) {
     const previewFIle = `${dirname}/${filename}.png`;
     const extension = path.extname(fileName);
     if (extension === '.docx' || extension === '.doc') {
-      converter(fileName, dirname).then((pdfName) => {
+      office2Pdf(fileName, dirname).then((pdfName) => {
         gm(pdfName)
           .page(860, 1240)
           .draw(['rotate 40 text 200,200 "TAILIEUDOC.VN"'])
@@ -114,7 +114,7 @@ const preview = async function getPreview(fileName) {
   });
 };
 
-const converter = (word, pdf) => {
+const office2Pdf = (word, pdf) => {
   return new Promise((resolve, reject) => {
     let file = new tmp.File();
     const wordBuffer = fs.readFileSync(word);
