@@ -13,6 +13,7 @@ import * as fileHelpers from '../libs/helper';
 import { exception } from '../constant/error';
 import rabbitSender from '../../rabbit/sender';
 import action from '../constant/action';
+import header from '../constant/typeHeader';
 
 const docModel = new Document();
 const schemaId = 'http://dethithpt.com/document-schema#';
@@ -558,10 +559,12 @@ async function downloadDocument(docId, userId) {
         error: `You have not purchased document ${doc[0].name} yet`,
       };
     }
+    const ext = path.extname(doc[0].path);
 
     return {
       status: 200,
       path: doc[0].path,
+      type: header[ext],
     };
   } catch (ex) {
     logger(ex.error || ex.message || `Unexpected error when download file document ${docId}`);
