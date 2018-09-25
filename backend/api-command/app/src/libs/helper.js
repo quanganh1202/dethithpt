@@ -1,6 +1,7 @@
 import fs from 'fs-extra';
 import path from 'path';
-import doc2Pdf from 'docx-pdf';
+import tmp from 'temporary';
+import childProcess from 'child_process';
 import gm from 'gm';
 import fileTypeAllowed from '../constant/fileType';
 import logger from '../../src/libs/logger';
@@ -64,33 +65,30 @@ const preview = async function getPreview(fileName) {
     const previewFIle = `${dirname}/${filename}.png`;
     const extension = path.extname(fileName);
     if (extension === '.docx' || extension === '.doc') {
-      const pdfName = `${dirname}/${filename}.pdf`;
-      doc2Pdf(fileName, pdfName, (err) => {
-        if (err) {
-          reject({
-            statusCode: 500,
-            error: err.message || 'Create thumb file failed',
+      office2Pdf(fileName, dirname).then((pdfName) => {
+        gm(pdfName)
+          .page(860, 1240)
+          .draw(['rotate 40 text 200,200 "TAILIEUDOC.VN"'])
+          .fontSize(80)
+          .write(previewFIle, (err) => {
+            if (err) {
+              reject({
+                statusCode: 500,
+                error: err.message || 'Create thumb file failed',
+              });
+            } else {
+              resolve({
+                statusCode: 200,
+                message: 'Thumb file is created',
+              });
+            }
+            fs.unlink(pdfName);
           });
-        } else {
-          gm(pdfName)
-            .page(860, 1240)
-            .draw(['rotate 40 text 200,200 "TAILIEUDOC.VN"'])
-            .fontSize(80)
-            .write(previewFIle, (err) => {
-              if (err) {
-                reject({
-                  statusCode: 500,
-                  error: err.message || 'Create thumb file failed',
-                });
-              } else {
-                resolve({
-                  statusCode: 200,
-                  message: 'Thumb file is created',
-                });
-              }
-              fs.unlink(pdfName);
-            });
-        }
+      }).catch((err) => {
+        reject({
+          statusCode: 500,
+          error: err.message || 'Create thumb file failed',
+        });
       });
     }
 
@@ -116,5 +114,25 @@ const preview = async function getPreview(fileName) {
   });
 };
 
+const office2Pdf = (word, pdf) => {
+  return new Promise((resolve, reject) => {
+    let file = new tmp.File();
+    const wordBuffer = fs.readFileSync(word);
+    file.writeFile(wordBuffer, (err) => {
+      if(err) reject(err);
+      let cmd = `soffice --headless --convert-to pdf ${file.path} --outdir ${pdf}`;
+      childProcess.exec(cmd, (error) => {
+        if(error) {
+          reject(error);
+        } else {
+          // Wait to file was created by system, delay 500 to sure file is created
+          setTimeout(() => {
+            resolve(path.join(pdf, `${path.basename(file.path, path.extname(file.path))}.pdf`));
+          }, 1000);
+        }
+      });
+    });
+  });
+};
 
 export { preview, initStoreFolder, storeFile, validateExtension, removeFile };
