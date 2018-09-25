@@ -172,7 +172,7 @@ class DetailForm extends React.Component {
   onSubmit() {
     const { formData } = this.state;
     let newData = formData.set('tags', formData.get('tags').join(','));
-    Array.from(['subjectId', 'classId', 'cateIds', 'collectionId']).forEach(
+    Array.from(['subjectIds', 'classIds', 'cateIds', 'collectionIds']).forEach(
       field => {
         if (newData.has(field) && newData.get(field).length > 0) {
           newData = newData.set(field, newData.get(field).map(i => i.value));
@@ -181,7 +181,7 @@ class DetailForm extends React.Component {
         }
       },
     );
-    Array.from(['yearSchool']).forEach(field => {
+    Array.from(['yearSchools']).forEach(field => {
       if (newData.has(field)) {
         newData = newData.set(field, newData.get(field).value);
       }
@@ -297,11 +297,11 @@ class DetailForm extends React.Component {
               }}
             />
             <Select
-              name="subjectId"
+              name="subjectIds"
               options={subjects.map(sj => ({ value: sj.id, label: sj.name }))}
-              value={formData.get('subjectId', '')}
+              value={formData.get('subjectIds', '')}
               onChange={value =>
-                this.handleChange({ target: { name: 'subjectId', value } })
+                this.handleChange({ target: { name: 'subjectIds', value } })
               }
               hideSelectedOptions={false}
               closeMenuOnSelect={false}
@@ -318,11 +318,11 @@ class DetailForm extends React.Component {
               }}
             />
             <Select
-              name="classId"
+              name="classIds"
               options={classes.map(sj => ({ value: sj.id, label: sj.name }))}
-              value={formData.get('classId', '')}
+              value={formData.get('classIds', '')}
               onChange={value =>
-                this.handleChange({ target: { name: 'classId', value } })
+                this.handleChange({ target: { name: 'classIds', value } })
               }
               hideSelectedOptions={false}
               closeMenuOnSelect={false}
@@ -341,13 +341,13 @@ class DetailForm extends React.Component {
               }}
             />
             <Select
-              name="yearSchool"
+              name="yearSchools"
               options={Array(21)
                 .fill(new Date().getFullYear() - 10)
                 .map((y, idx) => ({ value: y + idx, label: y + idx }))}
-              value={formData.get('yearSchool', '')}
+              value={formData.get('yearSchools', '')}
               onChange={value =>
-                this.handleChange({ target: { name: 'yearSchool', value } })
+                this.handleChange({ target: { name: 'yearSchools', value } })
               }
               hideSelectedOptions={false}
               closeMenuOnSelect={false}
@@ -363,14 +363,14 @@ class DetailForm extends React.Component {
               }}
             />
             <Creatable
-              name="collectionId"
+              name="collectionIds"
               options={collections.map(sj => ({
                 value: sj.id,
                 label: sj.name,
               }))}
-              value={formData.get('collectionId', '')}
+              value={formData.get('collectionIds', '')}
               onChange={value =>
-                this.handleChange({ target: { name: 'collectionId', value } })
+                this.handleChange({ target: { name: 'collectionIds', value } })
               }
               hideSelectedOptions={false}
               closeMenuOnSelect={false}

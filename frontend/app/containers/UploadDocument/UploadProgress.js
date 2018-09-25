@@ -215,7 +215,7 @@ class UploadProgress extends React.Component {
               </p>
               <p>
                 <b>Môn:</b>
-                {_.get(successId, 'subjectId', []).map(
+                {_.get(successId, 'subjectIds', []).map(
                   (key, index) =>
                     `${_.get(subjects.find(c => c.id === key), 'name')}${
                       index !== successId.subjectId.length - 1 ? ',' : ''
@@ -224,7 +224,7 @@ class UploadProgress extends React.Component {
               </p>
               <p>
                 <b>Lớp:</b>
-                {_.get(successId, 'classId', []).map(
+                {_.get(successId, 'classIds', []).map(
                   (key, index) =>
                     `${_.get(classes.find(c => c.id === key), 'name')}${
                       index !== successId.classId.length - 1 ? ',' : ''
@@ -237,7 +237,7 @@ class UploadProgress extends React.Component {
               </p>
               <p>
                 <b>Bộ sưu tập:</b>
-                {_.get(successId, 'collectionId', []).map(
+                {_.get(successId, 'collectionIds', []).map(
                   (key, index) =>
                     `${_.get(collections.find(c => c.id === key), 'name')}${
                       index !== successId.collectionId.length - 1 ? ',' : ''
@@ -277,7 +277,7 @@ class UploadProgress extends React.Component {
             {percent && percent !== 100 ? 'Hủy tải lên' : 'Xóa'} <span>X</span>
           </span>
         </div>
-        {percent && percent !== 100 ? (
+        {percent ? (
           <progress
             value={percent}
             max={100}
