@@ -180,7 +180,7 @@ async function uploadDocument(body, file) {
     }
     const extension = file[0].originalname.split('.').pop();
     const { numPages } = extension === 'pdf' ?
-      await pdfjs.getDocument(path.resolve(__dirname, fileName)) : extension === 'docx' ?
+      await pdfjs.getDocument(path.resolve(__dirname, fileName)) : extension === 'docx' || extension === 'doc' ?
         { numPages: await pageCounter(path.resolve(__dirname, fileName)) } : 0;
     body.totalPages = numPages;
     queryBody.totalPages = numPages;
@@ -366,8 +366,8 @@ async function updateDocumentById(id, body, file) {
       await fileHelpers.removeFile(thumbFile);
       const extension = file[0].originalname.split('.').pop();
       const { numPages } = extension === 'pdf' ?
-        await pdfjs.getDocument(path.resolve(__dirname, fileName)) :
-        { numPages: await pageCounter(path.resolve(__dirname, fileName)) };
+        await pdfjs.getDocument(path.resolve(__dirname, fileName)) : extension === 'docx' || extension === 'doc' ?
+          { numPages: await pageCounter(path.resolve(__dirname, fileName)) } : 0;
       body.totalPages = numPages;
       queryBody.totalPages = numPages;
     }
