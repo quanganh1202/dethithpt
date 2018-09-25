@@ -209,7 +209,7 @@ class UploadProgress extends React.Component {
                 {_.get(successId, 'cateIds', []).map(
                   (key, index) =>
                     `${_.get(categories.find(c => c.id === key), 'name')}${
-                      index !== successId.cateIds.length - 1 ? ',' : ''
+                      index !== _.get(successId, 'cateIds', []).length - 1 ? ',' : ''
                     } `,
                 )}
               </p>
@@ -218,7 +218,7 @@ class UploadProgress extends React.Component {
                 {_.get(successId, 'subjectIds', []).map(
                   (key, index) =>
                     `${_.get(subjects.find(c => c.id === key), 'name')}${
-                      index !== successId.subjectId.length - 1 ? ',' : ''
+                      index !== _.get(successId, 'subjectIds', []).length - 1 ? ',' : ''
                     } `,
                 )}
               </p>
@@ -227,7 +227,7 @@ class UploadProgress extends React.Component {
                 {_.get(successId, 'classIds', []).map(
                   (key, index) =>
                     `${_.get(classes.find(c => c.id === key), 'name')}${
-                      index !== successId.classId.length - 1 ? ',' : ''
+                      index !== _.get(successId, 'classIds', []).length - 1 ? ',' : ''
                     } `,
                 )}
               </p>
@@ -240,7 +240,7 @@ class UploadProgress extends React.Component {
                 {_.get(successId, 'collectionIds', []).map(
                   (key, index) =>
                     `${_.get(collections.find(c => c.id === key), 'name')}${
-                      index !== successId.collectionId.length - 1 ? ',' : ''
+                      index !== _.get(successId, 'collectionIds', []).length - 1 ? ',' : ''
                     } `,
                 )}
               </p>
