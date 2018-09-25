@@ -32,6 +32,7 @@
     "amqplib": "^0.5.2",
     "babel-polyfill": "^6.26.0",
     "body-parser": "^1.18.3",
+    "child_process": "^1.0.2",
     "cors": "^2.8.4",
     "cross-env": "^5.2.0",
     "docx-pdf-pagecount": "0.0.3",
@@ -46,6 +47,7 @@
     "promise-mysql": "^3.3.1",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
+    "temporary": "0.0.8",
     "uuid": "^3.3.2",
     "winston": "^3.0.0"
   },
