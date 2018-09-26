@@ -13,6 +13,7 @@ import * as fileHelpers from '../libs/helper';
 import { exception } from '../constant/error';
 import rabbitSender from '../../rabbit/sender';
 import action from '../constant/action';
+import header from '../constant/typeHeader';
 
 const docModel = new Document();
 const schemaId = 'http://dethithpt.com/document-schema#';
@@ -366,8 +367,8 @@ async function updateDocumentById(id, body, file) {
       await fileHelpers.removeFile(thumbFile);
       const extension = file[0].originalname.split('.').pop();
       const { numPages } = extension === 'pdf' ?
-        await pdfjs.getDocument(path.resolve(__dirname, fileName)) :
-        { numPages: await pageCounter(path.resolve(__dirname, fileName)) };
+        await pdfjs.getDocument(path.resolve(__dirname, fileName)) : extension === 'docx' ?
+          { numPages: await pageCounter(path.resolve(__dirname, fileName)) } : 0;
       body.totalPages = numPages;
       queryBody.totalPages = numPages;
     }
@@ -558,10 +559,12 @@ async function downloadDocument(docId, userId) {
         error: `You have not purchased document ${doc[0].name} yet`,
       };
     }
+    const ext = path.extname(doc[0].path);
 
     return {
       status: 200,
       path: doc[0].path,
+      type: header[ext],
     };
   } catch (ex) {
     logger(ex.error || ex.message || `Unexpected error when download file document ${docId}`);

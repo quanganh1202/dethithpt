@@ -128,7 +128,7 @@ const office2Pdf = (word, pdf) => {
           // Wait to file was created by system, delay 500 to sure file is created
           setTimeout(() => {
             resolve(path.join(pdf, `${path.basename(file.path, path.extname(file.path))}.pdf`));
-          }, 1000);
+          }, 2000);
         }
       });
     });

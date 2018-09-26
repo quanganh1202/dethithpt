@@ -79,7 +79,7 @@ const routerDefine =  function defineRouter() {
     const userId = req.app.locals.id.toString();
     const docId = req.params.docId;
     const download = req.query.download;
-    const { error, status, path } = await downloadDocument(docId, userId);
+    const { error, status, path, type } = await downloadDocument(docId, userId);
     if (error) {
       return res.status(status).json({
         error,
@@ -90,7 +90,7 @@ const routerDefine =  function defineRouter() {
         message: 'OK',
       });
     }
-    res.setHeader('Content-Type', 'application/pdf');
+    res.set('Content-Type', `application/${type}`);
     res.status(status).download(path);
   });
 
