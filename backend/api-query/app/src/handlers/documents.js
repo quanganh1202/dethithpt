@@ -41,8 +41,14 @@ export default {
         return result;
       }
       const { tags } = result.data;
-      updateDocumentView(docId, constant.INCREASE);
-      updateTagView(tags, constant.INCREASE);
+      await updateDocumentView(docId, constant.INCREASE);
+      const promises = updateTagView(tags, constant.INCREASE);
+      await Promise.all(promises).catch(ex => {
+        // Ignore error data conflic version [409]
+        if (ex.status !== 409) {
+          throw ex;
+        }
+      });
 
       return result;
     } catch(error) {
