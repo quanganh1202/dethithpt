@@ -259,7 +259,7 @@ class DetailForm extends React.Component {
           </div>
         ) : null}
         {
-          (this.props.name.split('.')[1] === 'zip' || this.props.name.split('.')[1] === 'rar') ?
+          (this.props.name && (this.props.name.split('.')[1] === 'zip' || this.props.name.split('.')[1] === 'rar')) ?
           <div className="form-group">
             <label htmlFor="cateIds">&nbsp;</label>
             <input
