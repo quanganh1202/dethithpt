@@ -17,6 +17,7 @@ import {
 // The initial state of the App
 export const initialState = fromJS({
   users: [],
+  total: 0,
 });
 
 function userReducer(state = initialState, action) {
@@ -26,7 +27,8 @@ function userReducer(state = initialState, action) {
     case GET_USERS.SUCCESS:
       return state
         .set('loading', false)
-        .set('users', fromJS(action.users));
+        .set('users', fromJS(action.users))
+        .set('total', action.total);
     default:
       return state;
   }

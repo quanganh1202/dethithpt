@@ -15,12 +15,17 @@ const root = '/api';
 /**
  * Request get document list
  */
-export function* getUsersHandler() {
+export function* getUsersHandler({ query }) {
   const url = `${root}/users`;
+  const options = {
+    params: {
+      ...query,
+    }
+  }
 
   try {
-    const resp = yield call(axios.get, url);
-    yield put(getUsersSuccess(resp.data.data));
+    const resp = yield call(axios.get, url, options);
+    yield put(getUsersSuccess(resp.data));
   } catch (err) {
     // yield put(loginFailure(err));
   }

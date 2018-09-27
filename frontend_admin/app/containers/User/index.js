@@ -23,9 +23,13 @@ import {
   Row,
   Table,
   Button,
+  InputGroup,
+  Input,
+  InputGroupAddon,
 } from 'reactstrap';
 import moment from 'moment';
 import styled from 'styled-components';
+import { HeadSort, PaginationTable } from 'components/Table';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
@@ -33,6 +37,7 @@ import { getUsers } from './actions';
 import {
   makeSelectUsers,
   makeSelectLoading,
+  makeSelectTotalUser,
 } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
@@ -51,18 +56,30 @@ const Wrapper = styled.div`
 export class User extends React.PureComponent {
   constructor() {
     super();
-    this.state = {};
+    this.state = {
+      currentPage: 1,
+    };
+    this.size = 1;
+    this.maxPages = 3;
+    this.sort = this.sort.bind(this);
+    this.onSearch = this.onSearch.bind(this);
+    this.search = this.search.bind(this);
+    this.onSelectPage = this.onSelectPage.bind(this);
   }
 
   componentWillMount() {
     // get subjects
-    this.props.getUsers();
+    this.props.getUsers({
+      sort: 'createdAt.desc',
+      offset: 0,
+      size: this.size,
+    });
   }
 
   renderUserRow(users) {
-    return users.map((item) => (
+    return users.map((item, idx) => (
       <tr key={item.id}>
-          <th scope="row">{item.id}</th>
+          <th scope="row">{idx + 1}</th>
           <td>{moment(item.createdAt).format('DD/MM/YYYY')}</td>
           <td>{item.name}</td>
           <td>{item.email}</td>
@@ -83,6 +100,57 @@ export class User extends React.PureComponent {
     ))
   }
 
+  sort(e) {
+    const { field } = e.currentTarget.dataset;
+    let sortField = field;
+    let sortBy = 'desc';
+    if (this.state.sortField && this.state.sortField === field) {
+      sortBy = this.state.sortBy === 'desc' ? 'asc' : 'desc';
+    }
+    this.setState({ sortField, sortBy });
+    this.props.getUsers({
+      sort: `${sortField}.${sortBy}`,
+      name: this.state.keyword || '',
+      size: this.size,
+      offset: this.size * (this.state.currentPage - 1),
+    });
+  }
+
+  onSearch(e) {
+    this.setState({ keyword: e.currentTarget.value });
+  }
+
+  search() {
+    this.setState({
+      sortField: '',
+      sortBy: '',
+      currentPage: 1,
+    });
+    this.props.getUsers({
+      name: this.state.keyword,
+      size: this.size,
+      offset: 0,
+    })
+  }
+
+  onSelectPage(page) {
+    if (this.state.currentPage !== page) {
+      const { sortField, sortBy } = this.state;
+      this.setState({
+        currentPage: page,
+      });
+      const query = {
+        name: this.state.keyword || '',
+        size: this.size,
+        offset: this.size * (page - 1),
+      };
+      if (sortField) {
+        query.sort = `${sortField}.${sortBy}`;
+      }
+      this.props.getUsers(query)
+    }
+  }
+
   render() {
     return (
       <Wrapper className="animated fadeIn">
@@ -99,7 +167,14 @@ export class User extends React.PureComponent {
             <Col xl={12}>
               <Card>
                 <CardHeader>
-                  <i className="fa fa-align-justify"></i> Thành viên
+                  <Col md="3">
+                    <InputGroup>
+                      <Input onChange={this.onSearch} type="text" id="search-table" name="search-table-user" />
+                      <InputGroupAddon addonType="append">
+                        <Button type="button" onClick={this.search}>Tìm kiếm</Button>
+                      </InputGroupAddon>
+                    </InputGroup>
+                  </Col>
                   {/* <div className="float-right">
                     <Button
                       block
@@ -114,9 +189,27 @@ export class User extends React.PureComponent {
                     <thead>
                       <tr>
                         <th scope="col">Id</th>
-                        <th scope="col">Ngày tạo</th>
-                        <th scope="col">Tên</th>
-                        <th scope="col">Email</th>
+                        <HeadSort
+                          scope="col"
+                          onClick={this.sort}
+                          data-field="createdAt"
+                          sortField={this.state.sortField}
+                          sortBy={this.state.sortBy}
+                        >Ngày tạo</HeadSort>
+                        <HeadSort
+                          scope="col"
+                          onClick={this.sort}
+                          data-field="name"
+                          sortField={this.state.sortField}
+                          sortBy={this.state.sortBy}
+                        >Tên</HeadSort>
+                        <HeadSort
+                          scope="col"
+                          onClick={this.sort}
+                          data-field="email"
+                          sortField={this.state.sortField}
+                          sortBy={this.state.sortBy}
+                        >Email</HeadSort>
                         <th scope="col">Bạn là</th>
                         <th scope="col">SĐT</th>
                         <th scope="col">Năm sinh</th>
@@ -136,6 +229,13 @@ export class User extends React.PureComponent {
                       {this.renderUserRow(this.props.users)}
                     </tbody>
                   </Table>
+                  <PaginationTable
+                    maxPages={this.maxPages}
+                    total={this.props.total}
+                    currentPage={this.state.currentPage}
+                    size={this.size}
+                    onClick={this.onSelectPage}
+                  />
                 </CardBody>
               </Card>
             </Col>
@@ -152,12 +252,13 @@ User.propTypes = {
 
 export function mapDispatchToProps(dispatch) {
   return {
-    getUsers: () => dispatch(getUsers()),
+    getUsers: (query) => dispatch(getUsers(query)),
   };
 }
 
 const mapStateToProps = createStructuredSelector({
   users: makeSelectUsers(),
+  total: makeSelectTotalUser(),
   loading: makeSelectLoading(),
 });
 

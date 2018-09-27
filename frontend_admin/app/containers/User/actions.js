@@ -9,9 +9,10 @@ import {
  *
  * @return {object}    An action object with a type of GET_USERS.REQUEST
  */
-export function getUsers() {
+export function getUsers(query) {
   return {
     type: GET_USERS.REQUEST,
+    query,
   };
 }
 
@@ -22,9 +23,10 @@ export function getUsers() {
  *
  * @return {object}    An action object with a type of GET_USERS.SUCCESS
  */
-export function getUsersSuccess(users) {
+export function getUsersSuccess({ data, total }) {
   return {
     type: GET_USERS.SUCCESS,
-    users,
+    users: data,
+    total,
   };
 }
