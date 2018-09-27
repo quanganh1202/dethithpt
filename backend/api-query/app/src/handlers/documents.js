@@ -1,5 +1,6 @@
 import { isUndefined } from 'util';
 import _ from 'lodash';
+import fs from 'fs-extra';
 import path from 'path';
 import moment from 'moment';
 import ES from '../../elastic';
@@ -68,15 +69,13 @@ export default {
       if (!result || !result.data) {
         return result;
       }
-
       const file = result.data.path;
       const dirname = path.dirname(file);
-      const filename = path.basename(file, path.extname(file));
-      const totalPages = result.data.totalPages;
-      const filePreview = [];
-      for(let i = 0; i < totalPages; i += 1) {
-        filePreview.push(path.join(dirname, `${filename}0${i}.png`));
-      }
+      const ext = path.extname(file);
+      const filename = path.basename(file, ext);
+      const filePreview = fs.readdirSync(dirname)
+        .filter(i => i.includes(filename) && !i.includes(ext))
+        .map(i => path.join(dirname, i));
 
       return {
         statusCode: 200,
