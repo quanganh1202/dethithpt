@@ -44,7 +44,6 @@ export default {
         scroll,
       } = options;
       const numberRegex = new RegExp(/^[0-9]*$/);
-      const withoutZeroRegex = new RegExp(/^(0)$/);
       const isScroll = !isUndefined(scroll);
       const existSizeAndOffsetInvalid = ((size && !numberRegex.test(size)) || ( offset && !numberRegex.test(offset)));
       const existSizeAndOffsetIsAnEmptyString = (size === '' || offset === '');
@@ -54,19 +53,12 @@ export default {
           error: 'Size & offset is only allowed to contain digits',
         };
       }
-      const offsetOrSizeIsZero = ((size && withoutZeroRegex.test(size)) || (offset && withoutZeroRegex.test(offset)));
-      if (offsetOrSizeIsZero) { // Only check offset if request is scroll. If not ignore
-        return {
-          statusCode: 400,
-          error: 'Size & offset cannot be number 0',
-        };
-      }
       const sortObj = sortParamsHandler(sort);
       if (sortObj.statusCode !== 200) return sortObj; // Return error
       const filterBuilt = filterParamsHandler({ name });
       if (filterBuilt.statusCode !== 200) return filterBuilt; // Return error
       const fieldsToArray = fields ? fields.split(',') : undefined; // List fields specific by ","
-      const from = size && offset && !isScroll ? size * (offset - 1) : 0; // Fulfil size and offset to get from value. Default equal 0
+      const from = size && offset && !isScroll ? offset : 0; // Fulfil size and offset to get from value. Default equal 0
       const result = isScroll ?
         await elasticsearch.getInitialScroll( filterBuilt.data, fieldsToArray, sortObj.data, size):
         await elasticsearch.getList(filterBuilt.data, fieldsToArray,  sortObj.data, from, size );

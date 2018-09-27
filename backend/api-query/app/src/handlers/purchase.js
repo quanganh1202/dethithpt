@@ -25,17 +25,29 @@ export default {
       docId,
       action,
       sort,
+      size,
+      offset,
       scroll,
     } = options;
     try {
+      const numberRegex = new RegExp(/^[0-9]*$/);
+      const existSizeAndOffsetInvalid = ((size && !numberRegex.test(size)) || ( offset && !numberRegex.test(offset)));
+      const existSizeAndOffsetIsAnEmptyString = (size === '' || offset === '');
+      if ( existSizeAndOffsetInvalid || existSizeAndOffsetIsAnEmptyString) {
+        return {
+          statusCode: 400,
+          error: 'Size & offset is only allowed to contain digits',
+        };
+      }
       const isScroll = !isUndefined(scroll);
       const sortObj = sortParamsHandler(sort);
       if (sortObj.statusCode !== 200) return sortObj; // Return error
       const filterBuilt = filterParamsHandler({ userId, action, userName, docName, docId });
       if (filterBuilt.statusCode !== 200) return filterBuilt; // Return error
+      const from = size && offset && !isScroll ? offset : 0;
       const result = isScroll ?
-        await elasticsearch.getInitialScroll(filterBuilt.data, undefined, sortObj.data):
-        await elasticsearch.getList( filterBuilt.data, undefined, sortObj.data );
+        await elasticsearch.getInitialScroll(filterBuilt.data, undefined, sortObj.data, size):
+        await elasticsearch.getList( filterBuilt.data, undefined, sortObj.data, from, size );
 
       return result;
     } catch (err) {
