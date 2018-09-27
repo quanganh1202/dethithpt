@@ -72,7 +72,11 @@ export default {
       const file = result.data.path;
       const dirname = path.dirname(file);
       const filename = path.basename(file, path.extname(file));
-      const filePreview = path.join(dirname, `${filename}.png`);
+      const totalPages = result.data.totalPages;
+      const filePreview = [];
+      for(let i = 0; i < totalPages; i += 1) {
+        filePreview.push(path.join(dirname, `${filename}0${i}.png`));
+      }
 
       return {
         statusCode: 200,
