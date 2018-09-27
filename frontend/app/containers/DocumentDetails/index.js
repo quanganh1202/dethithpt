@@ -221,7 +221,16 @@ export class DocumentDetails extends React.PureComponent {
               <div className="document-title">
                 <span className="bold">Đọc thử:</span> {this.props.document.name}
               </div>
-              <img src={`/api/documents/${this.props.match.params.id}/preview`} alt="preview" />
+              {
+                _.get(document, 'images', [])
+                  .map((imgData, index) => 
+                    <img
+                      style={{ display: 'block' }}
+                      key={`preview-${index}`} 
+                      src={`data:image/png;base64,${imgData}`} 
+                      alt="preview"
+                    />)
+              }
             </div>
           }
         />

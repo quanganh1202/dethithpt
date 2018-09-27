@@ -32,7 +32,13 @@ export function* getDocumentDetailsHandler({ id }) {
 
   try {
     const resp = yield call(axios.get, url);
-    yield put(getDocumentDetailsSuccess(_.get(resp.data, 'data')));
+    const resImages = yield call(axios.get, `${url}/preview`);
+    yield put(getDocumentDetailsSuccess(
+      {
+        ..._.get(resp.data, 'data', {}),
+        images: resImages.data
+      })
+    );
   } catch (err) {
     // yield put(loginFailure(err));
   }
