@@ -41,8 +41,14 @@ export default {
         return result;
       }
       const { tags } = result.data;
-      updateDocumentView(docId, constant.INCREASE);
-      updateTagView(tags, constant.INCREASE);
+      await updateDocumentView(docId, constant.INCREASE);
+      const promises = updateTagView(tags, constant.INCREASE);
+      await Promise.all(promises).catch(ex => {
+        // Ignore error data conflic version [409]
+        if (ex.status !== 409) {
+          throw ex;
+        }
+      });
 
       return result;
     } catch(error) {
@@ -66,7 +72,11 @@ export default {
       const file = result.data.path;
       const dirname = path.dirname(file);
       const filename = path.basename(file, path.extname(file));
-      const filePreview = path.join(dirname, `${filename}.png`);
+      const totalPages = result.data.totalPages;
+      const filePreview = [];
+      for(let i = 0; i < totalPages; i += 1) {
+        filePreview.push(path.join(dirname, `${filename}0${i}.png`));
+      }
 
       return {
         statusCode: 200,

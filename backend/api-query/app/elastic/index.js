@@ -254,6 +254,7 @@ class ES {
     return esClient.updateByQuery({
       index: this.index,
       type: this.type,
+      conflicts: 'proceed',
       refresh: 'wait_for',
       body:{
         query,
