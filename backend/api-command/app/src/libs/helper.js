@@ -62,28 +62,23 @@ const preview = async function getPreview(fileName) {
   return new Promise((resolve, reject) => {
     const dirname = path.dirname(fileName);
     const filename = path.basename(fileName, path.extname(fileName));
-    const previewFIle = `${dirname}/${filename}.png`;
+    const previewFile = `${dirname}/${filename}%02d.png`;
     const extension = path.extname(fileName);
     if (extension === '.docx' || extension === '.doc') {
       office2Pdf(fileName, dirname).then((pdfName) => {
-        gm(pdfName)
-          .page(860, 1240)
-          .draw(['rotate 40 text 200,200 "TAILIEUDOC.VN"'])
-          .fontSize(80)
-          .write(previewFIle, (err) => {
-            if (err) {
-              reject({
-                statusCode: 500,
-                error: err.message || 'Create thumb file failed',
-              });
-            } else {
-              resolve({
-                statusCode: 200,
-                message: 'Thumb file is created',
-              });
-            }
-            fs.unlink(pdfName);
+        pdf2Image(pdfName, previewFile).then(() => {
+          resolve({
+            statusCode: 200,
+            message: 'Thumb file is created',
           });
+          fs.unlink(pdfName);
+        }).catch(err => {
+          reject({
+            statusCode: 500,
+            error: err.message || 'Create thumb file failed',
+          });
+          fs.unlink(pdfName);
+        });
       }).catch((err) => {
         reject({
           statusCode: 500,
@@ -92,25 +87,30 @@ const preview = async function getPreview(fileName) {
       });
     }
 
-    if ( extension === '.pdf') {
-      gm(fileName)
-        .page(860, 1240)
-        .draw(['rotate 40 text 200,200 "TAILIEUDOC.VN"'])
-        .fontSize(80)
-        .write(previewFIle, (err) => {
-          if (err) {
-            reject({
-              statusCode: 500,
-              error: err.message || 'Create thumb file failed',
-            });
-          } else {
-            resolve({
-              statusCode: 200,
-              message: 'Thumb file is created',
-            });
-          }
+    if (extension === '.pdf') {
+      pdf2Image(fileName, previewFile).then(() => {
+        resolve({
+          statusCode: 200,
+          message: 'Thumb file is created',
         });
+      }).catch(err => {
+        reject({
+          statusCode: 500,
+          error: err.message || 'Create thumb file failed',
+        });
+      });
     }
+  });
+};
+
+const pdf2Image = (pdf, image) => {
+  return new Promise((resolve, reject) => {
+    gm().command('convert').in('+adjoin').in(pdf).draw(['rotate 40 text 200,200 "TAILIEUDOC.VN"'])
+      .fontSize(80).write(image, function(err) {
+        if(err) return reject(err);
+
+        return resolve();
+      });
   });
 };
 
@@ -128,7 +128,7 @@ const office2Pdf = (word, pdf) => {
           // Wait to file was created by system, delay 500 to sure file is created
           setTimeout(() => {
             resolve(path.join(pdf, `${path.basename(file.path, path.extname(file.path))}.pdf`));
-          }, 2000);
+          }, 3000);
         }
       });
     });

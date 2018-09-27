@@ -1,4 +1,5 @@
 import express from 'express';
+import fs from 'fs-extra';
 import { isUndefined } from 'util';
 import documentHandler from '../../src/handlers/documents';
 import categoryHandler from '../../src/handlers/category';
@@ -181,8 +182,15 @@ const routerDefine =  function defineRouter() {
     if (error) {
       res.json({ statusCode, error });
     } else {
-      res.setHeader('Content-Type', 'image/jpg');
-      res.sendFile(filePreview);
+      try {
+        const lsPromises = filePreview.map((img) => {
+          return fs.readFile(img, { encoding: 'base64' });
+        });
+        const lsBuffers = await Promise.all(lsPromises);
+        res.send(lsBuffers);
+      } catch (err) {
+        res.send({ statusCode: 500, error: err.message });
+      }
     }
   });
 
