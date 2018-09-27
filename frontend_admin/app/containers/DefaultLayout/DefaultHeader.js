@@ -44,6 +44,9 @@ class DefaultHeader extends Component {
             <Link className="nav-link" to="/users">Thành viên</Link>
           </NavItem>
           <NavItem className="px-3">
+            <Link className="nav-link" to="/documents">Tài liệu</Link>
+          </NavItem>
+          <NavItem className="px-3">
             <Link className="nav-link" to="/collections">Bộ sưu tập</Link>
           </NavItem>
           <NavItem className="px-3">
