@@ -109,7 +109,9 @@ export default {
       } = options;
       const numberRegex = new RegExp(/^[0-9]*$/);
       const isScroll = !isUndefined(scroll);
-      const approve = isUndefined(approved) ? '1' : ['0', '1'].includes(approved.toString()) ? approved.toString() : '1';
+      const approve = isUndefined(approved) ? '1' :
+        ['0', '1'].includes(approved.toString()) ? approved.toString() :
+          approved.toString() === 'all' ? undefined : '1';
       const existSizeAndOffsetInvalid = ((size && !numberRegex.test(size)) || ( offset && !numberRegex.test(offset)));
       const existSizeAndOffsetIsAnEmptyString = (size === '' || offset === '');
       if ( existSizeAndOffsetInvalid || existSizeAndOffsetIsAnEmptyString) {
