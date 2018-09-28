@@ -105,9 +105,11 @@ export default {
         price,
         tags,
         scroll,
+        approved,
       } = options;
       const numberRegex = new RegExp(/^[0-9]*$/);
       const isScroll = !isUndefined(scroll);
+      const approve = isUndefined(approved) ? '1' : ['0', '1'].includes(approved.toString()) ? approved.toString() : '1';
       const existSizeAndOffsetInvalid = ((size && !numberRegex.test(size)) || ( offset && !numberRegex.test(offset)));
       const existSizeAndOffsetIsAnEmptyString = (size === '' || offset === '');
       if ( existSizeAndOffsetInvalid || existSizeAndOffsetIsAnEmptyString) {
@@ -121,6 +123,7 @@ export default {
       const filterBuilt = filterParamsHandler({
         description,
         tags,
+        approved: approve,
         'cates.cateName': cateName,
         'cates.cateId': cateId,
         'subjects.subjectName': subjectName,
