@@ -36,7 +36,7 @@ export function* getDocumentDetailsHandler({ id }) {
     yield put(getDocumentDetailsSuccess(
       {
         ..._.get(resp.data, 'data', {}),
-        images: resImages.data
+        images: Array.isArray(resImages.data) ? resImages.data : []
       })
     );
   } catch (err) {
