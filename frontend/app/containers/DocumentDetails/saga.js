@@ -32,10 +32,13 @@ export function* getDocumentDetailsHandler({ id }) {
 
   try {
     const resp = yield call(axios.get, url);
+    const newData = _.get(resp.data, 'data', {});
+    yield put(getDocumentDetailsSuccess(newData)
+    );
     const resImages = yield call(axios.get, `${url}/preview`);
     yield put(getDocumentDetailsSuccess(
       {
-        ..._.get(resp.data, 'data', {}),
+        ...newData,
         images: Array.isArray(resImages.data) ? resImages.data : []
       })
     );

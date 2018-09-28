@@ -71,7 +71,18 @@ const Wrapper = styled.div`
         background-color: orange;
       }
       .btn-view {
+        position: relative;
         background-color: LightSeaGreen;
+        img {
+          display: none;
+        }
+      }
+      .btn-view.loading {
+        padding-top: 2px;
+        padding-bottom: 0px;
+        img {
+          display: unset;
+        }
       }
       .btn-report, .btn-favorite {
         padding: 3px 5px;
