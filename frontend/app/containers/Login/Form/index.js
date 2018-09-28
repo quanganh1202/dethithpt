@@ -100,7 +100,6 @@ const CreateUser = (props) => {
               <tr>
                 <td>Quận/Huyện:<span className="red">(*)</span></td>
                 <td>
-                  {console.log(_.get(props.data, 'city'))}
                   <Select
                     name="district"
                     options={_.get(
