@@ -30,31 +30,43 @@ import {
 import moment from 'moment';
 import styled from 'styled-components';
 import { HeadSort, PaginationTable } from 'components/Table';
+import checkIcon from 'assets/img/icons/check.png';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
-import { getUsers } from './actions';
+import { getDocs, approveDocs } from './actions';
 import {
-  makeSelectUsers,
+  makeSelectDocuments,
   makeSelectLoading,
   makeSelectTotalUser,
 } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 
-const itemsPerLoad = 10;
-
 const Wrapper = styled.div`
   table {
     font-size: 11px;
-    tr > td, tr > th {
+    tr > td {
       white-space: nowrap;
+      &:nth-child(2) {
+        white-space: normal;
+        min-width: 150px;
+      }
+      > p {
+        margin: 0;
+      }
+    }
+    tr > th {
+      white-space: nowrap;
+    }
+    thead > tr {
+      font-size: 11px;
     }
   }
 `;
 
 /* eslint-disable react/prefer-stateless-function */
-export class User extends React.PureComponent {
+export class Documents extends React.PureComponent {
   constructor() {
     super();
     this.state = {
@@ -69,34 +81,37 @@ export class User extends React.PureComponent {
   }
 
   componentWillMount() {
-    // get subjects
-    this.props.getUsers({
+    // get docs
+    this.props.getDocs({
       sort: 'createdAt.desc',
       offset: 0,
       size: this.size,
     });
   }
 
-  renderUserRow(users) {
-    return users.map((item, idx) => (
+  renderDocumentRow(docs) {
+    return docs.map((item, idx) => (
       <tr key={item.id}>
-          <th scope="row">{idx + 1}</th>
-          <td>{moment(item.createdAt).format('DD/MM/YYYY')}</td>
-          <td>{item.name}</td>
-          <td>{item.email}</td>
-          <td>{item.role}</td>
-          <td>{item.phone}</td>
-          <td>{item.bod}</td>
-          <td>{item.school}</td>
-          <td>{item.city}</td>
-          <td>{item.download}</td>
-          <td>{item.upload}</td>
-          <td>{item.deposit}</td>
-          <td>{item.amount}</td>
-          <td>{item.group}</td>
-          <td>{item.description}</td>
-          <td>{item.userName}</td>
-          <td></td>
+        <th scope="row">{idx + 1}</th>
+        <td>{item.name}</td>
+        <td>{item.cates && item.cates.map((i) => <p key={i.cateId}>{i.cateName}</p>)}</td>
+        <td>{item.subjects && item.subjects.map((i) => <p key={i.subjectId}>{i.subjectName}</p>)}</td>
+        <td>{item.classes && item.classes.map((i) => <p key={i.classId}>{i.className}</p>)}</td>
+        <td>{item.yearSchools && item.yearSchools.map((i) => <p key={i}>{i}</p>)}</td>
+        <td>{item.price}</td>
+        <td>{item.totalPages}</td>
+        <td>{item.view}</td>
+        <td>{item.comment}</td>
+        <td>{moment(item.createdAt).format('DD/MM/YYYY')}</td>
+        <td>{item.group}</td>
+        <td>{item.userName}</td>
+        <td>
+          <button onClick={() => this.props.approve(item.id)}>
+            <img src={checkIcon} height="15px" alt="check-icon" />
+          </button>
+        </td>
+        <td></td>
+        <td>{item.id}</td>
       </tr>
     ))
   }
@@ -109,7 +124,7 @@ export class User extends React.PureComponent {
       sortBy = this.state.sortBy === 'desc' ? 'asc' : 'desc';
     }
     this.setState({ sortField, sortBy });
-    this.props.getUsers({
+    this.props.getDocs({
       sort: `${sortField}.${sortBy}`,
       name: this.state.keyword || '',
       size: this.size,
@@ -127,7 +142,7 @@ export class User extends React.PureComponent {
       sortBy: '',
       currentPage: 1,
     });
-    this.props.getUsers({
+    this.props.getDocs({
       name: this.state.keyword,
       size: this.size,
       offset: 0,
@@ -148,7 +163,7 @@ export class User extends React.PureComponent {
       if (sortField) {
         query.sort = `${sortField}.${sortBy}`;
       }
-      this.props.getUsers(query)
+      this.props.getDocs(query)
     }
   }
 
@@ -159,7 +174,7 @@ export class User extends React.PureComponent {
           <Col xl={12}>
             <Breadcrumb>
               <BreadcrumbItem><Link to="/">Trang chủ</Link></BreadcrumbItem>
-              <BreadcrumbItem active>Thành viên</BreadcrumbItem>
+              <BreadcrumbItem active>Tài liệu</BreadcrumbItem>
             </Breadcrumb>
           </Col>
         </Row>
@@ -170,7 +185,7 @@ export class User extends React.PureComponent {
                 <CardHeader>
                   <Col md="3">
                     <InputGroup>
-                      <Input onChange={this.onSearch} type="text" id="search-table" name="search-table-user" />
+                      <Input onChange={this.onSearch} type="text" id="search-table" name="search-table-document" />
                       <InputGroupAddon addonType="append">
                         <Button type="button" onClick={this.search}>Tìm kiếm</Button>
                       </InputGroupAddon>
@@ -193,41 +208,58 @@ export class User extends React.PureComponent {
                         <HeadSort
                           scope="col"
                           onClick={this.sort}
+                          data-field="name"
+                          sortField={this.state.sortField}
+                          sortBy={this.state.sortBy}
+                        >Tài liệu</HeadSort>
+                        <th scope="col">Danh mục</th>
+                        <th scope="col">Môn</th>
+                        <th scope="col">Lớp</th>
+                        <th scope="col">Năm học</th>
+                        <HeadSort
+                          scope="col"
+                          onClick={this.sort}
+                          data-field="price"
+                          sortField={this.state.sortField}
+                          sortBy={this.state.sortBy}
+                        >Giá</HeadSort>
+                        <HeadSort
+                          scope="col"
+                          onClick={this.sort}
+                          data-field="totalPages"
+                          sortField={this.state.sortField}
+                          sortBy={this.state.sortBy}
+                        >Trang</HeadSort>
+                        <HeadSort
+                          scope="col"
+                          onClick={this.sort}
+                          data-field="view"
+                          sortField={this.state.sortField}
+                          sortBy={this.state.sortBy}
+                        >Lượt tải</HeadSort>
+                        <th scope="col">Bình luận</th>
+                        <HeadSort
+                          scope="col"
+                          onClick={this.sort}
                           data-field="createdAt"
                           sortField={this.state.sortField}
                           sortBy={this.state.sortBy}
                         >Ngày tạo</HeadSort>
+                        <th scope="col">Group tạo</th>
                         <HeadSort
                           scope="col"
                           onClick={this.sort}
-                          data-field="name"
+                          data-field="userName"
                           sortField={this.state.sortField}
                           sortBy={this.state.sortBy}
-                        >Tên</HeadSort>
-                        <HeadSort
-                          scope="col"
-                          onClick={this.sort}
-                          data-field="email"
-                          sortField={this.state.sortField}
-                          sortBy={this.state.sortBy}
-                        >Email</HeadSort>
-                        <th scope="col">Bạn là</th>
-                        <th scope="col">SĐT</th>
-                        <th scope="col">Năm sinh</th>
-                        <th scope="col">Trường</th>
-                        <th scope="col">Thành phố</th>
-                        <th scope="col">Đã tải</th>
-                        <th scope="col">Đã đăng</th>
-                        <th scope="col">Đã nạp</th>
-                        <th scope="col">Số dư</th>
-                        <th scope="col">Group</th>
-                        <th scope="col">Ghi chú</th>
-                        <th scope="col">Người tạo</th>
+                        >Người tạo</HeadSort>
                         <th scope="col">Thao tác</th>
+                        <th scope="col">Vị trí</th>
+                        <th scope="col">Mã</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {this.renderUserRow(this.props.users)}
+                      {this.renderDocumentRow(this.props.documents)}
                     </tbody>
                   </Table>
                   <PaginationTable
@@ -247,18 +279,19 @@ export class User extends React.PureComponent {
   }
 }
 
-User.propTypes = {
+Documents.propTypes = {
   loading: PropTypes.bool,
 };
 
 export function mapDispatchToProps(dispatch) {
   return {
-    getUsers: (query) => dispatch(getUsers(query)),
+    getDocs: (query) => dispatch(getDocs(query)),
+    approve: (id) => dispatch(approveDocs(id)),
   };
 }
 
 const mapStateToProps = createStructuredSelector({
-  users: makeSelectUsers(),
+  documents: makeSelectDocuments(),
   total: makeSelectTotalUser(),
   loading: makeSelectLoading(),
 });
@@ -268,11 +301,11 @@ const withConnect = connect(
   mapDispatchToProps,
 );
 
-const withReducer = injectReducer({ key: 'user', reducer });
-const withSaga = injectSaga({ key: 'user', saga });
+const withReducer = injectReducer({ key: 'document', reducer });
+const withSaga = injectSaga({ key: 'document', saga });
 
 export default compose(
   withReducer,
   withSaga,
   withConnect,
-)(User);
+)(Documents);

@@ -25,6 +25,7 @@ import {
   Button,
 } from 'reactstrap';
 import moment from 'moment';
+import styled from 'styled-components';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
@@ -36,7 +37,11 @@ import {
 import reducer from './reducer';
 import saga from './saga';
 
-const itemsPerLoad = 10;
+const Wrapper = styled.div`
+  table {
+    font-size: 11px;
+  }
+`;
 
 /* eslint-disable react/prefer-stateless-function */
 export class Subject extends React.PureComponent {
@@ -51,9 +56,9 @@ export class Subject extends React.PureComponent {
   }
 
   renderSubjectRow(subjects) {
-    return subjects.map((item) => (
+    return subjects.map((item, idx) => (
       <tr key={item.id}>
-          <th scope="row">{item.id}</th>
+          <th scope="row">{idx + 1}</th>
           <td>{item.name}</td>
           <td>{item.description}</td>
           <td>{item.userName}</td>
@@ -64,7 +69,7 @@ export class Subject extends React.PureComponent {
 
   render() {
     return (
-      <div className="animated fadeIn">
+      <Wrapper className="animated fadeIn">
         <Row>
           <Col xl={12}>
             <Breadcrumb>
@@ -92,7 +97,7 @@ export class Subject extends React.PureComponent {
                   <Table responsive hover>
                     <thead>
                       <tr>
-                        <th scope="col">Id</th>
+                        <th scope="col">#</th>
                         <th scope="col">Tên</th>
                         <th scope="col">Mô tả</th>
                         <th scope="col">Người tạo</th>
@@ -108,7 +113,7 @@ export class Subject extends React.PureComponent {
             </Col>
           </Row>
         </Container>
-      </div>
+      </Wrapper>
     );
   }
 }

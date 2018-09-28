@@ -7,7 +7,7 @@ import {
 
 const PaginationTable = (props) => {
   const adjustPages = Math.floor((props.maxPages - 1) / 2);
-  const totalPages = props.total / props.size;
+  const totalPages = Math.ceil(props.total / props.size);
   const prevPages = props.currentPage - adjustPages > 0
     ? adjustPages
     : adjustPages + (props.currentPage - adjustPages) - 1;
