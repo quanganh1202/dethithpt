@@ -163,18 +163,25 @@ async function getAllUsers() {
   return users;
 }
 
-async function deleteUser(id) {
-  if (!id && !id.length) {
-    return {
-      status: 400,
-      error: 'Provide an id',
-    };
-  }
-
+async function deleteUser(id, userId) {
   try {
+    const userModel = new User();
+    const user = await userModel.getById(userId);
+    if (!user || !user.length || !user[0].status) {
+      return {
+        status: 400,
+        error: 'User id does not exists',
+      };
+    }
+    if (id !== userId && user[0].role !== 'admin') {
+      return {
+        status: 403,
+        error: 'Forbidden',
+      };
+    }
     await userModel.deleteUser(id);
     const serverNotify = await rabbitSender('user.delete', { id });
-    if (serverNotify.statusCode === 200 || serverNotify.statusCode === 204) {
+    if (!serverNotify.error) {
       return {
         status: 200,
         message: 'Deleted',
@@ -205,18 +212,37 @@ async function updateUser(id, userInfo) {
         error: resValidate.errors,
       };
     }
-
-    const { email, phone } = userInfo;
+    const { email, phone, userId } = userInfo;
+    const existed = await userModel.getById(userId);
+    if (!existed || !existed.length) {
+      return {
+        status: 400,
+        error: 'User not found',
+      };
+    }
+    const { role } = existed[0];
+    if ((userId !== id || userInfo.role === 'admin') && role !== 'admin') {
+      return {
+        status: 403,
+        error: 'Forbidden',
+      };
+    }
+    if (email && role !== 'admin') {
+      return {
+        status: 400,
+        error: 'Can not update email',
+      };
+    }
     const criteria = [ { email }, { phone }];
     const user = await userModel.getList(criteria);
-
-    if (!user || !user.length || !user[0].status) {
+    if (user && user.length && role === 'admin') {
       return {
-        error: 'User does not exists',
+        error: 'Email already existed',
         status: 400,
       };
     }
-    delete userInfo.money;
+    if (role !== 'admin') delete userInfo.money;
+    delete userInfo.userId;
     await userModel.updateUser(id, userInfo);
     const serverNotify = await rabbitSender('user.update', { id, body: userInfo });
     if (serverNotify.statusCode === 200) {

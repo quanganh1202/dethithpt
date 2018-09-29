@@ -139,6 +139,9 @@
             }
           }
         },
+        "userEmail": {
+          "type": "keyword"
+        },
         "totalPages": {
           "type": "integer"
         },

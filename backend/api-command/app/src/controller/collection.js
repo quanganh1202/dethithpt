@@ -11,24 +11,6 @@ import rabbitSender from '../../rabbit/sender';
 const collectionModel = new Collection;
 const schemaId = 'http://dethithpt.com/collection-schema#';
 
-async function getListCollections(args) {
-  try {
-    const { name, description, searchType, number, offset, sortBy, cols } = args;
-    const filter = [];
-    filter.push(name ? { name }: undefined);
-    filter.push(description ? { description }: undefined);
-    const options = { number, offset, sortBy, searchType, cols };
-    const docs = await collectionModel.getListCollection(filter, options);
-
-    return docs || [];
-  } catch (ex) {
-    logger.error(ex.error || ex.message || 'Unexpected error when get collections');
-
-    return ex.error ? ex : exception;
-  }
-
-}
-
 async function createCollection(body) {
   try {
     const resValidate = dataValidator(body, schemaId);
@@ -136,6 +118,8 @@ async function createCollection(body) {
     delete queryBody.cateIds;
     delete queryBody.classIds;
     delete queryBody.subjectIds;
+    queryBody.userName = user[0].name;
+    queryBody.userEmail = user[0].email;
     const serverNotify = await rabbitSender('collection.create', { id: res.insertId, body: queryBody });
     if (serverNotify.statusCode === 200) {
       return {
@@ -157,22 +141,6 @@ async function createCollection(body) {
 
     return ex.error ? ex : exception;
   }
-}
-
-async function getCollectionById(id, cols) {
-  try {
-    const result = await collectionModel.getCollectionById(id,  cols);
-
-    return {
-      status: 200,
-      data: result,
-    };
-  } catch (ex) {
-    logger.error(ex.error || ex.message || 'Unexpected error when get collection');
-
-    return ex.error ? ex : exception;
-  }
-
 }
 
 async function updateCollection(id, body) {
@@ -203,6 +171,14 @@ async function updateCollection(id, body) {
         error: 'User id does not exists',
       };
     }
+
+    if (existed[0].userId.toString() !== userId && user[0].role !== 'admin') {
+      return {
+        status: 403,
+        error: 'Forbidden',
+      };
+    }
+    delete body.userId;
     const queryBody = Object.assign({}, body);
     let newCate;
     if (cateIds && cateIds.length) {
@@ -282,7 +258,7 @@ async function updateCollection(id, body) {
   }
 }
 
-async function deleteCollectionById(id) {
+async function deleteCollectionById(id, userId) {
   try {
     const result = await collectionModel.getCollectionById(id);
 
@@ -292,10 +268,23 @@ async function deleteCollectionById(id) {
         status: 404,
       };
     }
-
+    const userModel = new User();
+    const user = await userModel.getById(userId);
+    if (!user || !user.length || !user[0].status) {
+      return {
+        status: 400,
+        error: 'User id does not exists',
+      };
+    }
+    if (result[0].userId.toString() !== userId && user[0].role !== 'admin') {
+      return {
+        status: 403,
+        error: 'Forbidden',
+      };
+    }
     await collectionModel.deleteCollectionById(id);
     const serverNotify = await rabbitSender('collection.delete', { id });
-    if (serverNotify.statusCode === 200) {
+    if (!serverNotify.error) {
       return {
         status: 200,
         message: 'Deleted',
@@ -319,8 +308,6 @@ async function deleteCollectionById(id) {
 
 export {
   createCollection,
-  getCollectionById,
-  getListCollections,
   updateCollection,
   deleteCollectionById,
 };

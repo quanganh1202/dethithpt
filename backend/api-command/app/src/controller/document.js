@@ -18,32 +18,6 @@ import header from '../constant/typeHeader';
 const docModel = new Document();
 const schemaId = 'http://dethithpt.com/document-schema#';
 
-async function getListDocuments(args) {
-  try {
-    const { name, tags, description, searchType, number, offset, sortBy, cols } = args;
-    const filter = [];
-    filter.push(name ? { name }: undefined);
-    filter.push(tags ? { tags: `#${tags}` }: undefined);
-    filter.push(description ? { description }: undefined);
-    const options = { number, offset, sortBy, searchType, cols };
-    const result = await Promise.all([
-      docModel.getList(filter, options),
-      docModel.getCount(),
-    ]);
-
-    return {
-      docs: result[0],
-      total: result[1][0]['COUNT(*)'],
-      status: 200,
-    };
-  } catch (ex) {
-    return {
-      error: ex.message || 'Unexpected error when get documents',
-      status: 500,
-    };
-  }
-}
-
 async function uploadDocument(body, file) {
   try {
     if (!body.price) body.price = '0'; // Default price of document is 0
@@ -72,6 +46,9 @@ async function uploadDocument(body, file) {
         status: 400,
         error: 'User id does not exists',
       };
+    }
+    if (user[0].role === 'admin') {
+      body.approved = 1;
     }
 
     if (cateIds) {
@@ -162,7 +139,7 @@ async function uploadDocument(body, file) {
     }
 
     if(yearSchools) queryBody.yearSchools = yearSchools.split(',');
-    body.tags = tags.split(',').map(tag => tag.trim()).join(',');
+    if(tags) body.tags = tags.split(',').map(tag => tag.trim()).join(',');
     const { error, status, fileName, filePreview } =  fileHelpers.validateExtension(file, body.userId);
     if (error) {
       return {
@@ -188,7 +165,8 @@ async function uploadDocument(body, file) {
     const res = await docModel.addNewDocument(body);
     // Append data and send to query api
     queryBody.userName = user[0].name;
-    queryBody.tags = body.tags.split(',');
+    queryBody.userEmail = user[0].email;
+    if (body.tags) queryBody.tags = body.tags.split(',');
     const serverNotify = await rabbitSender('document.create', { body: queryBody, id: res.insertId });
     if (serverNotify.statusCode === 200) {
       return {
@@ -215,25 +193,8 @@ async function uploadDocument(body, file) {
   }
 }
 
-async function getDocument(id, cols) {
-  try {
-    const result = await docModel.getDocumentById(id,  cols);
-
-    return {
-      status: 200,
-      data: result,
-    };
-  } catch (ex) {
-    logger.error(ex.message || 'Unexpected error when get document');
-
-    return exception;
-  }
-
-}
-
 async function updateDocumentById(id, body, file) {
   try {
-    const queryBody = Object.assign({}, body);
     const resValidate = dataValidator(body, 'http://dethithpt.com/update-document-schema#');
     if (!resValidate.valid) {
       return {
@@ -260,6 +221,14 @@ async function updateDocumentById(id, body, file) {
       };
     }
 
+    if (doc[0].userId.toString() !== userId && user[0].role !== 'admin') {
+      return {
+        status: 403,
+        error: 'Forbidden',
+      };
+    }
+    delete body.userId;
+    const queryBody = Object.assign({}, body);
     if (cateIds) {
       const cateModel = new Category();
       const promises = cateIds.split(',').map(cateId => cateModel.getCategoryById(cateId));
@@ -348,7 +317,7 @@ async function updateDocumentById(id, body, file) {
     }
 
     if (yearSchools) queryBody.yearSchools = yearSchools.split(',');
-    body.tags = tags.split(',').map(tag => tag.trim()).join(',');
+    if (tags) body.tags = tags.split(',').map(tag => tag.trim()).join(',');
     if (file.length) {
       const { error, status, fileName } =  fileHelpers.validateExtension(file, body.userId);
       if (error) {
@@ -375,7 +344,7 @@ async function updateDocumentById(id, body, file) {
     await docModel.updateDocumentById(id, body);
     // Append data and send to query api
     queryBody.userName = user[0].name;
-    queryBody.tags = body.tags.split(',');
+    if (body.tags) queryBody.tags = body.tags.split(',');
     const serverNotify = await rabbitSender('document.update', { body: queryBody, id });
     if (serverNotify.statusCode === 200) {
       return {
@@ -393,6 +362,7 @@ async function updateDocumentById(id, body, file) {
       };
     }
   } catch (ex) {
+    console.log(ex);
     logger.error(ex.message || ex.error || 'Unexpected error when update file');
 
     return {
@@ -402,7 +372,7 @@ async function updateDocumentById(id, body, file) {
   }
 }
 
-async function deleteDocument(id) {
+async function deleteDocument(id, userId) {
   try {
     const result = await docModel.getDocumentById(id);
 
@@ -412,7 +382,20 @@ async function deleteDocument(id) {
         status: 404,
       };
     }
-
+    const userModel = new User();
+    const user = await userModel.getById(userId);
+    if (!user || !user.length || !user[0].status) {
+      return {
+        status: 400,
+        error: 'User id does not exists',
+      };
+    }
+    if (result[0].userId.toString() !== userId && user[0].role !== 'admin') {
+      return {
+        status: 403,
+        error: 'Forbidden',
+      };
+    }
     const oldPath= result[0].path;
     const thumbFile = `${path.dirname(oldPath)}/${path.basename(oldPath, path.extname(oldPath))}.png`;
     await Promise.all([
@@ -421,12 +404,12 @@ async function deleteDocument(id) {
       fileHelpers.removeFile(thumbFile),
     ]);
 
-    const { statusCode, error, message } = await rabbitSender('document.delete', { id });
+    const { statusCode, error } = await rabbitSender('document.delete', { id });
 
     if (!error) {
       return {
-        status: statusCode,
-        message,
+        status: 200,
+        message: 'Deleted',
       };
     } else {
       // HERE IS CASE API QUERY iS NOT RESOLVED
@@ -597,6 +580,12 @@ async function approveDocument(docId, userId) {
         error: 'User not found',
       };
     }
+    if (user[0].role !== 'admin') {
+      return {
+        status: 403,
+        error: 'Forbidden',
+      };
+    }
     const body = {
       approved: 1,
       approverId: userId,
@@ -627,8 +616,6 @@ async function approveDocument(docId, userId) {
 
 export {
   uploadDocument,
-  getListDocuments,
-  getDocument,
   updateDocumentById,
   deleteDocument,
   purchaseDocument,
