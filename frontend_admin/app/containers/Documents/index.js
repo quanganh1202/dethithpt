@@ -26,6 +26,7 @@ import {
   InputGroup,
   Input,
   InputGroupAddon,
+  Badge,
 } from 'reactstrap';
 import moment from 'moment';
 import styled from 'styled-components';
@@ -38,7 +39,7 @@ import {
   faCloudDownloadAlt,
   faCaretDown,
 } from '@fortawesome/free-solid-svg-icons';
-import { HeadSort, PaginationTable } from 'components/Table';
+import { HeadSort, PaginationTable, HeadFilter } from 'components/Table';
 import checkIcon from 'assets/img/icons/check.png';
 import deleteIcon from 'assets/img/icons/delete.png';
 import editIcon from 'assets/img/icons/edit.png';
@@ -113,6 +114,9 @@ export class Documents extends React.PureComponent {
       currentPage: 1,
       selectedDocs: [],
       quickUpdateForm: {},
+      filters: {
+        cateId: [],
+      }
     };
     this.size = 10;
     this.maxPages = 11;
@@ -124,6 +128,8 @@ export class Documents extends React.PureComponent {
     this.onQuickUpdateText = this.onQuickUpdateText.bind(this);
     this.submitQuickUpdate = this.submitQuickUpdate.bind(this);
     this.onQuickUpdateMultiSelect = this.onQuickUpdateMultiSelect.bind(this);
+    this.handleMultiApprove = this.handleMultiApprove.bind(this);
+    this.onSelectFilter = this.onSelectFilter.bind(this);
   }
 
   componentWillMount() {
@@ -174,8 +180,11 @@ export class Documents extends React.PureComponent {
         <td>{item.view}</td>
         <td>{item.comment}</td>
         <td>{moment(item.createdAt).format('DD/MM/YYYY')}</td>
-        <td>{item.group}</td>
         <td>{item.userName}</td>
+        <td>{item.approved === 1
+            ? <Badge style={{ fontSize: '11px' }} color="success">Đã duyệt</Badge>
+            : <Badge style={{ fontSize: '11px' }} color="warning">Chưa duyệt</Badge>}</td>
+        <td>{item.group}</td>
         <td className="actions-col">
           <div style={{ overflow: 'auto' }}>
             <button
@@ -196,7 +205,7 @@ export class Documents extends React.PureComponent {
           <div>
             <button
               style={{ float: 'left', padding: '0', marginRight: '5px' }}
-              onClick={() => this.props.approve(item.id)}
+              onClick={() => this.props.approve([item.id])}
               title="Xuất bản"
             >
               <img src={checkIcon} height="15px" alt="check-icon" />
@@ -211,18 +220,21 @@ export class Documents extends React.PureComponent {
 
   sort(e) {
     const { field } = e.currentTarget.dataset;
+    const { filters } = this.state;
     let sortField = field;
     let sortBy = 'desc';
     if (this.state.sortField && this.state.sortField === field) {
       sortBy = this.state.sortBy === 'desc' ? 'asc' : 'desc';
     }
     this.setState({ sortField, sortBy });
-    this.props.getDocs({
+    const query = {
       sort: `${sortField}.${sortBy}`,
       name: this.state.keyword || '',
       size: this.size,
       offset: this.size * (this.state.currentPage - 1),
-    });
+    };
+    Object.keys(filters).forEach((k) => (query[k] = filters[k].join()));
+    this.props.getDocs(query);
   }
 
   onSearch(e) {
@@ -240,12 +252,15 @@ export class Documents extends React.PureComponent {
       sort: 'createdAt.desc',
       size: this.size,
       offset: 0,
-    })
+      filters: {
+        cateId: [],
+      }
+    });
   }
 
   onSelectPage(page) {
     if (this.state.currentPage !== page) {
-      const { sortField, sortBy } = this.state;
+      const { sortField, sortBy, filters } = this.state;
       this.setState({
         currentPage: page,
         selectedDocs: [],
@@ -258,6 +273,7 @@ export class Documents extends React.PureComponent {
       if (sortField) {
         query.sort = `${sortField}.${sortBy}`;
       }
+      Object.keys(filters).forEach((k) => (query[k] = filters[k].join()));
       this.props.getDocs(query)
     }
   }
@@ -300,8 +316,36 @@ export class Documents extends React.PureComponent {
     this.props.updateDocs(this.state.selectedDocs, { [field]: this.state.quickUpdateForm[field] });
   }
 
+  handleMultiApprove() {
+    const valid = this.state.selectedDocs.filter((i) => {
+      return this.props.documents.find((d) => d.id === i).approved === 0;
+    });
+    this.props.approve(valid);
+  }
+
+  onSelectFilter(e) {
+    const { name } = e.currentTarget;
+    const selected = Array.from(e.currentTarget.selectedOptions).map((o) => o.value);
+    const newFilter = {
+      ...this.state.filters,
+      [name]: selected,
+    }
+    this.setState({
+      filters: newFilter,
+      currentPage: 1,
+    });
+    const query = {
+      name: this.state.keyword,
+      sort: 'createdAt.desc',
+      size: this.size,
+      offset: 0,
+    };
+    Object.keys(newFilter).forEach((k) => (query[k] = newFilter[k].join()));
+    this.props.getDocs(query);
+  }
+
   render() {
-    console.log(this.state.quickUpdateForm);
+    console.log(this.state.filters);
     return (
       <Wrapper className="animated fadeIn">
         <Row>
@@ -545,6 +589,21 @@ export class Documents extends React.PureComponent {
                       </InputGroup>
                     </Col>
                   </Row>
+                  <Row style={{ marginTop: '15px' }}>
+                    <Col md="4">
+                      <Button
+                        type="button"
+                        onClick={this.handleMultiApprove}
+                        size="sm"
+                        style={{ marginRight: '5px' }}
+                      >Duyệt nhanh</Button>
+                      <Button
+                        type="button"
+                        onClick={() => this.props.deleteDoc((this.state.selectedDocs))}
+                        size="sm"
+                      >Xóa nhanh</Button>
+                    </Col>
+                  </Row>
                   {/* <div className="float-right">
                     <Button
                       block
@@ -575,7 +634,16 @@ export class Documents extends React.PureComponent {
                           sortField={this.state.sortField}
                           sortBy={this.state.sortBy}
                         >Tài liệu</HeadSort>
-                        <th scope="col">Danh mục</th>
+                        <HeadFilter
+                          selectName="cateId"
+                          multiple
+                          scope="col"
+                          options={this.props.dataInit.categories.map((i) => ({ value: i.id, label: i.name }))}
+                          onSelect={this.onSelectFilter}
+                          value={this.state.filters.cateId}
+                        >
+                          Danh mục
+                        </HeadFilter>
                         <th scope="col">Môn</th>
                         <th scope="col">Lớp</th>
                         <th scope="col">Năm học</th>
@@ -586,21 +654,7 @@ export class Documents extends React.PureComponent {
                           sortField={this.state.sortField}
                           sortBy={this.state.sortBy}
                         >Giá</HeadSort>
-                        {/* <HeadSort
-                          scope="col"
-                          onClick={this.sort}
-                          data-field="totalPages"
-                          sortField={this.state.sortField}
-                          sortBy={this.state.sortBy}
-                        >Trang</HeadSort> */}
                         <th scope="col">Trang</th>
-                        {/* <HeadSort
-                          scope="col"
-                          onClick={this.sort}
-                          data-field="view"
-                          sortField={this.state.sortField}
-                          sortBy={this.state.sortBy}
-                        >Lượt tải</HeadSort> */}
                         <th scope="col">Lượt tải</th>
                         <th scope="col">Bình luận</th>
                         <HeadSort
@@ -610,7 +664,6 @@ export class Documents extends React.PureComponent {
                           sortField={this.state.sortField}
                           sortBy={this.state.sortBy}
                         >Ngày tạo</HeadSort>
-                        <th scope="col">Group tạo</th>
                         <HeadSort
                           scope="col"
                           onClick={this.sort}
@@ -618,13 +671,19 @@ export class Documents extends React.PureComponent {
                           sortField={this.state.sortField}
                           sortBy={this.state.sortBy}
                         >Người tạo</HeadSort>
+                        <th scope="col">Trạng thái</th>
+                        <th scope="col">Ghi chú</th>
                         <th scope="col">Thao tác</th>
                         <th scope="col">Vị trí</th>
                         <th scope="col">Mã</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {this.renderDocumentRow(this.props.documents)}
+                      {(this.props.documents.length)
+                        ? this.renderDocumentRow(this.props.documents)
+                        : (<tr style={{ textAlign: 'center' }}>
+                            <td colSpan="18">Không tìm thấy bản ghi nào!</td>
+                          </tr>)}
                     </tbody>
                   </Table>
                   <PaginationTable

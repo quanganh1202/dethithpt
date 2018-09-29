@@ -144,6 +144,7 @@ export class DocumentEdit extends React.PureComponent {
       subjects: _.get(data, 'subjects', []).map((i) => ({ value: `${i.subjectId}`, label: i.subjectName })),
       classes: _.get(data, 'classes', []).map((i) => ({ value: `${i.classId}`, label: i.className })),
       collections: _.get(data, 'collections', []).map((i) => ({ value: `${i.collectionId}`, label: i.collectionName })),
+      yearSchools: _.get(data, 'yearSchools', []).map((i) => ({ value: i, label: i })),
     }
     return mapped;
   }
@@ -233,6 +234,13 @@ export class DocumentEdit extends React.PureComponent {
                   </Alert>
                   {!_.isEmpty(this.props.document) ?
                     <Form className="form-horizontal form-edit-document">
+                      <FormGroup row>
+                        <Col md="3">
+                          <Label htmlFor="name">Tên tài liệu<span className="red">(*)</span></Label>
+                        </Col>
+                        <Col xs="12" md="9">
+                        </Col>
+                      </FormGroup>
                       <FormGroup row>
                         <Col md="3">
                           <Label htmlFor="name">Tên tài liệu<span className="red">(*)</span></Label>
@@ -330,13 +338,15 @@ export class DocumentEdit extends React.PureComponent {
                           <Select
                             name="cates"
                             className="rct-select-input"
-                            options={this.props.dataInit.categories.map(sj => ({ value: sj.id, label: sj.name }))}
-                            value={this.state.formData.cates}
-                            onChange={(value) => this.handleMultiSelect('cates', value)}
+                            options={Array(41)
+                              .fill((new Date()).getFullYear() - 20)
+                              .map((y, idx) => ({ value: y + idx, label: y + idx }))}
+                            value={this.state.formData.yearSchools}
+                            onChange={(value) => this.handleMultiSelect('yearSchools', value)}
                             isMulti
                             hideSelectedOptions={false}
                             closeMenuOnSelect={false}
-                            placeholder="-- Chọn danh mục --"
+                            placeholder="-- Chọn năm học --"
                             isSearchable={false}
                             components={{
                               DropdownIndicator: () => (

@@ -132,6 +132,7 @@ class UploadProgress extends React.Component {
     };
 
     if (this.state.successId) {
+      console.log(formData);
       return put(url, formData, config)
         .then(res => {
           this.setState({

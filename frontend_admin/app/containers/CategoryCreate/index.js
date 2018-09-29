@@ -109,11 +109,7 @@ export class CategoryCreate extends React.PureComponent {
                   <i className="fa fa-align-justify" /> Tạo mới danh mục
                 </CardHeader>
                 <CardBody>
-                  <Alert
-                    color="danger"
-                    isOpen={this.props.message}
-                    toggle={() => this.props.clearMessage()}
-                  >
+                  <Alert color="danger" isOpen={!!this.props.message} toggle={() => this.props.clearMessage()}>
                     {this.props.message}
                   </Alert>
                   <Row>

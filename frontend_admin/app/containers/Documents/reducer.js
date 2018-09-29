@@ -45,7 +45,9 @@ function documentReducer(state = initialState, action) {
     case APPROVE_DOCS.REQUEST:
       return state.set('loading', true);
     case APPROVE_DOCS.SUCCESS:
-      return state.set('loading', false);
+      return state
+        .set('loading', false)
+        .set('deleteSuccess', true);
     case DELETE_DOC.REQUEST:
       return state.set('loading', true);
     case DELETE_DOC.SUCCESS:
