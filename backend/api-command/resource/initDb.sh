@@ -119,19 +119,7 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
 
 if [ $? == 0 ]
 then
-  echo -e "${GREEN}-------------------INIT DATABASE IS DONE-------------------${NC}"
-  echo "Init an account for administrator"
-  echo -n "Enter your administator's email: "
-  read EMAIL
-  mysql -u$ACCOUNT -p$PASSWORD -e "INSERT INTO $DATABASE.tbUser(name, email, role) VALUES ('administator', '$EMAIL', 'admin')"
-  if [ $? == 0 ]
-  then
-    echo
-    echo -e "Init administrator's account is done with name = ${GREEN}'administrator'${NC} and email = ${GREEN}'$EMAIL'${NC}.\nLogin with above email to update infomation"
-    echo -e "${GREEN}-------------------DONE-------------------${NC}"
-  else
-    echo -e "${RED}Init error${NC}"
-  fi
+  echo -e "${GREEN}-------------------SUCCESS-------------------${NC}"
 else
   echo -e "${RED}-------------------ERROR-------------------${NC}"
 fi

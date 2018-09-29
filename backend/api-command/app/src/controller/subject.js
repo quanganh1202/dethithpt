@@ -6,11 +6,11 @@ import { exception } from '../constant/error';
 import rabbitSender from '../../rabbit/sender';
 
 const subModel = new Subject;
-const schemaId = 'http://dethithpt.com/subject-schema#';
-
+const createSchema = 'http://dethithpt.com/subject-create-schema#';
+const updateSchema = 'http://dethithpt.com/subject-update-schema#';
 async function createSubject(body) {
   try {
-    const resValidate = dataValidator(body, schemaId);
+    const resValidate = dataValidator(body, createSchema);
     if (!resValidate.valid) {
       return {
         status: 403,
@@ -64,6 +64,13 @@ async function createSubject(body) {
 
 async function updateSubject(id, body) {
   try {
+    const resValidate = dataValidator(body, updateSchema);
+    if (!resValidate.valid) {
+      return {
+        status: 403,
+        error: resValidate.errors,
+      };
+    }
     const existed = await subModel.getSubjectById(id);
     if (!existed || !existed.length) {
       return {

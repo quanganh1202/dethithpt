@@ -1,0 +1,66 @@
+{
+  "$id": "http://dethithpt.com/user-create-schema#",
+  "title": "User",
+  "description": "User schema validation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "phone", "role", "bod", "city", "district", "level", "school", "userId"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "email": {
+      "type": "string",
+      "minLength": 1,
+      "format": "email"
+    },
+    "phone": {
+      "type": "string",
+      "pattern": "^[0-9()\\-\\.\\s]+$",
+      "minLength": 1
+    },
+    "role": {
+      "type": "string",
+      "minLength": 1
+    },
+    "bod": {
+      "type": "string",
+      "maxLength": 4,
+      "minLength": 4,
+      "pattern": "^[1-9]{1}[0-9]*$"
+    },
+    "city": {
+      "type": "string",
+      "minLength": 1
+    },
+    "district": {
+      "type": "string",
+      "minLength": 1
+    },
+    "level": {
+      "type": "string",
+      "minLength": 1
+    },
+    "school": {
+      "type": "string",
+      "minLength": 1
+    },
+    "facebook": {
+      "type": "string",
+      "minLength": 1
+    },
+    "position": {
+      "type": "string",
+      "minLength": 1
+    },
+    "money": {
+      "type": "string",
+      "minLength": 1
+    },
+    "userId": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

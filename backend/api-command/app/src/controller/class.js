@@ -6,11 +6,11 @@ import { exception } from '../constant/error';
 import rabbitSender from '../../rabbit/sender';
 
 const classModel = new Class;
-const schemaId = 'http://dethithpt.com/class-schema#';
-
+const createSchema = 'http://dethithpt.com/class-create-schema#';
+const updateSchema = 'http://dethithpt.com/class-update-schema#';
 async function createClass(body) {
   try {
-    const resValidate = dataValidator(body, schemaId);
+    const resValidate = dataValidator(body, createSchema);
     if (!resValidate.valid) {
       return {
         status: 403,
@@ -62,6 +62,13 @@ async function createClass(body) {
 
 async function updateClass(id, body) {
   try {
+    const resValidate = dataValidator(body, updateSchema);
+    if (!resValidate.valid) {
+      return {
+        status: 403,
+        error: resValidate.errors,
+      };
+    }
     const existed = await classModel.getClassById(id);
 
     if (!existed || !existed.length) {

@@ -6,11 +6,12 @@ import { exception } from '../constant/error';
 import rabbitSender from '../../rabbit/sender';
 
 const cateModel = new Category;
-const schemaId = 'http://dethithpt.com/category-schema#';
+const createSchema = 'http://dethithpt.com/category-create-schema#';
+const updateSchema = 'http://dethithpt.com/category-update-schema#';
 
 async function createCategory(body) {
   try {
-    const resValidate = dataValidator(body, schemaId);
+    const resValidate = dataValidator(body, createSchema);
     if (!resValidate.valid) {
       return {
         status: 403,
@@ -66,6 +67,13 @@ async function createCategory(body) {
 
 async function updateCategory(id, body) {
   try {
+    const resValidate = dataValidator(body, updateSchema);
+    if (!resValidate.valid) {
+      return {
+        status: 403,
+        error: resValidate.errors,
+      };
+    }
     const existed = await cateModel.getCategoryById(id);
 
     if (!existed || !existed.length) {
