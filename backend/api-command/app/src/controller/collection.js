@@ -9,11 +9,12 @@ import { exception } from '../constant/error';
 import rabbitSender from '../../rabbit/sender';
 
 const collectionModel = new Collection;
-const schemaId = 'http://dethithpt.com/collection-schema#';
+const createSchema = 'http://dethithpt.com/collection-create-schema#';
+const updateSchema = 'http://dethithpt.com/collection-update-schema#';
 
 async function createCollection(body) {
   try {
-    const resValidate = dataValidator(body, schemaId);
+    const resValidate = dataValidator(body, createSchema);
     if (!resValidate.valid) {
       return {
         status: 403,
@@ -145,6 +146,13 @@ async function createCollection(body) {
 
 async function updateCollection(id, body) {
   try {
+    const resValidate = dataValidator(body, updateSchema);
+    if (!resValidate.valid) {
+      return {
+        status: 403,
+        error: resValidate.errors,
+      };
+    }
     const existed = await collectionModel.getCollectionById(id);
 
     if (!existed || !existed.length) {

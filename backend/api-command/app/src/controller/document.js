@@ -16,14 +16,15 @@ import action from '../constant/action';
 import header from '../constant/typeHeader';
 
 const docModel = new Document();
-const schemaId = 'http://dethithpt.com/document-schema#';
+const createSchema = 'http://dethithpt.com/document-create-schema#';
+const updateSchema = 'http://dethithpt.com/document-update-schema#';
 
 async function uploadDocument(body, file) {
   try {
     if (!body.price) body.price = '0'; // Default price of document is 0
     body.approved = 0;
     const queryBody = Object.assign({}, body);
-    const resValidate = dataValidator(body, schemaId);
+    const resValidate = dataValidator(body, createSchema);
     if (!resValidate.valid) {
       return {
         status: 403,
@@ -195,7 +196,7 @@ async function uploadDocument(body, file) {
 
 async function updateDocumentById(id, body, file) {
   try {
-    const resValidate = dataValidator(body, 'http://dethithpt.com/update-document-schema#');
+    const resValidate = dataValidator(body, updateSchema);
     if (!resValidate.valid) {
       return {
         status: 403,

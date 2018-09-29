@@ -10,7 +10,8 @@ import rabbitSender from '../../rabbit/sender';
 import action from '../constant/action';
 
 const userModel = new User();
-const schemaId = 'http://dethithpt.com/user-schema#';
+const createSchema = 'http://dethithpt.com/user-create-schema#';
+const updateSchema = 'http://dethithpt.com/user-update-schema#';
 
 async function auth(info) {
   try {
@@ -91,7 +92,7 @@ async function auth(info) {
 
 async function addUser(userInfo) {
   try {
-    const resValidate = dataValidator(userInfo, schemaId);
+    const resValidate = dataValidator(userInfo, createSchema);
     if (!resValidate.valid) {
       return {
         status: 403,
@@ -205,7 +206,7 @@ async function deleteUser(id, userId) {
 
 async function updateUser(id, userInfo) {
   try {
-    const resValidate = dataValidator(userInfo, schemaId);
+    const resValidate = dataValidator(userInfo, updateSchema);
     if (!resValidate.valid) {
       return {
         status: 403,
@@ -235,11 +236,14 @@ async function updateUser(id, userInfo) {
     }
     const criteria = [ { email }, { phone }];
     const user = await userModel.getList(criteria);
-    if (user && user.length && role === 'admin') {
-      return {
-        error: 'Email already existed',
-        status: 400,
-      };
+
+    if (user && user.length && role === 'admin' && ((phone && phone !== existed[0].phone) || (email && email !== existed[0].email))) {
+      if  (email && email !== existed[0].email) {
+        return {
+          error: 'Email has been used by another people',
+          status: 400,
+        };
+      }
     }
     if (role !== 'admin') delete userInfo.money;
     delete userInfo.userId;
@@ -261,7 +265,7 @@ async function updateUser(id, userInfo) {
       };
     }
   } catch (ex) {
-    logger.error(ex.message || 'Unexpected error when update user');
+    logger.error(ex || 'Unexpected error when update user');
 
     return exception;
   }

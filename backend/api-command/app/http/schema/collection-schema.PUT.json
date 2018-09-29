@@ -1,0 +1,80 @@
+{
+  "$id": "http://dethithpt.com/collection-update-schema#",
+  "title": "Collection",
+  "description": "Collection schema validation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["userId"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "cateIds": {
+      "anyOf": [{
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "classIds": {
+      "anyOf": [{
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "yearSchools": {
+      "anyOf": [{
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "subjectIds": {
+      "anyOf": [{
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      ]
+    },
+    "userId": {
+      "type": "string"
+    },
+    "prioriy": {
+      "type": "string"
+    }
+  }
+}

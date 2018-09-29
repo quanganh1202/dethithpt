@@ -1,0 +1,23 @@
+{
+  "$id": "http://dethithpt.com/subject-create-schema#",
+  "title": "Subject",
+  "description": "Subject schema validation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "description"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "userId": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}
