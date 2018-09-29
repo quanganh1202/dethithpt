@@ -39,8 +39,7 @@ export function* getDocsHandler({ query }) {
 /**
  * Request approve document
  */
-export function* approveDocsHandler({ id }) {
-  const url = `${root}/documents/${id}/approve`;
+export function* approveDocsHandler({ ids }) {
   const options = {
     headers: {
       ['x-access-token']: getToken(),
@@ -48,7 +47,10 @@ export function* approveDocsHandler({ id }) {
   }
 
   try {
-    yield call(axios.post, url, {}, options);
+    yield all(ids.map((i) => {
+      const url = `${root}/documents/${i}/approve`;
+      return call(axios.post, url, {}, options);
+    }));
     yield put(approveDocsSuccess());
   } catch (err) {
     // yield put(loginFailure(err));
@@ -82,14 +84,18 @@ export function* deleteDocHandler({ ids }) {
 export function* updateDocsHandler({ ids, data }) {
   const options = {
     headers: {
+      'content-type': 'multipart/form-data',
       ['x-access-token']: getToken(),
     }
   }
-
+  const formData = new FormData();
+  Object.keys(data).forEach((k) => {
+    formData.append(k, data[k]);
+  })
   try {
     yield all(ids.map((i) => {
       const url = `${root}/documents/${i}`;
-      return call(axios.post, url, data, options);
+      return call(axios.put, url, formData, options);
     }));
     yield put(updateDocsSuccess());
   } catch (err) {
