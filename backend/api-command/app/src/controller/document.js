@@ -234,7 +234,7 @@ async function getDocument(id, cols) {
 async function updateDocumentById(id, body, file) {
   try {
     const queryBody = Object.assign({}, body);
-    const resValidate = dataValidator(body, schemaId);
+    const resValidate = dataValidator(body, 'http://dethithpt.com/update-document-schema#');
     if (!resValidate.valid) {
       return {
         status: 403,
