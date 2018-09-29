@@ -30,10 +30,7 @@ import styled from 'styled-components';
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
 import { getSubjects } from './actions';
-import {
-  makeSelectSubjects,
-  makeSelectLoading,
-} from './selectors';
+import { makeSelectSubjects, makeSelectLoading } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 
@@ -58,13 +55,15 @@ export class Subject extends React.PureComponent {
   renderSubjectRow(subjects) {
     return subjects.map((item, idx) => (
       <tr key={item.id}>
-          <th scope="row">{idx + 1}</th>
-          <td>{item.name}</td>
-          <td>{item.description}</td>
-          <td>{item.userName}</td>
-          <td>{moment(item.createdAt).format('DD/MM/YYYY')}</td>
+        <th scope="row">{idx + 1}</th>
+        <td>
+          <Link to={`/subjects/${item.id}`}>{item.name}</Link>
+        </td>
+        <td>{item.description}</td>
+        <td>{item.userName}</td>
+        <td>{moment(item.createdAt).format('DD/MM/YYYY')}</td>
       </tr>
-    ))
+    ));
   }
 
   render() {
@@ -73,7 +72,9 @@ export class Subject extends React.PureComponent {
         <Row>
           <Col xl={12}>
             <Breadcrumb>
-              <BreadcrumbItem><Link to="/">Trang chủ</Link></BreadcrumbItem>
+              <BreadcrumbItem>
+                <Link to="/">Trang chủ</Link>
+              </BreadcrumbItem>
               <BreadcrumbItem active>Môn học</BreadcrumbItem>
             </Breadcrumb>
           </Col>
@@ -83,14 +84,18 @@ export class Subject extends React.PureComponent {
             <Col xl={12}>
               <Card>
                 <CardHeader>
-                  <i className="fa fa-align-justify"></i> Môn học
+                  <i className="fa fa-align-justify" /> Môn học
                   <div className="float-right">
                     <Button
                       block
                       color="primary"
                       size="sm"
-                      onClick={() => this.props.history.push('/subjects/create')}
-                    >Tạo mới</Button>
+                      onClick={() =>
+                        this.props.history.push('/subjects/create')
+                      }
+                    >
+                      Tạo mới
+                    </Button>
                   </div>
                 </CardHeader>
                 <CardBody>
@@ -104,9 +109,7 @@ export class Subject extends React.PureComponent {
                         <th scope="col">Ngày tạo</th>
                       </tr>
                     </thead>
-                    <tbody>
-                      {this.renderSubjectRow(this.props.subjects)}
-                    </tbody>
+                    <tbody>{this.renderSubjectRow(this.props.subjects)}</tbody>
                   </Table>
                 </CardBody>
               </Card>

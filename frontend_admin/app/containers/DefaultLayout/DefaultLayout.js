@@ -27,10 +27,13 @@ import Document from 'containers/Documents/Loadable';
 import DocumentEdit from 'containers/DocumentEdit/Loadable';
 import Category from 'containers/Category/Loadable';
 import CategoryCreate from 'containers/CategoryCreate/Loadable';
+import CategoryEdit from 'containers/CategoryEdit/Loadable';
 import Class from 'containers/Class/Loadable';
 import ClassCreate from 'containers/ClassCreate/Loadable';
+import ClassEdit from 'containers/ClassEdit/Loadable';
 import Subject from 'containers/Subject/Loadable';
 import SubjectCreate from 'containers/SubjectCreate/Loadable';
+import SubjectEdit from 'containers/SubjectEdit/Loadable';
 // import School from 'containers/School/Loadable';
 // import SchoolCreate from 'containers/SchoolCreate/Loadable';
 import Collection from 'containers/Collection/Loadable';
@@ -69,10 +72,13 @@ class DefaultLayout extends Component {
               <Route path="/documents/:id" exact name="Edit document" component={DocumentEdit} />
               <Route path="/categories" exact name="Category" component={Category} />
               <Route path="/categories/create" exact name="Create category" component={CategoryCreate} />
+              <Route path="/categories/:id" exact name="Edit category" component={CategoryEdit} />
               <Route path="/classes" exact name="Class" component={Class} />
               <Route path="/classes/create" exact name="Create class" component={ClassCreate} />
+              <Route path="/classes/:id" exact name="Edit class" component={ClassEdit} />
               <Route path="/subjects" exact name="Subject" component={Subject} />
               <Route path="/subjects/create" exact name="Create subject" component={SubjectCreate} />
+              <Route path="/subjects/:id" exact name="Edit subject" component={SubjectEdit} />
               {/* <Route path="/schools" exact name="School" component={School} />
               <Route path="/schools/create" exact name="Create school" component={SchoolCreate} /> */}
               <Route path="/collections" exact name="Collection" component={Collection} />

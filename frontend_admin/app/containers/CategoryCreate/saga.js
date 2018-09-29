@@ -23,8 +23,8 @@ export function* createCategoryHandler({ data }) {
   const options = {
     headers: {
       ['x-access-token']: getToken(),
-    }
-  }
+    },
+  };
   try {
     yield call(axios.post, url, data, options);
     yield put(createCategorySuccess());

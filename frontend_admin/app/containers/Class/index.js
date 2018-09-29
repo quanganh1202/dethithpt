@@ -30,10 +30,7 @@ import styled from 'styled-components';
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
 import { getClasses } from './actions';
-import {
-  makeSelectClasses,
-  makeSelectLoading,
-} from './selectors';
+import { makeSelectClasses, makeSelectLoading } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 
@@ -58,13 +55,15 @@ export class Classes extends React.PureComponent {
   renderClassRow(classes) {
     return classes.map((item, idx) => (
       <tr key={item.id}>
-          <th scope="row">{idx + 1}</th>
-          <td>{item.name}</td>
-          <td>{item.description}</td>
-          <td>{item.userName}</td>
-          <td>{moment(item.createdAt).format('DD/MM/YYYY')}</td>
+        <th scope="row">{idx + 1}</th>
+        <td>
+          <Link to={`/classes/${item.id}`}>{item.name}</Link>
+        </td>
+        <td>{item.description}</td>
+        <td>{item.userName}</td>
+        <td>{moment(item.createdAt).format('DD/MM/YYYY')}</td>
       </tr>
-    ))
+    ));
   }
 
   render() {
@@ -73,7 +72,9 @@ export class Classes extends React.PureComponent {
         <Row>
           <Col xl={12}>
             <Breadcrumb>
-              <BreadcrumbItem><Link to="/">Trang chủ</Link></BreadcrumbItem>
+              <BreadcrumbItem>
+                <Link to="/">Trang chủ</Link>
+              </BreadcrumbItem>
               <BreadcrumbItem active>Lớp</BreadcrumbItem>
             </Breadcrumb>
           </Col>
@@ -83,14 +84,16 @@ export class Classes extends React.PureComponent {
             <Col xl={12}>
               <Card>
                 <CardHeader>
-                  <i className="fa fa-align-justify"></i> Lớp
+                  <i className="fa fa-align-justify" /> Lớp
                   <div className="float-right">
                     <Button
                       block
                       color="primary"
                       size="sm"
                       onClick={() => this.props.history.push('/classes/create')}
-                    >Tạo mới</Button>
+                    >
+                      Tạo mới
+                    </Button>
                   </div>
                 </CardHeader>
                 <CardBody>
@@ -104,9 +107,7 @@ export class Classes extends React.PureComponent {
                         <th scope="col">Ngày tạo</th>
                       </tr>
                     </thead>
-                    <tbody>
-                      {this.renderClassRow(this.props.classes)}
-                    </tbody>
+                    <tbody>{this.renderClassRow(this.props.classes)}</tbody>
                   </Table>
                 </CardBody>
               </Card>

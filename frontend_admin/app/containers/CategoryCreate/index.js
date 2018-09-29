@@ -32,10 +32,7 @@ import {
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
 import { createCategory, clearMessage } from './actions';
-import {
-  makeSelectMessage,
-  makeSelectLoading,
-} from './selectors';
+import { makeSelectMessage, makeSelectLoading } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 
@@ -66,13 +63,13 @@ export class CategoryCreate extends React.PureComponent {
   }
 
   onChange(e) {
-    const { name, value } = e.currentTarget
-    this.setState({ formData: { ...this.state.formData, [name]: value } })
+    const { name, value } = e.currentTarget;
+    this.setState({ formData: { ...this.state.formData, [name]: value } });
   }
 
   onSubmit() {
     const error = {};
-    Object.keys(this.state.formData).forEach((key) => {
+    Object.keys(this.state.formData).forEach(key => {
       if (!this.state.formData[key]) {
         error[key] = 'Thông tin còn thiếu';
       }
@@ -94,8 +91,12 @@ export class CategoryCreate extends React.PureComponent {
         <Row>
           <Col xl={12}>
             <Breadcrumb>
-              <BreadcrumbItem><Link to="/">Trang chủ</Link></BreadcrumbItem>
-              <BreadcrumbItem><Link to="/categories">Danh mục</Link></BreadcrumbItem>
+              <BreadcrumbItem>
+                <Link to="/">Trang chủ</Link>
+              </BreadcrumbItem>
+              <BreadcrumbItem>
+                <Link to="/categories">Danh mục</Link>
+              </BreadcrumbItem>
               <BreadcrumbItem active>Tạo mới</BreadcrumbItem>
             </Breadcrumb>
           </Col>
@@ -105,10 +106,14 @@ export class CategoryCreate extends React.PureComponent {
             <Col xl={6}>
               <Card>
                 <CardHeader>
-                  <i className="fa fa-align-justify"></i> Tạo mới danh mục
+                  <i className="fa fa-align-justify" /> Tạo mới danh mục
                 </CardHeader>
                 <CardBody>
-                  <Alert color="danger" isOpen={this.props.message} toggle={() => this.props.clearMessage()}>
+                  <Alert
+                    color="danger"
+                    isOpen={this.props.message}
+                    toggle={() => this.props.clearMessage()}
+                  >
                     {this.props.message}
                   </Alert>
                   <Row>
@@ -124,7 +129,9 @@ export class CategoryCreate extends React.PureComponent {
                           value={this.state.formData.name}
                           className={this.state.error.name && 'is-invalid'}
                         />
-                        <div className="invalid-feedback">{this.state.error.name}</div>
+                        <div className="invalid-feedback">
+                          {this.state.error.name}
+                        </div>
                       </FormGroup>
                     </Col>
                   </Row>
@@ -139,21 +146,27 @@ export class CategoryCreate extends React.PureComponent {
                           rows="4"
                           onChange={this.onChange}
                           value={this.state.formData.description}
-                          className={this.state.error.description && 'is-invalid'}
+                          className={
+                            this.state.error.description && 'is-invalid'
+                          }
                         />
-                        <div className="invalid-feedback">{this.state.error.description}</div>
+                        <div className="invalid-feedback">
+                          {this.state.error.description}
+                        </div>
                       </FormGroup>
                     </Col>
                   </Row>
                 </CardBody>
                 <CardFooter>
-                  <div className="float-right" style={{ marginLeft: '10px'}}>
+                  <div className="float-right" style={{ marginLeft: '10px' }}>
                     <Button
                       block
                       color="primary"
                       size="sm"
                       onClick={this.onSubmit}
-                    >Tạo</Button>
+                    >
+                      Tạo
+                    </Button>
                   </div>
                   <div className="float-right">
                     <Button
@@ -161,7 +174,9 @@ export class CategoryCreate extends React.PureComponent {
                       color="danger"
                       size="sm"
                       onClick={this.resetForm}
-                    >Nhập lại</Button>
+                    >
+                      Nhập lại
+                    </Button>
                   </div>
                 </CardFooter>
               </Card>
@@ -179,7 +194,7 @@ CategoryCreate.propTypes = {
 
 export function mapDispatchToProps(dispatch) {
   return {
-    createCategory: (data) => dispatch(createCategory(data)),
+    createCategory: data => dispatch(createCategory(data)),
     clearMessage: () => dispatch(clearMessage()),
   };
 }
