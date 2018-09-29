@@ -73,6 +73,9 @@ async function uploadDocument(body, file) {
         error: 'User id does not exists',
       };
     }
+    if (user[0].role === 'admin') {
+      body.approved = 1;
+    }
 
     if (cateIds) {
       const cateModel = new Category();
@@ -258,6 +261,13 @@ async function updateDocumentById(id, body, file) {
       return {
         status: 400,
         error: 'User id does not exists',
+      };
+    }
+
+    if (doc[0].userId !== userId && user[0].role !== 'admin') {
+      return {
+        status: 403,
+        error: 'Forbidden',
       };
     }
 

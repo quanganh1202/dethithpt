@@ -105,15 +105,32 @@ async function updateClass(id, body) {
       };
     }
 
-    const { name } = body;
-    const cate = await classModel.getListClass([{ name }]);
-    if (cate && cate.length && name !== existed[0].name) {
-      return {
-        error: `Class ${body.name} already existed`,
-        status: 400,
-      };
+    const { name, userId } = body;
+
+    if (name) {
+      const classes = await classModel.getListClass([{ name }]);
+      if (classes && classes.length && name !== existed[0].name) {
+        return {
+          error: `Class ${body.name} already existed`,
+          status: 400,
+        };
+      }
     }
 
+    const userModel = new User();
+    const user = await userModel.getById(userId);
+    if (!user || !user.length || !user[0].status) {
+      return {
+        status: 400,
+        error: 'User id does not exists',
+      };
+    }
+    if (existed[0].userId !== userId && user[0].role !== 'admin') {
+      return {
+        status: 403,
+        error: 'Forbidden',
+      };
+    }
     await classModel.updateClassById(id, body);
     const serverNotify = await rabbitSender('class.update', { id, body });
     if (serverNotify.statusCode === 200) {

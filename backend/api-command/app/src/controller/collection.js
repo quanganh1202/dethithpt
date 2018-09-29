@@ -205,6 +205,13 @@ async function updateCollection(id, body) {
         error: 'User id does not exists',
       };
     }
+
+    if (existed[0].userId !== userId && user[0].role !== 'admin') {
+      return {
+        status: 403,
+        error: 'Forbidden',
+      };
+    }
     const queryBody = Object.assign({}, body);
     let newCate;
     if (cateIds && cateIds.length) {

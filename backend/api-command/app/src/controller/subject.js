@@ -57,7 +57,6 @@ async function createSubject(body) {
       userName: user[0].name,
       userEmail: user[0].email,
     });
-    console.log(queryBody);
     const serverNotify = await rabbitSender('subject.create', { id: res.insertId, body: queryBody });
     if (serverNotify.statusCode === 200) {
       return {
@@ -100,7 +99,6 @@ async function getSubjectById(id, cols) {
 async function updateSubject(id, body) {
   try {
     const existed = await subModel.getSubjectById(id);
-
     if (!existed || !existed.length) {
       return {
         status: 400,
@@ -108,15 +106,31 @@ async function updateSubject(id, body) {
       };
     }
 
-    const { name } = body;
-    const cate = await subModel.getListSubject([{ name }]);
-    if (cate && cate.length && name !== existed[0].name) {
+    const { name, userId } = body;
+    if (name) {
+      const subjects = await subModel.getListSubject([{ name }]);
+      if (subjects && subjects.length && name !== existed[0].name) {
+        return {
+          error: `Subject ${body.name} already existed`,
+          status: 400,
+        };
+      }
+    }
+    const userModel = new User();
+    const user = await userModel.getById(userId);
+    if (!user || !user.length || !user[0].status) {
       return {
-        error: `Subject ${body.name} already existed`,
         status: 400,
+        error: 'User id does not exists',
       };
     }
 
+    if (existed[0].userId !== userId && user[0].role !== 'admin') {
+      return {
+        status: 403,
+        error: 'Forbidden',
+      };
+    }
     await subModel.updateSubjectById(id, body);
     const serverNotify = await rabbitSender('subject.update', { id, body });
     if (serverNotify.statusCode === 200) {

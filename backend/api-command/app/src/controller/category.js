@@ -108,12 +108,28 @@ async function updateCategory(id, body) {
       };
     }
 
-    const { name } = body;
-    const cate = await cateModel.getListCategory([{ name }]);
-    if (cate && cate.length && name !== existed[0].name) {
+    const { name, userId } = body;
+    if (name) {
+      const cate = await cateModel.getListCategory([{ name }]);
+      if (cate && cate.length && name !== existed[0].name) {
+        return {
+          error: `Category ${body.name} already existed`,
+          status: 400,
+        };
+      }
+    }
+    const userModel = new User();
+    const user = await userModel.getById(userId);
+    if (!user || !user.length || !user[0].status) {
       return {
-        error: `Category ${body.name} already existed`,
         status: 400,
+        error: 'User id does not exists',
+      };
+    }
+    if (existed[0].userId !== userId && user[0].role !== 'admin') {
+      return {
+        status: 403,
+        error: 'Forbidden',
       };
     }
 
