@@ -49,6 +49,7 @@ const routerDefine =  function defineRouter() {
   });
 
   route.put('/collections/:id', async (req, res) => {
+    req.body.userId = req.app.locals.id.toString();
     const { error, message, status } = await updateCollection(req.params.id, req.body);
     if (error) {
       return res.status(status).json({
@@ -61,7 +62,8 @@ const routerDefine =  function defineRouter() {
   });
 
   route.delete('/collections/:id', async (req, res) => {
-    const { error, message, status } = await deleteCollectionById(req.params.id);
+    const userId = req.app.locals.id.toString();
+    const { error, message, status } = await deleteCollectionById(req.params.id, userId);
     if (error) {
       return res.status(status || 500).json({ error });
     }

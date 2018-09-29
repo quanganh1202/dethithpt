@@ -131,6 +131,7 @@ async function updateClass(id, body) {
         error: 'Forbidden',
       };
     }
+    delete body.userId;
     await classModel.updateClassById(id, body);
     const serverNotify = await rabbitSender('class.update', { id, body });
     if (serverNotify.statusCode === 200) {
@@ -155,7 +156,7 @@ async function updateClass(id, body) {
   }
 }
 
-async function deleteClassById(id) {
+async function deleteClassById(id, userId) {
   try {
     const result = await classModel.getClassById(id);
 
@@ -163,6 +164,20 @@ async function deleteClassById(id) {
       return {
         error: 'Class not found',
         status: 404,
+      };
+    }
+    const userModel = new User();
+    const user = await userModel.getById(userId);
+    if (!user || !user.length || !user[0].status) {
+      return {
+        status: 400,
+        error: 'User id does not exists',
+      };
+    }
+    if (result[0].userId !== userId && user[0].role !== 'admin') {
+      return {
+        status: 403,
+        error: 'Forbidden',
       };
     }
 

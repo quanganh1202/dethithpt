@@ -132,7 +132,7 @@ async function updateCategory(id, body) {
         error: 'Forbidden',
       };
     }
-
+    delete body.userId;
     await cateModel.updateCategoryById(id, body);
     const serverNotify = await rabbitSender('category.update', { id, body });
     if (serverNotify.statusCode === 200) {
@@ -157,7 +157,7 @@ async function updateCategory(id, body) {
   }
 }
 
-async function deleteCategoryById(id) {
+async function deleteCategoryById(id, userId) {
   try {
     const result = await cateModel.getCategoryById(id);
 
@@ -167,7 +167,20 @@ async function deleteCategoryById(id) {
         status: 404,
       };
     }
-
+    const userModel = new User();
+    const user = await userModel.getById(userId);
+    if (!user || !user.length || !user[0].status) {
+      return {
+        status: 400,
+        error: 'User id does not exists',
+      };
+    }
+    if (result[0].userId !== userId && user[0].role !== 'admin') {
+      return {
+        status: 403,
+        error: 'Forbidden',
+      };
+    }
     await cateModel.deleteCategoryById(id);
     const serverNotify = await rabbitSender('category.delete', { id });
     if (serverNotify.statusCode === 200) {

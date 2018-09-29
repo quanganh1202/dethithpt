@@ -237,7 +237,6 @@ async function getDocument(id, cols) {
 
 async function updateDocumentById(id, body, file) {
   try {
-    const queryBody = Object.assign({}, body);
     const resValidate = dataValidator(body, 'http://dethithpt.com/update-document-schema#');
     if (!resValidate.valid) {
       return {
@@ -270,7 +269,8 @@ async function updateDocumentById(id, body, file) {
         error: 'Forbidden',
       };
     }
-
+    delete body.userId;
+    const queryBody = Object.assign({}, body);
     if (cateIds) {
       const cateModel = new Category();
       const promises = cateIds.split(',').map(cateId => cateModel.getCategoryById(cateId));
@@ -413,7 +413,7 @@ async function updateDocumentById(id, body, file) {
   }
 }
 
-async function deleteDocument(id) {
+async function deleteDocument(id, userId) {
   try {
     const result = await docModel.getDocumentById(id);
 
@@ -423,7 +423,20 @@ async function deleteDocument(id) {
         status: 404,
       };
     }
-
+    const userModel = new User();
+    const user = await userModel.getById(userId);
+    if (!user || !user.length || !user[0].status) {
+      return {
+        status: 400,
+        error: 'User id does not exists',
+      };
+    }
+    if (result[0].userId !== userId && user[0].role !== 'admin') {
+      return {
+        status: 403,
+        error: 'Forbidden',
+      };
+    }
     const oldPath= result[0].path;
     const thumbFile = `${path.dirname(oldPath)}/${path.basename(oldPath, path.extname(oldPath))}.png`;
     await Promise.all([
@@ -606,6 +619,12 @@ async function approveDocument(docId, userId) {
       return {
         status: 400,
         error: 'User not found',
+      };
+    }
+    if (user[0].role !== 'admin') {
+      return {
+        status: 403,
+        error: 'Forbidden',
       };
     }
     const body = {

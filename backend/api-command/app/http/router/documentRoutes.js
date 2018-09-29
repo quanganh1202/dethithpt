@@ -67,7 +67,8 @@ const routerDefine =  function defineRouter() {
   });
   // Delete documents
   route.delete('/documents/:id', async (req, res) => {
-    const { error, message, status } = await deleteDocument(req.params.id);
+    const userId = req.app.locals.id.toString();
+    const { error, message, status } = await deleteDocument(req.params.id, userId);
     if (error) {
       return res.status(status || 500).json({ error });
     }

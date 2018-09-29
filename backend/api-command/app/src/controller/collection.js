@@ -212,6 +212,7 @@ async function updateCollection(id, body) {
         error: 'Forbidden',
       };
     }
+    delete body.userId;
     const queryBody = Object.assign({}, body);
     let newCate;
     if (cateIds && cateIds.length) {
@@ -291,7 +292,7 @@ async function updateCollection(id, body) {
   }
 }
 
-async function deleteCollectionById(id) {
+async function deleteCollectionById(id, userId) {
   try {
     const result = await collectionModel.getCollectionById(id);
 
@@ -301,7 +302,20 @@ async function deleteCollectionById(id) {
         status: 404,
       };
     }
-
+    const userModel = new User();
+    const user = await userModel.getById(userId);
+    if (!user || !user.length || !user[0].status) {
+      return {
+        status: 400,
+        error: 'User id does not exists',
+      };
+    }
+    if (result[0].userId !== userId && user[0].role !== 'admin') {
+      return {
+        status: 403,
+        error: 'Forbidden',
+      };
+    }
     await collectionModel.deleteCollectionById(id);
     const serverNotify = await rabbitSender('collection.delete', { id });
     if (serverNotify.statusCode === 200) {

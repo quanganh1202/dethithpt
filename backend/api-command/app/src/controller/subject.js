@@ -131,6 +131,7 @@ async function updateSubject(id, body) {
         error: 'Forbidden',
       };
     }
+    delete body.userId;
     await subModel.updateSubjectById(id, body);
     const serverNotify = await rabbitSender('subject.update', { id, body });
     if (serverNotify.statusCode === 200) {
@@ -155,7 +156,7 @@ async function updateSubject(id, body) {
   }
 }
 
-async function deleteSubjectById(id) {
+async function deleteSubjectById(id, userId) {
   try {
     const result = await subModel.getSubjectById(id);
 
@@ -165,7 +166,20 @@ async function deleteSubjectById(id) {
         status: 404,
       };
     }
-
+    const userModel = new User();
+    const user = await userModel.getById(userId);
+    if (!user || !user.length || !user[0].status) {
+      return {
+        status: 400,
+        error: 'User id does not exists',
+      };
+    }
+    if (result[0].userId !== userId && user[0].role !== 'admin') {
+      return {
+        status: 403,
+        error: 'Forbidden',
+      };
+    }
     await subModel.deleteSubjectById(id);
     const serverNotify = await rabbitSender('subject.delete', { id });
     if (serverNotify.statusCode === 200) {
