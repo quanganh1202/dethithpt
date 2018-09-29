@@ -18,32 +18,6 @@ import header from '../constant/typeHeader';
 const docModel = new Document();
 const schemaId = 'http://dethithpt.com/document-schema#';
 
-async function getListDocuments(args) {
-  try {
-    const { name, tags, description, searchType, number, offset, sortBy, cols } = args;
-    const filter = [];
-    filter.push(name ? { name }: undefined);
-    filter.push(tags ? { tags: `#${tags}` }: undefined);
-    filter.push(description ? { description }: undefined);
-    const options = { number, offset, sortBy, searchType, cols };
-    const result = await Promise.all([
-      docModel.getList(filter, options),
-      docModel.getCount(),
-    ]);
-
-    return {
-      docs: result[0],
-      total: result[1][0]['COUNT(*)'],
-      status: 200,
-    };
-  } catch (ex) {
-    return {
-      error: ex.message || 'Unexpected error when get documents',
-      status: 500,
-    };
-  }
-}
-
 async function uploadDocument(body, file) {
   try {
     if (!body.price) body.price = '0'; // Default price of document is 0
@@ -165,7 +139,7 @@ async function uploadDocument(body, file) {
     }
 
     if(yearSchools) queryBody.yearSchools = yearSchools.split(',');
-    body.tags = tags.split(',').map(tag => tag.trim()).join(',');
+    if(tags) body.tags = tags.split(',').map(tag => tag.trim()).join(',');
     const { error, status, fileName, filePreview } =  fileHelpers.validateExtension(file, body.userId);
     if (error) {
       return {
@@ -192,7 +166,7 @@ async function uploadDocument(body, file) {
     // Append data and send to query api
     queryBody.userName = user[0].name;
     queryBody.userEmail = user[0].email;
-    queryBody.tags = body.tags.split(',');
+    if (body.tags) queryBody.tags = body.tags.split(',');
     const serverNotify = await rabbitSender('document.create', { body: queryBody, id: res.insertId });
     if (serverNotify.statusCode === 200) {
       return {
@@ -217,22 +191,6 @@ async function uploadDocument(body, file) {
       error: ex.error || ex || 'Unexpected error when upload file',
     };
   }
-}
-
-async function getDocument(id, cols) {
-  try {
-    const result = await docModel.getDocumentById(id,  cols);
-
-    return {
-      status: 200,
-      data: result,
-    };
-  } catch (ex) {
-    logger.error(ex.message || 'Unexpected error when get document');
-
-    return exception;
-  }
-
 }
 
 async function updateDocumentById(id, body, file) {
@@ -359,7 +317,7 @@ async function updateDocumentById(id, body, file) {
     }
 
     if (yearSchools) queryBody.yearSchools = yearSchools.split(',');
-    body.tags = tags.split(',').map(tag => tag.trim()).join(',');
+    if (tags) body.tags = tags.split(',').map(tag => tag.trim()).join(',');
     if (file.length) {
       const { error, status, fileName } =  fileHelpers.validateExtension(file, body.userId);
       if (error) {
@@ -386,7 +344,7 @@ async function updateDocumentById(id, body, file) {
     await docModel.updateDocumentById(id, body);
     // Append data and send to query api
     queryBody.userName = user[0].name;
-    queryBody.tags = body.tags.split(',');
+    if (body.tags) queryBody.tags = body.tags.split(',');
     const serverNotify = await rabbitSender('document.update', { body: queryBody, id });
     if (serverNotify.statusCode === 200) {
       return {
@@ -404,6 +362,7 @@ async function updateDocumentById(id, body, file) {
       };
     }
   } catch (ex) {
+    console.log(ex);
     logger.error(ex.message || ex.error || 'Unexpected error when update file');
 
     return {
@@ -657,8 +616,6 @@ async function approveDocument(docId, userId) {
 
 export {
   uploadDocument,
-  getListDocuments,
-  getDocument,
   updateDocumentById,
   deleteDocument,
   purchaseDocument,

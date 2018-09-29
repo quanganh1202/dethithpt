@@ -8,24 +8,6 @@ import rabbitSender from '../../rabbit/sender';
 const classModel = new Class;
 const schemaId = 'http://dethithpt.com/class-schema#';
 
-async function getListClasses(args) {
-  try {
-    const { name, description, searchType, number, offset, sortBy, cols } = args;
-    const filter = [];
-    filter.push(name ? { name }: undefined);
-    filter.push(description ? { description }: undefined);
-    const options = { number, offset, sortBy, searchType, cols };
-    const docs = await classModel.getListClass(filter, options);
-
-    return docs || [];
-  } catch (ex) {
-    logger.error(ex.message || 'Unexpected error when get classes');
-
-    return exception;
-  }
-
-}
-
 async function createClass(body) {
   try {
     const resValidate = dataValidator(body, schemaId);
@@ -76,22 +58,6 @@ async function createClass(body) {
 
     return exception;
   }
-}
-
-async function getClassById(id, cols) {
-  try {
-    const result = await classModel.getClassById(id,  cols);
-
-    return {
-      status: 200,
-      data: result,
-    };
-  } catch (ex) {
-    logger.error(ex.message || 'Unexpected error when get class');
-
-    return exception;
-  }
-
 }
 
 async function updateClass(id, body) {
@@ -207,8 +173,6 @@ async function deleteClassById(id, userId) {
 
 export {
   createClass,
-  getClassById,
-  getListClasses,
   updateClass,
   deleteClassById,
 };

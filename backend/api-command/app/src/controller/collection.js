@@ -11,24 +11,6 @@ import rabbitSender from '../../rabbit/sender';
 const collectionModel = new Collection;
 const schemaId = 'http://dethithpt.com/collection-schema#';
 
-async function getListCollections(args) {
-  try {
-    const { name, description, searchType, number, offset, sortBy, cols } = args;
-    const filter = [];
-    filter.push(name ? { name }: undefined);
-    filter.push(description ? { description }: undefined);
-    const options = { number, offset, sortBy, searchType, cols };
-    const docs = await collectionModel.getListCollection(filter, options);
-
-    return docs || [];
-  } catch (ex) {
-    logger.error(ex.error || ex.message || 'Unexpected error when get collections');
-
-    return ex.error ? ex : exception;
-  }
-
-}
-
 async function createCollection(body) {
   try {
     const resValidate = dataValidator(body, schemaId);
@@ -159,22 +141,6 @@ async function createCollection(body) {
 
     return ex.error ? ex : exception;
   }
-}
-
-async function getCollectionById(id, cols) {
-  try {
-    const result = await collectionModel.getCollectionById(id,  cols);
-
-    return {
-      status: 200,
-      data: result,
-    };
-  } catch (ex) {
-    logger.error(ex.error || ex.message || 'Unexpected error when get collection');
-
-    return ex.error ? ex : exception;
-  }
-
 }
 
 async function updateCollection(id, body) {
@@ -342,8 +308,6 @@ async function deleteCollectionById(id, userId) {
 
 export {
   createCollection,
-  getCollectionById,
-  getListCollections,
   updateCollection,
   deleteCollectionById,
 };

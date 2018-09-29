@@ -8,23 +8,6 @@ import rabbitSender from '../../rabbit/sender';
 const cateModel = new Category;
 const schemaId = 'http://dethithpt.com/category-schema#';
 
-async function getListCategories(args) {
-  try {
-    const { name, description, searchType, number, offset, sortBy, cols } = args;
-    const filter = [];
-    filter.push(name ? { name }: undefined);
-    filter.push(description ? { description }: undefined);
-    const options = { number, offset, sortBy, searchType, cols };
-    const docs = await cateModel.getListCategory(filter, options);
-
-    return docs || [];
-  } catch (ex) {
-    logger.error(ex.message || 'Unexpected error when get list categories');
-
-    return exception;
-  }
-}
-
 async function createCategory(body) {
   try {
     const resValidate = dataValidator(body, schemaId);
@@ -79,22 +62,6 @@ async function createCategory(body) {
 
     return exception;
   }
-}
-
-async function getCategoryById(id, cols) {
-  try {
-    const result = await cateModel.getCategoryById(id, cols);
-
-    return {
-      status: 200,
-      data: result,
-    };
-  } catch (ex) {
-    logger.error(ex.message || 'Unexpected error when get category');
-
-    return exception;
-  }
-
 }
 
 async function updateCategory(id, body) {
@@ -207,8 +174,6 @@ async function deleteCategoryById(id, userId) {
 
 export {
   createCategory,
-  getCategoryById,
-  getListCategories,
   updateCategory,
   deleteCategoryById,
 };

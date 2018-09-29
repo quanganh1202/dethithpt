@@ -8,24 +8,6 @@ import rabbitSender from '../../rabbit/sender';
 const subModel = new Subject;
 const schemaId = 'http://dethithpt.com/subject-schema#';
 
-async function getListSubjects(args) {
-  try {
-    const { name, description, searchType, number, offset, sortBy, cols } = args;
-    const filter = [];
-    filter.push(name ? { name }: undefined);
-    filter.push(description ? { description }: undefined);
-    const options = { number, offset, sortBy, searchType, cols };
-    const docs = await subModel.getListSubject(filter, options);
-
-    return docs || [];
-  } catch (ex) {
-    logger.error(ex.message || 'Unexpected error when get subjects');
-
-    return exception;
-  }
-
-}
-
 async function createSubject(body) {
   try {
     const resValidate = dataValidator(body, schemaId);
@@ -78,22 +60,6 @@ async function createSubject(body) {
 
     return exception;
   }
-}
-
-async function getSubjectById(id, cols) {
-  try {
-    const result = await subModel.getSubjectById(id,  cols);
-
-    return {
-      status: 200,
-      data: result,
-    };
-  } catch (ex) {
-    logger.error(ex.message || 'Unexpected error when get subject');
-
-    return exception;
-  }
-
 }
 
 async function updateSubject(id, body) {
@@ -206,8 +172,6 @@ async function deleteSubjectById(id, userId) {
 
 export {
   createSubject,
-  getSubjectById,
-  getListSubjects,
   updateSubject,
   deleteSubjectById,
 };
