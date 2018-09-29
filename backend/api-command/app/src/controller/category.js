@@ -175,7 +175,7 @@ async function deleteCategoryById(id, userId) {
         error: 'User id does not exists',
       };
     }
-    if (result[0].userId !== userId && user[0].role !== 'admin') {
+    if (result[0].userId.toString() !== userId && user[0].role !== 'admin') {
       return {
         status: 403,
         error: 'Forbidden',

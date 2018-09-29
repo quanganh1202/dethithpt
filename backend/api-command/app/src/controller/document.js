@@ -263,7 +263,7 @@ async function updateDocumentById(id, body, file) {
       };
     }
 
-    if (doc[0].userId !== userId && user[0].role !== 'admin') {
+    if (doc[0].userId.toString() !== userId && user[0].role !== 'admin') {
       return {
         status: 403,
         error: 'Forbidden',
