@@ -362,8 +362,7 @@ async function updateDocumentById(id, body, file) {
       };
     }
   } catch (ex) {
-    console.log(ex);
-    logger.error(ex.message || ex.error || 'Unexpected error when update file');
+    logger.error(ex);
 
     return {
       status: ex.status || ex.statusCode || 500,
