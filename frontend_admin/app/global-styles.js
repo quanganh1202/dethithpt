@@ -36,4 +36,27 @@ injectGlobal`
   span.green {
     color: green;
   }
+
+  // Override default core-ui styles
+  .sidebar {
+    .nav > .nav-item > a {
+      font-weight: bold;
+    }
+    .nav-item {
+      &.nav-dropdown > .nav-dropdown-items {
+        > li > a {
+          padding-left: 1rem;
+        }
+      }
+    }
+  }
+  .sidebar-nav.scrollbar-container {
+    .nav-item {
+      &.nav-dropdown > .nav-dropdown-items {
+        > li > a {
+          padding-left: 2.5rem;
+        }
+      }
+    }
+  }
 `;

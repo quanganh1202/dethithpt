@@ -11,64 +11,52 @@
  */
 import { fromJS } from 'immutable';
 import {
-  GET_DOCS,
-  APPROVE_DOCS,
-  DELETE_DOC,
-  UPDATE_DOCS,
-  CLEAR_DELETE_STATUS,
+  EDIT_DOC,
+  GET_DOC_DETAIL,
   GET_DATA_INIT,
+  CLEAR_MESSAGE,
 } from './constants';
 
 // The initial state of the App
 export const initialState = fromJS({
-  documents: [],
-  total: 0,
-  deleteSuccess: false,
-  updateSuccess: false,
+  document: {},
+  message: '',
   dataInit: {
     categories: [],
     subjects: [],
     classes: [],
     collections: [],
+    tags: [],
   }
 });
 
-function documentReducer(state = initialState, action) {
+function docEditReducer(state = initialState, action) {
   switch (action.type) {
-    case GET_DOCS.REQUEST:
+    case GET_DOC_DETAIL.REQUEST:
       return state.set('loading', true);
-    case GET_DOCS.SUCCESS:
+    case GET_DOC_DETAIL.SUCCESS:
       return state
         .set('loading', false)
-        .set('documents', fromJS(action.documents))
-        .set('total', action.total);
-    case APPROVE_DOCS.REQUEST:
+        .set('document', fromJS(action.data));
+    case EDIT_DOC.REQUEST:
       return state.set('loading', true);
-    case APPROVE_DOCS.SUCCESS:
+    case EDIT_DOC.SUCCESS:
       return state.set('loading', false);
-    case DELETE_DOC.REQUEST:
-      return state.set('loading', true);
-    case DELETE_DOC.SUCCESS:
+    case EDIT_DOC.FAILURE:
       return state
         .set('loading', false)
-        .set('deleteSuccess', true);
-    case UPDATE_DOCS.REQUEST:
-      return state.set('loading', true);
-    case UPDATE_DOCS.SUCCESS:
-      return state
-        .set('loading', false)
-        .set('deleteSuccess', true);
+        .set('message', action.error);
     case GET_DATA_INIT.REQUEST:
       return state.set('loading', true);
     case GET_DATA_INIT.SUCCESS:
       return state
         .set('loading', false)
         .set('dataInit', fromJS(action.data));
-    case CLEAR_DELETE_STATUS:
-      return state.set('deleteSuccess', false);
+    case CLEAR_MESSAGE:
+      return state.set('message', '');
     default:
       return state;
   }
 }
 
-export default documentReducer;
+export default docEditReducer;

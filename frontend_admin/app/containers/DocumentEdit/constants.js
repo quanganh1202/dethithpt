@@ -9,10 +9,9 @@
  * export const YOUR_ACTION_CONSTANT = 'yourproject/YourContainer/YOUR_ACTION_CONSTANT';
  */
 import { defineAction } from 'redux-define';
-const container = 'thpt/documents';
-export const GET_DOCS = defineAction('GET_DOCS', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
-export const APPROVE_DOCS = defineAction('APPROVE_DOCS', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
-export const DELETE_DOC = defineAction('DELETE_DOC', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
-export const UPDATE_DOCS = defineAction('UPDATE_DOCS', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
-export const CLEAR_DELETE_STATUS = defineAction('CLEAR_DELETE_STATUS', container);
+
+const container = 'thpt/docEdit';
+export const GET_DOC_DETAIL = defineAction('GET_DOC_DETAIL', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
+export const EDIT_DOC = defineAction('EDIT_DOC', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
 export const GET_DATA_INIT = defineAction('GET_DATA_INIT', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
+export const CLEAR_MESSAGE = defineAction('CLEAR_MESSAGE', container);
