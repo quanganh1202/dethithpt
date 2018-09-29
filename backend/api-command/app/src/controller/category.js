@@ -126,7 +126,7 @@ async function updateCategory(id, body) {
         error: 'User id does not exists',
       };
     }
-    if (existed[0].userId !== userId && user[0].role !== 'admin') {
+    if (existed[0].userId.toString() !== userId && user[0].role !== 'admin') {
       return {
         status: 403,
         error: 'Forbidden',
@@ -135,7 +135,7 @@ async function updateCategory(id, body) {
     delete body.userId;
     await cateModel.updateCategoryById(id, body);
     const serverNotify = await rabbitSender('category.update', { id, body });
-    if (serverNotify.statusCode === 200) {
+    if (!serverNotify.error) {
       return {
         status: 200,
         message: `Category with id = ${id} is updated`,

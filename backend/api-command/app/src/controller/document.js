@@ -431,7 +431,7 @@ async function deleteDocument(id, userId) {
         error: 'User id does not exists',
       };
     }
-    if (result[0].userId !== userId && user[0].role !== 'admin') {
+    if (result[0].userId.toString() !== userId && user[0].role !== 'admin') {
       return {
         status: 403,
         error: 'Forbidden',
@@ -445,12 +445,12 @@ async function deleteDocument(id, userId) {
       fileHelpers.removeFile(thumbFile),
     ]);
 
-    const { statusCode, error, message } = await rabbitSender('document.delete', { id });
+    const { statusCode, error } = await rabbitSender('document.delete', { id });
 
     if (!error) {
       return {
-        status: statusCode,
-        message,
+        status: 200,
+        message: 'Deleted',
       };
     } else {
       // HERE IS CASE API QUERY iS NOT RESOLVED

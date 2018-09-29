@@ -310,7 +310,7 @@ async function deleteCollectionById(id, userId) {
         error: 'User id does not exists',
       };
     }
-    if (result[0].userId !== userId && user[0].role !== 'admin') {
+    if (result[0].userId.toString() !== userId && user[0].role !== 'admin') {
       return {
         status: 403,
         error: 'Forbidden',
@@ -318,7 +318,7 @@ async function deleteCollectionById(id, userId) {
     }
     await collectionModel.deleteCollectionById(id);
     const serverNotify = await rabbitSender('collection.delete', { id });
-    if (serverNotify.statusCode === 200) {
+    if (!serverNotify.error) {
       return {
         status: 200,
         message: 'Deleted',

@@ -125,7 +125,7 @@ async function updateSubject(id, body) {
       };
     }
 
-    if (existed[0].userId !== userId && user[0].role !== 'admin') {
+    if (existed[0].userId.toString() !== userId && user[0].role !== 'admin') {
       return {
         status: 403,
         error: 'Forbidden',
@@ -182,7 +182,7 @@ async function deleteSubjectById(id, userId) {
     }
     await subModel.deleteSubjectById(id);
     const serverNotify = await rabbitSender('subject.delete', { id });
-    if (serverNotify.statusCode === 200) {
+    if (!serverNotify.error) {
       return {
         status: 200,
         message: 'Deleted',
