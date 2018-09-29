@@ -205,14 +205,32 @@ async function updateUser(id, userInfo) {
         error: resValidate.errors,
       };
     }
-
-    const { email, phone } = userInfo;
+    const { email, phone, userId } = userInfo;
+    const existed = await userModel.getById(userId);
+    if (!existed || !existed.length) {
+      return {
+        status: 400,
+        error: 'User not found',
+      };
+    }
+    const { role } = existed[0];
+    if ((userId !== id || userInfo.role === 'admin') && role !== 'admin') {
+      return {
+        status: 403,
+        error: 'Forbidden',
+      };
+    }
+    if (email && role !== 'admin') {
+      return {
+        status: 400,
+        error: 'Can not update email',
+      };
+    }
     const criteria = [ { email }, { phone }];
     const user = await userModel.getList(criteria);
-
-    if (!user || !user.length || !user[0].status) {
+    if (user && user.length && role === 'admin') {
       return {
-        error: 'User does not exists',
+        error: 'Email already existed',
         status: 400,
       };
     }
