@@ -26,6 +26,7 @@ import {
   InputGroup,
   Input,
   InputGroupAddon,
+  Badge,
 } from 'reactstrap';
 import moment from 'moment';
 import styled from 'styled-components';
@@ -92,9 +93,11 @@ export class User extends React.PureComponent {
           <td>{item.download}</td>
           <td>{item.upload}</td>
           <td>{item.deposit}</td>
-          <td>{item.amount}</td>
+          <td>{item.money}</td>
           <td>{item.group}</td>
-          <td>{item.description}</td>
+          <td>{item.status === 1
+            ? <Badge style={{ fontSize: '11px' }} color="success">Active</Badge>
+            : <Badge style={{ fontSize: '11px' }} color="warning">Pending</Badge>}</td>
           <td>{item.userName}</td>
           <td></td>
       </tr>
@@ -170,9 +173,9 @@ export class User extends React.PureComponent {
                 <CardHeader>
                   <Col md="3">
                     <InputGroup>
-                      <Input onChange={this.onSearch} type="text" id="search-table" name="search-table-user" />
+                      <Input onChange={this.onSearch} type="text" id="search-table" name="search-table-user" bsSize="sm" />
                       <InputGroupAddon addonType="append">
-                        <Button type="button" onClick={this.search}>Tìm kiếm</Button>
+                        <Button type="button" onClick={this.search} size="sm">Tìm kiếm</Button>
                       </InputGroupAddon>
                     </InputGroup>
                   </Col>
@@ -186,7 +189,7 @@ export class User extends React.PureComponent {
                   </div> */}
                 </CardHeader>
                 <CardBody>
-                  <Table responsive hover>
+                  <Table responsive hover striped>
                     <thead>
                       <tr>
                         <th scope="col">#</th>

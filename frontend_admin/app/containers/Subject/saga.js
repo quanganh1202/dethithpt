@@ -20,7 +20,6 @@ export function* getSubjectsHandler() {
 
   try {
     const resp = yield call(axios.get, url);
-    console.log(resp);
     yield put(getSubjectsSuccess(resp.data.data));
   } catch (err) {
     // yield put(loginFailure(err));

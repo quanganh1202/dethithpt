@@ -89,7 +89,7 @@ export class School extends React.PureComponent {
                   </div>
                 </CardHeader>
                 <CardBody>
-                  <Table responsive hover>
+                  <Table responsive hover striped>
                     <thead>
                       <tr>
                         <th scope="col">Id</th>

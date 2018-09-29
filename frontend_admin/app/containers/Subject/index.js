@@ -94,7 +94,7 @@ export class Subject extends React.PureComponent {
                   </div>
                 </CardHeader>
                 <CardBody>
-                  <Table responsive hover>
+                  <Table responsive hover striped>
                     <thead>
                       <tr>
                         <th scope="col">#</th>

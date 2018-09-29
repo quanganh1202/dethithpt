@@ -228,7 +228,6 @@ export class HomePage extends React.PureComponent {
 
   render() {
     const user = getUser();
-    console.log(user, 123);
     const contentLeft = (
       <div>
         {!user ? (

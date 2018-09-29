@@ -15,7 +15,7 @@ import {
   AppSidebarNav,
 } from '@coreui/react';
 // sidebar nav config
-// import navigation from '../../_nav';
+import navigation from './leftNav';
 // routes config
 // import routes from '../../routes';
 import DefaultAside from './DefaultAside';
@@ -24,6 +24,7 @@ import DefaultHeader from './DefaultHeader';
 
 import User from 'containers/User/Loadable';
 import Document from 'containers/Documents/Loadable';
+import DocumentEdit from 'containers/DocumentEdit/Loadable';
 import Category from 'containers/Category/Loadable';
 import CategoryCreate from 'containers/CategoryCreate/Loadable';
 import Class from 'containers/Class/Loadable';
@@ -44,10 +45,10 @@ class DefaultLayout extends Component {
           <DefaultHeader user={getUser()} setToken={setToken} />
         </AppHeader>
         <div className="app-body">
-          <AppSidebar fixed display="lg">
+          <AppSidebar fixed>
             <AppSidebarHeader />
             <AppSidebarForm />
-            {/* <AppSidebarNav navConfig={{ item: [] }} {...this.props} /> */}
+            <AppSidebarNav navConfig={navigation} {...this.props} />
             <AppSidebarFooter />
             <AppSidebarMinimizer />
           </AppSidebar>
@@ -65,6 +66,7 @@ class DefaultLayout extends Component {
               <Route path="/dashboard" exact name="Dashboard" component={() => <div>Dashboard</div>} />
               <Route path="/users" exact name="User" component={User} />
               <Route path="/documents" exact name="Document" component={Document} />
+              <Route path="/documents/:id" exact name="Edit document" component={DocumentEdit} />
               <Route path="/categories" exact name="Category" component={Category} />
               <Route path="/categories/create" exact name="Create category" component={CategoryCreate} />
               <Route path="/classes" exact name="Class" component={Class} />
