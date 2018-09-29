@@ -125,10 +125,15 @@ const office2Pdf = (word, pdf) => {
         if(error) {
           reject(error);
         } else {
+          const fileConverted = path.join(pdf, `${path.basename(file.path, path.extname(file.path))}.pdf`);
           // Wait to file was created by system, delay 500 to sure file is created
-          setTimeout(() => {
-            resolve(path.join(pdf, `${path.basename(file.path, path.extname(file.path))}.pdf`));
-          }, 3000);
+          const interval = setInterval(() => {
+            if (fs.pathExistsSync(fileConverted)) {
+              clearInterval(interval);
+
+              return resolve(fileConverted);
+            }
+          }, 1000);
         }
       });
     });

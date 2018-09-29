@@ -26,6 +26,7 @@ import List from 'components/List';
 import ListItem from 'components/ListItem';
 import PopUp from 'components/PopUp';
 import LoadingIndicator from 'components/LoadingIndicator';
+import downloading from 'images/download.gif';
 import { getDocumentDetails, getDocumentsList, requestDownload, removeFileSave, removeMessage } from './actions';
 import {
   makeSelectDocument,
@@ -167,8 +168,9 @@ export class DocumentDetails extends React.PureComponent {
                 <button className="btn-download" onClick={this.handleDownloadFile}>
                   <FontAwesomeIcon className={'title-icon'} icon={['fas', 'cloud-download-alt']} /> Tải file word ({numberWithCommas((document.price || 0).toString())}đ)
                 </button>
-                <button className="btn-view" onClick={this.showPreview}>
-                  <FontAwesomeIcon className={'title-icon'} icon={['far', 'eye']} /> Xem thử ({numberWithCommas((document.views || 0).toString())} trang)
+                <button className={`btn-view ${!document.images ? 'loading' : ''}`} onClick={document.images ? this.showPreview : () => {}}>
+                  <FontAwesomeIcon className={'title-icon'} icon={['far', 'eye']} /> Xem thử ({numberWithCommas((document.totalPages || 0).toString())} trang)
+                  <img src={downloading} />
                 </button>
               </div>
               <div className="doc-action">
@@ -224,12 +226,10 @@ export class DocumentDetails extends React.PureComponent {
               {
                 _.get(document, 'images', [])
                   .map((imgData, index) => 
-                    <img
-                      style={{ display: 'block' }}
-                      key={`preview-${index}`} 
+                    <div key={`preview-${index}`} ><img
                       src={`data:image/png;base64,${imgData}`} 
                       alt="preview"
-                    />)
+                    /></div>)
               }
             </div>
           }

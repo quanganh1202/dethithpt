@@ -1,5 +1,6 @@
 import { isUndefined } from 'util';
 import _ from 'lodash';
+import fs from 'fs-extra';
 import path from 'path';
 import moment from 'moment';
 import ES from '../../elastic';
@@ -68,15 +69,13 @@ export default {
       if (!result || !result.data) {
         return result;
       }
-
       const file = result.data.path;
       const dirname = path.dirname(file);
-      const filename = path.basename(file, path.extname(file));
-      const totalPages = result.data.totalPages;
-      const filePreview = [];
-      for(let i = 0; i < totalPages; i += 1) {
-        filePreview.push(path.join(dirname, `${filename}0${i}.png`));
-      }
+      const ext = path.extname(file);
+      const filename = path.basename(file, ext);
+      const filePreview = fs.readdirSync(dirname)
+        .filter(i => i.includes(filename) && !i.includes(ext))
+        .map(i => path.join(dirname, i));
 
       return {
         statusCode: 200,
@@ -106,9 +105,13 @@ export default {
         price,
         tags,
         scroll,
+        approved,
       } = options;
       const numberRegex = new RegExp(/^[0-9]*$/);
       const isScroll = !isUndefined(scroll);
+      const approve = isUndefined(approved) ? '1' :
+        ['0', '1'].includes(approved.toString()) ? approved.toString() :
+          approved.toString() === 'all' ? undefined : '1';
       const existSizeAndOffsetInvalid = ((size && !numberRegex.test(size)) || ( offset && !numberRegex.test(offset)));
       const existSizeAndOffsetIsAnEmptyString = (size === '' || offset === '');
       if ( existSizeAndOffsetInvalid || existSizeAndOffsetIsAnEmptyString) {
@@ -122,6 +125,7 @@ export default {
       const filterBuilt = filterParamsHandler({
         description,
         tags,
+        approved: approve,
         'cates.cateName': cateName,
         'cates.cateId': cateId,
         'subjects.subjectName': subjectName,

@@ -4,6 +4,7 @@ import React from 'react';
 import _ from 'lodash';
 import Select from 'components/Select';
 import Wrapper from './Wrapper';
+import local from './newLocal.json';
 
 const CreateUser = (props) => {
   return (
@@ -89,9 +90,7 @@ const CreateUser = (props) => {
                 <td>
                   <Select
                     name="city"
-                    options={[
-                      { text: 'Hà Nội', value: 'Hà Nội' },
-                    ]}
+                    options={local.map((city) => ({ text: city.name, value: city.code}))}
                     value={_.get(props.data, 'city') || ''}
                     defaultText={'Chọn Tỉnh/Thành phố'}
                     onChange={props.onChange}
@@ -103,9 +102,10 @@ const CreateUser = (props) => {
                 <td>
                   <Select
                     name="district"
-                    options={[
-                      { text: 'Thanh Xuân Bắc', value: 'Thanh Xuân Bắc' },
-                    ]}
+                    options={_.get(
+                      local.find((city) => city.code === _.get(props.data, 'city')),
+                      'districts', []
+                    ).map((district) => ({ text: district.name, value: district.name }))}
                     value={_.get(props.data, 'district') || ''}
                     defaultText={'Chọn Quận/Huyện'}
                     onChange={props.onChange}
