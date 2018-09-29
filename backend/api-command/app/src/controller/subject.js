@@ -1,4 +1,5 @@
 import Subject from '../model/subject';
+import User from '../model/user';
 import logger from '../libs/logger';
 import { dataValidator } from '../libs/ajv';
 import { exception } from '../constant/error';
@@ -34,6 +35,14 @@ async function createSubject(body) {
         error: resValidate.errors,
       };
     }
+    const userModel = new User();
+    const user = await userModel.getById(body.userId);
+    if (!user || !user.length) {
+      return {
+        error: `User ${body.userId} does not exist`,
+        status: 400,
+      };
+    }
     const { name } = body;
     const cate = await subModel.getListSubject([{ name }]);
     if (cate && cate.length) {
@@ -44,7 +53,12 @@ async function createSubject(body) {
     }
 
     const res = await subModel.addNewSubject(body);
-    const serverNotify = await rabbitSender('subject.create', { id: res.insertId, body });
+    const queryBody = Object.assign({}, body, {
+      userName: user[0].name,
+      userEmail: user[0].email,
+    });
+    console.log(queryBody);
+    const serverNotify = await rabbitSender('subject.create', { id: res.insertId, body: queryBody });
     if (serverNotify.statusCode === 200) {
       return {
         status: 201,

@@ -136,6 +136,8 @@ async function createCollection(body) {
     delete queryBody.cateIds;
     delete queryBody.classIds;
     delete queryBody.subjectIds;
+    queryBody.userName = user[0].name;
+    queryBody.userEmail = user[0].email;
     const serverNotify = await rabbitSender('collection.create', { id: res.insertId, body: queryBody });
     if (serverNotify.statusCode === 200) {
       return {

@@ -188,6 +188,7 @@ async function uploadDocument(body, file) {
     const res = await docModel.addNewDocument(body);
     // Append data and send to query api
     queryBody.userName = user[0].name;
+    queryBody.userEmail = user[0].email;
     queryBody.tags = body.tags.split(',');
     const serverNotify = await rabbitSender('document.create', { body: queryBody, id: res.insertId });
     if (serverNotify.statusCode === 200) {

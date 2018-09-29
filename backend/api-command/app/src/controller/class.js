@@ -1,4 +1,5 @@
 import Class from '../model/class';
+import User from '../model/user';
 import logger from '../libs/logger';
 import { dataValidator } from '../libs/ajv';
 import { exception } from '../constant/error';
@@ -34,7 +35,15 @@ async function createClass(body) {
         error: resValidate.errors,
       };
     }
-    const { name } = body;
+    const { name, userId } = body;
+    const userModel = new User();
+    const user = await userModel.getById(userId);
+    if (!user || !user.length || !user[0].status) {
+      return {
+        status: 400,
+        error: 'User id does not exists',
+      };
+    }
     const cate = await classModel.getListClass([{ name }]);
     if (cate && cate.length) {
       return {
@@ -42,9 +51,11 @@ async function createClass(body) {
         status: 400,
       };
     }
-
+    const queryBody = Object.assign({}, body);
+    queryBody.userName = user[0].name;
+    queryBody.userEmail = user[0].email;
     const res = await classModel.addNewClass(body);
-    const serverNotify = await rabbitSender('class.create', { id: res.insertId, body });
+    const serverNotify = await rabbitSender('class.create', { id: res.insertId, body: queryBody });
     if (serverNotify.statusCode === 200) {
       return {
         status: 201,

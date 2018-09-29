@@ -58,6 +58,9 @@
             }
           }
         },
+        "userEmail": {
+          "type": "keyword"
+        },
         "numDocRefs": {
           "type": "text",
           "fields": {

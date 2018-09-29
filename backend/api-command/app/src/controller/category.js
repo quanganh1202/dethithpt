@@ -34,6 +34,7 @@ async function createCategory(body) {
         error: resValidate.errors,
       };
     }
+    body.priority = body.priority || '0';
     const { name } = body;
     const cate = await cateModel.getListCategory([{ name }]);
     if (cate && cate.length) {
@@ -51,11 +52,13 @@ async function createCategory(body) {
         status: 400,
       };
     }
-
     const { insertId } = await cateModel.addNewCategory(body);
-    body.userName = user[0].name;
-    body.priority = body.priority || '0';
-    const serverNotify = await rabbitSender('category.create', { body, id: insertId });
+    const queryBody = Object.assign({}, body, {
+      userName: user[0].name,
+      userEmail: user[0].email,
+    });
+
+    const serverNotify = await rabbitSender('category.create', { body: queryBody, id: insertId });
     if (serverNotify.statusCode === 200) {
       return {
         status: 201,
