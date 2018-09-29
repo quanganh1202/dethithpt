@@ -1,0 +1,51 @@
+{
+  "$id": "http://dethithpt.com/update-document-schema#",
+  "title": "Document",
+  "description": "Document schema validation",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "tags": {
+      "type": "string",
+      "minLength": 1
+    },
+    "approved": {
+      "type": "integer"
+    },
+    "description": {
+      "type": "string"
+    },
+    "price": {
+      "type": "string",
+      "maxLength": 50,
+      "pattern": "^[0-9]+$"
+    },
+    "cateIds": {
+      "type": "string",
+      "minLength": 1
+    },
+    "subjectIds": {
+      "type": "string",
+      "minLength": 1
+    },
+    "classIds": {
+      "type": "string",
+      "minLength": 1
+    },
+    "yearSchools": {
+      "type": "string",
+      "minLength": 1
+    },
+    "collectionIds": {
+      "type": "string",
+      "minLength": 1
+    },
+    "userId": {
+      "type": "string"
+    }
+  }
+}
