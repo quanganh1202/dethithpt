@@ -77,6 +77,7 @@ export class ClassCreate extends React.PureComponent {
 
   componentWillUnmount() {
     this.props.clearData();
+    this.props.clearMessage();
   }
 
   formatFromData(data) {

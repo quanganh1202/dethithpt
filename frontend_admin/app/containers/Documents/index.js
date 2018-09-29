@@ -60,6 +60,12 @@ import CustomSelect from './CustomSelect';
 
 library.add(faFolder, faCog, faCloudDownloadAlt, faCaretDown);
 
+const currentYear = (new Date()).getFullYear();
+const optionYear = [];
+for (let i = currentYear - 20; i <= currentYear; i += 1) {
+  optionYear.push({ value: i, label: i });
+}
+
 const Wrapper = styled.div`
   .rct-select-input.form-control-sm {
     flex: 1 1 auto;
@@ -644,9 +650,36 @@ export class Documents extends React.PureComponent {
                         >
                           Danh mục
                         </HeadFilter>
-                        <th scope="col">Môn</th>
-                        <th scope="col">Lớp</th>
-                        <th scope="col">Năm học</th>
+                        <HeadFilter
+                          selectName="subjectId"
+                          multiple
+                          scope="col"
+                          options={this.props.dataInit.subjects.map((i) => ({ value: i.id, label: i.name }))}
+                          onSelect={this.onSelectFilter}
+                          value={this.state.filters.subjectId}
+                        >
+                          Môn học
+                        </HeadFilter>
+                        <HeadFilter
+                          selectName="classId"
+                          multiple
+                          scope="col"
+                          options={this.props.dataInit.classes.map((i) => ({ value: i.id, label: i.name }))}
+                          onSelect={this.onSelectFilter}
+                          value={this.state.filters.classId}
+                        >
+                          Lớp
+                        </HeadFilter>
+                        <HeadFilter
+                          selectName="yearSchools"
+                          multiple
+                          scope="col"
+                          options={optionYear}
+                          onSelect={this.onSelectFilter}
+                          value={this.state.filters.yearSchools}
+                        >
+                          Năm học
+                        </HeadFilter>
                         <HeadSort
                           scope="col"
                           onClick={this.sort}

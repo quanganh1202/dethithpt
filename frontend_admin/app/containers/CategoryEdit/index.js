@@ -82,6 +82,7 @@ export class CategoryCreate extends React.PureComponent {
 
   componentWillUnmount() {
     this.props.clearData();
+    this.props.clearMessage();
   }
 
   formatFromData(data) {
