@@ -46,12 +46,6 @@ const checkUserActivation = async (userId) => {
       };
     }
     break;
-
-  case '4':
-    return {
-      status: 400,
-      error: 'This user has been blocked download feature',
-    };
   default:
     break;
   }

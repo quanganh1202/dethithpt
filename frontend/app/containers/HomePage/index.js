@@ -124,7 +124,7 @@ const requiredFields = [
   'name',
   'phone',
   'bod',
-  'role',
+  'position',
   'city',
   'district',
   'level',
@@ -222,6 +222,7 @@ export class HomePage extends React.PureComponent {
       delete update.iat;
       delete update.id;
       delete update.status;
+      update.role = 'member';
       this.props.onSubmitUserInfo(update);
     }
   }
