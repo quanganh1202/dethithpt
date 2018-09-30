@@ -133,6 +133,7 @@ async function auth(info) {
 
 async function addUser(userInfo) {
   try {
+    userInfo.role = roles.MEMBER; // Default role is member when register account
     const resValidate = dataValidator(userInfo, createSchema);
     if (!resValidate.valid) {
       return {
