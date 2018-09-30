@@ -40,7 +40,7 @@ async function createCollection(body) {
       };
     }
     if (!isUndefined(body.priority)) {
-      body.priority = user[0].roles === roles.ADMIN ? body.priority : 0;
+      body.priority = user[0].role === roles.ADMIN ? body.priority : 0;
     }
     const queryBody = Object.assign({}, body);
     if (cateIds && cateIds.length) {
@@ -191,7 +191,7 @@ async function updateCollection(id, body) {
       };
     }
     if (!isUndefined(body.priority)) {
-      if (user[0].roles !== roles.ADMIN) {
+      if (user[0].role !== roles.ADMIN) {
         return {
           status: 403,
           error: 'Forbidden: Not allow update priority',

@@ -15,7 +15,7 @@ async function updateTag(id, body) {
       };
     }
     if (!isUndefined(body.priority)) {
-      if (user[0].roles !== roles.ADMIN) {
+      if (user[0].role !== roles.ADMIN) {
         return {
           status: 403,
           error: 'Forbidden: Not allow update priority',
