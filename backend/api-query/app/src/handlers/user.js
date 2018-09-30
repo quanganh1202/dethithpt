@@ -106,6 +106,7 @@ export default {
           error: 'Missing user id',
         };
       }
+      console.log(userId);
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.updatedAt = now;
       const result = await elasticsearch.update(body, userId);

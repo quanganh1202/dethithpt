@@ -1,4 +1,5 @@
 import path from 'path';
+import moment from 'moment';
 import pdfjs from 'pdfjs-dist/build/pdf';
 import pageCounter from 'docx-pdf-pagecount';
 import Document from '../model/document';
@@ -40,10 +41,14 @@ const checkUserActivation = async (userId) => {
     };
 
   case '3':
-    return {
-      status: 400,
-      error: `This user has been blocked from ${user[0].blockFrom} to ${user[0].blockTo}`,
-    };
+    if (moment(user[0].blockTo) >= moment.now()) {
+      return {
+        status: 400,
+        error: `This user has been blocked from ${
+          moment(user[0].blockFrom).format('YYYY-MM-DDTHH:mm:ss.SSS')} to ${moment(user[0].blockTo).format('YYYY-MM-DDTHH:mm:ss.SSS')}`,
+      };
+    }
+    break;
 
   case '4':
     return {
@@ -197,7 +202,7 @@ async function uploadDocument(body, file) {
     const extension = file[0].originalname.split('.').pop();
     const { numPages } = extension === 'pdf' ?
       await pdfjs.getDocument(path.resolve(__dirname, fileName)) : extension === 'docx' ?
-        { numPages: await pageCounter(path.resolve(__dirname, fileName)) } : 0;
+        { numPages: await pageCounter(path.resolve(__dirname, fileName)) } : { numPages: 0 };
     body.totalPages = numPages;
     queryBody.totalPages = numPages;
     const res = await docModel.addNewDocument(body);

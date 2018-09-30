@@ -36,15 +36,15 @@ const checkUserActivation = async (userId) => {
       status: 400,
       error: 'This user need to provide enough infomation',
     };
-  case '3':
-    if (moment(user[0].blockTo) >= moment.now()) {
-      return {
-        status: 400,
-        error: `This user has been blocked from ${
-          moment(user[0].blockFrom).format('YYYY-MM-DDTHH:mm:ss.SSS')} to ${moment(user[0].blockTo).format('YYYY-MM-DDTHH:mm:ss.SSS')}`,
-      };
-    }
-    break;
+  // case '3':
+  //   if (moment(user[0].blockTo) >= moment.now()) {
+  //     return {
+  //       status: 400,
+  //       error: `This user has been blocked from ${
+  //         moment(user[0].blockFrom).format('YYYY-MM-DDTHH:mm:ss.SSS')} to ${moment(user[0].blockTo).format('YYYY-MM-DDTHH:mm:ss.SSS')}`,
+  //     };
+  //   }
+  //   break;
   case '4':
     return {
       status: 400,
@@ -344,10 +344,16 @@ async function blockUser(id, userId, body) {
       };
     }
     const user = await userModel.getById(id);
-    if ((!user || !user.length || user[0].status.toString() !== '1') && actor[0].role !== roles.ADMIN) {
+    if (!user || !user.length) {
       return {
         error: 'User does not exist or blocked',
         status: 400,
+      };
+    }
+    if (actor[0].role !== roles.ADMIN) {
+      return {
+        error: 'Forbidden',
+        status: 403,
       };
     }
     if (body.status === '3' && !body.blockTo) {

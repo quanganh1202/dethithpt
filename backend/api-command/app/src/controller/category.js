@@ -1,3 +1,4 @@
+import moment from 'moment';
 import Category from '../model/category';
 import User from '../model/user';
 import logger from '../libs/logger';
@@ -34,10 +35,14 @@ const checkUserActivation = async (userId) => {
     };
 
   case '3':
-    return {
-      status: 400,
-      error: `This user has been blocked from ${user[0].blockFrom} to ${user[0].blockTo}`,
-    };
+    if (moment(user[0].blockTo) >= moment.now()) {
+      return {
+        status: 400,
+        error: `This user has been blocked from ${
+          moment(user[0].blockFrom).format('YYYY-MM-DDTHH:mm:ss.SSS')} to ${moment(user[0].blockTo).format('YYYY-MM-DDTHH:mm:ss.SSS')}`,
+      };
+    }
+    break;
 
   case '4':
     return {
