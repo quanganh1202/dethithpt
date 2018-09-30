@@ -228,7 +228,6 @@ async function updateDocumentById(id, body, file) {
         error: 'Forbidden',
       };
     }
-    delete body.userId;
     const queryBody = Object.assign({}, body);
     if (cateIds) {
       const cateModel = new Category();
@@ -331,10 +330,7 @@ async function updateDocumentById(id, body, file) {
       queryBody.path = fileName;
       await fileHelpers.storeFile(file, fileName);
       await fileHelpers.preview(fileName);
-      const oldFileName = path.basename(doc[0].path, path.extname(doc[0].path));
-      const thumbFile = `${path.dirname(doc[0].path)}/${oldFileName}.png`;
       await fileHelpers.removeFile(doc[0].path);
-      await fileHelpers.removeFile(thumbFile);
       const extension = file[0].originalname.split('.').pop();
       const { numPages } = extension === 'pdf' ?
         await pdfjs.getDocument(path.resolve(__dirname, fileName)) : extension === 'docx' ?
@@ -342,6 +338,8 @@ async function updateDocumentById(id, body, file) {
       body.totalPages = numPages;
       queryBody.totalPages = numPages;
     }
+    delete body.userId;
+    delete queryBody.userId;
     await docModel.updateDocumentById(id, body);
     // Append data and send to query api
     queryBody.userName = user[0].name;
@@ -396,12 +394,10 @@ async function deleteDocument(id, userId) {
         error: 'Forbidden',
       };
     }
-    const oldPath= result[0].path;
-    const thumbFile = `${path.dirname(oldPath)}/${path.basename(oldPath, path.extname(oldPath))}.png`;
+    const oldPath = result[0].path;
     await Promise.all([
       docModel.deleteDocumentById(id),
       fileHelpers.removeFile(oldPath),
-      fileHelpers.removeFile(thumbFile),
     ]);
 
     const { statusCode, error } = await rabbitSender('document.delete', { id });
