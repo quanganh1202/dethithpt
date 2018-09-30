@@ -20,7 +20,8 @@
       "minLength": 1
     },
     "prioriy": {
-      "type": "string"
+      "type": "integer",
+      "enum": [0, 1]
     }
   }
 }

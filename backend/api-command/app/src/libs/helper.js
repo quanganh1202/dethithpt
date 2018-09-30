@@ -50,9 +50,13 @@ const storeFile = async function store(file, fileName, preview) {
 };
 
 const removeFile = async function removeFile(pathOld) {
+  const pathFolderStore = process.env.PATH_FOLDER_STORE || path.resolve(__dirname, '../../../storage');
+  const fileName = path.basename(pathOld, path.basename(path.extname(pathOld)));
+  const arrFiles = fs.readdirSync(pathFolderStore).filter((file => file.includes(fileName)));
   const existed = await fs.pathExists(pathOld);
   if (existed) {
-    await fs.unlink(pathOld);
+    const promises = arrFiles.map(file => fs.unlink(`${pathFolderStore}/${file}`));
+    await Promise.all(promises);
   } else {
     logger.error('Unexpect error when delete file');
   }

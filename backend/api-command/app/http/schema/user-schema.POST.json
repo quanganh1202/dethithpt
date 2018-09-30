@@ -4,7 +4,7 @@
   "description": "User schema validation",
   "type": "object",
   "additionalProperties": false,
-  "required": ["name", "phone", "role", "bod", "city", "district", "level", "school", "userId"],
+  "required": ["name", "phone", "role", "bod", "city", "district", "level", "school"],
   "properties": {
     "name": {
       "type": "string",

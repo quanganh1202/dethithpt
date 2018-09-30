@@ -14,6 +14,8 @@ import { exception } from '../constant/error';
 import rabbitSender from '../../rabbit/sender';
 import action from '../constant/action';
 import header from '../constant/typeHeader';
+import * as roles from '../constant/roles';
+import { isUndefined } from 'util';
 
 const docModel = new Document();
 const createSchema = 'http://dethithpt.com/document-create-schema#';
@@ -23,7 +25,6 @@ async function uploadDocument(body, file) {
   try {
     if (!body.price) body.price = '0'; // Default price of document is 0
     body.approved = 0;
-    const queryBody = Object.assign({}, body);
     const resValidate = dataValidator(body, createSchema);
     if (!resValidate.valid) {
       return {
@@ -48,10 +49,13 @@ async function uploadDocument(body, file) {
         error: 'User id does not exists',
       };
     }
-    if (user[0].role === 'admin') {
+    if (user[0].role === roles.ADMIN) {
       body.approved = 1;
+      body.priority = body.priority ? body.priority : 0;
+    } else {
+      body.priority = 0;
     }
-
+    const queryBody = Object.assign({}, body);
     if (cateIds) {
       const cateModel = new Category();
       const promises = cateIds.split(',').map(cateId => cateModel.getCategoryById(cateId));
@@ -221,14 +225,15 @@ async function updateDocumentById(id, body, file) {
         error: 'User id does not exists',
       };
     }
-
-    if (doc[0].userId.toString() !== userId && user[0].role !== 'admin') {
+    if (!isUndefined(body.priority)) {
+      body.priority = user[0].roles === roles.ADMIN ? body.priority : 0;
+    }
+    if (doc[0].userId.toString() !== userId && user[0].role !== roles.ADMIN) {
       return {
         status: 403,
         error: 'Forbidden',
       };
     }
-    delete body.userId;
     const queryBody = Object.assign({}, body);
     if (cateIds) {
       const cateModel = new Category();
@@ -331,10 +336,7 @@ async function updateDocumentById(id, body, file) {
       queryBody.path = fileName;
       await fileHelpers.storeFile(file, fileName);
       await fileHelpers.preview(fileName);
-      const oldFileName = path.basename(doc[0].path, path.extname(doc[0].path));
-      const thumbFile = `${path.dirname(doc[0].path)}/${oldFileName}.png`;
       await fileHelpers.removeFile(doc[0].path);
-      await fileHelpers.removeFile(thumbFile);
       const extension = file[0].originalname.split('.').pop();
       const { numPages } = extension === 'pdf' ?
         await pdfjs.getDocument(path.resolve(__dirname, fileName)) : extension === 'docx' ?
@@ -342,6 +344,8 @@ async function updateDocumentById(id, body, file) {
       body.totalPages = numPages;
       queryBody.totalPages = numPages;
     }
+    delete body.userId;
+    delete queryBody.userId;
     await docModel.updateDocumentById(id, body);
     // Append data and send to query api
     queryBody.userName = user[0].name;
@@ -390,18 +394,16 @@ async function deleteDocument(id, userId) {
         error: 'User id does not exists',
       };
     }
-    if (result[0].userId.toString() !== userId && user[0].role !== 'admin') {
+    if (result[0].userId.toString() !== userId && user[0].role !== roles.ADMIN) {
       return {
         status: 403,
         error: 'Forbidden',
       };
     }
-    const oldPath= result[0].path;
-    const thumbFile = `${path.dirname(oldPath)}/${path.basename(oldPath, path.extname(oldPath))}.png`;
+    const oldPath = result[0].path;
     await Promise.all([
       docModel.deleteDocumentById(id),
       fileHelpers.removeFile(oldPath),
-      fileHelpers.removeFile(thumbFile),
     ]);
 
     const { statusCode, error } = await rabbitSender('document.delete', { id });
@@ -525,22 +527,24 @@ async function downloadDocument(docId, userId) {
         error: 'User not found',
       };
     }
-    const filter = [
-      {
-        docId,
-        userId,
-      },
-    ];
-    const options = {
-      searchType: 'EXACTLY',
-    };
-    const purchased = await docModel.getPurchased(filter, options);
-
-    if (!purchased || !purchased.length) {
-      return {
-        status: 400,
-        error: `You have not purchased document ${doc[0].name} yet`,
+    if (user[0].role !== roles.ADMIN) {
+      const filter = [
+        {
+          docId,
+          userId,
+        },
+      ];
+      const options = {
+        searchType: 'EXACTLY',
       };
+      const purchased = await docModel.getPurchased(filter, options);
+
+      if (!purchased || !purchased.length) {
+        return {
+          status: 400,
+          error: `You have not purchased document ${doc[0].name} yet`,
+        };
+      }
     }
     const ext = path.extname(doc[0].path);
 
@@ -580,7 +584,7 @@ async function approveDocument(docId, userId) {
         error: 'User not found',
       };
     }
-    if (user[0].role !== 'admin') {
+    if (user[0].role !== roles.ADMIN) {
       return {
         status: 403,
         error: 'Forbidden',

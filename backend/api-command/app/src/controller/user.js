@@ -7,6 +7,7 @@ import { dataValidator } from '../libs/ajv';
 import { exception } from '../constant/error';
 import social from '../constant/socialApiUrl';
 import rabbitSender from '../../rabbit/sender';
+import * as roles from '../constant/roles';
 import action from '../constant/action';
 
 const userModel = new User();
@@ -101,6 +102,10 @@ async function addUser(userInfo) {
     }
     const { name, email, phone } = userInfo;
     const criteria = [ { email }, { phone }];
+    // Temporary data. Need to remove after.
+    if (email === 'vuanhdung.khmt2k7@gmail.com') {
+      userInfo.role = roles.ADMIN;
+    }
     const user = await userModel.getList(criteria);
     userInfo.status = 1;
     delete userInfo.money;
@@ -174,7 +179,7 @@ async function deleteUser(id, userId) {
         error: 'User id does not exists',
       };
     }
-    if (id !== userId && user[0].role !== 'admin') {
+    if (id !== userId && user[0].role !== roles.ADMIN) {
       return {
         status: 403,
         error: 'Forbidden',
@@ -222,13 +227,13 @@ async function updateUser(id, userInfo) {
       };
     }
     const { role } = existed[0];
-    if ((userId !== id || userInfo.role === 'admin') && role !== 'admin') {
+    if ((userId !== id || userInfo.role === roles.ADMIN) && role !== roles.ADMIN) {
       return {
         status: 403,
         error: 'Forbidden',
       };
     }
-    if (email && role !== 'admin') {
+    if (email && role !== roles.ADMIN) {
       return {
         status: 400,
         error: 'Can not update email',
@@ -237,7 +242,7 @@ async function updateUser(id, userInfo) {
     const criteria = [ { email }, { phone }];
     const user = await userModel.getList(criteria);
 
-    if (user && user.length && role === 'admin' && ((phone && phone !== existed[0].phone) || (email && email !== existed[0].email))) {
+    if (user && user.length && role === roles.ADMIN && ((phone && phone !== existed[0].phone) || (email && email !== existed[0].email))) {
       if  (email && email !== existed[0].email) {
         return {
           error: 'Email has been used by another people',
@@ -245,7 +250,7 @@ async function updateUser(id, userInfo) {
         };
       }
     }
-    if (role !== 'admin') delete userInfo.money;
+    if (role !== roles.ADMIN) delete userInfo.money;
     delete userInfo.userId;
     await userModel.updateUser(id, userInfo);
     const serverNotify = await rabbitSender('user.update', { id, body: userInfo });

@@ -26,14 +26,21 @@ const tokenVerifier = function verifyToken(req, res, next) {
   // Ignore authenticate with GET request
   if (req.method.toUpperCase() === 'GET') next();
   else {
-    const token = headerExtractor(req);
-    if (token && jwt.verify(token, secret)) {
-      const { data } = jwt.decode(token);
-      req.app.locals.id = data.id;
-      next();
-    } else {
-      res.status(401).json({
-        error: 'Unauthorized',
+    try {
+      const token = headerExtractor(req);
+      if (token && jwt.verify(token, secret)) {
+        const { data } = jwt.decode(token);
+        req.app.locals.id = data.id;
+        next();
+      } else {
+        res.status(401).json({
+          error: 'Unauthorized',
+        });
+      }
+    } catch (ex) {
+      res.status(400).json({
+        statusCode: 400,
+        error: 'Invalid Token',
       });
     }
   }

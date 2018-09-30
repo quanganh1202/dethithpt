@@ -167,6 +167,9 @@
             }
           }
         },
+        "priority": {
+          "type": "integer"
+        },
         "createdAt": {
           "type": "date"
         },

@@ -14,7 +14,12 @@
       "minLength": 1
     },
     "approved": {
-      "type": "integer"
+      "type": "integer",
+      "enum": [0, 1]
+    },
+    "prioriy": {
+      "type": "string",
+      "enum": [0, 1]
     },
     "description": {
       "type": "string"
