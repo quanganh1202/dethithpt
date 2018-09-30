@@ -14,6 +14,10 @@ import {
   updateNumDocRefToCollection,
   updateTagView,
   updateDocumentView,
+  updateClassView,
+  updateCollectionView,
+  updateCateView,
+  updateSubjectView,
 } from '../libs/esHelper';
 const documentType = process.env.ES_TYPE_DOCUMENT || 'document';
 const index = process.env.ES_INDEX_DOCUMENT || 'documents';
@@ -41,9 +45,23 @@ export default {
       if (result.error) {
         return result;
       }
-      const { tags } = result.data;
-      await updateDocumentView(docId, constant.INCREASE);
-      const promises = updateTagView(tags, constant.INCREASE);
+      const { tags, collections, cates, subjects, classes } = result.data;
+      const promises = [updateDocumentView(docId, constant.INCREASE)];
+      if (tags && tags.length) {
+        promises.push(updateTagView(tags, constant.INCREASE));
+      }
+      if (collections && collections.length) {
+        updateCollectionView(collections, constant.INCREASE);
+      }
+      if (cates && cates.length) {
+        updateCateView(cates, constant.INCREASE);
+      }
+      if (subjects && subjects.length) {
+        updateSubjectView(subjects, constant.INCREASE);
+      }
+      if (classes && classes.length) {
+        updateClassView(classes, constant.INCREASE);
+      }
       await Promise.all(promises).catch(ex => {
         // Ignore error data conflic version [409]
         if (ex.status !== 409) {

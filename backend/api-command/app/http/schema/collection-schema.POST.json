@@ -73,7 +73,7 @@
     "userId": {
       "type": "string"
     },
-    "prioriy": {
+    "priority": {
       "type": "integer",
       "enum": [0, 1]
     }

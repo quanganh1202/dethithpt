@@ -9,6 +9,7 @@ const routerDefine =  function defineRouter() {
 
   // Get all documents
   route.put('/tags/:id', async (req, res) => {
+    req.body.userId = req.app.locals.id.toString();
     const { error, status, message } = await updateTag(req.params.id, req.body);
     res.status(status || 200);
     if(error) {

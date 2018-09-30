@@ -17,9 +17,9 @@
       "type": "integer",
       "enum": [0, 1]
     },
-    "prioriy": {
+    "priority": {
       "type": "string",
-      "enum": [0, 1]
+      "enum": ["0", "1"]
     },
     "description": {
       "type": "string"

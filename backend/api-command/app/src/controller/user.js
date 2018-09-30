@@ -45,11 +45,13 @@ async function auth(info) {
         email,
         status: 2, // Inactive
         money: 0,
+        role: roles.MEMBER,
       };
       const { insertId } = await userModel.addNewUser(user);
-      sign = Object.assign({}, user);
       const serverNotify = await rabbitSender('user.create', { id: insertId, body: user });
+      sign = Object.assign({}, user);
       sign.id = insertId;
+      delete sign.role;
       delete sign.money;
       if (serverNotify.statusCode !== 200) {
         // HERE IS CASE API QUERY iS NOT RESOLVED
