@@ -9,6 +9,7 @@ import collectionHandler from '../../src/handlers/collection';
 import subjectHandler from '../../src/handlers/subject';
 import tagHandler from '../../src/handlers/tag';
 import purchaseHandler from '../../src/handlers/purchase';
+import newsHandler from '../../src/handlers/news';
 
 const routerDefine =  function defineRouter() {
   // Destination folder path
@@ -201,6 +202,31 @@ const routerDefine =  function defineRouter() {
       res.json({ statusCode, error });
     } else {
       res.json({ statusCode, data, total });
+    }
+  });
+
+  route.get('/news', async (req, res) => {
+    const queryParams = req.query;
+
+    const { statusCode, error, data, total, scrollId, isLastPage } = isUndefined(req.query.scrollId) ?
+      await newsHandler.getList(queryParams) :
+      await newsHandler.getNextPage(req.query.scrollId);
+    res.status(statusCode !== 204 ? statusCode : 200);
+    if (error) {
+      res.json({ statusCode, error });
+    } else {
+      res.json({ statusCode, data, total, scrollId, isLastPage });
+    }
+  });
+
+  route.get('/news/:id', async (req, res) => {
+    const { id } = req.params;
+    const { statusCode, error, data } = await newsHandler.getOne(id);
+    res.status(statusCode);
+    if (error) {
+      res.json({ statusCode, error });
+    } else {
+      res.json({ statusCode, data });
     }
   });
 
