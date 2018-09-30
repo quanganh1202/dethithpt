@@ -37,12 +37,16 @@ export function* editDocHandler({ data, id }) {
   const url = `${root}/documents/${id}`;
   const options = {
     headers: {
+      'content-type': 'multipart/form-data',
       ['x-access-token']: getToken(),
     }
   }
-  console.log(data);
+  const formData = new FormData();
+  Object.keys(data).forEach((k) => {
+    formData.append(k, data[k]);
+  })
   try {
-    yield call(axios.post, url, data, options);
+    yield call(axios.put, url, formData, options);
     yield put(editDocSuccess());
     yield put(push('/documents'));
   } catch (err) {

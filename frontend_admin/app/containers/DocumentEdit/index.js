@@ -74,6 +74,7 @@ export class DocumentEdit extends React.PureComponent {
     this.handleMultiSelect = this.handleMultiSelect.bind(this);
     this.handleChangeTag = this.handleChangeTag.bind(this);
     this.autocompleteRenderInput = this.autocompleteRenderInput.bind(this);
+    this.handleUpload = this.handleUpload.bind(this);
   }
 
   componentWillMount() {
@@ -151,18 +152,17 @@ export class DocumentEdit extends React.PureComponent {
 
   mappingFormToSave(data) {
     const mapped = {
-      approved: data.approved,
       description: data.description,
       name: data.name,
       price: data.price,
-      userId: data.userId,
+      fileUpload: data.fileUpload,
     }
     if (_.get(data, 'cates', []).length) mapped.cateIds = data.cates.map((i) => i.value).join(',');
     if (_.get(data, 'classes', []).length) mapped.classIds = data.classes.map((i) => i.value).join(',');
     if (_.get(data, 'collections', []).length) mapped.collectionIds = data.collections.map((i) => i.value).join(',');
     if (_.get(data, 'subjects', []).length) mapped.subjectIds = data.subjects.map((i) => i.value).join(',');
     if (_.get(data, 'tags', []).length) mapped.tags = data.tags.join(',');
-    if (_.get(data, 'yearSchools', []).length) mapped.yearSchools = data.yearSchools.join(',');
+    if (_.get(data, 'yearSchools', []).length) mapped.yearSchools = data.yearSchools.map((i) => i.value).join(',');
     return mapped;
   }
   
@@ -209,6 +209,15 @@ export class DocumentEdit extends React.PureComponent {
     );
   }
 
+  handleUpload(e) {
+    this.setState({
+      formData: {
+        ...this.state.formData,
+        fileUpload: e.target.files[0],
+      }
+    })
+  }
+
   render() {
     return (
       <Wrapper className="animated fadeIn">
@@ -236,9 +245,9 @@ export class DocumentEdit extends React.PureComponent {
                     <Form className="form-horizontal form-edit-document">
                       <FormGroup row>
                         <Col md="3">
-                          <Label htmlFor="name">Tên tài liệu<span className="red">(*)</span></Label>
                         </Col>
                         <Col xs="12" md="9">
+                          <Input type="file" id="file" name="file" onChange={this.handleUpload} />
                         </Col>
                       </FormGroup>
                       <FormGroup row>

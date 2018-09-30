@@ -8,6 +8,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
+import { isEqual } from 'lodash';
 // import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
@@ -31,15 +32,19 @@ import {
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
-import { createCategory, clearMessage } from './actions';
-import { makeSelectMessage, makeSelectLoading } from './selectors';
+import {
+  clearMessage,
+  clearData,
+  getCategoryDetail,
+  updateCategory,
+} from './actions';
+import {
+  makeSelectMessage,
+  makeSelectLoading,
+  makeSelectData,
+} from './selectors';
 import reducer from './reducer';
 import saga from './saga';
-
-const dataInit = {
-  name: '',
-  description: '',
-};
 
 /* eslint-disable react/prefer-stateless-function */
 export class CategoryCreate extends React.PureComponent {
@@ -50,6 +55,10 @@ export class CategoryCreate extends React.PureComponent {
         name: '',
         description: '',
       },
+      originData: {
+        name: '',
+        description: '',
+      },
       error: {},
     };
     this.resetForm = this.resetForm.bind(this);
@@ -57,8 +66,34 @@ export class CategoryCreate extends React.PureComponent {
     this.onSubmit = this.onSubmit.bind(this);
   }
 
+  componentWillMount() {
+    this.props.getCategoryDetail(this.props.match.params.id);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (!isEqual(this.props.data, nextProps.data) && !nextProps.loading) {
+      const originData = this.formatFromData(nextProps.data);
+      this.setState({
+        originData,
+        formData: originData,
+      });
+    }
+  }
+
+  componentWillUnmount() {
+    this.props.clearData();
+    this.props.clearMessage();
+  }
+
+  formatFromData(data) {
+    return {
+      name: data.name,
+      description: data.description,
+    };
+  }
+
   resetForm() {
-    this.setState({ formData: dataInit, error: {} });
+    this.setState({ formData: this.state.originData, error: {} });
     this.props.clearMessage();
   }
 
@@ -75,7 +110,7 @@ export class CategoryCreate extends React.PureComponent {
       }
     });
     if (!Object.keys(error).length) {
-      this.props.createCategory(this.state.formData);
+      this.props.updateCategory(this.state.formData, this.props.match.params.id);
     } else {
       this.setState({ error });
     }
@@ -86,7 +121,7 @@ export class CategoryCreate extends React.PureComponent {
   }
 
   render() {
-    return (
+    return this.props.data.name ? (
       <div className="animated fadeIn">
         <Row>
           <Col xl={12}>
@@ -97,7 +132,7 @@ export class CategoryCreate extends React.PureComponent {
               <BreadcrumbItem>
                 <Link to="/categories">Danh mục</Link>
               </BreadcrumbItem>
-              <BreadcrumbItem active>Tạo mới</BreadcrumbItem>
+              <BreadcrumbItem active>Xem chi tiết</BreadcrumbItem>
             </Breadcrumb>
           </Col>
         </Row>
@@ -106,10 +141,14 @@ export class CategoryCreate extends React.PureComponent {
             <Col xl={6}>
               <Card>
                 <CardHeader>
-                  <i className="fa fa-align-justify" /> Tạo mới danh mục
+                  <i className="fa fa-align-justify" /> Xem chi tiết danh mục
                 </CardHeader>
                 <CardBody>
-                  <Alert color="danger" isOpen={!!this.props.message} toggle={() => this.props.clearMessage()}>
+                  <Alert
+                    color="danger"
+                    isOpen={this.props.message}
+                    toggle={() => this.props.clearMessage()}
+                  >
                     {this.props.message}
                   </Alert>
                   <Row>
@@ -161,7 +200,7 @@ export class CategoryCreate extends React.PureComponent {
                       size="sm"
                       onClick={this.onSubmit}
                     >
-                      Tạo
+                      Sửa
                     </Button>
                   </div>
                   <div className="float-right">
@@ -180,7 +219,7 @@ export class CategoryCreate extends React.PureComponent {
           </Row>
         </Container>
       </div>
-    );
+    ) : null;
   }
 }
 
@@ -190,14 +229,17 @@ CategoryCreate.propTypes = {
 
 export function mapDispatchToProps(dispatch) {
   return {
-    createCategory: data => dispatch(createCategory(data)),
+    updateCategory: (data, id) => dispatch(updateCategory(data, id)),
+    getCategoryDetail: id => dispatch(getCategoryDetail(id)),
     clearMessage: () => dispatch(clearMessage()),
+    clearData: () => dispatch(clearData()),
   };
 }
 
 const mapStateToProps = createStructuredSelector({
   loading: makeSelectLoading(),
   message: makeSelectMessage(),
+  data: makeSelectData(),
 });
 
 const withConnect = connect(
@@ -205,8 +247,8 @@ const withConnect = connect(
   mapDispatchToProps,
 );
 
-const withReducer = injectReducer({ key: 'categoryCreate', reducer });
-const withSaga = injectSaga({ key: 'categoryCreate', saga });
+const withReducer = injectReducer({ key: 'categoryEdit', reducer });
+const withSaga = injectSaga({ key: 'categoryEdit', saga });
 
 export default compose(
   withReducer,

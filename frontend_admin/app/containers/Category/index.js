@@ -59,13 +59,13 @@ export class Category extends React.PureComponent {
     return categories.map((cate, idx) => (
       <tr key={cate.id}>
           <th scope="row">{idx + 1}</th>
-          <td>{cate.name}</td>
+          <td><Link to={`/categories/${cate.id}`}>{cate.name}</Link></td>
           <td>{cate.description}</td>
-          <td>{cate.userName}</td>
+          <td>{cate.userEmail}</td>
           <td>{cate.numDocRefs}</td>
           <td>{moment(cate.createdAt).format('DD/MM/YYYY')}</td>
       </tr>
-    ))
+    ));
   }
 
   render() {

@@ -91,7 +91,7 @@ export class CollectionCreate extends React.PureComponent {
         ...this.state.formData,
         [name]: Array.prototype.slice.call(selectedOptions).map((i) => i.value),
       },
-    })
+    });
   }
 
   mappingData(data) {

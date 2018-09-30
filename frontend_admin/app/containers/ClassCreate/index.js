@@ -95,7 +95,7 @@ export class ClassCreate extends React.PureComponent {
           <Col xl={12}>
             <Breadcrumb>
               <BreadcrumbItem><Link to="/">Trang chủ</Link></BreadcrumbItem>
-              <BreadcrumbItem><Link to="/categories">Lớp</Link></BreadcrumbItem>
+              <BreadcrumbItem><Link to="/classes">Lớp</Link></BreadcrumbItem>
               <BreadcrumbItem active>Tạo mới</BreadcrumbItem>
             </Breadcrumb>
           </Col>

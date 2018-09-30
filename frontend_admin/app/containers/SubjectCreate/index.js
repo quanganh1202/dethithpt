@@ -95,7 +95,7 @@ export class SubjectCreate extends React.PureComponent {
           <Col xl={12}>
             <Breadcrumb>
               <BreadcrumbItem><Link to="/">Trang chủ</Link></BreadcrumbItem>
-              <BreadcrumbItem><Link to="/categories">Môn học</Link></BreadcrumbItem>
+              <BreadcrumbItem><Link to="/subjects">Môn học</Link></BreadcrumbItem>
               <BreadcrumbItem active>Tạo mới</BreadcrumbItem>
             </Breadcrumb>
           </Col>
