@@ -32,7 +32,6 @@ const checkUserActivation = async (userId) => {
       status: 400,
       error: 'This user need to provide some infomation',
     };
-
   case '3':
     if (moment(user[0].blockTo) >= moment.now()) {
       return {
@@ -42,12 +41,6 @@ const checkUserActivation = async (userId) => {
       };
     }
     break;
-
-  case '4':
-    return {
-      status: 400,
-      error: 'This user has been blocked download feature',
-    };
   default:
     break;
   }
