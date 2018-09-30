@@ -16,9 +16,13 @@ const makeSelectTotalUser = () =>
 const makeSelectLoading = () =>
   createSelector(selectHome, userState => userState.get('loading'));
 
+const makeSelectDataInit = () =>
+  createSelector(selectHome, userState => userState.get('dataInit').toJS());
+
 export {
   selectHome,
   makeSelectUsers,
   makeSelectLoading,
   makeSelectTotalUser,
+  makeSelectDataInit,
 };
