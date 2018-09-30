@@ -17,6 +17,45 @@ import header from '../constant/typeHeader';
 import * as roles from '../constant/roles';
 import { isUndefined } from 'util';
 
+const checkUserActivation = async (userId) => {
+  const userModel = new User();
+  const user = await userModel.getById(userId);
+  if (!user || !user.length) {
+    return {
+      status: 400,
+      error: 'User id does not exists',
+    };
+  }
+
+  switch (user[0].status.toString()) {
+  case '0':
+    return {
+      status: 400,
+      error: 'This user has been blocked',
+    };
+  case '2':
+    return {
+      status: 400,
+      error: 'This user need to provide some infomation',
+    };
+
+  case '3':
+    return {
+      status: 400,
+      error: `This user has been blocked from ${user[0].blockFrom} to ${user[0].blockTo}`,
+    };
+
+  case '4':
+    return {
+      status: 400,
+      error: 'This user has been blocked download feature',
+    };
+  default:
+    break;
+  }
+
+  return user;
+};
 const docModel = new Document();
 const createSchema = 'http://dethithpt.com/document-create-schema#';
 const updateSchema = 'http://dethithpt.com/document-update-schema#';
@@ -41,14 +80,8 @@ async function uploadDocument(body, file) {
     }
 
     const { tags, cateIds, subjectIds, classIds, collectionIds, yearSchools, userId } = body;
-    const userModel = new User();
-    const user = await userModel.getById(userId);
-    if (!user || !user.length || !user[0].status) {
-      return {
-        status: 400,
-        error: 'User id does not exists',
-      };
-    }
+    const user = await checkUserActivation(userId);
+    if (user.error) return user;
     if (user[0].role === roles.ADMIN) {
       body.approved = 1;
       body.priority = body.priority ? body.priority : 0;
@@ -217,14 +250,8 @@ async function updateDocumentById(id, body, file) {
     }
 
     const { tags, cateIds, subjectIds, classIds, collectionIds, yearSchools, userId } = body;
-    const userModel = new User();
-    const user = await userModel.getById(userId);
-    if (!user || !user.length || !user[0].status) {
-      return {
-        status: 400,
-        error: 'User id does not exists',
-      };
-    }
+    const user = await checkUserActivation(userId);
+    if (user.error) return user;
     if (!isUndefined(body.priority)) {
       if (user[0].role !== roles.ADMIN) {
         return {
@@ -391,14 +418,8 @@ async function deleteDocument(id, userId) {
         status: 404,
       };
     }
-    const userModel = new User();
-    const user = await userModel.getById(userId);
-    if (!user || !user.length || !user[0].status) {
-      return {
-        status: 400,
-        error: 'User id does not exists',
-      };
-    }
+    const user = await checkUserActivation(userId);
+    if (user.error) return user;
     if (result[0].userId.toString() !== userId && user[0].role !== roles.ADMIN) {
       return {
         status: 403,

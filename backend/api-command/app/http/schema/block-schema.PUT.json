@@ -1,0 +1,26 @@
+{
+  "$id": "http://dethithpt.com/block-schema#",
+  "title": "Category",
+  "description": "Category schema validation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["status"],
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": ["0", "1", "2", "3", "4"]
+    },
+    "blockFrom": {
+      "type": "string",
+      "minLength": 1
+    },
+    "blockTo": {
+      "type": "string",
+      "minLength": 1
+    },
+    "userId": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

@@ -148,6 +148,11 @@
         "view": {
           "type": "integer"
         },
+        "note": {
+          "type": "text",
+          "analyzer": "autocomplete",
+          "search_analyzer": "standard"
+        },
         "path": {
           "type": "text"
         },

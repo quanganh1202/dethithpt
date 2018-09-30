@@ -8,6 +8,45 @@ import rabbitSender from '../../rabbit/sender';
 const roleModel = new Role;
 const schemaId = 'http://dethithpt.com/role-schema#';
 
+const checkUserActivation = async (userId) => {
+  const userModel = new User();
+  const user = await userModel.getById(userId);
+  if (!user || !user.length) {
+    return {
+      status: 400,
+      error: 'User id does not exists',
+    };
+  }
+
+  switch (user[0].status.toString()) {
+  case '0':
+    return {
+      status: 400,
+      error: 'This user has been blocked',
+    };
+  case '2':
+    return {
+      status: 400,
+      error: 'This user need to provide some infomation',
+    };
+
+  case '3':
+    return {
+      status: 400,
+      error: `This user has been blocked from ${user[0].blockFrom} to ${user[0].blockTo}`,
+    };
+
+  case '4':
+    return {
+      status: 400,
+      error: 'This user has been blocked download feature',
+    };
+  default:
+    break;
+  }
+
+  return user;
+};
 async function createRole(body) {
   try {
     const resValidate = dataValidator(body, schemaId);
@@ -18,15 +57,8 @@ async function createRole(body) {
       };
     }
     const { name, userId } = body;
-    const userModel = new User();
-    const user = await userModel.getById(userId);
-    if (!user || !user.length || !user[0].status) {
-      return {
-        status: 400,
-        error: 'User id does not exists',
-      };
-    }
-
+    const user = await checkUserActivation(userId);
+    if (user.error) return user;
     const role = await roleModel.getListRole([{ name }]);
     if (role && role.length) {
       return {

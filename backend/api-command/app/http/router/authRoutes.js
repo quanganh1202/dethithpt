@@ -69,7 +69,8 @@ const routerDefine =  function defineRouter() {
 
   route.put('/users/:id/block', async (req, res) => {
     const userId = req.app.locals.id.toString();
-    const { error, message, status } = await blockUser(req.params.id, userId);
+    const { id } = req.params;
+    const { error, message, status } = await blockUser(id, userId, req.body);
     res.status(status);
     if (error) {
       return res.json({ statusCode: status, error });
