@@ -197,6 +197,74 @@ const updateTagView = (tags = [], type) => {
   return promiseUpdateTags;
 };
 
+const updateCollectionView = (datas = [], type) => {
+  const collectionModel =new ES('collections', 'collection');
+  const operation = type === constants.INCREASE ? '++' : '--';
+
+  const promises = datas.map(data => {
+    return collectionModel.updateByScript(
+      data.collectionId,
+      {
+        source: `ctx._source.view${operation};`,
+        lang: 'painless',
+      }
+    );
+  });
+
+  return promises;
+};
+
+const updateCateView = (datas = [], type) => {
+  const cateModel =new ES('categories', 'category');
+  const operation = type === constants.INCREASE ? '++' : '--';
+
+  const promises = datas.map(data => {
+    return cateModel.updateByScript(
+      data.cateId,
+      {
+        source: `ctx._source.view${operation};`,
+        lang: 'painless',
+      }
+    );
+  });
+
+  return promises;
+};
+
+const updateSubjectView = (datas = [], type) => {
+  const subjectModel =new ES('subjects', 'subject');
+  const operation = type === constants.INCREASE ? '++' : '--';
+
+  const promises = datas.map(data => {
+    return subjectModel.updateByScript(
+      data.subjectId,
+      {
+        source: `ctx._source.view${operation};`,
+        lang: 'painless',
+      }
+    );
+  });
+
+  return promises;
+};
+
+const updateClassView = (datas = [], type) => {
+  const classModel =new ES('classes', 'class');
+  const operation = type === constants.INCREASE ? '++' : '--';
+
+  const promises = datas.map(data => {
+    return classModel.updateByScript(
+      data.classId,
+      {
+        source: `ctx._source.view${operation};`,
+        lang: 'painless',
+      }
+    );
+  });
+
+  return promises;
+};
+
 const insertTag = async (tags, createdAt) => {
   const tagModel = new ES('tags', 'tag');
   const getPromises = tags.map(tag => {
@@ -232,4 +300,8 @@ export {
   updateTagView,
   updateDocumentView,
   updateTagViewById,
+  updateCollectionView,
+  updateCateView,
+  updateClassView,
+  updateSubjectView,
 };

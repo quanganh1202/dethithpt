@@ -1,3 +1,4 @@
+import moment from 'moment';
 import Collection from '../model/collection';
 import Category from '../model/category';
 import User from '../model/user';
@@ -13,6 +14,44 @@ import { isUndefined } from 'util';
 const collectionModel = new Collection;
 const createSchema = 'http://dethithpt.com/collection-create-schema#';
 const updateSchema = 'http://dethithpt.com/collection-update-schema#';
+
+const checkUserActivation = async (userId) => {
+  const userModel = new User();
+  const user = await userModel.getById(userId);
+  if (!user || !user.length) {
+    return {
+      status: 400,
+      error: 'User id does not exists',
+    };
+  }
+
+  switch (user[0].status.toString()) {
+  case '0':
+    return {
+      status: 400,
+      error: 'This user has been blocked',
+    };
+  case '2':
+    return {
+      status: 400,
+      error: 'This user need to provide some infomation',
+    };
+
+  case '3':
+    if (moment(user[0].blockTo) >= moment.now()) {
+      return {
+        status: 400,
+        error: `This user has been blocked from ${
+          moment(user[0].blockFrom).format('YYYY-MM-DDTHH:mm:ss.SSS')} to ${moment(user[0].blockTo).format('YYYY-MM-DDTHH:mm:ss.SSS')}`,
+      };
+    }
+    break;
+  default:
+    break;
+  }
+
+  return user;
+};
 
 async function createCollection(body) {
   try {
@@ -31,16 +70,10 @@ async function createCollection(body) {
         status: 400,
       };
     }
-    const userModel = new User();
-    const user = await userModel.getById(userId);
-    if (!user || !user.length || !user[0].status) {
-      return {
-        status: 400,
-        error: 'User id does not exists',
-      };
-    }
+    const user = await checkUserActivation(userId);
+    if (user.error) return user;
     if (!isUndefined(body.priority)) {
-      body.priority = user[0].roles === roles.ADMIN ? body.priority : 0;
+      body.priority = user[0].role === roles.ADMIN ? body.priority : 0;
     }
     const queryBody = Object.assign({}, body);
     if (cateIds && cateIds.length) {
@@ -175,15 +208,8 @@ async function updateCollection(id, body) {
       };
     }
 
-    const userModel = new User();
-    const user = await userModel.getById(userId);
-    if (!user || !user.length || !user[0].status) {
-      return {
-        status: 400,
-        error: 'User id does not exists',
-      };
-    }
-
+    const user = await checkUserActivation(userId);
+    if (user.error) return user;
     if (existed[0].userId.toString() !== userId && user[0].role !== roles.ADMIN) {
       return {
         status: 403,
@@ -191,7 +217,12 @@ async function updateCollection(id, body) {
       };
     }
     if (!isUndefined(body.priority)) {
-      body.priority = user[0].roles === roles.ADMIN ? body.priority : 0;
+      if (user[0].role !== roles.ADMIN) {
+        return {
+          status: 403,
+          error: 'Forbidden: Not allow update priority',
+        };
+      }
     }
     delete body.userId;
     const queryBody = Object.assign({}, body);
@@ -283,14 +314,8 @@ async function deleteCollectionById(id, userId) {
         status: 404,
       };
     }
-    const userModel = new User();
-    const user = await userModel.getById(userId);
-    if (!user || !user.length || !user[0].status) {
-      return {
-        status: 400,
-        error: 'User id does not exists',
-      };
-    }
+    const user = await checkUserActivation(userId);
+    if (user.error) return user;
     if (result[0].userId.toString() !== userId && user[0].role !== roles.ADMIN) {
       return {
         status: 403,

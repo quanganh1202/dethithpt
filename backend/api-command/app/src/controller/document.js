@@ -1,4 +1,5 @@
 import path from 'path';
+import moment from 'moment';
 import pdfjs from 'pdfjs-dist/build/pdf';
 import pageCounter from 'docx-pdf-pagecount';
 import Document from '../model/document';
@@ -17,6 +18,42 @@ import header from '../constant/typeHeader';
 import * as roles from '../constant/roles';
 import { isUndefined } from 'util';
 
+const checkUserActivation = async (userId) => {
+  const userModel = new User();
+  const user = await userModel.getById(userId);
+  if (!user || !user.length) {
+    return {
+      status: 400,
+      error: 'User id does not exists',
+    };
+  }
+
+  switch (user[0].status.toString()) {
+  case '0':
+    return {
+      status: 400,
+      error: 'This user has been blocked',
+    };
+  case '2':
+    return {
+      status: 400,
+      error: 'This user need to provide some infomation',
+    };
+  case '3':
+    if (moment(user[0].blockTo) >= moment.now()) {
+      return {
+        status: 400,
+        error: `This user has been blocked from ${
+          moment(user[0].blockFrom).format('YYYY-MM-DDTHH:mm:ss.SSS')} to ${moment(user[0].blockTo).format('YYYY-MM-DDTHH:mm:ss.SSS')}`,
+      };
+    }
+    break;
+  default:
+    break;
+  }
+
+  return user;
+};
 const docModel = new Document();
 const createSchema = 'http://dethithpt.com/document-create-schema#';
 const updateSchema = 'http://dethithpt.com/document-update-schema#';
@@ -41,14 +78,8 @@ async function uploadDocument(body, file) {
     }
 
     const { tags, cateIds, subjectIds, classIds, collectionIds, yearSchools, userId } = body;
-    const userModel = new User();
-    const user = await userModel.getById(userId);
-    if (!user || !user.length || !user[0].status) {
-      return {
-        status: 400,
-        error: 'User id does not exists',
-      };
-    }
+    const user = await checkUserActivation(userId);
+    if (user.error) return user;
     if (user[0].role === roles.ADMIN) {
       body.approved = 1;
       body.priority = body.priority ? body.priority : 0;
@@ -164,7 +195,7 @@ async function uploadDocument(body, file) {
     const extension = file[0].originalname.split('.').pop();
     const { numPages } = extension === 'pdf' ?
       await pdfjs.getDocument(path.resolve(__dirname, fileName)) : extension === 'docx' ?
-        { numPages: await pageCounter(path.resolve(__dirname, fileName)) } : 0;
+        { numPages: await pageCounter(path.resolve(__dirname, fileName)) } : { numPages: 0 };
     body.totalPages = numPages;
     queryBody.totalPages = numPages;
     const res = await docModel.addNewDocument(body);
@@ -217,16 +248,15 @@ async function updateDocumentById(id, body, file) {
     }
 
     const { tags, cateIds, subjectIds, classIds, collectionIds, yearSchools, userId } = body;
-    const userModel = new User();
-    const user = await userModel.getById(userId);
-    if (!user || !user.length || !user[0].status) {
-      return {
-        status: 400,
-        error: 'User id does not exists',
-      };
-    }
+    const user = await checkUserActivation(userId);
+    if (user.error) return user;
     if (!isUndefined(body.priority)) {
-      body.priority = user[0].roles === roles.ADMIN ? body.priority : 0;
+      if (user[0].role !== roles.ADMIN) {
+        return {
+          status: 403,
+          error: 'Forbidden: Not allow update priority',
+        };
+      }
     }
     if (doc[0].userId.toString() !== userId && user[0].role !== roles.ADMIN) {
       return {
@@ -386,14 +416,8 @@ async function deleteDocument(id, userId) {
         status: 404,
       };
     }
-    const userModel = new User();
-    const user = await userModel.getById(userId);
-    if (!user || !user.length || !user[0].status) {
-      return {
-        status: 400,
-        error: 'User id does not exists',
-      };
-    }
+    const user = await checkUserActivation(userId);
+    if (user.error) return user;
     if (result[0].userId.toString() !== userId && user[0].role !== roles.ADMIN) {
       return {
         status: 403,
@@ -525,6 +549,12 @@ async function downloadDocument(docId, userId) {
       return {
         status: 400,
         error: 'User not found',
+      };
+    }
+    if (user[0].status.toString() === '4') {
+      return {
+        status: 400,
+        error: 'This user has been blocked download feature',
       };
     }
     if (user[0].role !== roles.ADMIN) {

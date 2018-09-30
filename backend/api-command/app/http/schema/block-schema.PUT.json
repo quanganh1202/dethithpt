@@ -1,27 +1,26 @@
 {
-  "$id": "http://dethithpt.com/category-update-schema#",
+  "$id": "http://dethithpt.com/block-schema#",
   "title": "Category",
   "description": "Category schema validation",
   "type": "object",
   "additionalProperties": false,
-  "required": ["userId"],
+  "required": ["status"],
   "properties": {
-    "name": {
+    "status": {
       "type": "string",
-      "minLength": 1,
-      "maxLength": 255
+      "enum": ["0", "1", "2", "3", "4"]
     },
-    "description": {
+    "blockFrom": {
+      "type": "string",
+      "minLength": 1
+    },
+    "blockTo": {
       "type": "string",
       "minLength": 1
     },
     "userId": {
       "type": "string",
       "minLength": 1
-    },
-    "priority": {
-      "type": "integer",
-      "enum": [0, 1]
     }
   }
 }

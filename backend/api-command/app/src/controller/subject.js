@@ -1,3 +1,4 @@
+import moment from 'moment';
 import Subject from '../model/subject';
 import User from '../model/user';
 import logger from '../libs/logger';
@@ -9,6 +10,43 @@ import * as roles from '../constant/roles';
 const subModel = new Subject;
 const createSchema = 'http://dethithpt.com/subject-create-schema#';
 const updateSchema = 'http://dethithpt.com/subject-update-schema#';
+
+const checkUserActivation = async (userId) => {
+  const userModel = new User();
+  const user = await userModel.getById(userId);
+  if (!user || !user.length) {
+    return {
+      status: 400,
+      error: 'User id does not exists',
+    };
+  }
+
+  switch (user[0].status.toString()) {
+  case '0':
+    return {
+      status: 400,
+      error: 'This user has been blocked',
+    };
+  case '2':
+    return {
+      status: 400,
+      error: 'This user need to provide some infomation',
+    };
+  case '3':
+    if (moment(user[0].blockTo) >= moment.now()) {
+      return {
+        status: 400,
+        error: `This user has been blocked from ${
+          moment(user[0].blockFrom).format('YYYY-MM-DDTHH:mm:ss.SSS')} to ${moment(user[0].blockTo).format('YYYY-MM-DDTHH:mm:ss.SSS')}`,
+      };
+    }
+    break;
+  default:
+    break;
+  }
+
+  return user;
+};
 async function createSubject(body) {
   try {
     const resValidate = dataValidator(body, createSchema);
@@ -90,15 +128,8 @@ async function updateSubject(id, body) {
         };
       }
     }
-    const userModel = new User();
-    const user = await userModel.getById(userId);
-    if (!user || !user.length || !user[0].status) {
-      return {
-        status: 400,
-        error: 'User id does not exists',
-      };
-    }
-
+    const user = await checkUserActivation(userId);
+    if (user.error) return user;
     if (existed[0].userId.toString() !== userId && user[0].role !== roles.ADMIN) {
       return {
         status: 403,
@@ -140,14 +171,8 @@ async function deleteSubjectById(id, userId) {
         status: 404,
       };
     }
-    const userModel = new User();
-    const user = await userModel.getById(userId);
-    if (!user || !user.length || !user[0].status) {
-      return {
-        status: 400,
-        error: 'User id does not exists',
-      };
-    }
+    const user = await checkUserActivation(userId);
+    if (user.error) return user;
     if (result[0].userId.toString() !== userId && user[0].role !== roles.ADMIN) {
       return {
         status: 403,

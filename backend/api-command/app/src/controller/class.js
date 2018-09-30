@@ -1,3 +1,4 @@
+import moment from 'moment';
 import Class from '../model/class';
 import User from '../model/user';
 import logger from '../libs/logger';
@@ -9,6 +10,44 @@ import * as roles from '../constant/roles';
 const classModel = new Class;
 const createSchema = 'http://dethithpt.com/class-create-schema#';
 const updateSchema = 'http://dethithpt.com/class-update-schema#';
+
+const checkUserActivation = async (userId) => {
+  const userModel = new User();
+  const user = await userModel.getById(userId);
+  if (!user || !user.length) {
+    return {
+      status: 400,
+      error: 'User id does not exists',
+    };
+  }
+
+  switch (user[0].status.toString()) {
+  case '0':
+    return {
+      status: 400,
+      error: 'This user has been blocked',
+    };
+  case '2':
+    return {
+      status: 400,
+      error: 'This user need to provide some infomation',
+    };
+
+  case '3':
+    if (moment(user[0].blockTo) >= moment.now()) {
+      return {
+        status: 400,
+        error: `This user has been blocked from ${
+          moment(user[0].blockFrom).format('YYYY-MM-DDTHH:mm:ss.SSS')} to ${moment(user[0].blockTo).format('YYYY-MM-DDTHH:mm:ss.SSS')}`,
+      };
+    }
+    break;
+  default:
+    break;
+  }
+
+  return user;
+};
 async function createClass(body) {
   try {
     const resValidate = dataValidator(body, createSchema);
@@ -19,14 +58,8 @@ async function createClass(body) {
       };
     }
     const { name, userId } = body;
-    const userModel = new User();
-    const user = await userModel.getById(userId);
-    if (!user || !user.length || !user[0].status) {
-      return {
-        status: 400,
-        error: 'User id does not exists',
-      };
-    }
+    const user = await checkUserActivation(userId);
+    if (user.error) return user;
     const cate = await classModel.getListClass([{ name }]);
     if (cate && cate.length) {
       return {
@@ -91,14 +124,8 @@ async function updateClass(id, body) {
       }
     }
 
-    const userModel = new User();
-    const user = await userModel.getById(userId);
-    if (!user || !user.length || !user[0].status) {
-      return {
-        status: 400,
-        error: 'User id does not exists',
-      };
-    }
+    const user = await checkUserActivation(userId);
+    if (user.error) return user;
     if (existed[0].userId.toString() !== userId && user[0].role !== roles.ADMIN) {
       return {
         status: 403,
@@ -140,14 +167,8 @@ async function deleteClassById(id, userId) {
         status: 404,
       };
     }
-    const userModel = new User();
-    const user = await userModel.getById(userId);
-    if (!user || !user.length || !user[0].status) {
-      return {
-        status: 400,
-        error: 'User id does not exists',
-      };
-    }
+    const user = await checkUserActivation(userId);
+    if (user.error) return user;
     if (result[0].userId.toString() !== userId && user[0].role !== roles.ADMIN) {
       return {
         status: 403,

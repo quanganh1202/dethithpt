@@ -1,3 +1,4 @@
+import moment from 'moment';
 import Category from '../model/category';
 import User from '../model/user';
 import logger from '../libs/logger';
@@ -11,6 +12,44 @@ const cateModel = new Category;
 const createSchema = 'http://dethithpt.com/category-create-schema#';
 const updateSchema = 'http://dethithpt.com/category-update-schema#';
 
+const checkUserActivation = async (userId) => {
+  const userModel = new User();
+  const user = await userModel.getById(userId);
+  if (!user || !user.length) {
+    return {
+      status: 400,
+      error: 'User id does not exists',
+    };
+  }
+
+  switch (user[0].status.toString()) {
+  case '0':
+    return {
+      status: 400,
+      error: 'This user has been blocked',
+    };
+  case '2':
+    return {
+      status: 400,
+      error: 'This user need to provide some infomation',
+    };
+
+  case '3':
+    if (moment(user[0].blockTo) >= moment.now()) {
+      return {
+        status: 400,
+        error: `This user has been blocked from ${
+          moment(user[0].blockFrom).format('YYYY-MM-DDTHH:mm:ss.SSS')} to ${moment(user[0].blockTo).format('YYYY-MM-DDTHH:mm:ss.SSS')}`,
+      };
+    }
+    break;
+  default:
+    break;
+  }
+
+  return user;
+};
+
 async function createCategory(body) {
   try {
     const resValidate = dataValidator(body, createSchema);
@@ -21,7 +60,7 @@ async function createCategory(body) {
       };
     }
 
-    const { name } = body;
+    const { name, userId } = body;
     const cate = await cateModel.getListCategory([{ name }]);
     if (cate && cate.length) {
       return {
@@ -30,16 +69,10 @@ async function createCategory(body) {
       };
     }
 
-    const userModel = new User();
-    const user = await userModel.getById(body.userId);
-    if (!user || !user.length) {
-      return {
-        error: `User ${body.userId} does not exist`,
-        status: 400,
-      };
-    }
+    const user = await checkUserActivation(userId);
+    if (user.error) return user;
     if (!isUndefined(body.priority)) {
-      body.priority = user[0].roles === 'admin' ? body.priority : 0;
+      body.priority = user[0].role === 'admin' ? body.priority : 0;
     }
     const { insertId } = await cateModel.addNewCategory(body);
     const queryBody = Object.assign({}, body, {
@@ -99,14 +132,9 @@ async function updateCategory(id, body) {
         };
       }
     }
-    const userModel = new User();
-    const user = await userModel.getById(userId);
-    if (!user || !user.length || !user[0].status) {
-      return {
-        status: 400,
-        error: 'User id does not exists',
-      };
-    }
+
+    const user = await checkUserActivation(userId);
+    if (user.error) return user;
     if (existed[0].userId.toString() !== userId && user[0].role !== roles.ADMIN) {
       return {
         status: 403,
@@ -114,7 +142,12 @@ async function updateCategory(id, body) {
       };
     }
     if (!isUndefined(body.priority)) {
-      body.priority = user[0].roles === 'admin' ? body.priority : 0;
+      if (user[0].role !== roles.ADMIN) {
+        return {
+          status: 403,
+          error: 'Forbidden: Not allow update priority',
+        };
+      }
     }
     delete body.userId;
     await cateModel.updateCategoryById(id, body);
@@ -151,14 +184,8 @@ async function deleteCategoryById(id, userId) {
         status: 404,
       };
     }
-    const userModel = new User();
-    const user = await userModel.getById(userId);
-    if (!user || !user.length || !user[0].status) {
-      return {
-        status: 400,
-        error: 'User id does not exists',
-      };
-    }
+    const user = await checkUserActivation(userId);
+    if (user.error) return user;
     if (result[0].userId.toString() !== userId && user[0].role !== roles.ADMIN) {
       return {
         status: 403,

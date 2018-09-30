@@ -22,6 +22,7 @@
     },
     "role": {
       "type": "string",
+      "enum": ["admin", "mod", "member"],
       "minLength": 1
     },
     "bod": {
@@ -51,6 +52,27 @@
       "minLength": 1
     },
     "position": {
+      "type": "string",
+      "enum": ["student", "teacher", "other"],
+      "minLength": 1
+    },
+    "class": {
+      "type": "string",
+      "minLength": 1
+    },
+    "note1": {
+      "type": "string",
+      "minLength": 1
+    },
+    "note2": {
+      "type": "string",
+      "minLength": 1
+    },
+    "blockTo": {
+      "type": "string",
+      "minLength": 1
+    },
+    "blockFrom": {
       "type": "string",
       "minLength": 1
     },
