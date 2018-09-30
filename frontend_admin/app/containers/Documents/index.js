@@ -44,6 +44,7 @@ import { HeadSort, PaginationTable, HeadFilter } from 'components/Table';
 import checkIcon from 'assets/img/icons/check.png';
 import deleteIcon from 'assets/img/icons/delete.png';
 import editIcon from 'assets/img/icons/edit.png';
+import uncheckIcon from 'assets/img/icons/uncheck.png';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
@@ -249,6 +250,13 @@ export class Documents extends React.PureComponent {
               title="Xuất bản"
             >
               <img src={checkIcon} height="15px" alt="check-icon" />
+            </button>
+            <button
+              style={{ float: 'left', padding: '0' }}
+              onClick={() => this.props.updateDocs([item.id], { priority: 1 })}
+              title="Nổi bật"
+            >
+              <img src={uncheckIcon} height="15px" alt="uncheck-icon" />
             </button>
           </div>
         </td>
