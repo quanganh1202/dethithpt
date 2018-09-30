@@ -36,15 +36,15 @@ const checkUserActivation = async (userId) => {
       status: 400,
       error: 'This user need to provide enough infomation',
     };
-  // case '3':
-  //   if (moment(user[0].blockTo) >= moment.now()) {
-  //     return {
-  //       status: 400,
-  //       error: `This user has been blocked from ${
-  //         moment(user[0].blockFrom).format('YYYY-MM-DDTHH:mm:ss.SSS')} to ${moment(user[0].blockTo).format('YYYY-MM-DDTHH:mm:ss.SSS')}`,
-  //     };
-  //   }
-  //   break;
+  case '3':
+    if (moment(user[0].blockTo) >= moment.now()) {
+      return {
+        status: 400,
+        error: `This user has been blocked from ${
+          moment(user[0].blockFrom).format('YYYY-MM-DDTHH:mm:ss.SSS')} to ${moment(user[0].blockTo).format('YYYY-MM-DDTHH:mm:ss.SSS')}`,
+      };
+    }
+    break;
   case '4':
     return {
       status: 400,
