@@ -70,6 +70,7 @@ export function getUserDetailSuccess(data) {
  * @return {object}    An action object with a type of GET_USER_DETAIL.FAILURE
  */
 export function getUserDetailFailure(error) {
+  console.log(11111111111111, error);
   return {
     type: GET_USER_DETAIL.FAILURE,
     error,

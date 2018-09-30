@@ -439,7 +439,7 @@ export class User extends React.PureComponent {
                           Trạng thái
                         </HeadFilter>
                         {/* <th scope="col">Người tạo</th> */}
-                        <th scope="col">Thao tác</th>
+                        <th scope="col">Thao tác&nbsp;&nbsp;&nbsp;</th>
                         <th scope="col">Hoạt động gần đây</th>
                       </tr>
                     </thead>

@@ -9,13 +9,17 @@ import PropTypes from 'prop-types';
 import { EditorState, convertToRaw } from 'draft-js';
 import { Editor } from 'react-draft-wysiwyg';
 import draftToHtml from 'draftjs-to-html';
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { Helmet } from 'react-helmet';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import { Link } from 'react-router-dom';
 import { isEqual, get } from 'lodash';
 // import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
+import styled from 'styled-components';
 import {
   Container,
   Breadcrumb,
@@ -32,7 +36,6 @@ import {
   Input,
   Alert,
 } from 'reactstrap';
-import Select from 'react-select';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
@@ -54,8 +57,58 @@ import reducer from './reducer';
 import saga from './saga';
 import local from '../User/newLocal.json';
 
+const Wrapper = styled.div`
+  .rdw-editor-main {
+    background: #fff;
+    border: 1px solid #e4e7ea;
+    border-radius: 2px;
+    padding: 0 10px;
+  }
+
+  .rdw-editor-toolbar {
+    border: 1px solid #e4e7ea;
+  }
+  .bod-picker {
+    width: 100%;
+    height: calc(2.0625rem + 2px);
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: #5c6873;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #e4e7ea;
+    border-radius: 0.25rem;
+  }
+  .form-check-label {
+    padding-top: calc(0.375rem + 1px);
+    padding-bottom: calc(0.375rem + 1px);
+    margin-bottom: 0;
+    font-size: inherit;
+    line-height: 1.5;
+  }
+
+  .row-alert {
+    flex-direction: column;
+    padding: 0 26px;
+    text-align: center;
+  }
+  .row-button-control {
+    flex-direction: column;
+    padding: 0 26px;
+    align-items: center;
+    button {
+      width: 70px;
+      height: 35px;
+    }
+  }
+  .card {
+    height: 100%;
+  }
+`;
+
 /* eslint-disable react/prefer-stateless-function */
-export class ClassCreate extends React.PureComponent {
+export class UserEdit extends React.PureComponent {
   constructor() {
     super();
     this.state = {
@@ -81,7 +134,7 @@ export class ClassCreate extends React.PureComponent {
     };
     // this.resetForm = this.resetForm.bind(this);
     this.onChange = this.onChange.bind(this);
-    // this.onSubmit = this.onSubmit.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
     this.onEditorStateChange = this.onEditorStateChange.bind(this);
   }
 
@@ -125,14 +178,22 @@ export class ClassCreate extends React.PureComponent {
   }
 
   onSubmit() {
+    this.props.clearMessage();
     const error = {};
-    Object.keys(this.state.formData).forEach(key => {
-      if (!this.state.formData[key]) {
+    Object.keys(this.state.formData.toJS()).forEach(key => {
+      if (!this.state.formData.toJS()[key]) {
         error[key] = 'Thông tin còn thiếu';
       }
     });
     if (!Object.keys(error).length) {
-      this.props.updateUser(this.state.formData, this.props.match.params.id);
+      this.props.updateUser(
+        this.state.formData
+          .delete('status')
+          .delete('createdAt')
+          .delete('updatedAt')
+          .toJS(),
+        this.props.match.params.id,
+      );
     } else {
       this.setState({ error });
     }
@@ -143,8 +204,9 @@ export class ClassCreate extends React.PureComponent {
   }
 
   render() {
+    console.log('remder', this.props.message);
     return (
-      <div className="animated fadeIn">
+      <Wrapper>
         <Row>
           <Col xl={12}>
             <Breadcrumb>
@@ -159,7 +221,7 @@ export class ClassCreate extends React.PureComponent {
           </Col>
         </Row>
         <Container fluid>
-          <Row>
+          <Row className="row-alert">
             <Alert
               color="danger"
               isOpen={!!this.props.message}
@@ -266,8 +328,10 @@ export class ClassCreate extends React.PureComponent {
                             {Array(81)
                               .fill(new Date().getFullYear() - 80)
                               .map((y, idx) => (
-                                <option value={`${y + idx}`} key={y + idx}>{`${y +
-                                  idx}`}</option>
+                                <option
+                                  value={`${y + idx}`}
+                                  key={y + idx}
+                                >{`${y + idx}`}</option>
                               ))}
                           </Input>
                           <div className="invalid-feedback">
@@ -506,27 +570,38 @@ export class ClassCreate extends React.PureComponent {
                           Khóa tải:
                         </Label>
                         <Col sm={{ size: 3 }}>
-                          <Input
-                            type="text"
-                            id=""
-                            name=""
-                            placeholder="dd/mm/yyyy"
+                          <DatePicker
+                            selected={this.state.formData.get('dateBlock', '')}
+                            onChange={date =>
+                              this.onChange({
+                                currentTarget: {
+                                  name: 'dateBlock',
+                                  value: date,
+                                },
+                              })
+                            }
+                            peekNextMonth
+                            showMonthDropdown
+                            showYearDropdown
+                            dropdownMode="select"
+                            placeholderText="DD/MM/YYYY"
+                            tabIndex={1000}
+                            className="bod-picker"
+                            dateFormat="DD/MM/YYYY"
                           />
                         </Col>
-                        <Col sm={6}>Chọn ngày tài khoản sẽ bị khóa ( Xóa trắng để khóa
-                          ngay tài khoản)</Col>
+                        <Col sm={6}>
+                          Chọn ngày tài khoản sẽ bị khóa ( Xóa trắng để khóa
+                          ngay tài khoản)
+                        </Col>
                       </FormGroup>
                       <FormGroup row>
                         <Label for="checkbox2" sm={4}>
                           Khóa Download theo danh mục:
                         </Label>
-                        <Col sm={{ size: 5 }}>
-                          <FormGroup check>
-                            <Label check>
-                              <Input type="checkbox" id="" name="" />
-                            </Label>
-                          </FormGroup>
-                        </Col>
+                        <Label check>
+                          <Input type="checkbox" id="" name="" />&nbsp;
+                        </Label>
                       </FormGroup>
                       <Row>
                         <Col xs="3">
@@ -649,13 +724,9 @@ export class ClassCreate extends React.PureComponent {
                         <Label for="checkbox2" sm={3}>
                           Thông báo popup:
                         </Label>
-                        <Col sm={{ size: 5 }}>
-                          <FormGroup check>
-                            <Label check>
-                              <Input type="checkbox" id="" name="" />
-                            </Label>
-                          </FormGroup>
-                        </Col>
+                        <Label check>
+                          <Input type="checkbox" id="" name="" />&nbsp;
+                        </Label>
                       </FormGroup>
                       <FormGroup>
                         <Editor
@@ -670,9 +741,9 @@ export class ClassCreate extends React.PureComponent {
               </Card>
             </Col>
           </Row>
-          <Row>
+          <Row className="row-button-control">
             <CardFooter>
-              <div className="float-right" style={{ marginLeft: '10px' }}>
+              <div style={{ marginLeft: '10px' }}>
                 <Button block color="primary" size="sm" onClick={this.onSubmit}>
                   Lưu
                 </Button>
@@ -680,12 +751,12 @@ export class ClassCreate extends React.PureComponent {
             </CardFooter>
           </Row>
         </Container>
-      </div>
+      </Wrapper>
     );
   }
 }
 
-ClassCreate.propTypes = {
+UserEdit.propTypes = {
   loading: PropTypes.bool,
 };
 
@@ -718,4 +789,4 @@ export default compose(
   withReducer,
   withSaga,
   withConnect,
-)(ClassCreate);
+)(UserEdit);

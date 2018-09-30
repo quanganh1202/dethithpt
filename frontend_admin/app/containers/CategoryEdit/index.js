@@ -103,6 +103,7 @@ export class CategoryCreate extends React.PureComponent {
   }
 
   onSubmit() {
+    this.props.clearMessage();
     const error = {};
     Object.keys(this.state.formData).forEach(key => {
       if (!this.state.formData[key]) {
