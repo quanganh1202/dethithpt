@@ -47,11 +47,13 @@ const CreateUser = (props) => {
                 <td>Bạn là:<span className="red">(*)</span></td>
                 <td>
                   <Select
-                    name="role"
+                    name="position"
                     options={[
                       { text: 'Sinh viên', value: 'student' },
+                      { text: 'Giáo viên', value: 'teacher' },
+                      { text: 'Khác', value: 'other' },
                     ]}
-                    value={_.get(props.data, 'role') || ''}
+                    value={_.get(props.data, 'position') || ''}
                     defaultText={'-- Vui lòng chọn chức danh --'}
                     onChange={props.onChange}
                   />

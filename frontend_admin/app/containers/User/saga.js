@@ -3,11 +3,12 @@
  */
 import axios from 'axios';
 import _ from 'lodash';
-import { call, put, takeLatest } from 'redux-saga/effects';
+import { all, call, put, takeLatest } from 'redux-saga/effects';
 import request from 'utils/request';
-import { GET_USERS } from './constants';
+import { GET_USERS, GET_DATA_INIT } from './constants';
 import {
   getUsersSuccess,
+  getDataInitSuccess,
 } from './actions';
 
 const root = '/api';
@@ -32,8 +33,24 @@ export function* getUsersHandler({ query }) {
 }
 
 /**
+ * Request get data init
+ */
+export function* getDataInitHandler() {
+  try {
+    const resp = yield all([
+      call(axios.get, `${root}/classes`),
+    ]);
+    const classes = _.get(resp, '[0].data.data');
+    yield put(getDataInitSuccess({ classes }));
+  } catch (err) {
+  // yield put(editDocFailure(_.get(err, 'response.data.error', 'Unknown error from server')));
+  }
+}
+
+/**
  * Root saga manages watcher lifecycle
  */
 export default function* userSaga() {
   yield takeLatest(GET_USERS.REQUEST, getUsersHandler);
+  yield takeLatest(GET_DATA_INIT.REQUEST, getDataInitHandler);
 }
