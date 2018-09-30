@@ -18,7 +18,7 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     name VARCHAR(50) NOT NULL,
     email VARCHAR(45) NULL,
     phone VARCHAR(20) NULL,
-    role VARCHAR(20) NOT NULL,
+    role VARCHAR(20) NOT NULL DEFAULT 'member',
     bod YEAR(4) NULL,
     city VARCHAR(50) NULL,
     district VARCHAR(50) NULL,

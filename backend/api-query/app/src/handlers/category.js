@@ -82,6 +82,7 @@ export default {
 
   create: async (cateId, body) => {
     try {
+      body.view = 0;
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.createdAt = now;
       body.numDocRefs = 0;
