@@ -202,6 +202,7 @@ class ES {
     return esClient.delete({
       index: this.index,
       type: this.type,
+      refresh: 'wait_for',
       id,
     }).then(res => ({
       statusCode: res.result === 'deleted' ? 204 : 404,
@@ -212,6 +213,7 @@ class ES {
     return esClient.deleteByQuery({
       index: this.index,
       type: this.type,
+      refresh: 'wait_for',
       body: {
         query: filters,
       },

@@ -46,7 +46,8 @@ const routerDefine =  function defineRouter() {
   });
 
   route.delete('/users/:id', async (req, res) => {
-    const { error, message, status } = await deleteUser(req.params.id);
+    const userId = req.app.locals.id.toString();
+    const { error, message, status } = await deleteUser(req.params.id, userId);
     res.status(status);
     if (error) {
       return res.json({ statusCode: status, error });
@@ -56,6 +57,7 @@ const routerDefine =  function defineRouter() {
   });
 
   route.put('/users/:id', async (req, res) => {
+    req.body.userId = req.app.locals.id.toString();
     const { error, message, status } = await updateUser(req.params.id, req.body);
     res.status(status);
     if (error) {
@@ -66,7 +68,8 @@ const routerDefine =  function defineRouter() {
   });
 
   route.put('/users/:id/block', async (req, res) => {
-    const { error, message, status } = await blockUser(req.params.id);
+    const userId = req.app.locals.id.toString();
+    const { error, message, status } = await blockUser(req.params.id, userId);
     res.status(status);
     if (error) {
       return res.json({ statusCode: status, error });

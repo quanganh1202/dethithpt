@@ -1,4 +1,5 @@
 import Role from '../model/role';
+import User from '../model/user';
 import logger from '../libs/logger';
 import { dataValidator } from '../libs/ajv';
 import { exception } from '../constant/error';
@@ -16,7 +17,16 @@ async function createRole(body) {
         error: resValidate.errors,
       };
     }
-    const { name } = body;
+    const { name, userId } = body;
+    const userModel = new User();
+    const user = await userModel.getById(userId);
+    if (!user || !user.length || !user[0].status) {
+      return {
+        status: 400,
+        error: 'User id does not exists',
+      };
+    }
+
     const role = await roleModel.getListRole([{ name }]);
     if (role && role.length) {
       return {
@@ -26,7 +36,11 @@ async function createRole(body) {
     }
 
     const res = await roleModel.addNewRole(body);
-    const serverNotify = await rabbitSender('role.create', { id: res.insertId, body });
+    const queryBody = Object.assign({}, body, {
+      userName: user[0].name,
+      userEmail: user[0].email,
+    });
+    const serverNotify = await rabbitSender('role.create', { id: res.insertId, body: queryBody });
     if (serverNotify.statusCode === 200) {
       return {
         status: 201,

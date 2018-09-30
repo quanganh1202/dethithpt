@@ -1,5 +1,5 @@
 {
-  "$id": "http://dethithpt.com/update-document-schema#",
+  "$id": "http://dethithpt.com/document-update-schema#",
   "title": "Document",
   "description": "Document schema validation",
   "type": "object",
@@ -14,7 +14,12 @@
       "minLength": 1
     },
     "approved": {
-      "type": "integer"
+      "type": "integer",
+      "enum": [0, 1]
+    },
+    "prioriy": {
+      "type": "string",
+      "enum": [0, 1]
     },
     "description": {
       "type": "string"

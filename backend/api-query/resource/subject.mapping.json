@@ -47,6 +47,22 @@
         "userId": {
           "type": "keyword"
         },
+        "userName": {
+          "type": "text",
+          "analyzer": "autocomplete",
+          "search_analyzer": "standard",
+          "fields": {
+            "raw": {
+              "type": "keyword"
+            }
+          }
+        },
+        "view": {
+          "type": "integer"
+        },
+        "userEmail": {
+          "type": "keyword"
+        },
         "createdAt": {
         	"type": "date"
         },

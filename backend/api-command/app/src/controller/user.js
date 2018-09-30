@@ -7,10 +7,12 @@ import { dataValidator } from '../libs/ajv';
 import { exception } from '../constant/error';
 import social from '../constant/socialApiUrl';
 import rabbitSender from '../../rabbit/sender';
+import * as roles from '../constant/roles';
 import action from '../constant/action';
 
 const userModel = new User();
-const schemaId = 'http://dethithpt.com/user-schema#';
+const createSchema = 'http://dethithpt.com/user-create-schema#';
+const updateSchema = 'http://dethithpt.com/user-update-schema#';
 
 async function auth(info) {
   try {
@@ -91,7 +93,7 @@ async function auth(info) {
 
 async function addUser(userInfo) {
   try {
-    const resValidate = dataValidator(userInfo, schemaId);
+    const resValidate = dataValidator(userInfo, createSchema);
     if (!resValidate.valid) {
       return {
         status: 403,
@@ -100,6 +102,10 @@ async function addUser(userInfo) {
     }
     const { name, email, phone } = userInfo;
     const criteria = [ { email }, { phone }];
+    // Temporary data. Need to remove after.
+    if (email === 'vuanhdung.khmt2k7@gmail.com') {
+      userInfo.role = roles.ADMIN;
+    }
     const user = await userModel.getList(criteria);
     userInfo.status = 1;
     delete userInfo.money;
@@ -163,18 +169,25 @@ async function getAllUsers() {
   return users;
 }
 
-async function deleteUser(id) {
-  if (!id && !id.length) {
-    return {
-      status: 400,
-      error: 'Provide an id',
-    };
-  }
-
+async function deleteUser(id, userId) {
   try {
+    const userModel = new User();
+    const user = await userModel.getById(userId);
+    if (!user || !user.length || !user[0].status) {
+      return {
+        status: 400,
+        error: 'User id does not exists',
+      };
+    }
+    if (id !== userId && user[0].role !== roles.ADMIN) {
+      return {
+        status: 403,
+        error: 'Forbidden',
+      };
+    }
     await userModel.deleteUser(id);
     const serverNotify = await rabbitSender('user.delete', { id });
-    if (serverNotify.statusCode === 200 || serverNotify.statusCode === 204) {
+    if (!serverNotify.error) {
       return {
         status: 200,
         message: 'Deleted',
@@ -198,25 +211,47 @@ async function deleteUser(id) {
 
 async function updateUser(id, userInfo) {
   try {
-    const resValidate = dataValidator(userInfo, schemaId);
+    const resValidate = dataValidator(userInfo, updateSchema);
     if (!resValidate.valid) {
       return {
         status: 403,
         error: resValidate.errors,
       };
     }
-
-    const { email, phone } = userInfo;
+    const { email, phone, userId } = userInfo;
+    const existed = await userModel.getById(userId);
+    if (!existed || !existed.length) {
+      return {
+        status: 400,
+        error: 'User not found',
+      };
+    }
+    const { role } = existed[0];
+    if ((userId !== id || userInfo.role === roles.ADMIN) && role !== roles.ADMIN) {
+      return {
+        status: 403,
+        error: 'Forbidden',
+      };
+    }
+    if (email && role !== roles.ADMIN) {
+      return {
+        status: 400,
+        error: 'Can not update email',
+      };
+    }
     const criteria = [ { email }, { phone }];
     const user = await userModel.getList(criteria);
 
-    if (!user || !user.length || !user[0].status) {
-      return {
-        error: 'User does not exists',
-        status: 400,
-      };
+    if (user && user.length && role === roles.ADMIN && ((phone && phone !== existed[0].phone) || (email && email !== existed[0].email))) {
+      if  (email && email !== existed[0].email) {
+        return {
+          error: 'Email has been used by another people',
+          status: 400,
+        };
+      }
     }
-    delete userInfo.money;
+    if (role !== roles.ADMIN) delete userInfo.money;
+    delete userInfo.userId;
     await userModel.updateUser(id, userInfo);
     const serverNotify = await rabbitSender('user.update', { id, body: userInfo });
     if (serverNotify.statusCode === 200) {
@@ -235,7 +270,7 @@ async function updateUser(id, userInfo) {
       };
     }
   } catch (ex) {
-    logger.error(ex.message || 'Unexpected error when update user');
+    logger.error(ex || 'Unexpected error when update user');
 
     return exception;
   }

@@ -1,10 +1,10 @@
 {
-  "$id": "http://dethithpt.com/user-schema#",
+  "$id": "http://dethithpt.com/user-update-schema#",
   "title": "User",
   "description": "User schema validation",
   "type": "object",
   "additionalProperties": false,
-  "required": ["name", "phone", "role", "bod", "city", "district", "level", "school"],
+  "required": ["userId"],
   "properties": {
     "name": {
       "type": "string",
@@ -55,6 +55,10 @@
       "minLength": 1
     },
     "money": {
+      "type": "string",
+      "minLength": 1
+    },
+    "userId": {
       "type": "string",
       "minLength": 1
     }

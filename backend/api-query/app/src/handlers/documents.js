@@ -215,7 +215,6 @@ export default {
 
         return pre;
       }, []): [];
-
       const descreaseCollection = oldDoc.data.collections && oldDoc.data.collections.length ? oldDoc.data.collections.reduce((pre, cur) => {
         const ft = _.filter(collections, cur);
         if (!ft.length) {
@@ -225,7 +224,7 @@ export default {
         return pre;
       }, []) : [];
 
-      const increaseCollection = collections && collections.length ? cates.reduce((pre, cur) => {
+      const increaseCollection = collections && collections.length ? collections.reduce((pre, cur) => {
         const ft = _.filter(oldDoc.data.collections, cur);
         if (!ft.length) {
           pre.push(cur);

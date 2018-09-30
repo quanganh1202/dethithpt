@@ -1,0 +1,27 @@
+{
+  "$id": "http://dethithpt.com/category-update-schema#",
+  "title": "Category",
+  "description": "Category schema validation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["userId"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "userId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "prioriy": {
+      "type": "integer",
+      "enum": [0, 1]
+    }
+  }
+}

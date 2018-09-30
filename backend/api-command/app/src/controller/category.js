@@ -4,36 +4,23 @@ import logger from '../libs/logger';
 import { dataValidator } from '../libs/ajv';
 import { exception } from '../constant/error';
 import rabbitSender from '../../rabbit/sender';
+import * as roles from '../constant/roles';
+import { isUndefined } from 'util';
 
 const cateModel = new Category;
-const schemaId = 'http://dethithpt.com/category-schema#';
-
-async function getListCategories(args) {
-  try {
-    const { name, description, searchType, number, offset, sortBy, cols } = args;
-    const filter = [];
-    filter.push(name ? { name }: undefined);
-    filter.push(description ? { description }: undefined);
-    const options = { number, offset, sortBy, searchType, cols };
-    const docs = await cateModel.getListCategory(filter, options);
-
-    return docs || [];
-  } catch (ex) {
-    logger.error(ex.message || 'Unexpected error when get list categories');
-
-    return exception;
-  }
-}
+const createSchema = 'http://dethithpt.com/category-create-schema#';
+const updateSchema = 'http://dethithpt.com/category-update-schema#';
 
 async function createCategory(body) {
   try {
-    const resValidate = dataValidator(body, schemaId);
+    const resValidate = dataValidator(body, createSchema);
     if (!resValidate.valid) {
       return {
         status: 403,
         error: resValidate.errors,
       };
     }
+
     const { name } = body;
     const cate = await cateModel.getListCategory([{ name }]);
     if (cate && cate.length) {
@@ -51,11 +38,16 @@ async function createCategory(body) {
         status: 400,
       };
     }
-
+    if (!isUndefined(body.priority)) {
+      body.priority = user[0].roles === 'admin' ? body.priority : 0;
+    }
     const { insertId } = await cateModel.addNewCategory(body);
-    body.userName = user[0].name;
-    body.priority = body.priority || '0';
-    const serverNotify = await rabbitSender('category.create', { body, id: insertId });
+    const queryBody = Object.assign({}, body, {
+      userName: user[0].name,
+      userEmail: user[0].email,
+    });
+
+    const serverNotify = await rabbitSender('category.create', { body: queryBody, id: insertId });
     if (serverNotify.statusCode === 200) {
       return {
         status: 201,
@@ -78,24 +70,16 @@ async function createCategory(body) {
   }
 }
 
-async function getCategoryById(id, cols) {
-  try {
-    const result = await cateModel.getCategoryById(id, cols);
-
-    return {
-      status: 200,
-      data: result,
-    };
-  } catch (ex) {
-    logger.error(ex.message || 'Unexpected error when get category');
-
-    return exception;
-  }
-
-}
-
 async function updateCategory(id, body) {
   try {
+    const resValidate = dataValidator(body, updateSchema);
+    if (!resValidate.valid) {
+      return {
+        status: 403,
+        error: resValidate.errors,
+      };
+    }
+
     const existed = await cateModel.getCategoryById(id);
 
     if (!existed || !existed.length) {
@@ -105,18 +89,37 @@ async function updateCategory(id, body) {
       };
     }
 
-    const { name } = body;
-    const cate = await cateModel.getListCategory([{ name }]);
-    if (cate && cate.length && name !== existed[0].name) {
+    const { name, userId } = body;
+    if (name) {
+      const cate = await cateModel.getListCategory([{ name }]);
+      if (cate && cate.length && name !== existed[0].name) {
+        return {
+          error: `Category ${body.name} already existed`,
+          status: 400,
+        };
+      }
+    }
+    const userModel = new User();
+    const user = await userModel.getById(userId);
+    if (!user || !user.length || !user[0].status) {
       return {
-        error: `Category ${body.name} already existed`,
         status: 400,
+        error: 'User id does not exists',
       };
     }
-
+    if (existed[0].userId.toString() !== userId && user[0].role !== roles.ADMIN) {
+      return {
+        status: 403,
+        error: 'Forbidden',
+      };
+    }
+    if (!isUndefined(body.priority)) {
+      body.priority = user[0].roles === 'admin' ? body.priority : 0;
+    }
+    delete body.userId;
     await cateModel.updateCategoryById(id, body);
     const serverNotify = await rabbitSender('category.update', { id, body });
-    if (serverNotify.statusCode === 200) {
+    if (!serverNotify.error) {
       return {
         status: 200,
         message: `Category with id = ${id} is updated`,
@@ -138,7 +141,7 @@ async function updateCategory(id, body) {
   }
 }
 
-async function deleteCategoryById(id) {
+async function deleteCategoryById(id, userId) {
   try {
     const result = await cateModel.getCategoryById(id);
 
@@ -148,7 +151,20 @@ async function deleteCategoryById(id) {
         status: 404,
       };
     }
-
+    const userModel = new User();
+    const user = await userModel.getById(userId);
+    if (!user || !user.length || !user[0].status) {
+      return {
+        status: 400,
+        error: 'User id does not exists',
+      };
+    }
+    if (result[0].userId.toString() !== userId && user[0].role !== roles.ADMIN) {
+      return {
+        status: 403,
+        error: 'Forbidden',
+      };
+    }
     await cateModel.deleteCategoryById(id);
     const serverNotify = await rabbitSender('category.delete', { id });
     if (serverNotify.statusCode === 200) {
@@ -175,8 +191,6 @@ async function deleteCategoryById(id) {
 
 export {
   createCategory,
-  getCategoryById,
-  getListCategories,
   updateCategory,
   deleteCategoryById,
 };

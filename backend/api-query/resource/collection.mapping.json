@@ -116,6 +116,9 @@
         "priority": {
           "type": "integer"
         },
+        "view": {
+          "type": "integer"
+        },
         "userId": {
           "type": "keyword"
         },
@@ -128,6 +131,9 @@
               "type": "keyword"
             }
           }
+        },
+        "userEmail": {
+          "type": "keyword"
         },
         "createdAt": {
         	"type": "date"

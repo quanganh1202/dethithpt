@@ -1,7 +1,7 @@
 {
-  "$id": "http://dethithpt.com/subject-schema#",
-  "title": "Subject",
-  "description": "Subject schema validation",
+  "$id": "http://dethithpt.com/category-create-schema#",
+  "title": "Category",
+  "description": "Category schema validation",
   "type": "object",
   "additionalProperties": false,
   "required": ["name", "description"],
@@ -18,6 +18,10 @@
     "userId": {
       "type": "string",
       "minLength": 1
+    },
+    "prioriy": {
+      "type": "integer",
+      "enum": [0, 1]
     }
   }
 }
