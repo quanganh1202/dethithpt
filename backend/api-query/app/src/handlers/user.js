@@ -62,7 +62,7 @@ export default {
       }
       const sortObj = sortParamsHandler(sort);
       if (sortObj.statusCode !== 200) return sortObj; // Return error
-      const filterBuilt = filterParamsHandler({ name, school, city, role, district, bod, status, note2 });
+      const filterBuilt = filterParamsHandler({ name, school, city, role, district, bod, status, note2, class: options.class });
       if (filterBuilt.statusCode !== 200) return filterBuilt; // Return error
       const fieldsToArray = fields ? fields.split(',') : undefined; // List fields specific by ","
       const from = size && offset && !isScroll ? offset : 0; // Fulfil size and offset to get from value. Default equal 0

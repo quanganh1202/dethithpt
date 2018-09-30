@@ -24,6 +24,7 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     district VARCHAR(50) NULL,
     level VARCHAR(45) NULL,
     school VARCHAR(45) NULL,
+    class VARCHAR(45) NULL,
     facebook VARCHAR(45) NULL,
     position VARCHAR(45) NULL,
     note1 TEXT(255) NULL,

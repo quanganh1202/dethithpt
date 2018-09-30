@@ -17,6 +17,7 @@ USE dethithpt;
     `position` VARCHAR(45) NULL,
     `money` VARCHAR(255) DEFAULT '0',
     `status` TINYINT DEFAULT '2',
+    `class` VARCHAR(45) NULL,
     `note1` TEXT(255) NULL,
     `note2` TEXT(255) NULL,
     `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

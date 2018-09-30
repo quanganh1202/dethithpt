@@ -58,6 +58,10 @@
       "type": "string",
       "minLength": 1
     },
+    "class": {
+      "type": "string",
+      "minLength": 1
+    },
     "note1": {
       "type": "string",
       "minLength": 1
