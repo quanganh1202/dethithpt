@@ -60,7 +60,7 @@ export class Classes extends React.PureComponent {
           <Link to={`/classes/${item.id}`}>{item.name}</Link>
         </td>
         <td>{item.description}</td>
-        <td>{item.userName}</td>
+        <td>{item.userEmail}</td>
         <td>{moment(item.createdAt).format('DD/MM/YYYY')}</td>
       </tr>
     ));

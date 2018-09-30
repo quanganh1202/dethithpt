@@ -61,7 +61,7 @@ export class Category extends React.PureComponent {
           <th scope="row">{idx + 1}</th>
           <td><Link to={`/categories/${cate.id}`}>{cate.name}</Link></td>
           <td>{cate.description}</td>
-          <td>{cate.userName}</td>
+          <td>{cate.userEmail}</td>
           <td>{cate.numDocRefs}</td>
           <td>{moment(cate.createdAt).format('DD/MM/YYYY')}</td>
       </tr>

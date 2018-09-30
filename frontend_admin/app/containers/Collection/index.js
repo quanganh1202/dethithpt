@@ -61,7 +61,7 @@ export class Collection extends React.PureComponent {
           <th scope="row">{idx + 1}</th>
           <td>{cate.name}</td>
           <td>{cate.description}</td>
-          <td>{cate.userName}</td>
+          <td>{cate.userEmail}</td>
           <td>{moment(cate.createdAt).format('DD/MM/YYYY')}</td>
       </tr>
     ))
