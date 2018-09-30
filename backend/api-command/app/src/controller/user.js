@@ -137,7 +137,7 @@ async function addUser(userInfo) {
     const resValidate = dataValidator(userInfo, createSchema);
     if (!resValidate.valid) {
       return {
-        status: 403,
+        status: 422,
         error: resValidate.errors,
       };
     }
