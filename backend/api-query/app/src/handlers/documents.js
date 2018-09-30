@@ -224,7 +224,6 @@ export default {
 
         return pre;
       }, []) : [];
-
       const increaseCate = cates && cates.length ? cates.reduce((pre, cur) => {
         const ft = _.filter(oldDoc.data.cates, cur);
         if (!ft.length) {
@@ -241,7 +240,6 @@ export default {
 
         return pre;
       }, []) : [];
-
       const increaseCollection = collections && collections.length ? collections.reduce((pre, cur) => {
         const ft = _.filter(oldDoc.data.collections, cur);
         if (!ft.length) {
