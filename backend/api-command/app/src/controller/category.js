@@ -114,7 +114,12 @@ async function updateCategory(id, body) {
       };
     }
     if (!isUndefined(body.priority)) {
-      body.priority = user[0].roles === 'admin' ? body.priority : 0;
+      if (user[0].roles !== roles.ADMIN) {
+        return {
+          status: 403,
+          error: 'Forbidden: Not allow update priority',
+        };
+      }
     }
     delete body.userId;
     await cateModel.updateCategoryById(id, body);

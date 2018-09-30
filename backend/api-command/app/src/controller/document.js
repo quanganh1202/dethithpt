@@ -226,7 +226,12 @@ async function updateDocumentById(id, body, file) {
       };
     }
     if (!isUndefined(body.priority)) {
-      body.priority = user[0].roles === roles.ADMIN ? body.priority : 0;
+      if (user[0].roles !== roles.ADMIN) {
+        return {
+          status: 403,
+          error: 'Forbidden: Not allow update priority',
+        };
+      }
     }
     if (doc[0].userId.toString() !== userId && user[0].role !== roles.ADMIN) {
       return {

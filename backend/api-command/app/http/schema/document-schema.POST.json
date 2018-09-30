@@ -21,9 +21,9 @@
     "description": {
       "type": "string"
     },
-    "prioriy": {
-      "type": "integer",
-      "enum": [0, 1]
+    "priority": {
+      "type": "string",
+      "enum": ["0", "1"]
     },
     "price": {
       "type": "string",

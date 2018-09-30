@@ -1,8 +1,27 @@
+import { isUndefined } from 'util';
 import rabbitSender from '../../rabbit/sender';
+import User from '../model/user';
 import logger from '../libs/logger';
+import * as roles from '../constant/roles';
 
 async function updateTag(id, body) {
   try {
+    const userModel = new User();
+    const user = await userModel.getById(body.userId);
+    if (!user || !user.length) {
+      return {
+        error: `User ${body.userId} does not exist`,
+        status: 400,
+      };
+    }
+    if (!isUndefined(body.priority)) {
+      if (user[0].roles !== roles.ADMIN) {
+        return {
+          status: 403,
+          error: 'Forbidden: Not allow update priority',
+        };
+      }
+    }
     const res = await rabbitSender('tag.update', { id, body });
     if (res.error) {
       return {
