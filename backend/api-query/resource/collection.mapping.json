@@ -116,6 +116,9 @@
         "priority": {
           "type": "integer"
         },
+        "view": {
+          "type": "integer"
+        },
         "userId": {
           "type": "keyword"
         },

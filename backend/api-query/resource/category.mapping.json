@@ -58,6 +58,9 @@
             }
           }
         },
+        "view": {
+          "type": "integer"
+        },
         "userEmail": {
           "type": "keyword"
         },

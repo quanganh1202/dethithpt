@@ -60,6 +60,9 @@
         "userEmail": {
           "type": "keyword"
         },
+        "view": {
+          "type": "integer"
+        },
         "createdAt": {
         	"type": "date"
         },
