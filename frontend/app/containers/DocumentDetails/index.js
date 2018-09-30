@@ -91,7 +91,7 @@ export class DocumentDetails extends React.PureComponent {
       }, true);
     }
     if (!this.props.file && nextProps.file) {
-      const blob = new Blob([nextProps.file], { type: 'application/pdf' });
+      const blob = new Blob([nextProps.file]);
       FileSaver.saveAs(blob, _.get(this.props, 'document.name', 'download'));
       this.props.removeFileSave();
     }

@@ -69,7 +69,6 @@ export function* requestDownloadHandler({ id }) {
   const options = {
     headers: {
       ['x-access-token']: getToken(),
-      ['Content-Type']: 'application/pdf',
     },
   }
 
