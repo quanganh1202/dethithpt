@@ -11,3 +11,4 @@
 import { defineAction } from 'redux-define';
 const container = 'thpt/users';
 export const GET_USERS = defineAction('GET_USERS', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
+export const GET_DATA_INIT = defineAction('GET_DATA_INIT', ['REQUEST', 'SUCCESS', 'FAILURE'], container);

@@ -60,12 +60,6 @@ import CustomSelect from './CustomSelect';
 
 library.add(faFolder, faCog, faCloudDownloadAlt, faCaretDown);
 
-const currentYear = (new Date()).getFullYear();
-const optionYear = [];
-for (let i = currentYear - 20; i <= currentYear; i += 1) {
-  optionYear.push({ value: i, label: i });
-}
-
 const Wrapper = styled.div`
   .rct-select-input.form-control-sm {
     flex: 1 1 auto;
@@ -351,7 +345,6 @@ export class Documents extends React.PureComponent {
   }
 
   render() {
-    console.log(this.state.filters);
     return (
       <Wrapper className="animated fadeIn">
         <Row>
@@ -674,9 +667,11 @@ export class Documents extends React.PureComponent {
                           selectName="yearSchools"
                           multiple
                           scope="col"
-                          options={optionYear}
+                          options={Array(21)
+                            .fill((new Date()).getFullYear() - 20)
+                            .map((y, idx) => ({ value: y + idx, label: y + idx }))}
                           onSelect={this.onSelectFilter}
-                          value={this.state.filters.yearSchools}
+                          value={this.state.filters.yearSchools || ''}
                         >
                           Năm học
                         </HeadFilter>

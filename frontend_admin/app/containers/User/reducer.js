@@ -10,14 +10,15 @@
  *   return state.set('yourStateVariable', true);
  */
 import { fromJS } from 'immutable';
-import {
-  GET_USERS,
-} from './constants';
+import { GET_USERS, GET_DATA_INIT } from './constants';
 
 // The initial state of the App
 export const initialState = fromJS({
   users: [],
   total: 0,
+  dataInit: {
+    classes: [],
+  },
 });
 
 function userReducer(state = initialState, action) {
@@ -29,6 +30,10 @@ function userReducer(state = initialState, action) {
         .set('loading', false)
         .set('users', fromJS(action.users))
         .set('total', action.total);
+    case GET_DATA_INIT.REQUEST:
+      return state.set('loading', true);
+    case GET_DATA_INIT.SUCCESS:
+      return state.set('loading', false).set('dataInit', fromJS(action.data));
     default:
       return state;
   }
