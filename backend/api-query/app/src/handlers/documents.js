@@ -212,7 +212,7 @@ export default {
       if (oldDoc.error) {
         return oldDoc;
       }
-      const { cates, collections } = body;
+      const { cates, collections, tags } = body;
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.updatedAt = now;
       const promise = [];
@@ -257,6 +257,9 @@ export default {
         const upCollection = updateNumDocRefToCollection(increaseCollection, constant.INCREASE);
         const downCollection = updateNumDocRefToCollection(descreaseCollection, constant.DECREASE);
         promise.concat([...upCollection, ...downCollection]);
+      }
+      if (tags && tags.length) {
+        promise.concat(insertTag(tags));
       }
       // Perform update
       const result = await elasticsearch.update(body, docId);
