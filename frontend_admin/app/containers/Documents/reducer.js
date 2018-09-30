@@ -17,6 +17,8 @@ import {
   UPDATE_DOCS,
   CLEAR_DELETE_STATUS,
   GET_DATA_INIT,
+  REQUEST_DOWNLOAD,
+  REMOVE_FILE_SAVE,
 } from './constants';
 
 // The initial state of the App
@@ -30,7 +32,9 @@ export const initialState = fromJS({
     subjects: [],
     classes: [],
     collections: [],
-  }
+  },
+  file: null,
+  fileName: '',
 });
 
 function documentReducer(state = initialState, action) {
@@ -68,6 +72,15 @@ function documentReducer(state = initialState, action) {
         .set('dataInit', fromJS(action.data));
     case CLEAR_DELETE_STATUS:
       return state.set('deleteSuccess', false);
+    case REQUEST_DOWNLOAD.REQUEST:
+      return state.set('loading', true);
+    case REQUEST_DOWNLOAD.SUCCESS:
+      return state
+        .set('loading', false)
+        .set('file', action.file)
+        .set('fileName', action.name);
+    case REMOVE_FILE_SAVE:
+      return state.set('file', null).set('fileName', '');
     default:
       return state;
   }

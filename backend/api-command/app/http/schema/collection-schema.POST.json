@@ -1,10 +1,10 @@
 {
-  "$id": "http://dethithpt.com/collection-schema#",
+  "$id": "http://dethithpt.com/collection-create-schema#",
   "title": "Collection",
   "description": "Collection schema validation",
   "type": "object",
   "additionalProperties": false,
-  "required": ["name", "description", "classIds", "yearSchools", "subjectIds", "cateIds"],
+  "required": ["name", "description", "classIds", "yearSchools", "subjectIds", "cateIds", "userId"],
   "properties": {
     "name": {
       "type": "string",
@@ -74,7 +74,8 @@
       "type": "string"
     },
     "prioriy": {
-      "type": "string"
+      "type": "integer",
+      "enum": [0, 1]
     }
   }
 }

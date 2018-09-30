@@ -39,20 +39,33 @@ import {
   faCloudDownloadAlt,
   faCaretDown,
 } from '@fortawesome/free-solid-svg-icons';
+import FileSaver from 'file-saver';
 import { HeadSort, PaginationTable, HeadFilter } from 'components/Table';
 import checkIcon from 'assets/img/icons/check.png';
 import deleteIcon from 'assets/img/icons/delete.png';
 import editIcon from 'assets/img/icons/edit.png';
+import uncheckIcon from 'assets/img/icons/uncheck.png';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
-import { getDocs, approveDocs, deleteDoc, clearDeleteStatus, updateDocs, getDataInit } from './actions';
+import {
+  getDocs,
+  approveDocs,
+  deleteDoc,
+  clearDeleteStatus,
+  updateDocs,
+  getDataInit,
+  requestDownload,
+  removeFileSave,
+} from './actions';
 import {
   makeSelectDocuments,
   makeSelectLoading,
   makeSelectTotalUser,
   makeSelectDeleteStatus,
   makeSelectDataInit,
+  makeSelectFile,
+  makeSelectFileName,
 } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
@@ -104,6 +117,14 @@ const Wrapper = styled.div`
       }
     }
   }
+  span.download-file-text {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+    &:hover {
+      color: red;
+    }
+  }
 `;
 
 /* eslint-disable react/prefer-stateless-function */
@@ -116,6 +137,9 @@ export class Documents extends React.PureComponent {
       quickUpdateForm: {},
       filters: {
         cateId: [],
+        subjectId: [],
+        classId: [],
+        yearSchools: [],
       }
     };
     this.size = 10;
@@ -147,6 +171,8 @@ export class Documents extends React.PureComponent {
       this.setState({
         currentPage: 1,
         keyword: '',
+        quickUpdateForm: {},
+        selectedDocs: [],
       });
       this.props.getDocs({
         sort: 'createdAt.desc',
@@ -155,6 +181,15 @@ export class Documents extends React.PureComponent {
       });
       this.props.clearDeleteStatus();
     }
+    if (!this.props.file && nextProps.file) {
+      const blob = new Blob([nextProps.file]);
+      FileSaver.saveAs(blob, _.get(nextProps, 'fileName', 'download'));
+      this.props.removeFileSave();
+    }
+  }
+
+  handleDownloadFile(id, name) {
+    this.props.requestDownload(id, name);
   }
 
   renderDocumentRow(docs) {
@@ -170,7 +205,7 @@ export class Documents extends React.PureComponent {
             checked={this.state.selectedDocs.includes(item.id)}
           />
         </td>
-        <td>{item.name}</td>
+        <td><span className="download-file-text" onClick={() => this.handleDownloadFile(item.id, item.name)}>{item.name}</span></td>
         <td>{item.cates && item.cates.map((i) => <p key={i.cateId}>{i.cateName}</p>)}</td>
         <td>{item.subjects && item.subjects.map((i) => <p key={i.subjectId}>{i.subjectName}</p>)}</td>
         <td>{item.classes && item.classes.map((i) => <p key={i.classId}>{i.className}</p>)}</td>
@@ -180,7 +215,7 @@ export class Documents extends React.PureComponent {
         <td>{item.view}</td>
         <td>{item.comment}</td>
         <td>{moment(item.createdAt).format('DD/MM/YYYY')}</td>
-        <td>{item.userName}</td>
+        <td>{item.userEmail}</td>
         <td>{item.approved === 1
             ? <Badge style={{ fontSize: '11px' }} color="success">Đã duyệt</Badge>
             : <Badge style={{ fontSize: '11px' }} color="warning">Chưa duyệt</Badge>}</td>
@@ -209,6 +244,13 @@ export class Documents extends React.PureComponent {
               title="Xuất bản"
             >
               <img src={checkIcon} height="15px" alt="check-icon" />
+            </button>
+            <button
+              style={{ float: 'left', padding: '0' }}
+              onClick={() => this.props.updateDocs([item.id], { priority: 1 })}
+              title="Nổi bật"
+            >
+              <img src={uncheckIcon} height="15px" alt="uncheck-icon" />
             </button>
           </div>
         </td>
@@ -313,7 +355,14 @@ export class Documents extends React.PureComponent {
   }
 
   submitQuickUpdate(field) {
-    this.props.updateDocs(this.state.selectedDocs, { [field]: this.state.quickUpdateForm[field] });
+    if (this.state.selectedDocs.length) {
+      if (field === 'price') {
+        this.props.updateDocs(this.state.selectedDocs, { [field]: this.state.quickUpdateForm[field] });
+      } else {
+        const dataUpdate = this.state.quickUpdateForm[field].map((i) => i.value).join();
+        this.props.updateDocs(this.state.selectedDocs, { [field]: dataUpdate });
+      }
+    }
   }
 
   handleMultiApprove() {
@@ -395,11 +444,11 @@ export class Documents extends React.PureComponent {
                     <Col md="2">
                       <InputGroup>
                         <Select
-                          name="cates"
+                          name="cateIds"
                           className="rct-select-input form-control-sm"
                           options={this.props.dataInit.categories.map(sj => ({ value: sj.id, label: sj.name }))}
-                          value={this.state.quickUpdateForm.cates || []}
-                          onChange={(value) => this.onQuickUpdateMultiSelect('cates', value)}
+                          value={this.state.quickUpdateForm.cateIds || []}
+                          onChange={(value) => this.onQuickUpdateMultiSelect('cateIds', value)}
                           isMulti
                           hideSelectedOptions={false}
                           closeMenuOnSelect={false}
@@ -414,10 +463,8 @@ export class Documents extends React.PureComponent {
                               />
                             ),
                             Control: CustomSelect,
-                            MultiValueContainer: (props) => {
-                              console.log(props)
-                              return null;
-                            },
+                            MultiValueContainer: (props) => null,
+                            IndicatorSeparator: (props) => null,
                           }}
                           styles={{
                             clearIndicator: () => ({
@@ -427,18 +474,18 @@ export class Documents extends React.PureComponent {
                           }}
                         />
                         <InputGroupAddon addonType="append">
-                          <Button type="button" onClick={this.search} size="sm">Chuyển</Button>
+                          <Button type="button" onClick={() => this.submitQuickUpdate('cateIds')} size="sm">Chuyển</Button>
                         </InputGroupAddon>
                       </InputGroup>
                     </Col>
                     <Col md="2">
                       <InputGroup>
                         <Select
-                          name="subjects"
+                          name="subjectIds"
                           className="rct-select-input form-control-sm"
                           options={this.props.dataInit.subjects.map(sj => ({ value: sj.id, label: sj.name }))}
-                          value={this.state.quickUpdateForm.subjects || []}
-                          onChange={(value) => this.onQuickUpdateMultiSelect('subjects', value)}
+                          value={this.state.quickUpdateForm.subjectIds || []}
+                          onChange={(value) => this.onQuickUpdateMultiSelect('subjectIds', value)}
                           isMulti
                           hideSelectedOptions={false}
                           closeMenuOnSelect={false}
@@ -453,10 +500,8 @@ export class Documents extends React.PureComponent {
                               />
                             ),
                             Control: CustomSelect,
-                            MultiValueContainer: (props) => {
-                              console.log(props)
-                              return null;
-                            },
+                            MultiValueContainer: (props) => null,
+                            IndicatorSeparator: (props) => null,
                           }}
                           styles={{
                             clearIndicator: () => ({
@@ -466,18 +511,18 @@ export class Documents extends React.PureComponent {
                           }}
                         />
                         <InputGroupAddon addonType="append">
-                          <Button type="button" onClick={this.search} size="sm">Chuyển</Button>
+                          <Button type="button" onClick={() => this.submitQuickUpdate('subjectIds')} size="sm">Chuyển</Button>
                         </InputGroupAddon>
                       </InputGroup>
                     </Col>
                     <Col md="2">
                       <InputGroup>
                         <Select
-                          name="classes"
+                          name="classIds"
                           className="rct-select-input form-control-sm"
                           options={this.props.dataInit.classes.map(sj => ({ value: sj.id, label: sj.name }))}
-                          value={this.state.quickUpdateForm.classes || []}
-                          onChange={(value) => this.onQuickUpdateMultiSelect('classes', value)}
+                          value={this.state.quickUpdateForm.classIds || []}
+                          onChange={(value) => this.onQuickUpdateMultiSelect('classIds', value)}
                           isMulti
                           hideSelectedOptions={false}
                           closeMenuOnSelect={false}
@@ -492,10 +537,8 @@ export class Documents extends React.PureComponent {
                               />
                             ),
                             Control: CustomSelect,
-                            MultiValueContainer: (props) => {
-                              console.log(props)
-                              return null;
-                            },
+                            MultiValueContainer: (props) => null,
+                            IndicatorSeparator: (props) => null,
                           }}
                           styles={{
                             clearIndicator: () => ({
@@ -505,7 +548,7 @@ export class Documents extends React.PureComponent {
                           }}
                         />
                         <InputGroupAddon addonType="append">
-                          <Button type="button" onClick={this.search} size="sm">Chuyển</Button>
+                          <Button type="button" onClick={() => this.submitQuickUpdate('classIds')} size="sm">Chuyển</Button>
                         </InputGroupAddon>
                       </InputGroup>
                     </Col>
@@ -514,7 +557,7 @@ export class Documents extends React.PureComponent {
                         <Select
                           name="yearSchools"
                           className="rct-select-input form-control-sm"
-                          options={[]}
+                          options={optionYear}
                           value={this.state.quickUpdateForm.yearSchools || []}
                           onChange={(value) => this.onQuickUpdateMultiSelect('yearSchools', value)}
                           isMulti
@@ -531,10 +574,8 @@ export class Documents extends React.PureComponent {
                               />
                             ),
                             Control: CustomSelect,
-                            MultiValueContainer: (props) => {
-                              console.log(props)
-                              return null;
-                            },
+                            MultiValueContainer: (props) => null,
+                            IndicatorSeparator: (props) => null,
                           }}
                           styles={{
                             clearIndicator: () => ({
@@ -544,18 +585,18 @@ export class Documents extends React.PureComponent {
                           }}
                         />
                         <InputGroupAddon addonType="append">
-                          <Button type="button" onClick={this.search} size="sm">Chuyển</Button>
+                          <Button type="button" onClick={() => this.submitQuickUpdate('yearSchools')} size="sm">Chuyển</Button>
                         </InputGroupAddon>
                       </InputGroup>
                     </Col>
                     <Col md="2">
                       <InputGroup>
                         <Select
-                          name="collections"
+                          name="collectionIds"
                           className="rct-select-input form-control-sm"
                           options={this.props.dataInit.collections.map(sj => ({ value: sj.id, label: sj.name }))}
-                          value={this.state.quickUpdateForm.collections || []}
-                          onChange={(value) => this.onQuickUpdateMultiSelect('collections', value)}
+                          value={this.state.quickUpdateForm.collectionIds || []}
+                          onChange={(value) => this.onQuickUpdateMultiSelect('collectionIds', value)}
                           isMulti
                           hideSelectedOptions={false}
                           closeMenuOnSelect={false}
@@ -570,10 +611,8 @@ export class Documents extends React.PureComponent {
                               />
                             ),
                             Control: CustomSelect,
-                            MultiValueContainer: (props) => {
-                              console.log(props)
-                              return null;
-                            },
+                            MultiValueContainer: (props) => null,
+                            IndicatorSeparator: (props) => null,
                           }}
                           styles={{
                             clearIndicator: () => ({
@@ -583,7 +622,7 @@ export class Documents extends React.PureComponent {
                           }}
                         />
                         <InputGroupAddon addonType="append">
-                          <Button type="button" onClick={this.search} size="sm">Chuyển</Button>
+                          <Button type="button" onClick={() => this.submitQuickUpdate('collectionIds')} size="sm">Chuyển</Button>
                         </InputGroupAddon>
                       </InputGroup>
                     </Col>
@@ -743,6 +782,8 @@ export function mapDispatchToProps(dispatch) {
     updateDocs: (ids, data) => dispatch(updateDocs(ids, data)),
     clearDeleteStatus: () => dispatch(clearDeleteStatus()),
     getDataInit: () => dispatch(getDataInit()),
+    requestDownload: (id, name) => dispatch(requestDownload(id, name)),
+    removeFileSave: () => dispatch(removeFileSave()),
   };
 }
 
@@ -752,6 +793,8 @@ const mapStateToProps = createStructuredSelector({
   loading: makeSelectLoading(),
   deleteStatus: makeSelectDeleteStatus(),
   dataInit: makeSelectDataInit(),
+  file: makeSelectFile(),
+  fileName: makeSelectFileName(),
 });
 
 const withConnect = connect(

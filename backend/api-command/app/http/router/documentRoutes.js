@@ -1,9 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import {
-  getListDocuments,
   uploadDocument,
-  getDocument,
   updateDocumentById,
   deleteDocument,
   purchaseDocument,
@@ -18,37 +16,19 @@ const routerDefine =  function defineRouter() {
   const uploader = multer({ dest: pathDesFolder });
   const route = express.Router();
 
-  // Get all documents
-  route.get('/documents', async (req, res) => {
-    const { docs, status, total } = await getListDocuments(req.query);
-    res.status(status || 200).json({
-      data: docs,
-      total,
-    });
-  });
-  // Get one
-  route.get('/documents/:id', async (req, res) => {
-    const { error, data, status } = await getDocument(req.params.id, req.query.cols);
-    if (error)
-      return res.status(status || 500).json({
-        error,
-      });
-
-    res.status(status || 200).json({
-      data,
-    });
-  });
   // Upload
   route.post('/documents', uploader.any(), async (req, res) => {
     req.body.userId = req.app.locals.id.toString();
     const { error, message, status } = await uploadDocument(req.body, req.files);
     if (!error) {
       return res.status(status || 201).json({
+        statusCode: status,
         message,
       });
     }
 
     return res.status(status || 500).json({
+      statusCode: status,
       error,
     });
   });
@@ -58,21 +38,24 @@ const routerDefine =  function defineRouter() {
     const { error, message, status } = await updateDocumentById(req.params.id, req.body, req.files);
     if (error) {
       return res.status(status).json({
+        statusCode: status,
         error,
       });
     }
     res.status(status).json({
-      data: message,
+      statusCode: status,
+      message,
     });
   });
   // Delete documents
   route.delete('/documents/:id', async (req, res) => {
-    const { error, message, status } = await deleteDocument(req.params.id);
+    const userId = req.app.locals.id.toString();
+    const { error, message, status } = await deleteDocument(req.params.id, userId);
     if (error) {
-      return res.status(status || 500).json({ error });
+      return res.status(status || 500).json({ statusCode: status, error });
     }
 
-    res.status(status || 200).json({ message });
+    res.status(status || 200).json({ statusCode: status, message });
   });
 
   route.post('/download/:docId', async (req, res) => {
@@ -82,11 +65,13 @@ const routerDefine =  function defineRouter() {
     const { error, status, path, type } = await downloadDocument(docId, userId);
     if (error) {
       return res.status(status).json({
+        statusCode: status,
         error,
       });
     }
     if (isUndefined(download)) {
       return res.status(status).json({
+        statusCode: status,
         message: 'OK',
       });
     }
@@ -101,10 +86,12 @@ const routerDefine =  function defineRouter() {
     if (error) {
       return res.status(status).json({
         error,
+        statusCode: status,
       });
     }
     res.status(status).json({
-      data: message,
+      statusCode: status,
+      message,
     });
   });
 
@@ -114,11 +101,13 @@ const routerDefine =  function defineRouter() {
     const { error, status, message } = await approveDocument(docId, userId);
     if (error) {
       return res.status(status).json({
+        statusCode: status,
         error,
       });
     }
     res.status(status).json({
-      data: message,
+      statusCode: status,
+      message,
     });
   });
 

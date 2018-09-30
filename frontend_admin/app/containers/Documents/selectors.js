@@ -22,6 +22,12 @@ const makeSelectLoading = () =>
 const makeSelectDeleteStatus = () =>
   createSelector(selectHome, documentState => documentState.get('deleteSuccess'));
 
+const makeSelectFile = () =>
+  createSelector(selectHome, homeState => homeState.get('file'));
+
+const makeSelectFileName = () =>
+  createSelector(selectHome, homeState => homeState.get('fileName'));
+
 export {
   selectHome,
   makeSelectDocuments,
@@ -29,4 +35,6 @@ export {
   makeSelectTotalUser,
   makeSelectDeleteStatus,
   makeSelectDataInit,
+  makeSelectFile,
+  makeSelectFileName,
 };
