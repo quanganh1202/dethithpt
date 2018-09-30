@@ -7,6 +7,8 @@ import logger from '../libs/logger';
 import { dataValidator } from '../libs/ajv';
 import { exception } from '../constant/error';
 import rabbitSender from '../../rabbit/sender';
+import * as roles from '../constant/roles';
+import { isUndefined } from 'util';
 
 const collectionModel = new Collection;
 const createSchema = 'http://dethithpt.com/collection-create-schema#';
@@ -21,7 +23,6 @@ async function createCollection(body) {
         error: resValidate.errors,
       };
     }
-    body.priority = body.priority || '0';
     const { name, cateIds, userId, subjectIds, classIds } = body;
     const collection = await collectionModel.getListCollection([{ 'name': name }]);
     if (collection && collection.length) {
@@ -37,6 +38,9 @@ async function createCollection(body) {
         status: 400,
         error: 'User id does not exists',
       };
+    }
+    if (!isUndefined(body.priority)) {
+      body.priority = user[0].roles === roles.ADMIN ? body.priority : 0;
     }
     const queryBody = Object.assign({}, body);
     if (cateIds && cateIds.length) {
@@ -180,16 +184,19 @@ async function updateCollection(id, body) {
       };
     }
 
-    if (existed[0].userId.toString() !== userId && user[0].role !== 'admin') {
+    if (existed[0].userId.toString() !== userId && user[0].role !== roles.ADMIN) {
       return {
         status: 403,
         error: 'Forbidden',
       };
     }
+    if (!isUndefined(body.priority)) {
+      body.priority = user[0].roles === roles.ADMIN ? body.priority : 0;
+    }
     delete body.userId;
     const queryBody = Object.assign({}, body);
     let newCate;
-    if (cateIds && cateIds.length) {
+    if (cateIds) {
       const cateModel = new Category();
       const promises = Array.isArray(cateIds) ?
         cateIds.map(cateId => cateModel.getCategoryById(cateId)) :
@@ -284,7 +291,7 @@ async function deleteCollectionById(id, userId) {
         error: 'User id does not exists',
       };
     }
-    if (result[0].userId.toString() !== userId && user[0].role !== 'admin') {
+    if (result[0].userId.toString() !== userId && user[0].role !== roles.ADMIN) {
       return {
         status: 403,
         error: 'Forbidden',

@@ -14,6 +14,8 @@ import { exception } from '../constant/error';
 import rabbitSender from '../../rabbit/sender';
 import action from '../constant/action';
 import header from '../constant/typeHeader';
+import * as roles from '../constant/roles';
+import { isUndefined } from 'util';
 
 const docModel = new Document();
 const createSchema = 'http://dethithpt.com/document-create-schema#';
@@ -23,7 +25,6 @@ async function uploadDocument(body, file) {
   try {
     if (!body.price) body.price = '0'; // Default price of document is 0
     body.approved = 0;
-    const queryBody = Object.assign({}, body);
     const resValidate = dataValidator(body, createSchema);
     if (!resValidate.valid) {
       return {
@@ -48,10 +49,13 @@ async function uploadDocument(body, file) {
         error: 'User id does not exists',
       };
     }
-    if (user[0].role === 'admin') {
+    if (user[0].role === roles.ADMIN) {
       body.approved = 1;
+      body.priority = body.priority ? body.priority : 0;
+    } else {
+      body.priority = 0;
     }
-
+    const queryBody = Object.assign({}, body);
     if (cateIds) {
       const cateModel = new Category();
       const promises = cateIds.split(',').map(cateId => cateModel.getCategoryById(cateId));
@@ -221,8 +225,10 @@ async function updateDocumentById(id, body, file) {
         error: 'User id does not exists',
       };
     }
-
-    if (doc[0].userId.toString() !== userId && user[0].role !== 'admin') {
+    if (!isUndefined(body.priority)) {
+      body.priority = user[0].roles === roles.ADMIN ? body.priority : 0;
+    }
+    if (doc[0].userId.toString() !== userId && user[0].role !== roles.ADMIN) {
       return {
         status: 403,
         error: 'Forbidden',
@@ -388,7 +394,7 @@ async function deleteDocument(id, userId) {
         error: 'User id does not exists',
       };
     }
-    if (result[0].userId.toString() !== userId && user[0].role !== 'admin') {
+    if (result[0].userId.toString() !== userId && user[0].role !== roles.ADMIN) {
       return {
         status: 403,
         error: 'Forbidden',
@@ -521,22 +527,24 @@ async function downloadDocument(docId, userId) {
         error: 'User not found',
       };
     }
-    const filter = [
-      {
-        docId,
-        userId,
-      },
-    ];
-    const options = {
-      searchType: 'EXACTLY',
-    };
-    const purchased = await docModel.getPurchased(filter, options);
-
-    if (!purchased || !purchased.length) {
-      return {
-        status: 400,
-        error: `You have not purchased document ${doc[0].name} yet`,
+    if (user[0].role !== roles.ADMIN) {
+      const filter = [
+        {
+          docId,
+          userId,
+        },
+      ];
+      const options = {
+        searchType: 'EXACTLY',
       };
+      const purchased = await docModel.getPurchased(filter, options);
+
+      if (!purchased || !purchased.length) {
+        return {
+          status: 400,
+          error: `You have not purchased document ${doc[0].name} yet`,
+        };
+      }
     }
     const ext = path.extname(doc[0].path);
 
@@ -576,7 +584,7 @@ async function approveDocument(docId, userId) {
         error: 'User not found',
       };
     }
-    if (user[0].role !== 'admin') {
+    if (user[0].role !== roles.ADMIN) {
       return {
         status: 403,
         error: 'Forbidden',

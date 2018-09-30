@@ -4,6 +4,7 @@ import logger from '../libs/logger';
 import { dataValidator } from '../libs/ajv';
 import { exception } from '../constant/error';
 import rabbitSender from '../../rabbit/sender';
+import * as roles from '../constant/roles';
 
 const subModel = new Subject;
 const createSchema = 'http://dethithpt.com/subject-create-schema#';
@@ -98,7 +99,7 @@ async function updateSubject(id, body) {
       };
     }
 
-    if (existed[0].userId.toString() !== userId && user[0].role !== 'admin') {
+    if (existed[0].userId.toString() !== userId && user[0].role !== roles.ADMIN) {
       return {
         status: 403,
         error: 'Forbidden',
@@ -147,7 +148,7 @@ async function deleteSubjectById(id, userId) {
         error: 'User id does not exists',
       };
     }
-    if (result[0].userId.toString() !== userId && user[0].role !== 'admin') {
+    if (result[0].userId.toString() !== userId && user[0].role !== roles.ADMIN) {
       return {
         status: 403,
         error: 'Forbidden',
