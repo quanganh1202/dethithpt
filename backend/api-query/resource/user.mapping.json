@@ -82,6 +82,16 @@
             }
           }
         },
+        "class": {
+          "type": "text",
+          "analyzer": "autocomplete",
+          "search_analyzer": "standard",
+          "fields": {
+            "raw": {
+              "type": "keyword"
+            }
+          }
+        },
         "level": {
           "type": "text",
           "analyzer": "autocomplete",
@@ -128,8 +138,24 @@
         "status": {
           "type": "text"
         },
+        "note1": {
+          "type": "text",
+          "analyzer": "autocomplete",
+          "search_analyzer": "standard"
+        },
+        "note2": {
+          "type": "text",
+          "analyzer": "autocomplete",
+          "search_analyzer": "standard"
+        },
         "role": {
           "type": "text"
+        },
+        "blockTo": {
+          "type": "date"
+        },
+        "blockFrom": {
+          "type": "date"
         },
         "createdAt": {
         	"type": "date"
