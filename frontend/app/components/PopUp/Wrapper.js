@@ -11,14 +11,16 @@ const Wrapper = styled.div`
   display: ${(props) => props.show ? 'flex' : 'none'};
   align-items: center;
   justify-content: center;
+  background-color: rgba(0, 0, 0, .80); 
+
   .popup-body {
     position: relative;
+    box-shadow: -50px 0 200px -50px #504bff, 50px 0 200px -50px #4cfa63;
   }
   .popup-content {
     background-color: white;
     width: ${(props) => props.width || '750px'};
     z-index: 10;
-    border: 2px solid black;
     max-height: calc(100vh - 100px);
     overflow: auto;
   }
@@ -27,8 +29,8 @@ const Wrapper = styled.div`
     border-radius: 50%;
     position: absolute;
     top: -20px;
-    right: 0;
-    color: red;
+    right: -20px;
+    color: #555555;
     z-index: 11;
     font-size: 40px;
     cursor: pointer;
