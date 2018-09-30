@@ -72,6 +72,9 @@ import saga from './saga';
 import CustomSelect from './CustomSelect';
 
 library.add(faFolder, faCog, faCloudDownloadAlt, faCaretDown);
+const optionYear = Array(21)
+  .fill((new Date()).getFullYear() - 20)
+  .map((y, idx) => ({ value: y + idx, label: y + idx }));
 
 const Wrapper = styled.div`
   .rct-select-input.form-control-sm {
@@ -706,9 +709,7 @@ export class Documents extends React.PureComponent {
                           selectName="yearSchools"
                           multiple
                           scope="col"
-                          options={Array(21)
-                            .fill((new Date()).getFullYear() - 20)
-                            .map((y, idx) => ({ value: y + idx, label: y + idx }))}
+                          options={optionYear}
                           onSelect={this.onSelectFilter}
                           value={this.state.filters.yearSchools || ''}
                         >
