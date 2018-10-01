@@ -85,6 +85,7 @@ async function uploadDocument(body, file) {
       body.priority = 0;
     }
     const queryBody = Object.assign({}, body);
+    queryBody.userRole = user[0].role;
     if (cateIds) {
       const cateModel = new Category();
       const promises = cateIds.split(',').map(cateId => cateModel.getCategoryById(cateId));
@@ -579,6 +580,20 @@ async function downloadDocument(docId, userId) {
       }
     }
     const ext = path.extname(doc[0].path);
+    const queryBody = {
+      docName: doc[0].name,
+      docId,
+      userName: user[0].name,
+      userId,
+      userEmail: user[0].email,
+    };
+    const serverNotify = await rabbitSender('download.create', { body: queryBody });
+    if (serverNotify.error) {
+      return {
+        status: serverNotify.statusCode || 500,
+        error: `[Query] ${serverNotify.error}`,
+      };
+    }
 
     return {
       status: 200,

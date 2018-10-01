@@ -142,10 +142,23 @@
         "userEmail": {
           "type": "keyword"
         },
+        "userRole": {
+          "type": "text",
+          "analyzer": "autocomplete",
+          "search_analyzer": "standard",
+          "fields": {
+            "raw": {
+              "type": "keyword"
+            }
+          }
+        },
         "totalPages": {
           "type": "integer"
         },
         "view": {
+          "type": "integer"
+        },
+        "downloaded": {
           "type": "integer"
         },
         "note": {

@@ -1,0 +1,22 @@
+{
+  "$id": "http://dethithpt.com/comment-create-schema#",
+  "title": "Comment",
+  "description": "Comment schema validation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["userId", "docId", "content"],
+  "properties": {
+    "userId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "docId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "content": {
+      "type": "string",
+      "maxLength": 255
+    }
+  }
+}

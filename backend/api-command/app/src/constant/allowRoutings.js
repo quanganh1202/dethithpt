@@ -22,4 +22,8 @@ export default [
   'news.delete',
   'purchase.create',
   'tag.update',
+  'comment.create',
+  'comment.update',
+  'comment.delete',
+  'download.create',
 ];
