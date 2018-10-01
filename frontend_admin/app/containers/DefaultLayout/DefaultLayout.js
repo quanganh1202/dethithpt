@@ -23,6 +23,7 @@ import DefaultFooter from './DefaultFooter';
 import DefaultHeader from './DefaultHeader';
 
 import User from 'containers/User/Loadable';
+import UserEdit from 'containers/UserEdit/Loadable';
 import Document from 'containers/Documents/Loadable';
 import DocumentEdit from 'containers/DocumentEdit/Loadable';
 import Category from 'containers/Category/Loadable';
@@ -68,6 +69,7 @@ class DefaultLayout extends Component {
               {/* <Route path="/" exact name="Home" component={() => <div>abc</div>} /> */}
               <Route path="/dashboard" exact name="Dashboard" component={() => <div>Dashboard</div>} />
               <Route path="/users" exact name="User" component={User} />
+              <Route path="/users/:id" exact name="Edit user" component={UserEdit} />
               <Route path="/documents" exact name="Document" component={Document} />
               <Route path="/documents/:id" exact name="Edit document" component={DocumentEdit} />
               <Route path="/categories" exact name="Category" component={Category} />
