@@ -8,7 +8,7 @@ const UserDashboard = styled.div`
       text-decoration: none;
     }
     p {
-      font-size: 0.9em;
+      font-size: 0.8em;
       margin: 0;
       &.user-payment {
         text-align: left;

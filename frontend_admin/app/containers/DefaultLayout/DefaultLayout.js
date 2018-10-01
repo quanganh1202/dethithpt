@@ -39,6 +39,8 @@ import SubjectEdit from 'containers/SubjectEdit/Loadable';
 // import SchoolCreate from 'containers/SchoolCreate/Loadable';
 import Collection from 'containers/Collection/Loadable';
 import CollectionCreate from 'containers/CollectionCreate/Loadable';
+import News from 'containers/News/Loadable';
+import NewsCreate from 'containers/NewsCreate/Loadable';
 import { getUser, setToken } from 'services/auth';
 
 class DefaultLayout extends Component {
@@ -85,6 +87,8 @@ class DefaultLayout extends Component {
               <Route path="/schools/create" exact name="Create school" component={SchoolCreate} /> */}
               <Route path="/collections" exact name="Collection" component={Collection} />
               <Route path="/collections/create" exact name="Create collection" component={CollectionCreate} />
+              <Route path="/news" exact name="News" component={News} />
+              <Route path="/news/create" exact name="Create news" component={NewsCreate} />
               <Redirect from="/" to="/dashboard" />
             </Switch>
           </main>

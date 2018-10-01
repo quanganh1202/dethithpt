@@ -23,6 +23,10 @@ import {
   GET_COLLECTION_LIST_SUCCESS,
   GET_TAGS_REQUEST,
   GET_TAGS_SUCCESS,
+  REQUEST_DOWNLOAD,
+  REQUEST_PURCHASE,
+  REMOVE_FILE_SAVE,
+  REMOVE_MESSAGE,
 } from './constants';
 import { setToken, mappingUser } from 'services/auth';
 
@@ -44,6 +48,8 @@ export const initialState = fromJS({
   categories: [],
   collections: [],
   tags: [],
+  file: null,
+  message: '',
 });
 
 function homeReducer(state = initialState, action) {
@@ -103,6 +109,22 @@ function homeReducer(state = initialState, action) {
       return state
         .set('loading', false)
         .set('tags', fromJS(action.tags));
+    case REQUEST_DOWNLOAD.REQUEST:
+      return state.set('loading', true);
+    case REQUEST_DOWNLOAD.SUCCESS:
+      return state.set('loading', false).set('file', action.file);
+    case REQUEST_DOWNLOAD.FAILURE:
+      return state.set('loading', false).set('message', action.message);
+    case REQUEST_PURCHASE.REQUEST:
+      return state.set('loading', true);
+    case REQUEST_PURCHASE.SUCCESS:
+      return state.set('loading', false);
+    case REQUEST_PURCHASE.FAILURE:
+      return state.set('loading', false).set('message', action.message);
+    case REMOVE_FILE_SAVE:
+      return state.set('file', null);
+    case REMOVE_MESSAGE:
+      return state.set('message', '');
     default:
       return state;
   }

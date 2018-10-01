@@ -11,6 +11,8 @@ import {
   GET_CATE_LIST_REQUEST,
   GET_COLLECTION_LIST_REQUEST,
   GET_TAGS_REQUEST,
+  REQUEST_DOWNLOAD,
+  REQUEST_PURCHASE,
 } from './constants';
 import {
   loginSuccess,
@@ -20,7 +22,12 @@ import {
   getCategoriesSuccess,
   getCollectionsSuccess,
   getTagsSuccess,
+  requestDownloadSuccess,
+  requestDownloadFailure,
+  requestPurchase,
+  requestPurchaseFailure,
 } from './actions';
+import { getToken } from 'services/auth';
 
 const root = '/api';
 /**
@@ -108,6 +115,55 @@ export function* getTagsHandler() {
 }
 
 /**
+ * Request download document
+ */
+export function* requestDownloadHandler({ id }) {
+  const url = `${root}/download/${id}`;
+  const options = {
+    headers: {
+      ['x-access-token']: getToken(),
+    },
+  }
+
+  try {
+    yield call(axios.post, url, {}, options);
+    const resp = yield call(axios.post, `${url}?download`, {}, { ...options, responseType: 'blob' });
+    yield put(requestDownloadSuccess(resp.data));
+  } catch (err) {
+    const errorMessage = _.get(err, 'response.data.error', 'Unknown server error');
+    if (errorMessage.includes('You have not purchased document')) {
+      yield put(requestPurchase(id, true));
+    } else {
+      yield put(requestDownloadFailure('unknown_error_download'));
+    }
+  }
+}
+
+export function* purchaseDocumentHandler({ id, download }) {
+  const url = `${root}/documents/${id}/purchase`;
+  const options = {
+    headers: {
+      ['x-access-token']: getToken(),
+    }
+  }
+
+  try {
+    yield call(axios.post, url, {}, options);
+    if (download) {
+      const downloadUrl = `${root}/download/${id}?download`
+      const downloadRes = yield call(axios.post, downloadUrl, {}, { ...options, responseType: 'blob', });
+      yield put(requestDownloadSuccess(downloadRes.data));
+    }
+  } catch (err) {
+    if (_.get(err, 'response.data.error', 'Unknown server error') === 'Not enough money') {
+      yield put(requestPurchaseFailure('not_enough_money'));
+    } else {
+      yield put(requestDownloadFailure('unknown_error_download'));
+    }
+  }
+}
+
+/**
  * Root saga manages watcher lifecycle
  */
 export default function* homeSaga() {
@@ -117,4 +173,6 @@ export default function* homeSaga() {
   yield takeLatest(GET_CATE_LIST_REQUEST, getCategoriesHandler);
   yield takeLatest(GET_COLLECTION_LIST_REQUEST, getCollectionsHandler);
   yield takeLatest(GET_TAGS_REQUEST, getTagsHandler);
+  yield takeLatest(REQUEST_DOWNLOAD.REQUEST, requestDownloadHandler);
+  yield takeLatest(REQUEST_PURCHASE.REQUEST, purchaseDocumentHandler);
 }

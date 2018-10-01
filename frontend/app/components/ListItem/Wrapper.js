@@ -14,11 +14,15 @@ const Wrapper = styled.li`
   }
 
   .doc-title {
+    margin-bottom: 5px;
+    > span.document-icon {
+      margin-right: 5px;
+    }
     > span:first-child {
       color: #295496;
       font-weight: bold;
     }
-    > .title-icon {
+    > span > .title-icon {
       margin-left: 5px;
       color: orange;
     }
@@ -58,7 +62,7 @@ const Wrapper = styled.li`
       > p {
         margin: 15px 0 0;
         float: left;
-        padding: 0 5px;
+        padding: 0 10px 0 5px;
         &:first-child {
           padding-left: 0;
         }

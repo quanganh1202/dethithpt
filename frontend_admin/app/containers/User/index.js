@@ -39,6 +39,8 @@ import { HeadSort, PaginationTable, HeadFilter } from 'components/Table';
 import deleteIcon from 'assets/img/icons/delete.png';
 import editIcon from 'assets/img/icons/edit.png';
 import checkIcon from 'assets/img/icons/check.png';
+import noteIcon from 'assets/img/icons/icon.png';
+import tranIcon from 'assets/img/icons/tran.png';
 
 import { EditorState, convertToRaw } from 'draft-js';
 import { Editor } from 'react-draft-wysiwyg';
@@ -77,6 +79,10 @@ const Wrapper = styled.div`
 
   .rdw-editor-toolbar {
     border: 1px solid #ccc;
+  }
+
+  .actions-col {
+    min-width: 80px;
   }
 `;
 
@@ -215,25 +221,25 @@ export class User extends React.PureComponent {
           </div>
           <div>
             <button
-              style={{ float: 'left', padding: '0' }}
+              style={{ float: 'left', padding: '0', marginRight: '5px' }}
               onClick={() => {}}
               title="Thêm, Sửa cột ghi chú"
             >
-              <img src="" height="15px" alt="icon" />
-            </button>
-            <button
-              style={{ float: 'left', padding: '0' }}
-              onClick={() => {}}
-              title="Thêm sửa cột ghi chú 2"
-            >
-              <img src="" height="15px" alt="icon" />
+              <img src={noteIcon} height="15px" alt="icon" />
             </button>
             <button
               style={{ float: 'left', padding: '0', marginRight: '5px' }}
               onClick={() => {}}
+              title="Thêm sửa cột ghi chú 2"
+            >
+              <img src={noteIcon} height="15px" alt="icon" />
+            </button>
+            <button
+              style={{ float: 'left', padding: '0' }}
+              onClick={() => {}}
               title="Xem lịch sử hoạt động thành viên"
             >
-              <img src="" height="15px" alt="icon" />
+              <img src={tranIcon} height="15px" alt="icon" />
             </button>
           </div>
         </td>
