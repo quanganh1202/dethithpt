@@ -123,3 +123,12 @@ USE dethithpt;
     `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `id_UNIQUE` (`id` ASC));
+
+  CREATE TABLE IF NOT EXISTS `dethithpt`.`tbComment` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `docId` INT NOT NULL,
+    `content` LONGTEXT NOT NULL,
+    `userId` INT NOT NULL,
+    `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `id_UNIQUE` (`id` ASC));

@@ -158,9 +158,6 @@
         "view": {
           "type": "integer"
         },
-        "downloaded": {
-          "type": "integer"
-        },
         "note": {
           "type": "text",
           "analyzer": "autocomplete",

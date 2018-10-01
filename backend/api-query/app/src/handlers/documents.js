@@ -18,7 +18,6 @@ import {
   updateCollectionView,
   updateCateView,
   updateSubjectView,
-  updateDocumentDownloaded,
 } from '../libs/esHelper';
 const documentType = process.env.ES_TYPE_DOCUMENT || 'document';
 const index = process.env.ES_INDEX_DOCUMENT || 'documents';
@@ -299,9 +298,12 @@ export default {
     }
   },
 
-  download: async (docId) => {
+  download: async (id, body) => {
     try {
-      await updateDocumentDownloaded(docId, constant.INCREASE);
+      const downloadsType = process.env.ES_TYPE_DOWNLOAD || 'download';
+      const downloadsIndex = process.env.ES_INDEX_DOWNLOAD || 'downloads';
+      const downloadModel = new ES(downloadsIndex, downloadsType);
+      await downloadModel.insert(body);
 
       return {
         statusCode: 200,

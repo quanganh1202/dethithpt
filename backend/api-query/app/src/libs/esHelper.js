@@ -137,20 +137,6 @@ const updateNumDocRefToCollection = (collections, type) => {
   return promiseUpdateCates;
 };
 
-const updateDocumentDownloaded = (documentId, type) => {
-  const docModel =new ES('documents', 'document');
-  const operation = type === constants.INCREASE ? '++' : '--';
-
-  return docModel.updateByScript(
-    documentId,
-    {
-      source: `ctx._source.downloaded${operation};`,
-      lang: 'painless',
-    }
-  );
-};
-
-
 const updateDocumentView = (documentId, type) => {
   const docModel =new ES('documents', 'document');
   const operation = type === constants.INCREASE ? '++' : '--';
@@ -317,6 +303,5 @@ export {
   updateCollectionView,
   updateCateView,
   updateClassView,
-  updateDocumentDownloaded,
   updateSubjectView,
 };

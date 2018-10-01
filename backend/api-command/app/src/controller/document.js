@@ -580,7 +580,14 @@ async function downloadDocument(docId, userId) {
       }
     }
     const ext = path.extname(doc[0].path);
-    const serverNotify = await rabbitSender('document.download', { id: docId });
+    const queryBody = {
+      docName: doc[0].name,
+      docId,
+      userName: user[0].name,
+      userId,
+      userEmail: user[0].email,
+    };
+    const serverNotify = await rabbitSender('document.download', { body: queryBody });
     if (serverNotify.error) {
       return {
         status: serverNotify.statusCode || 500,
