@@ -7,7 +7,7 @@ const Wrapper = styled.div`
   }
 
   & .title {
-    font-size: 0.9em;
+    font-size: 0.8em;
     padding: 5px 0;
     margin: 0;
     text-align: center;
@@ -16,7 +16,7 @@ const Wrapper = styled.div`
   }
 
   & .content {
-    font-size: 0.9em;
+    font-size: 0.8em;
     padding: 10px 0;
     min-height: 50px;
 
@@ -46,6 +46,9 @@ const Wrapper = styled.div`
 
       :hover {
         text-decoration: underline;
+      }
+      &.active-link {
+        font-weight: bold;
       }
     }
   }

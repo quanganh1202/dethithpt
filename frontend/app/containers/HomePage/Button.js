@@ -4,7 +4,7 @@ const Button = styled.button`
   background-color: ${(props) => props.color || 'blue'};
   color: white;
   border-radius: 5px;
-  font-size: 0.9em;
+  font-size: 0.8em;
   padding: 5px;
   margin: 5px;
   cursor: pointer;

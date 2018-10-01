@@ -29,12 +29,14 @@ import List from 'components/List';
 import ListItem from 'components/ListItem';
 import LoadingIndicator from 'components/LoadingIndicator';
 import { getFilterData, getDocumentsList } from './actions';
+import { requestDownload, removeFileSave, removeMessage } from 'containers/HomePage/actions';
 import {
   makeSelectDocument,
   makeSelectLoading,
   makeSelectDocuments,
   makeSelectFilterData,
 } from './selectors';
+import { makeSelectFile, makeSelectMessage } from 'containers/HomePage/selectors'
 import reducer from './reducer';
 import saga from './saga';
 import GreyTitle from 'containers/HomePage/GreyTitle';
@@ -42,13 +44,12 @@ import Wrapper from './Wrapper';
 
 library.add(faMoneyBillAlt, faFolder, faCog, faCloudDownloadAlt, faCaretDown);
 
-const numberWithCommas = (x) => {
-  var parts = x.toString().split(".");
-  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  return parts.join(".");
-}
-
 const itemsPerLoad = 10;
+
+const errorMapping = {
+  unknown_error_download: 'Tài liệu không còn tồn tại hoặc có lỗi, vui lòng báo lại cho admin!',
+  not_enough_money: 'Tài khoản không còn đủ tiền để thanh toán, vui lòng nạp thêm!',
+}
 
 /* eslint-disable react/prefer-stateless-function */
 export class Category extends React.PureComponent {
@@ -68,6 +69,7 @@ export class Category extends React.PureComponent {
   }
 
   componentWillMount() {
+    window.scrollTo(0, 0);
     // get filter data
     this.props.getFilterData();
 
@@ -83,6 +85,7 @@ export class Category extends React.PureComponent {
 
   componentWillReceiveProps(nextProps) {
     if (this.props.match.params.id !== nextProps.match.params.id) {
+      window.scrollTo(0, 0);
       const queries = {
         sort: 'createdAt.desc',
         size: itemsPerLoad,
@@ -98,6 +101,16 @@ export class Category extends React.PureComponent {
         },
         resetKey: Math.random(),
       });
+    }
+    if (!this.props.file && nextProps.file) {
+      const blob = new Blob([nextProps.file]);
+      FileSaver.saveAs(blob, _.get(this.state, 'downloadingFile', 'download'));
+      this.setState({ downloadingFile: '' });
+      this.props.removeFileSave();
+    }
+    if (!this.props.message && nextProps.message) {
+      alert(errorMapping[nextProps.message] || 'Có lỗi xảy ra, vui lòng báo lại cho admin!');
+      this.props.removeMessage();
     }
   }
 
@@ -263,6 +276,10 @@ export class Category extends React.PureComponent {
                   component={ListItem}
                   loadMore={this.props.documents.data.length < this.props.documents.total}
                   onLoadMore={this.loadMoreDocs}
+                  onDownload={(id, name) => {
+                    this.setState({ downloadingFile: name });
+                    this.props.requestDownload(id);
+                  }}
                 />
               </div>)
           }
@@ -285,6 +302,9 @@ export function mapDispatchToProps(dispatch) {
   return {
     getFilterData: () => dispatch(getFilterData()),
     getDocumentsList: (query, clear) => dispatch(getDocumentsList(query, clear)),
+    requestDownload: (id) => dispatch(requestDownload(id)),
+    removeFileSave: () => dispatch(removeFileSave()),
+    removeMessage: () => dispatch(removeMessage()),
   };
 }
 
@@ -293,6 +313,8 @@ const mapStateToProps = createStructuredSelector({
   documents: makeSelectDocuments(),
   filterData: makeSelectFilterData(),
   loading: makeSelectLoading(),
+  file: makeSelectFile(),
+  message: makeSelectMessage(),
 });
 
 const withConnect = connect(
