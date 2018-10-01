@@ -118,6 +118,7 @@ USE dethithpt;
     `text` LONGTEXT NOT NULL,
     `priority` INT(1) NOT NULL DEFAULT '0',
     `active` INT(1) NOT NULL DEFAULT '1',
+    `type` VARCHAR(255) NOT NULL,
     `userId` VARCHAR(255) NOT NULL,
     `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),

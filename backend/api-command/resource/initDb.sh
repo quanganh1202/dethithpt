@@ -130,6 +130,7 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     priority INT(1) NOT NULL DEFAULT '0',
     active INT(1) NOT NULL DEFAULT '1',
     userId VARCHAR(255) NOT NULL,
+    type VARCHAR(255) NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE INDEX id_UNIQUE (id ASC));
