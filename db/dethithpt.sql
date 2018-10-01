@@ -118,7 +118,18 @@ USE dethithpt;
     `text` LONGTEXT NOT NULL,
     `priority` INT(1) NOT NULL DEFAULT '0',
     `active` INT(1) NOT NULL DEFAULT '1',
+    `type` VARCHAR(255) NOT NULL,
     `userId` VARCHAR(255) NOT NULL,
     `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `id_UNIQUE` (`id` ASC));
+
+  CREATE TABLE IF NOT EXISTS `dethithpt`.`tbComment` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `docId` INT NOT NULL,
+    `content` LONGTEXT NOT NULL,
+    `userId` INT NOT NULL,
+    `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updatedAt` TIMESTAMP NULL,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `id_UNIQUE` (`id` ASC));
