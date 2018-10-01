@@ -36,6 +36,7 @@ import {
 import moment from 'moment';
 import styled from 'styled-components';
 import { HeadSort, PaginationTable, HeadFilter } from 'components/Table';
+import LoadingIndicator from 'components/LoadingIndicator';
 import deleteIcon from 'assets/img/icons/delete.png';
 import editIcon from 'assets/img/icons/edit.png';
 import checkIcon from 'assets/img/icons/check.png';
@@ -86,6 +87,18 @@ const Wrapper = styled.div`
   }
 `;
 
+const NewLoadingIndicator = styled.div`
+  display: ${props => (props.active ? 'unset' : 'none')};
+  position: absolute;
+  right: -30px;
+  top: 3px;
+  & div {
+    width: 20px !important;
+    height: 20px;
+    margin: 0;
+  }
+`;
+
 function validateEmail(email) {
   const re = /\S+@\S+\.\S+/;
   return re.test(String(email).toLowerCase());
@@ -102,7 +115,7 @@ export class User extends React.PureComponent {
       filters: {
         level: [],
       },
-      quickDate: moment(),
+      quickDate: '',
     };
     this.size = 10;
     this.maxPages = 11;
@@ -112,7 +125,6 @@ export class User extends React.PureComponent {
     this.onSelectPage = this.onSelectPage.bind(this);
     this.handleChangeFile = this.handleChangeFile.bind(this);
     this.handleOnChange = this.handleOnChange.bind(this);
-    this.handleChangeValue = this.handleChangeValue.bind(this);
     this.onEditorStateChange = this.onEditorStateChange.bind(this);
     this.quickSubmit = this.quickSubmit.bind(this);
     this.handleSelectUsers = this.handleSelectUsers.bind(this);
@@ -317,7 +329,11 @@ export class User extends React.PureComponent {
       const validatedEmail = content
         .split('\n')
         .filter(email => validateEmail(email));
-      this.setState({ quickActive: true, quickList: validatedEmail });
+      this.setState({
+        quickActive: true,
+        quickList: validatedEmail,
+        successCount: false,
+      });
     };
     fileReader.readAsText(file);
   }
@@ -325,12 +341,6 @@ export class User extends React.PureComponent {
   handleOnChange(e) {
     this.setState({
       quickActive: e.target.value,
-    });
-  }
-
-  handleChangeValue(e) {
-    this.setState({
-      quickContent: e.target.value,
     });
   }
 
@@ -349,30 +359,63 @@ export class User extends React.PureComponent {
           'x-access-token': getToken(),
         },
       };
-      if (quickActive === '3') {
-        axios
-          .put(
-            '/api/users/:userId/block',
-            {
-              status: '3',
-              blockTo: '10-10-2018',
-              blockFrom: '01-10-2017',
-            },
-            options,
-          )
-          .then(res => {
-            console.log(res, 123);
-          });
-      }
-      console.log(
-        quickActive,
-        quickContent,
-        quickList,
-        quickMoney,
-        quickBlock,
-        moment(quickDate).format('DD/MM/YYYY'),
-        123,
-      );
+      const requests = [];
+      quickList.forEach(email => {
+        const content = { email };
+        let url;
+        let method;
+        switch (quickActive) {
+          case '3':
+            content.status = quickBlock ? '3' : '1';
+            if (quickDate) {
+              content.blockFrom = moment(quickDate).format('DD/MM/YYYY');
+            }
+            if (quickMoney) {
+              content.blockMoney = quickMoney;
+            }
+            url = 'block';
+            method = axios.put;
+
+            break;
+          case '1':
+          case '2':
+            content.money = quickActive === 1 ? 0 : quickMoney || 0;
+            url = 'bonus';
+            method = axios.post;
+            break;
+
+          default:
+            break;
+        }
+
+        requests.push(
+          method(`/api/users/${url}/1`, content, options).catch(() => {}),
+        );
+      });
+
+      axios.all(requests).then(res => {
+        const response = res.filter(r => r && r.data.statusCode === 200);
+        document.getElementById('exampleFile').value = '';
+        this.setState({
+          quickActive: false,
+          quickList: [],
+          successCount: response ? response.length : 0,
+          inProgress: false,
+        });
+      });
+
+      this.setState({
+        inProgress: true,
+      });
+      // console.log(
+      //   quickActive,
+      //   quickContent,
+      //   quickList,
+      //   quickMoney,
+      //   quickBlock,
+      //   moment(quickDate).format('DD/MM/YYYY'),
+      //   123,
+      // );
     }
   }
 
@@ -456,13 +499,22 @@ export class User extends React.PureComponent {
                       <FormText color="muted">
                         Tải lên danh sách các email cần cập nhật.
                       </FormText>
+                      {this.state.successCount ? (
+                        <div style={{ color: 'green' }}>
+                          Đã thực hiện cho{' '}
+                          <b style={{ color: 'red' }}>
+                            {this.state.successCount}
+                          </b>{' '}
+                          thành viên
+                        </div>
+                      ) : null}
                     </Col>
                   </Row>
                   {this.state.quickActive ? (
                     <div>
                       <Row>
                         <Label md={2}>Lựa chọn:</Label>
-                        <Col md="10">
+                        <Col md="10" style={{ marginBottom: '10px' }}>
                           {[
                             {
                               text: 'Trừ hết tiền',
@@ -502,14 +554,18 @@ export class User extends React.PureComponent {
                       <Row>
                         <Label sm={2}> </Label>
                         <Col sm={10}>
-                          {() => {
+                          {(() => {
                             switch (this.state.quickActive) {
                               case '2':
                                 return (
                                   <input
                                     type="number"
                                     className="rdw-editor-main"
-                                    onChange={this.handleChangeValue}
+                                    onChange={e =>
+                                      this.setState({
+                                        quickMoney: e.target.value,
+                                      })
+                                    }
                                   />
                                 );
                               case '4':
@@ -581,7 +637,7 @@ export class User extends React.PureComponent {
                               default:
                                 return null;
                             }
-                          }}
+                          })()}
                         </Col>
                       </Row>
                       <Row>
@@ -591,10 +647,17 @@ export class User extends React.PureComponent {
                             block
                             color="success"
                             size="sm"
-                            onClick={this.quickSubmit}
-                            style={{ marginTop: '15px' }}
+                            onClick={
+                              this.state.inProgress
+                                ? () => {}
+                                : this.quickSubmit
+                            }
+                            style={{ marginTop: '10px', position: 'relative' }}
                           >
                             Thực hiện
+                            <NewLoadingIndicator active={this.state.inProgress}>
+                              <LoadingIndicator />
+                            </NewLoadingIndicator>
                           </Button>
                         </Col>
                       </Row>

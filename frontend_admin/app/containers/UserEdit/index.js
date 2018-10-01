@@ -511,22 +511,22 @@ export class UserEdit extends React.PureComponent {
                         <Col sm={5}>
                           <Input
                             type="select"
-                            name="group"
+                            name="role"
                             options={[
                               { label: 'Thành viên', value: 'member' },
                               { label: 'Admin', value: 'admin' },
                             ]}
-                            value={this.state.formData.get('group', '')}
+                            value={this.state.formData.get('role', '')}
                             placeholder="-- Chọn nhóm thành viên --"
                             onChange={this.onChange}
                             required
-                            className={this.state.error.group && 'is-invalid'}
+                            className={this.state.error.role && 'is-invalid'}
                           >
                             <option value="member">Thành viên</option>
                             <option value="admin">Admin</option>
                           </Input>
                           <div className="invalid-feedback">
-                            {this.state.error.group}
+                            {this.state.error.role}
                           </div>
                         </Col>
                       </FormGroup>
@@ -544,7 +544,7 @@ export class UserEdit extends React.PureComponent {
                             name="money"
                             id="money"
                             onChange={this.onChange}
-                            value={this.state.formData.get('money', '')}
+                            value={this.state.formData.get('money', 0)}
                             className={this.state.error.money && 'is-invalid'}
                           />
                           <div className="invalid-feedback">
