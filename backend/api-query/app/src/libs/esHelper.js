@@ -178,7 +178,7 @@ const updateTagViewById = (tagId, type) => {
 
 const updateMoneyUserById = (userId, money, type) => {
   const tagModel =new ES('users', 'user');
-  const operation = type === constants.RECHARGE ? '+=' : '-=';
+  const operation = type === constants.RECHARGE || constants.BONUS ? '+=' : '-=';
 
   return tagModel.updateByScript(
     userId,
