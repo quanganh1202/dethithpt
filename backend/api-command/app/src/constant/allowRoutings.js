@@ -2,7 +2,6 @@ export default [
   'document.create',
   'document.update',
   'document.delete',
-  'document.download',
   'user.create',
   'user.update',
   'user.delete',
@@ -23,4 +22,8 @@ export default [
   'news.delete',
   'purchase.create',
   'tag.update',
+  'comment.create',
+  'comment.update',
+  'comment.delete',
+  'download.create',
 ];

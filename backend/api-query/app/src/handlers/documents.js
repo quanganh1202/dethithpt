@@ -297,20 +297,4 @@ export default {
       return handleDocumentError(error);
     }
   },
-
-  download: async (id, body) => {
-    try {
-      const downloadsType = process.env.ES_TYPE_DOWNLOAD || 'download';
-      const downloadsIndex = process.env.ES_INDEX_DOWNLOAD || 'downloads';
-      const downloadModel = new ES(downloadsIndex, downloadsType);
-      await downloadModel.insert(body);
-
-      return {
-        statusCode: 200,
-        message: 'Done',
-      };
-    } catch (error) {
-      return handleDocumentError(error);
-    }
-  },
 };

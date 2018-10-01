@@ -9,11 +9,12 @@ import user from '../src/handlers/user';
 import purchase from '../src/handlers/purchase';
 import tag from '../src/handlers/tag';
 import news from '../src/handlers/news';
+import download from '../src/handlers/download';
+import comment from '../src/handlers/comment';
 const routingKey = [
   'document.create',
   'document.update',
   'document.delete',
-  'document.download',
   'user.create',
   'user.update',
   'user.delete',
@@ -34,6 +35,10 @@ const routingKey = [
   'news.delete',
   'purchase.create',
   'tag.update',
+  'download.create',
+  'comment.create',
+  'comment.update',
+  'comment.delete',
 ];
 
 const rabbitMQConnector = () => {
@@ -96,6 +101,12 @@ const rabbitMQConnector = () => {
               break;
             case 'news':
               replyMessage = await news[actor[1]](content.id, content.body).catch(e => e);
+              break;
+            case 'download':
+              replyMessage = await download[actor[1]](content.id, content.body).catch(e => e);
+              break;
+            case 'comment':
+              replyMessage = await comment[actor[1]](content.id, content.body).catch(e => e);
               break;
             default:
               replyMessage = {

@@ -130,5 +130,6 @@ USE dethithpt;
     `content` LONGTEXT NOT NULL,
     `userId` INT NOT NULL,
     `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updatedAt` TIMESTAMP NULL,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `id_UNIQUE` (`id` ASC));

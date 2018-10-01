@@ -587,7 +587,7 @@ async function downloadDocument(docId, userId) {
       userId,
       userEmail: user[0].email,
     };
-    const serverNotify = await rabbitSender('document.download', { body: queryBody });
+    const serverNotify = await rabbitSender('download.create', { body: queryBody });
     if (serverNotify.error) {
       return {
         status: serverNotify.statusCode || 500,
