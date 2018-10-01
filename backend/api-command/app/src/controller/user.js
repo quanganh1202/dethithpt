@@ -339,10 +339,22 @@ async function blockUser(id, userId, body) {
         error: 'Forbidden',
       };
     }
-    const user = await userModel.getById(id);
+    let user;
+    let uid;
+    const { email } = body;
+    if (id) {
+      user = await userModel.getById(id);
+      uid = id;
+    }
+    if (email) {
+      user = await userModel.getList([{ email }]);
+      if (user.length) {
+        uid = user[0].id;
+      }
+    }
     if (!user || !user.length) {
       return {
-        error: 'User does not exist or blocked',
+        error: `User ${email || id} does not exist or blocked`,
         status: 400,
       };
     }
@@ -362,8 +374,8 @@ async function blockUser(id, userId, body) {
       body.blockFrom = body.blockFrom ? moment(body.blockFrom).format('YYYY-MM-DDTHH:mm:ss.SSS') : moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.blockTo = moment(body.blockTo).format('YYYY-MM-DDTHH:mm:ss.SSS');
     }
-    await userModel.updateUser(id, body);
-    const serverNotify = await rabbitSender('user.update', { id, body });
+    await userModel.updateUser(uid, body);
+    const serverNotify = await rabbitSender('user.update', { id: uid, body });
     if (serverNotify.statusCode === 200) {
       return {
         status: 200,
@@ -434,4 +446,74 @@ async function recharge(userId, money) {
   }
 }
 
-export { recharge, auth, addUser, getAllUsers, deleteUser, updateUser, blockUser };
+async function bonus(userId, id, money, email) {
+  try {
+    const actor = await checkUserActivation(userId);
+    if (actor.error) return actor;
+    if (actor[0].role !== roles.ADMIN) return {
+      status: 403,
+      error: '[Forbidden] Bonus feature only available for admin',
+    };
+    let uid;
+    let user;
+    if (id) {
+      user = await userModel.getById(id);
+      uid = id;
+    }
+    if (email) {
+      user = await userModel.getList([{ email }]);
+      if (user.length) {
+        uid = user[0].id;
+      }
+    }
+    if (!user || !user.length) {
+      return {
+        status: 400,
+        error: `User ${email || id} does not existed`,
+      };
+    }
+    const moneyAfterRecharge = parseInt(money) + parseInt(user[0].money);
+    const docModel = new Document();
+    const res = await Promise.all([
+      docModel.purchase({
+        userId: uid,
+        action: action.BONUS,
+        money,
+      }),
+      userModel.updateUser(userId, { money: moneyAfterRecharge }),
+    ]);
+
+    const serverNotify = await rabbitSender('purchase.create', {
+      id: res[0].insertId,
+      body: {
+        userId: uid,
+        userName: user[0].name,
+        money,
+        action: action.BONUS,
+      },
+    });
+
+    if (serverNotify.statusCode === 200) {
+      return {
+        status: 200,
+        message: `Your money: ${moneyAfterRecharge}`,
+      };
+    } else {
+      // HERE IS CASE API QUERY iS NOT RESOLVED
+      // TODO: ROLLBACK HERE
+      logger.error(`[PURCHASE]: ${serverNotify.error}`);
+
+      return {
+        status: serverNotify.statusCode,
+        message: serverNotify.error,
+      };
+    }
+
+  } catch (ex) {
+    logger.error(ex.error || ex.message || 'Unexpected error when recharge money');
+
+    return exception;
+  }
+}
+
+export { recharge, auth, addUser, getAllUsers, deleteUser, updateUser, blockUser, bonus };

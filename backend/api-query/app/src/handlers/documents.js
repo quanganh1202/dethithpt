@@ -182,6 +182,7 @@ export default {
       const { cates, tags, collections } = body;
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.createdAt = now;
+      body.downloaded = 0;
       await elasticsearch.insert(body, docId);
       const promise = [insertTag(tags)];
       if (cates && cates.length) {

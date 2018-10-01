@@ -21,25 +21,13 @@
     }
   },
   "mappings": {
-    "news": {
+    "download": {
       "dynamic": "strict",
       "properties": {
-        "name": {
-          "type": "text",
-          "analyzer": "autocomplete",
-          "search_analyzer": "standard",
-          "fields": {
-            "raw": {
-              "type": "keyword"
-            }
-          }
+        "docId": {
+          "type": "keyword"
         },
-        "text": {
-          "type": "text",
-          "analyzer": "autocomplete",
-          "search_analyzer": "standard"
-        },
-        "type": {
+        "docName": {
           "type": "text",
           "analyzer": "autocomplete",
           "search_analyzer": "standard",
@@ -65,17 +53,8 @@
         "userEmail": {
           "type": "keyword"
         },
-        "priority": {
-          "type": "integer"
-        },
-        "active": {
-          "type": "integer"
-        },
         "createdAt": {
-        	"type": "date"
-        },
-        "updatedAt": {
-        	"type": "date"
+          "type": "date"
         }
       }
     }
