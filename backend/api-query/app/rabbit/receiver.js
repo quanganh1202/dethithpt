@@ -8,6 +8,7 @@ import _class from '../src/handlers/class';
 import user from '../src/handlers/user';
 import purchase from '../src/handlers/purchase';
 import tag from '../src/handlers/tag';
+import news from '../src/handlers/news';
 const routingKey = [
   'document.create',
   'document.update',
@@ -27,6 +28,9 @@ const routingKey = [
   'subject.create',
   'subject.update',
   'subject.delete',
+  'news.create',
+  'news.update',
+  'news.delete',
   'purchase.create',
   'tag.update',
 ];
@@ -88,6 +92,9 @@ const rabbitMQConnector = () => {
               break;
             case 'tag':
               replyMessage = await tag[actor[1]](content.id, content.body).catch(e => e);
+              break;
+            case 'news':
+              replyMessage = await news[actor[1]](content.id, content.body).catch(e => e);
               break;
             default:
               replyMessage = {

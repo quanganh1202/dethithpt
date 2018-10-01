@@ -1,4 +1,5 @@
 import fs from 'fs-extra';
+import pdfjs from 'pdfjs-dist/build/pdf';
 import path from 'path';
 import tmp from 'temporary';
 import childProcess from 'child_process';
@@ -62,18 +63,26 @@ const removeFile = async function removeFile(pathOld) {
   }
 };
 
-const preview = async function getPreview(fileName) {
+const preview = function getPreview(fileName) {
   return new Promise((resolve, reject) => {
     const dirname = path.dirname(fileName);
     const filename = path.basename(fileName, path.extname(fileName));
-    const previewFile = `${dirname}/${filename}%02d.png`;
+    const previewFile = `${dirname}/${filename}`;
     const extension = path.extname(fileName);
+    const limitTimeToLoop = process.env.LIMIT_THUMB_FILE || 30;
     if (extension === '.docx' || extension === '.doc') {
-      office2Pdf(fileName, dirname).then((pdfName) => {
-        pdf2Image(pdfName, previewFile).then(() => {
+      office2Pdf(fileName, dirname).then(async (pdfName) => {
+        const { numPages } = await pdfjs.getDocument(pdfName);
+        const timeToLoop = numPages < limitTimeToLoop ? numPages : limitTimeToLoop;
+        const promises = [];
+        for (let i = 0; i < timeToLoop; i += 1) {
+          promises.push(pdf2Image(`${pdfName}[${i}]`, `${previewFile}0${i}.png`));
+        }
+        Promise.all(promises).then(() => {
           resolve({
             statusCode: 200,
             message: 'Thumb file is created',
+            numPages,
           });
           fs.unlink(pdfName);
         }).catch(err => {
@@ -92,10 +101,24 @@ const preview = async function getPreview(fileName) {
     }
 
     if (extension === '.pdf') {
-      pdf2Image(fileName, previewFile).then(() => {
-        resolve({
-          statusCode: 200,
-          message: 'Thumb file is created',
+      pdfjs.getDocument(fileName).then(result => {
+        const { numPages } = result;
+        const timeToLoop = numPages < limitTimeToLoop ? numPages : limitTimeToLoop;
+        const promises = [];
+        for (let i = 0; i < timeToLoop; i += 1) {
+          promises.push(pdf2Image(`${fileName}[${i}]`, `${previewFile}0${i}.png`));
+        }
+        Promise.all(promises).then(async () => {
+          resolve({
+            statusCode: 200,
+            message: 'Thumb file is created',
+            numPages,
+          });
+        }).catch(err => {
+          reject({
+            statusCode: 500,
+            error: err.message || 'Create thumb file failed',
+          });
         });
       }).catch(err => {
         reject({

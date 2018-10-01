@@ -1,0 +1,30 @@
+{
+  "$id": "http://dethithpt.com/news-update-schema#",
+  "title": "News",
+  "description": "News schema validation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["userId"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "priority": {
+      "type": "string",
+      "minLength": 1
+    },
+    "active": {
+      "type": "string",
+      "minLength": 1
+    },
+    "userId": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

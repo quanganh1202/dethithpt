@@ -6,12 +6,13 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
-// import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
+import axios from 'axios';
 import { createStructuredSelector } from 'reselect';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import { isEqual } from 'lodash';
 import {
   Container,
@@ -28,6 +29,9 @@ import {
   Input,
   InputGroupAddon,
   Badge,
+  Label,
+  FormGroup,
+  FormText,
 } from 'reactstrap';
 import moment from 'moment';
 import styled from 'styled-components';
@@ -36,8 +40,14 @@ import deleteIcon from 'assets/img/icons/delete.png';
 import editIcon from 'assets/img/icons/edit.png';
 import checkIcon from 'assets/img/icons/check.png';
 
+import { EditorState, convertToRaw } from 'draft-js';
+import { Editor } from 'react-draft-wysiwyg';
+import draftToHtml from 'draftjs-to-html';
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
+
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
+import { getToken } from 'services/auth';
 import { getUsers, getDataInit } from './actions';
 import {
   makeSelectUsers,
@@ -49,8 +59,6 @@ import reducer from './reducer';
 import saga from './saga';
 import local from './newLocal.json';
 
-const itemsPerLoad = 10;
-
 const Wrapper = styled.div`
   table {
     font-size: 11px;
@@ -58,7 +66,23 @@ const Wrapper = styled.div`
       white-space: nowrap;
     }
   }
+
+  .rdw-editor-main {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    padding: 0 10px;
+  }
+
+  .rdw-editor-toolbar {
+    border: 1px solid #ccc;
+  }
 `;
+
+function validateEmail(email) {
+  var re = /\S+@\S+\.\S+/;
+  return re.test(String(email).toLowerCase());
+}
 
 /* eslint-disable react/prefer-stateless-function */
 export class User extends React.PureComponent {
@@ -66,6 +90,7 @@ export class User extends React.PureComponent {
     super();
     this.state = {
       currentPage: 1,
+      editorState: EditorState.createEmpty(),
       selectedUsers: [],
       filters: {
         level: [],
@@ -77,6 +102,11 @@ export class User extends React.PureComponent {
     this.onSearch = this.onSearch.bind(this);
     this.search = this.search.bind(this);
     this.onSelectPage = this.onSelectPage.bind(this);
+    this.handleChangeFile = this.handleChangeFile.bind(this);
+    this.handleOnChange = this.handleOnChange.bind(this);
+    this.handleChangeValue = this.handleChangeValue.bind(this);
+    this.onEditorStateChange = this.onEditorStateChange.bind(this);
+    this.quickSubmit = this.quickSubmit.bind(this);
     this.handleSelectUsers = this.handleSelectUsers.bind(this);
     this.onSelectFilter = this.onSelectFilter.bind(this);
   }
@@ -89,6 +119,14 @@ export class User extends React.PureComponent {
       sort: 'createdAt.desc',
       offset: 0,
       size: this.size,
+    });
+  }
+
+  onEditorStateChange(editorState) {
+    this.setState({
+      editorState,
+      quickContent: 
+        draftToHtml(convertToRaw(this.state.editorState.getCurrentContent()))
     });
   }
 
@@ -250,6 +288,50 @@ export class User extends React.PureComponent {
     }
   }
 
+  handleChangeFile(e) {
+    const file = e.target.files[0];
+    const fileReader = new FileReader();  
+    fileReader.onloadend = (e) => {
+      const content = fileReader.result;
+      const validatedEmail = content.split("\n").filter((email) => validateEmail(email));
+      this.setState({ quickActive: true, quickList: validatedEmail });
+    };
+    fileReader.readAsText(file);
+  }
+
+  handleOnChange(e) {
+    this.setState({
+      quickActive: e.target.value,
+    });
+  }
+
+  handleChangeValue(e) {
+    this.setState({
+      quickContent: e.target.value,
+    });
+  }
+
+  quickSubmit() {
+    const { quickActive, quickContent, quickList, quickMoney, quickBlock, quickDate } = this.state;
+    if (quickActive && quickList) {
+      const options = {
+        headers: {
+          ['x-access-token']: getToken(),
+        }
+      }
+      if (quickActive === '3') {
+        axios.put('/api/users/:userId/block', {
+          "status": "3",
+	"blockTo": "10-10-2018",
+	"blockFrom": "01-10-2017"
+        }, options).then((res) => {
+          console.log(res, 123);
+        })
+      }
+      console.log(quickActive, quickContent, quickList, quickMoney, quickBlock, quickDate, 123);
+    }
+  }
+
   onSelectFilter(e) {
     const { name } = e.currentTarget;
     const selected = Array.from(e.currentTarget.selectedOptions).map((o) => o.value);
@@ -287,22 +369,116 @@ export class User extends React.PureComponent {
             <Col xl={12}>
               <Card>
                 <CardHeader>
-                  <Col md="3">
-                    <InputGroup>
-                      <Input onChange={this.onSearch} type="text" id="search-table" name="search-table-user" bsSize="sm" />
-                      <InputGroupAddon addonType="append">
-                        <Button type="button" onClick={this.search} size="sm">Tìm kiếm</Button>
-                      </InputGroupAddon>
-                    </InputGroup>
-                  </Col>
-                  {/* <div className="float-right">
-                    <Buttoncheckbox
-                      block
-                      color="primary"
-                      size="sm"
-                      onClick={() => this.props.history.push('/users/create')}
-                    >Tạo mới</Button>
-                  </div> */}
+                  <Row style={{ marginBottom: '15px' }}>
+                    <Col md="3">
+                      <InputGroup>
+                        <Input onChange={this.onSearch} type="text" id="search-table" name="search-table-user" bsSize="sm" />
+                        <InputGroupAddon addonType="append">
+                          <Button type="button" onClick={this.search} size="sm">Tìm kiếm</Button>
+                        </InputGroupAddon>
+                      </InputGroup>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col md="3">
+                      <span className="bold">Thao tác nhanh:</span>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Label for="exampleFile" sm={2}>File:</Label>
+                    <Col sm={10}>
+                      <Input type="file" name="file" id="exampleFile" onChange={this.handleChangeFile} />
+                      <FormText color="muted">
+                        Tải lên danh sách các email cần cập nhật.
+                      </FormText>
+                    </Col>
+                  </Row>
+                  {this.state.quickActive ? 
+                    (<div><Row>
+                      <Label for="exampleFile" md={2}>Lựa chọn:</Label>
+                      <Col md="10">
+                        {[{
+                          text: 'Trừ hết tiền',
+                          value: 1
+                        },
+                        {
+                          text: 'Cộng tiền',
+                          value: 2 
+                        },
+                        {
+                          text: 'Khóa sử dụng tiền',
+                          value: 3 
+                        },
+                        {
+                          text: 'Thông báo',
+                          value: 4 
+                        },
+                        {
+                          text: 'Ghi chú 1',
+                          value: 5 
+                        }].map((opt) => (<FormGroup check key={opt.value}>
+                          <Label check>
+                            <Input type="radio" name="radio1" value={opt.value} onChange={this.handleOnChange} />{' '}
+                            {opt.text}
+                          </Label>
+                        </FormGroup>))}
+                      </Col>
+                    </Row>
+                    <Row>
+                    <Label for="exampleFile" sm={2}>{' '}</Label>
+                    <Col sm={10}>
+                    {this.state.quickActive === '2' ?
+                        <input type="number" className="rdw-editor-main" onChange={this.handleChangeValue} /> :
+                        this.state.quickActive === '4' || this.state.quickActive === '5'
+                         ? <Editor
+                          editorState={this.state.editorState}
+                          name="description"
+                          onEditorStateChange={this.onEditorStateChange}
+                        /> :
+                        this.state.quickActive === '3' ? <div>
+                          <div>
+                            <DatePicker className="rdw-editor-main" onChange={(date) => this.setState({ quickDate: date })} />
+                          
+                          <FormText color="muted">
+                        Chọn ngày tài khoản sẽ bị khóa ( Xóa trắng để Khóa ngay tài khoản )
+          </FormText>
+          </div>
+                        <div>
+                          <input type="number" className="rdw-editor-main" placeholder="Số tiền mở khóa" onChange={(e) => this.setState({ quickMoney: e.target.value })} />
+                        
+                          <Label check style={{ 
+                            marginLeft: '50px',
+    marginTop: '20px',
+    marginBottom: '20px',
+                          }}
+    
+>
+                            <Input type="checkbox" onChange={(e) => this.setState({ quickBlock: e.target.checked })} />{' '}
+                            Khóa / Mở khóa
+                          </Label>
+                        </div>
+                        <Editor
+                          editorState={this.state.editorState}
+                          name="description"
+                          onEditorStateChange={this.onEditorStateChange}
+                        />
+                          </div> : null}
+                        </Col>
+                    </Row>
+                    <Row>
+                    <Label for="exampleFile" sm={2}>{' '}</Label>
+                    <Col sm={2}>
+                      <Button
+                        block
+                        color="success"
+                        size="sm"
+                        onClick={this.quickSubmit}
+                        style={{ marginTop: '15px' }}
+                      >Thực hiện</Button>
+                    </Col>
+                  </Row>
+                    </div>)
+                    : null }
                 </CardHeader>
                 <CardBody>
                   <Table responsive hover striped>

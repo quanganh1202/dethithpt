@@ -1,7 +1,5 @@
 import path from 'path';
 import moment from 'moment';
-import pdfjs from 'pdfjs-dist/build/pdf';
-import pageCounter from 'docx-pdf-pagecount';
 import Document from '../model/document';
 import User from '../model/user';
 import Category from '../model/category';
@@ -187,15 +185,15 @@ async function uploadDocument(body, file) {
     queryBody.path = fileName;
     queryBody.view = 1;
     await fileHelpers.storeFile(file, fileName);
+    let numPages = 0;
     if (filePreview) {
+      // For zip, rar
       await fileHelpers.storeFile(file, filePreview, true);
     } else {
-      await fileHelpers.preview(fileName);
+      // For docx, doc, pdf
+      const result = await fileHelpers.preview(fileName);
+      numPages = result.numPages;
     }
-    const extension = file[0].originalname.split('.').pop();
-    const { numPages } = extension === 'pdf' ?
-      await pdfjs.getDocument(path.resolve(__dirname, fileName)) : extension === 'docx' ?
-        { numPages: await pageCounter(path.resolve(__dirname, fileName)) } : { numPages: 0 };
     body.totalPages = numPages;
     queryBody.totalPages = numPages;
     const res = await docModel.addNewDocument(body);
@@ -355,7 +353,7 @@ async function updateDocumentById(id, body, file) {
     if (yearSchools) queryBody.yearSchools = yearSchools.split(',');
     if (tags) body.tags = tags.split(',').map(tag => tag.trim()).join(',');
     if (file.length) {
-      const { error, status, fileName } =  fileHelpers.validateExtension(file, body.userId);
+      const { error, status, fileName, filePreview } =  fileHelpers.validateExtension(file, body.userId);
       if (error) {
         return {
           error,
@@ -365,14 +363,18 @@ async function updateDocumentById(id, body, file) {
       body.path = fileName;
       queryBody.path = fileName;
       await fileHelpers.storeFile(file, fileName);
-      await fileHelpers.preview(fileName);
-      await fileHelpers.removeFile(doc[0].path);
-      const extension = file[0].originalname.split('.').pop();
-      const { numPages } = extension === 'pdf' ?
-        await pdfjs.getDocument(path.resolve(__dirname, fileName)) : extension === 'docx' ?
-          { numPages: await pageCounter(path.resolve(__dirname, fileName)) } : 0;
+      let numPages = 0;
+      if (filePreview) {
+        // For zip, rar
+        await fileHelpers.storeFile(file, filePreview, true);
+      } else {
+        // For docx, doc, pdf
+        const result = await fileHelpers.preview(fileName);
+        numPages = result.numPages;
+      }
       body.totalPages = numPages;
       queryBody.totalPages = numPages;
+      await fileHelpers.removeFile(doc[0].path);
     }
     delete body.userId;
     delete queryBody.userId;
