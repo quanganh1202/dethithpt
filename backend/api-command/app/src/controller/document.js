@@ -85,6 +85,7 @@ async function uploadDocument(body, file) {
       body.priority = 0;
     }
     const queryBody = Object.assign({}, body);
+    queryBody.userRole = user[0].role;
     if (cateIds) {
       const cateModel = new Category();
       const promises = cateIds.split(',').map(cateId => cateModel.getCategoryById(cateId));
