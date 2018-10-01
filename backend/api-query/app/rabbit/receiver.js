@@ -13,6 +13,7 @@ const routingKey = [
   'document.create',
   'document.update',
   'document.delete',
+  'document.download',
   'user.create',
   'user.update',
   'user.delete',

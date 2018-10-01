@@ -18,6 +18,7 @@ import {
   updateCollectionView,
   updateCateView,
   updateSubjectView,
+  updateDocumentDownloaded,
 } from '../libs/esHelper';
 const documentType = process.env.ES_TYPE_DOCUMENT || 'document';
 const index = process.env.ES_INDEX_DOCUMENT || 'documents';
@@ -182,6 +183,7 @@ export default {
       const { cates, tags, collections } = body;
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.createdAt = now;
+      body.downloaded = 0;
       await elasticsearch.insert(body, docId);
       const promise = [insertTag(tags)];
       if (cates && cates.length) {
@@ -291,6 +293,19 @@ export default {
       return {
         statusCode: 201,
         message: 'Deleted',
+      };
+    } catch (error) {
+      return handleDocumentError(error);
+    }
+  },
+
+  download: async (docId) => {
+    try {
+      await updateDocumentDownloaded(docId, constant.INCREASE);
+
+      return {
+        statusCode: 200,
+        message: 'Done',
       };
     } catch (error) {
       return handleDocumentError(error);
