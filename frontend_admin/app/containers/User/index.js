@@ -62,7 +62,8 @@ import local from './newLocal.json';
 const Wrapper = styled.div`
   table {
     font-size: 11px;
-    tr > td, tr > th {
+    tr > td,
+    tr > th {
       white-space: nowrap;
     }
   }
@@ -80,7 +81,7 @@ const Wrapper = styled.div`
 `;
 
 function validateEmail(email) {
-  var re = /\S+@\S+\.\S+/;
+  const re = /\S+@\S+\.\S+/;
   return re.test(String(email).toLowerCase());
 }
 
@@ -95,6 +96,7 @@ export class User extends React.PureComponent {
       filters: {
         level: [],
       },
+      quickDate: moment(),
     };
     this.size = 10;
     this.maxPages = 11;
@@ -125,22 +127,23 @@ export class User extends React.PureComponent {
   onEditorStateChange(editorState) {
     this.setState({
       editorState,
-      quickContent: 
-        draftToHtml(convertToRaw(this.state.editorState.getCurrentContent()))
+      quickContent: draftToHtml(
+        convertToRaw(this.state.editorState.getCurrentContent()),
+      ),
     });
   }
 
   handleSelectUsers(e) {
-    const { name, value, checked } = e.currentTarget;
+    const { value, checked } = e.currentTarget;
     if (value === 'all') {
       this.setState({
-        selectedUsers: checked ? this.props.users.map((i) => i.id) : [],
+        selectedUsers: checked ? this.props.users.map(i => i.id) : [],
       });
     } else {
       this.setState({
         selectedUsers: checked
-          ? [ ...this.state.selectedUsers, value ]
-          : this.state.selectedUsers.filter((i) => i !== value),
+          ? [...this.state.selectedUsers, value]
+          : this.state.selectedUsers.filter(i => i !== value),
       });
     }
   }
@@ -174,9 +177,17 @@ export class User extends React.PureComponent {
         <td>{item.group}</td>
         <td>Ghi chu</td>
         <td>Ghi chu 2</td>
-        <td>{item.status === 1
-          ? <Badge style={{ fontSize: '11px' }} color="success">Active</Badge>
-          : <Badge style={{ fontSize: '11px' }} color="warning">Pending</Badge>}</td>
+        <td>
+          {item.status === 1 ? (
+            <Badge style={{ fontSize: '11px' }} color="success">
+              Active
+            </Badge>
+          ) : (
+            <Badge style={{ fontSize: '11px' }} color="warning">
+              Pending
+            </Badge>
+          )}
+        </td>
         {/* <td>{item.userName}</td> */}
         <td className="actions-col">
           <div style={{ overflow: 'auto' }}>
@@ -208,21 +219,21 @@ export class User extends React.PureComponent {
               onClick={() => {}}
               title="Thêm, Sửa cột ghi chú"
             >
-              <img src={''} height="15px" alt="icon" />
+              <img src="" height="15px" alt="icon" />
             </button>
             <button
               style={{ float: 'left', padding: '0' }}
               onClick={() => {}}
               title="Thêm sửa cột ghi chú 2"
             >
-              <img src={''} height="15px" alt="icon" />
+              <img src="" height="15px" alt="icon" />
             </button>
             <button
               style={{ float: 'left', padding: '0', marginRight: '5px' }}
               onClick={() => {}}
               title="Xem lịch sử hoạt động thành viên"
             >
-              <img src={''} height="15px" alt="icon" />
+              <img src="" height="15px" alt="icon" />
             </button>
           </div>
         </td>
@@ -233,7 +244,7 @@ export class User extends React.PureComponent {
 
   sort(e) {
     const { field } = e.currentTarget.dataset;
-    let sortField = field;
+    const sortField = field;
     let sortBy = 'desc';
     if (this.state.sortField && this.state.sortField === field) {
       sortBy = this.state.sortBy === 'desc' ? 'asc' : 'desc';
@@ -245,7 +256,9 @@ export class User extends React.PureComponent {
       size: this.size,
       offset: this.size * (this.state.currentPage - 1),
     };
-    Object.keys(filters).forEach((k) => (query[k] = filters[k].join()));
+    Object.keys(this.state.filters).forEach(k => {
+      query[k] = this.state.filters[k].join();
+    });
     this.props.getUsers(query);
   }
 
@@ -283,17 +296,21 @@ export class User extends React.PureComponent {
       if (sortField) {
         query.sort = `${sortField}.${sortBy}`;
       }
-      Object.keys(filters).forEach((k) => (query[k] = filters[k].join()));
+      Object.keys(filters).forEach(k => {
+        query[k] = filters[k].join();
+      });
       this.props.getUsers(query);
     }
   }
 
   handleChangeFile(e) {
     const file = e.target.files[0];
-    const fileReader = new FileReader();  
-    fileReader.onloadend = (e) => {
+    const fileReader = new FileReader();
+    fileReader.onloadend = () => {
       const content = fileReader.result;
-      const validatedEmail = content.split("\n").filter((email) => validateEmail(email));
+      const validatedEmail = content
+        .split('\n')
+        .filter(email => validateEmail(email));
       this.setState({ quickActive: true, quickList: validatedEmail });
     };
     fileReader.readAsText(file);
@@ -312,29 +329,52 @@ export class User extends React.PureComponent {
   }
 
   quickSubmit() {
-    const { quickActive, quickContent, quickList, quickMoney, quickBlock, quickDate } = this.state;
+    const {
+      quickActive,
+      quickContent,
+      quickList,
+      quickMoney,
+      quickBlock,
+      quickDate,
+    } = this.state;
     if (quickActive && quickList) {
       const options = {
         headers: {
-          ['x-access-token']: getToken(),
-        }
-      }
+          'x-access-token': getToken(),
+        },
+      };
       if (quickActive === '3') {
-        axios.put('/api/users/:userId/block', {
-          "status": "3",
-	"blockTo": "10-10-2018",
-	"blockFrom": "01-10-2017"
-        }, options).then((res) => {
-          console.log(res, 123);
-        })
+        axios
+          .put(
+            '/api/users/:userId/block',
+            {
+              status: '3',
+              blockTo: '10-10-2018',
+              blockFrom: '01-10-2017',
+            },
+            options,
+          )
+          .then(res => {
+            console.log(res, 123);
+          });
       }
-      console.log(quickActive, quickContent, quickList, quickMoney, quickBlock, quickDate, 123);
+      console.log(
+        quickActive,
+        quickContent,
+        quickList,
+        quickMoney,
+        quickBlock,
+        moment(quickDate).format('DD/MM/YYYY'),
+        123,
+      );
     }
   }
 
   onSelectFilter(e) {
     const { name } = e.currentTarget;
-    const selected = Array.from(e.currentTarget.selectedOptions).map((o) => o.value);
+    const selected = Array.from(e.currentTarget.selectedOptions).map(
+      o => o.value,
+    );
     const newFilter = {
       ...this.state.filters,
       [name]: selected,
@@ -349,7 +389,9 @@ export class User extends React.PureComponent {
       size: this.size,
       offset: 0,
     };
-    Object.keys(newFilter).forEach((k) => (query[k] = newFilter[k].join()));
+    Object.keys(newFilter).forEach(k => {
+      query[k] = newFilter[k].join();
+    });
     this.props.getUsers(query);
   }
 
@@ -359,7 +401,11 @@ export class User extends React.PureComponent {
         <Row>
           <Col xl={12}>
             <Breadcrumb>
-              <BreadcrumbItem><Link to="/">Trang chủ</Link></BreadcrumbItem>
+              <BreadcrumbItem>
+                <Link href="/" to="/">
+                  Trang chủ
+                </Link>
+              </BreadcrumbItem>
               <BreadcrumbItem active>Thành viên</BreadcrumbItem>
             </Breadcrumb>
           </Col>
@@ -372,9 +418,17 @@ export class User extends React.PureComponent {
                   <Row style={{ marginBottom: '15px' }}>
                     <Col md="3">
                       <InputGroup>
-                        <Input onChange={this.onSearch} type="text" id="search-table" name="search-table-user" bsSize="sm" />
+                        <Input
+                          onChange={this.onSearch}
+                          type="text"
+                          id="search-table"
+                          name="search-table-user"
+                          bsSize="sm"
+                        />
                         <InputGroupAddon addonType="append">
-                          <Button type="button" onClick={this.search} size="sm">Tìm kiếm</Button>
+                          <Button type="button" onClick={this.search} size="sm">
+                            Tìm kiếm
+                          </Button>
                         </InputGroupAddon>
                       </InputGroup>
                     </Col>
@@ -385,100 +439,161 @@ export class User extends React.PureComponent {
                     </Col>
                   </Row>
                   <Row>
-                    <Label for="exampleFile" sm={2}>File:</Label>
+                    <Label sm={2}>File:</Label>
                     <Col sm={10}>
-                      <Input type="file" name="file" id="exampleFile" onChange={this.handleChangeFile} />
+                      <Input
+                        type="file"
+                        name="file"
+                        id="exampleFile"
+                        onChange={this.handleChangeFile}
+                      />
                       <FormText color="muted">
                         Tải lên danh sách các email cần cập nhật.
                       </FormText>
                     </Col>
                   </Row>
-                  {this.state.quickActive ? 
-                    (<div><Row>
-                      <Label for="exampleFile" md={2}>Lựa chọn:</Label>
-                      <Col md="10">
-                        {[{
-                          text: 'Trừ hết tiền',
-                          value: 1
-                        },
-                        {
-                          text: 'Cộng tiền',
-                          value: 2 
-                        },
-                        {
-                          text: 'Khóa sử dụng tiền',
-                          value: 3 
-                        },
-                        {
-                          text: 'Thông báo',
-                          value: 4 
-                        },
-                        {
-                          text: 'Ghi chú 1',
-                          value: 5 
-                        }].map((opt) => (<FormGroup check key={opt.value}>
-                          <Label check>
-                            <Input type="radio" name="radio1" value={opt.value} onChange={this.handleOnChange} />{' '}
-                            {opt.text}
-                          </Label>
-                        </FormGroup>))}
-                      </Col>
-                    </Row>
-                    <Row>
-                    <Label for="exampleFile" sm={2}>{' '}</Label>
-                    <Col sm={10}>
-                    {this.state.quickActive === '2' ?
-                        <input type="number" className="rdw-editor-main" onChange={this.handleChangeValue} /> :
-                        this.state.quickActive === '4' || this.state.quickActive === '5'
-                         ? <Editor
-                          editorState={this.state.editorState}
-                          name="description"
-                          onEditorStateChange={this.onEditorStateChange}
-                        /> :
-                        this.state.quickActive === '3' ? <div>
-                          <div>
-                            <DatePicker className="rdw-editor-main" onChange={(date) => this.setState({ quickDate: date })} />
-                          
-                          <FormText color="muted">
-                        Chọn ngày tài khoản sẽ bị khóa ( Xóa trắng để Khóa ngay tài khoản )
-          </FormText>
-          </div>
-                        <div>
-                          <input type="number" className="rdw-editor-main" placeholder="Số tiền mở khóa" onChange={(e) => this.setState({ quickMoney: e.target.value })} />
-                        
-                          <Label check style={{ 
-                            marginLeft: '50px',
-    marginTop: '20px',
-    marginBottom: '20px',
-                          }}
-    
->
-                            <Input type="checkbox" onChange={(e) => this.setState({ quickBlock: e.target.checked })} />{' '}
-                            Khóa / Mở khóa
-                          </Label>
-                        </div>
-                        <Editor
-                          editorState={this.state.editorState}
-                          name="description"
-                          onEditorStateChange={this.onEditorStateChange}
-                        />
-                          </div> : null}
+                  {this.state.quickActive ? (
+                    <div>
+                      <Row>
+                        <Label md={2}>Lựa chọn:</Label>
+                        <Col md="10">
+                          {[
+                            {
+                              text: 'Trừ hết tiền',
+                              value: 1,
+                            },
+                            {
+                              text: 'Cộng tiền',
+                              value: 2,
+                            },
+                            {
+                              text: 'Khóa sử dụng tiền',
+                              value: 3,
+                            },
+                            {
+                              text: 'Thông báo',
+                              value: 4,
+                            },
+                            {
+                              text: 'Ghi chú 1',
+                              value: 5,
+                            },
+                          ].map(opt => (
+                            <FormGroup check key={opt.value}>
+                              <Label check>
+                                <Input
+                                  type="radio"
+                                  name="radio1"
+                                  value={opt.value}
+                                  onChange={this.handleOnChange}
+                                />{' '}
+                                {opt.text}
+                              </Label>
+                            </FormGroup>
+                          ))}
                         </Col>
-                    </Row>
-                    <Row>
-                    <Label for="exampleFile" sm={2}>{' '}</Label>
-                    <Col sm={2}>
-                      <Button
-                        block
-                        color="success"
-                        size="sm"
-                        onClick={this.quickSubmit}
-                        style={{ marginTop: '15px' }}
-                      >Thực hiện</Button>
-                    </Col>
-                  </Row>
-                    </div>)
-                    : null }
+                      </Row>
+                      <Row>
+                        <Label sm={2}> </Label>
+                        <Col sm={10}>
+                          {() => {
+                            switch (this.state.quickActive) {
+                              case '2':
+                                return (
+                                  <input
+                                    type="number"
+                                    className="rdw-editor-main"
+                                    onChange={this.handleChangeValue}
+                                  />
+                                );
+                              case '4':
+                              case '5':
+                                return (
+                                  <Editor
+                                    editorState={this.state.editorState}
+                                    name="description"
+                                    onEditorStateChange={
+                                      this.onEditorStateChange
+                                    }
+                                  />
+                                );
+                              case '3':
+                                return (
+                                  <div>
+                                    <div>
+                                      <DatePicker
+                                        className="rdw-editor-main"
+                                        selected={this.state.quickDate}
+                                        onChange={date =>
+                                          this.setState({ quickDate: date })
+                                        }
+                                        dateFormat="DD/MM/YYYY"
+                                      />
+                                      <FormText color="muted">
+                                        Chọn ngày tài khoản sẽ bị khóa ( Xóa
+                                        trắng để Khóa ngay tài khoản )
+                                      </FormText>
+                                    </div>
+                                    <div>
+                                      <input
+                                        type="number"
+                                        className="rdw-editor-main"
+                                        placeholder="Số tiền mở khóa"
+                                        onChange={e =>
+                                          this.setState({
+                                            quickMoney: e.target.value,
+                                          })
+                                        }
+                                      />
+                                      <Label
+                                        check
+                                        style={{
+                                          marginLeft: '50px',
+                                          marginBottom: '20px',
+                                        }}
+                                      >
+                                        <Input
+                                          type="checkbox"
+                                          onChange={e =>
+                                            this.setState({
+                                              quickBlock: e.target.checked,
+                                            })
+                                          }
+                                        />{' '}
+                                        Khóa / Mở khóa
+                                      </Label>
+                                    </div>
+                                    <Editor
+                                      editorState={this.state.editorState}
+                                      name="description"
+                                      onEditorStateChange={
+                                        this.onEditorStateChange
+                                      }
+                                    />
+                                  </div>
+                                );
+                              default:
+                                return null;
+                            }
+                          }}
+                        </Col>
+                      </Row>
+                      <Row>
+                        <Label sm={2}> </Label>
+                        <Col sm={2}>
+                          <Button
+                            block
+                            color="success"
+                            size="sm"
+                            onClick={this.quickSubmit}
+                            style={{ marginTop: '15px' }}
+                          >
+                            Thực hiện
+                          </Button>
+                        </Col>
+                      </Row>
+                    </div>
+                  ) : null}
                 </CardHeader>
                 <CardBody>
                   <Table responsive hover striped>
@@ -491,7 +606,10 @@ export class User extends React.PureComponent {
                             value="all"
                             name="select"
                             onChange={this.handleSelectUsers}
-                            checked={isEqual(this.state.selectedUsers, this.props.users.map((i) => i.id))}
+                            checked={isEqual(
+                              this.state.selectedUsers,
+                              this.props.users.map(i => i.id),
+                            )}
                           />
                         </th>
                         <HeadSort
@@ -500,21 +618,27 @@ export class User extends React.PureComponent {
                           data-field="createdAt"
                           sortField={this.state.sortField}
                           sortBy={this.state.sortBy}
-                        >Ngày tạo</HeadSort>
+                        >
+                          Ngày tạo
+                        </HeadSort>
                         <HeadSort
                           scope="col"
                           onClick={this.sort}
                           data-field="name"
                           sortField={this.state.sortField}
                           sortBy={this.state.sortBy}
-                        >Tên</HeadSort>
+                        >
+                          Tên
+                        </HeadSort>
                         <HeadSort
                           scope="col"
                           onClick={this.sort}
                           data-field="email"
                           sortField={this.state.sortField}
                           sortBy={this.state.sortBy}
-                        >Email</HeadSort>
+                        >
+                          Email
+                        </HeadSort>
                         <HeadFilter
                           selectName="role"
                           multiple
@@ -534,8 +658,11 @@ export class User extends React.PureComponent {
                           multiple
                           scope="col"
                           options={Array(81)
-                            .fill((new Date()).getFullYear() - 80)
-                            .map((y, idx) => ({ value: y + idx, label: y + idx }))}
+                            .fill(new Date().getFullYear() - 80)
+                            .map((y, idx) => ({
+                              value: y + idx,
+                              label: y + idx,
+                            }))}
                           onSelect={this.onSelectFilter}
                           value={this.state.filters.bod || ''}
                         >
@@ -545,7 +672,10 @@ export class User extends React.PureComponent {
                           selectName="level"
                           multiple
                           scope="col"
-                          options={this.props.dataInit.classes.map(v => ({ value: v.id, label: v.name }))}
+                          options={this.props.dataInit.classes.map(v => ({
+                            value: v.id,
+                            label: v.name,
+                          }))}
                           onSelect={this.onSelectFilter}
                           value={this.state.filters.level || ''}
                         >
@@ -567,7 +697,10 @@ export class User extends React.PureComponent {
                           selectName="city"
                           multiple
                           scope="col"
-                          options={local.map((city) => ({ label: city.name, value: city.code}))}
+                          options={local.map(city => ({
+                            label: city.name,
+                            value: city.code,
+                          }))}
                           onSelect={this.onSelectFilter}
                           value={this.state.filters.city || ''}
                         >
@@ -619,9 +752,7 @@ export class User extends React.PureComponent {
                         <th scope="col">Hoạt động gần đây</th>
                       </tr>
                     </thead>
-                    <tbody>
-                      {this.renderUserRow(this.props.users)}
-                    </tbody>
+                    <tbody>{this.renderUserRow(this.props.users)}</tbody>
                   </Table>
                   <PaginationTable
                     maxPages={this.maxPages}
@@ -641,14 +772,18 @@ export class User extends React.PureComponent {
 }
 
 User.propTypes = {
-  loading: PropTypes.bool,
   getDataInit: PropTypes.func,
   dataInit: PropTypes.object,
+  history: PropTypes.any,
+  deleteUser: PropTypes.any,
+  getUsers: PropTypes.any,
+  users: PropTypes.any,
+  total: PropTypes.any,
 };
 
 export function mapDispatchToProps(dispatch) {
   return {
-    getUsers: (query) => dispatch(getUsers(query)),
+    getUsers: query => dispatch(getUsers(query)),
     getDataInit: () => dispatch(getDataInit()),
   };
 }
