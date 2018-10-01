@@ -17,6 +17,9 @@ export default [
   'subject.create',
   'subject.update',
   'subject.delete',
+  'news.create',
+  'news.update',
+  'news.delete',
   'purchase.create',
   'tag.update',
 ];
