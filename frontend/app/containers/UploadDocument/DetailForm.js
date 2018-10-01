@@ -24,6 +24,12 @@ import Button from './Button';
 
 library.add(faMoneyBillAlt, faFolder, faCog, faCloudDownloadAlt, faCaretDown);
 
+const numberWithCommas = (x) => {
+  var parts = x.toString().split(".");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return parts.join(".");
+}
+
 const Wrapper = styled.section`
   margin-top: 10px;
 
@@ -149,8 +155,8 @@ class DetailForm extends React.Component {
     switch (name) {
       case 'price': {
         const re = /^[0-9\b]+$/;
-        if (!re.test(value)) {
-          newValue = formData.get(name, '');
+        if (!re.test(value.replace(/,/g, ''))) {
+          newValue = value ? formData.get(name, '') : '';
         }
         break;
       }
@@ -160,8 +166,7 @@ class DetailForm extends React.Component {
       default:
         break;
     }
-
-    const temp = formData.set(name, newValue);
+    const temp = formData.set(name, newValue.replace(/,/g, ''));
     this.setState({ formData: temp });
   }
 
@@ -241,7 +246,6 @@ class DetailForm extends React.Component {
         />
       );
     }
-
     return (
       <Wrapper>
         {formData.get('name') ? (
@@ -415,7 +419,7 @@ class DetailForm extends React.Component {
           <input
             className="form-control"
             name="price"
-            value={formData.get('price', '')}
+            value={numberWithCommas(formData.get('price', ''))}
             onChange={this.handleChange}
           />
         </div>

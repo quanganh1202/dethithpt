@@ -61,5 +61,17 @@ export default {
         },
       ],
     },
+    {
+      name: 'Quản lý module',
+      url: '/modules',
+      icon: 'fa fa-database',
+      children: [
+        {
+          name: 'Tin tức',
+          url: '/news',
+          icon: 'fa fa-table',
+        },
+      ],
+    },
   ],
 };

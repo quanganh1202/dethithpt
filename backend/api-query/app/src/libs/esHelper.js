@@ -150,6 +150,19 @@ const updateDocumentView = (documentId, type) => {
   );
 };
 
+const updateDocumentDownload = (documentId, type) => {
+  const docModel =new ES('documents', 'document');
+  const operation = type === constants.INCREASE ? '++' : '--';
+
+  return docModel.updateByScript(
+    documentId,
+    {
+      source: `ctx._source.downloaded${operation};`,
+      lang: 'painless',
+    }
+  );
+};
+
 const updateTagViewById = (tagId, type) => {
   const tagModel =new ES('tags', 'tag');
   const operation = type === constants.INCREASE ? '++' : '--';
@@ -165,7 +178,7 @@ const updateTagViewById = (tagId, type) => {
 
 const updateMoneyUserById = (userId, money, type) => {
   const tagModel =new ES('users', 'user');
-  const operation = type === constants.RECHARGE ? '+=' : '-=';
+  const operation = type === constants.RECHARGE || constants.BONUS ? '+=' : '-=';
 
   return tagModel.updateByScript(
     userId,
@@ -304,4 +317,5 @@ export {
   updateCateView,
   updateClassView,
   updateSubjectView,
+  updateDocumentDownload,
 };

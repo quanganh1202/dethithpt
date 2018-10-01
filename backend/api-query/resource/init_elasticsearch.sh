@@ -45,4 +45,12 @@ echo
 curl -X PUT "$ES_HOST:9200/roles" -H 'Content-Type: application/json' -d @'./resource/role.mapping.json'
 echo
 
+# Init downloads
+curl -X PUT "$ES_HOST:9200/downloads" -H 'Content-Type: application/json' -d @'./resource/download.mapping.json'
+echo
+
+# Init comments
+curl -X PUT "$ES_HOST:9200/comments" -H 'Content-Type: application/json' -d @'./resource/comment.mapping.json'
+echo
+
 echo 'DONE !';

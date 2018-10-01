@@ -62,7 +62,7 @@ const Wrapper = styled.div`
     .doc-action {
       border-bottom: 1px dashed darkgrey;
       .btn-download, .btn-view {
-        padding: 15px 10px;
+        padding: 12px 10px;
         border-radius: 10px;
         color: white;
         margin: 10px 10px 10px 0;
@@ -112,7 +112,7 @@ const Wrapper = styled.div`
       > p:first-child {
         padding: 10px 0 5px;
         font-weight: bold;
-        font-size: 1.1em;
+        font-size: 1em;
         color: grey;
       }
       > p:nth-child(2) {

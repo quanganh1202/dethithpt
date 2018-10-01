@@ -3,4 +3,5 @@ export default {
   DECREASE: 'DECREASE',
   RECHARGE: 'RECHARGE',
   PURCHASE: 'PURCHASE',
+  BONUS: 'BONUS',
 };

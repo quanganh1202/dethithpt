@@ -22,6 +22,7 @@ import Category from 'containers/Category/Loadable';
 import Payment from 'containers/Payment/Loadable';
 import SearchResult from 'containers/SearchResult/Loadable';
 import _ from 'lodash';
+import FileSaver from 'file-saver';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
@@ -43,6 +44,9 @@ import {
   getCategories,
   getCollections,
   getTags,
+  requestDownload,
+  removeFileSave,
+  removeMessage,
 } from './actions';
 import {
   makeSelectUser,
@@ -51,6 +55,8 @@ import {
   makeSelectCategories,
   makeSelectCollections,
   makeSelectTags,
+  makeSelectFile,
+  makeSelectMessage,
 } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
@@ -132,6 +138,11 @@ const requiredFields = [
 ];
 const validate = (input, req) => req.find(f => !input[f]);
 
+const errorMapping = {
+  unknown_error_download: 'Tài liệu không còn tồn tại hoặc có lỗi, vui lòng báo lại cho admin!',
+  not_enough_money: 'Tài khoản không còn đủ tiền để thanh toán, vui lòng nạp thêm!',
+}
+
 /* eslint-disable react/prefer-stateless-function */
 export class HomePage extends React.PureComponent {
   constructor() {
@@ -139,6 +150,7 @@ export class HomePage extends React.PureComponent {
     this.state = {
       user: null,
       error: '',
+      downloadingFile: '',
     };
     this.onLogin = this.onLogin.bind(this);
     this.onLogout = this.onLogout.bind(this);
@@ -179,6 +191,16 @@ export class HomePage extends React.PureComponent {
   componentWillReceiveProps(nextProps) {
     if (!_.isEqual(this.props.user, nextProps.user)) {
       this.setState({ user: nextProps.user });
+    }
+    if (!this.props.file && nextProps.file) {
+      const blob = new Blob([nextProps.file]);
+      FileSaver.saveAs(blob, _.get(this.state, 'downloadingFile', 'download'));
+      this.setState({ downloadingFile: '' });
+      this.props.removeFileSave();
+    }
+    if (!this.props.message && nextProps.message) {
+      alert(errorMapping[nextProps.message] || 'Có lỗi xảy ra, vui lòng báo lại cho admin!');
+      this.props.removeMessage();
     }
   }
 
@@ -236,6 +258,7 @@ export class HomePage extends React.PureComponent {
   }
 
   render() {
+    const { pathname } = this.props.history.location;
     const dataRight1 = [
       {
         title: 'Tin tức nổi bật',
@@ -326,6 +349,7 @@ export class HomePage extends React.PureComponent {
                     link: `/danh-muc/${item.id}`,
                     title: item.name,
                     quantity: item.numDocRefs,
+                    active: pathname.includes('danh-muc') && pathname.split('/').pop() === item.id ? true : false,
                   }}
                   type={LIST_COLOR}
                 />
@@ -472,6 +496,10 @@ export class HomePage extends React.PureComponent {
                                       this.props.documents.total
                                     }
                                     onLoadMore={this.loadMoreDocs}
+                                    onDownload={(id, name) => {
+                                      this.setState({ downloadingFile: name });
+                                      this.props.requestDownload(id);
+                                    }}
                                   />
                                 </div>
                               }
@@ -544,6 +572,9 @@ export function mapDispatchToProps(dispatch) {
     getCategories: () => dispatch(getCategories()),
     getCollections: () => dispatch(getCollections()),
     getTags: () => dispatch(getTags()),
+    requestDownload: (id) => dispatch(requestDownload(id)),
+    removeFileSave: () => dispatch(removeFileSave()),
+    removeMessage: () => dispatch(removeMessage()),
   };
 }
 
@@ -554,6 +585,8 @@ const mapStateToProps = createStructuredSelector({
   categories: makeSelectCategories(),
   collections: makeSelectCollections(),
   tags: makeSelectTags(),
+  file: makeSelectFile(),
+  message: makeSelectMessage(),
 });
 
 const withConnect = connect(

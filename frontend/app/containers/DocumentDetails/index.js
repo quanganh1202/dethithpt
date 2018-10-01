@@ -27,14 +27,17 @@ import ListItem from 'components/ListItem';
 import PopUp from 'components/PopUp';
 import LoadingIndicator from 'components/LoadingIndicator';
 import downloading from 'images/download.gif';
-import { getDocumentDetails, getDocumentsList, requestDownload, removeFileSave, removeMessage } from './actions';
+import { getDocumentDetails, getDocumentsList } from './actions';
+import { requestDownload, removeFileSave, removeMessage } from 'containers/HomePage/actions';
 import {
   makeSelectDocument,
   makeSelectLoading,
-  makeSelectFile,
   makeSelectDocuments,
-  makeSelectMessage,
 } from './selectors';
+import {
+  makeSelectFile,
+  makeSelectMessage,
+} from 'containers/HomePage/selectors';
 import reducer from './reducer';
 import saga from './saga';
 import GreyTitle from 'containers/HomePage/GreyTitle';
@@ -68,6 +71,7 @@ export class DocumentDetails extends React.PureComponent {
   }
 
   componentWillMount() {
+    window.scrollTo(0, 0);
     if (this.props.match.params.id) {
       this.props.getDocumentDetails(this.props.match.params.id);
     }
@@ -144,24 +148,20 @@ export class DocumentDetails extends React.PureComponent {
               </div>
               <div className="doc-category">
                 <ul>
-                  {_.get(document, 'cates[0].cateName') && <li>
-                    {_.get(document, 'cates[0].cateName')}
-                  </li>}
-                  {document.subjectName && <li>
-                    {document.subjectName.includes('Môn') 
-                      ? document.subjectName
-                      : `Môn ${document.subjectName}`}
-                  </li>}
-                  {document.className && <li>
-                    {document.className.includes('Lớp') 
-                      ? document.className
-                      : `Lớp ${document.className}`}
-                  </li>}
-                  {document.yearSchool && <li>{document.yearSchool}</li>}
-                  {document.collectionName && <li>
-                    <FontAwesomeIcon className={'specific-icon'} icon={['far', 'folder-open']} />
-                    {document.collectionName}
-                  </li>}
+                {_.get(document, 'cates', []).map((i) => <li key={i.cateId}>
+                  {i.cateName}
+                </li>)}
+                {_.get(document, 'subjects', []).map((i) => <li key={i.subjectId}>
+                  {i.subjectName.includes('Môn') ? i.subjectName : `Môn ${i.subjectName}`}
+                </li>)}
+                {_.get(document, 'classes', []).map((i) => <li key={i.classId}>
+                  {i.className.includes('Lớp') ? i.className : `Lớp ${i.className}`}
+                </li>)}
+                {_.get(document, 'yearSchool', []).map((i) => <li key={i}>{i}</li>)}
+                {_.get(document, 'collections', []).map((i) => <li key={i.collectionId}>
+                  <FontAwesomeIcon className={'specific-icon'} icon={['far', 'folder-open']} />
+                  {i.collectionName}
+                </li>)}
                 </ul>
               </div>
               <div className="doc-action">
@@ -182,13 +182,11 @@ export class DocumentDetails extends React.PureComponent {
               </div>
               <div className="doc-description">
                 <p>Mô tả đề thi</p>
-                <p>{document.description || 'description'}</p>
+                <p dangerouslySetInnerHTML={{ __html: document.description }}></p>
               </div>
               <div className="doc-tags">
                 <p>Từ khóa:</p>
-                {document.tags && document.tags.map((t) => (
-                  t.tagText && <p className="tag-item">#{t.tagText}</p>
-                ))}
+                {document.tags && document.tags.map((t, idx) => <p key={idx} className="tag-item">#{t}</p>)}
               </div>
             </div>) : null)
           }

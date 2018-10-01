@@ -8,6 +8,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload, faDollarSign, faEye as fasEye } from '@fortawesome/free-solid-svg-icons';
 import { faEye, faFolderOpen, faFileAlt, faClock } from '@fortawesome/free-regular-svg-icons';
 import Wrapper from './Wrapper';
+import documentIcon from 'images/document.png';
+import wordIcon from 'images/word.png';
+import pdfIcon from 'images/pdf.png';
+import winrarIcon from 'images/winrar.png';
 
 library.add(faEye, faDownload, faFolderOpen, faFileAlt, faDollarSign, fasEye, faClock);
 
@@ -20,43 +24,61 @@ const numberWithCommas = (x) => {
   return '';
 }
 
+const mappingIconType = (type) => {
+  switch (type) {
+    case 'doc':
+    case 'docx':
+      return wordIcon;
+    case 'pdf':
+      return pdfIcon;
+    case 'rar':
+      return winrarIcon;
+    default: 
+      return documentIcon;
+  }
+}
+
 function ListItem(props) {
+  const documentType = props.item.name.split('.').pop();
   return (
     <Wrapper>
       <div className="doc-title">
+        <span className="document-icon">
+          <img src={mappingIconType(documentType)} width="15px" alt="document-type-icon" />
+        </span>
         <span>
           <Link to={`/tai-lieu/${props.item.id}`}>{props.item.name || 'Đề thi THPT quốc gia chính thức - 2016 - Môn Địa lí - Bộ Giáo dục'}</Link>
         </span>
-        <FontAwesomeIcon className={'title-icon'} icon={['far', 'eye']} />
-        <FontAwesomeIcon className={'title-icon'} icon={['fas', 'download']} />
+        <span onClick={() => props.onPreview(props.item.id)}>
+          <FontAwesomeIcon className={'title-icon'} icon={['far', 'eye']} />
+        </span>
+        <span onClick={() => props.onDownload(props.item.id, props.item.name)}>
+          <FontAwesomeIcon className={'title-icon'} icon={['fas', 'download']} />
+        </span>
       </div>
       <div className="doc-category">
         <ul>
-          {_.get(props.item, 'cates[0].cateName') && <li>
-            {_.get(props.item, 'cates[0].cateName')}
-          </li>}
-          {props.item.subjectName && <li>
-            {props.item.subjectName.includes('Môn') 
-              ? props.item.subjectName
-              : `Môn ${props.item.subjectName}`}
-          </li>}
-          {props.item.className && (<li>
-            {props.item.className.includes('Lớp') 
-              ? props.item.className
-              : `Lớp ${props.item.className}`}
+          {_.get(props.item, 'cates', []).map((i) => <li key={i.cateId}>
+            {i.cateName}
           </li>)}
-          {props.item.yearSchool && <li>{props.item.yearSchool}</li>}
-          {props.item.collectionName && <li>
+          {_.get(props.item, 'subjects', []).map((i) => <li key={i.subjectId}>
+            {i.subjectName.includes('Môn') ? i.subjectName : `Môn ${i.subjectName}`}
+          </li>)}
+          {_.get(props.item, 'classes', []).map((i) => <li key={i.classId}>
+            {i.className.includes('Lớp') ? i.className : `Lớp ${i.className}`}
+          </li>)}
+          {_.get(props.item, 'yearSchool', []).map((i) => <li key={i}>{i}</li>)}
+          {_.get(props.item, 'collections', []).map((i) => <li key={i.collectionId}>
             <FontAwesomeIcon className={'specific-icon'} icon={['far', 'folder-open']} />
-            {props.item.collectionName}
-          </li>}
+            {i.collectionName}
+          </li>)}
         </ul>
       </div>
       <div className="doc-information">
         <div className="left-info">
           <p>
             <FontAwesomeIcon className={'info-icon'} icon={['far', 'file-alt']} />
-            {props.item.pages || 0} trang
+            {props.item.totalPages || 0} trang
           </p>
           <p>
             <FontAwesomeIcon className={'info-icon'} icon={['fas', 'dollar-sign']} />

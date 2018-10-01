@@ -8,8 +8,8 @@
  * Follow this format:
  * export const YOUR_ACTION_CONSTANT = 'yourproject/YourContainer/YOUR_ACTION_CONSTANT';
  */
-
-const container = 'thpt/Home'
+import { defineAction } from 'redux-define';
+const container = 'thpt/Home';
 
 export const LOGIN_REQUEST = 'thpt/Home/LOGIN/REQUEST';
 export const LOGIN_SUCCESS = 'thpt/Home/LOGIN/SUCCESS';
@@ -25,3 +25,7 @@ export const GET_COLLECTION_LIST_REQUEST = 'thpt/Home/GET_COLLECTION_LIST/REQUES
 export const GET_COLLECTION_LIST_SUCCESS = 'thpt/Home/GET_COLLECTION_LIST/SUCCESS';
 export const GET_TAGS_REQUEST = 'thpt/Home/GET_TAGS/REQUEST';
 export const GET_TAGS_SUCCESS = 'thpt/Home/GET_TAGS/SUCCESS';
+export const REQUEST_DOWNLOAD = defineAction('REQUEST_DOWNLOAD', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
+export const REQUEST_PURCHASE = defineAction('REQUEST_PURCHASE', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
+export const REMOVE_FILE_SAVE = defineAction('REMOVE_FILE_SAVE', container);
+export const REMOVE_MESSAGE = defineAction('REMOVE_MESSAGE', container);
