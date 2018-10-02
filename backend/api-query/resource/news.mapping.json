@@ -65,6 +65,16 @@
         "userEmail": {
           "type": "keyword"
         },
+        "position": {
+          "type": "text",
+          "analyzer": "autocomplete",
+          "search_analyzer": "standard",
+          "fields": {
+            "raw": {
+              "type": "keyword"
+            }
+          }
+        },
         "priority": {
           "type": "integer"
         },
