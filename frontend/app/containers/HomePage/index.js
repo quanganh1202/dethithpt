@@ -18,6 +18,7 @@ import { faCog, faFolder } from '@fortawesome/free-solid-svg-icons';
 import { faMoneyBillAlt } from '@fortawesome/free-regular-svg-icons';
 import UploadDocument from 'containers/UploadDocument/Loadable';
 import DocumentDetails from 'containers/DocumentDetails/Loadable';
+import NewsDetails from 'containers/NewsDetails/Loadable';
 import Category from 'containers/Category/Loadable';
 import Payment from 'containers/Payment/Loadable';
 import SearchResult from 'containers/SearchResult/Loadable';
@@ -44,6 +45,7 @@ import {
   getCategories,
   getCollections,
   getTags,
+  getNews,
   requestDownload,
   removeFileSave,
   removeMessage,
@@ -55,6 +57,7 @@ import {
   makeSelectCategories,
   makeSelectCollections,
   makeSelectTags,
+  makeSelectNews,
   makeSelectFile,
   makeSelectMessage,
 } from './selectors';
@@ -75,48 +78,6 @@ const dataRight2 = [
   },
   {
     title: 'Quảng cáo',
-  },
-];
-
-const items = [
-  {
-    id: '1',
-    title: 'Đề thi THPT quốc gia chính thức - 2016 - Môn Địa lí - Bộ Giáo dục',
-    category: 'Đề thi THPT Quốc Gia',
-    subject: 'Môn Toán',
-    class: '12',
-    year: '2018 - 2019',
-    specific: 'Đề thi thử trường chuyên',
-    pages: 24,
-    price: 10000,
-    views: 28960,
-    createdAt: '30/12/2017',
-  },
-  {
-    id: '2',
-    title: 'Đề thi THPT quốc gia chính thức - 2016 - Môn Địa lí - Bộ Giáo dục',
-    category: 'Đề thi THPT Quốc Gia',
-    subject: 'Môn Toán',
-    class: '12',
-    year: '2018 - 2019',
-    specific: 'Đề thi thử trường chuyên',
-    pages: 24,
-    price: 10000,
-    views: 28960,
-    createdAt: '30/12/2017',
-  },
-  {
-    id: '3',
-    title: 'Đề thi THPT quốc gia chính thức - 2016 - Môn Địa lí - Bộ Giáo dục',
-    category: 'Đề thi THPT Quốc Gia',
-    subject: 'Môn Toán',
-    class: '12',
-    year: '2018 - 2019',
-    specific: 'Đề thi thử trường chuyên',
-    pages: 24,
-    price: 10000,
-    views: 28960,
-    createdAt: '30/12/2017',
   },
 ];
 
@@ -173,6 +134,8 @@ export class HomePage extends React.PureComponent {
     this.props.getCollections();
     // get tags
     this.props.getTags();
+    // get news
+    this.props.getNews();
 
     this.unlisten = this.props.history.listen((location, action) => {
       if (location.pathname === '/') {
@@ -260,9 +223,6 @@ export class HomePage extends React.PureComponent {
   render() {
     const { pathname } = this.props.history.location;
     const dataRight1 = [
-      {
-        title: 'Tin tức nổi bật',
-      },
       {
         title: 'Xu hướng từ khóa',
         component: TagList,
@@ -375,6 +335,24 @@ export class HomePage extends React.PureComponent {
                     title: item.name,
                     quantity: item.quantity || 4,
                   }}
+                />
+              )}
+            />
+          }
+        />
+        <Tab
+          key="tin-tuc"
+          title="Tin tức nổi bật"
+          content={
+            <List
+              items={this.props.news}
+              component={({ item }) => (
+                <TabList
+                  item={{
+                    link: `/tin-tuc/${item.id}`,
+                    title: item.name,
+                  }}
+                  type={LIST_COLOR}
                 />
               )}
             />
@@ -517,6 +495,11 @@ export class HomePage extends React.PureComponent {
                         path="/tai-lieu/:id"
                         component={DocumentDetails}
                       />
+                      <Route
+                        exact
+                        path="/tin-tuc/:id"
+                        component={NewsDetails}
+                      />
                       <Route exact path="/danh-muc/:id" component={Category} />
                       <Route exact path="/tim-kiem" component={SearchResult} />
                       {/* <Route exact path="/thanh-toan/:id" component={Payment} /> */}
@@ -572,6 +555,7 @@ export function mapDispatchToProps(dispatch) {
     getCategories: () => dispatch(getCategories()),
     getCollections: () => dispatch(getCollections()),
     getTags: () => dispatch(getTags()),
+    getNews: () => dispatch(getNews()),
     requestDownload: (id) => dispatch(requestDownload(id)),
     removeFileSave: () => dispatch(removeFileSave()),
     removeMessage: () => dispatch(removeMessage()),
@@ -585,6 +569,7 @@ const mapStateToProps = createStructuredSelector({
   categories: makeSelectCategories(),
   collections: makeSelectCollections(),
   tags: makeSelectTags(),
+  news: makeSelectNews(),
   file: makeSelectFile(),
   message: makeSelectMessage(),
 });

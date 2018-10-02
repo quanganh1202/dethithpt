@@ -25,6 +25,9 @@ const makeSelectCollections = () =>
 const makeSelectTags = () =>
   createSelector(selectHome, homeState => homeState.get('tags').toJS());
 
+const makeSelectNews = () =>
+  createSelector(selectHome, homeState => homeState.get('news').toJS());
+
 const makeSelectFile = () =>
   createSelector(selectHome, homeState => homeState.get('file'));
 
@@ -39,6 +42,7 @@ export {
   makeSelectCategories,
   makeSelectCollections,
   makeSelectTags,
+  makeSelectNews,
   makeSelectFile,
   makeSelectMessage,
 };

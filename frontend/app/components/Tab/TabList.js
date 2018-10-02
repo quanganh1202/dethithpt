@@ -11,7 +11,7 @@ function TabList({ item, type }) {
       <Link to={item.link} className={item.active ? 'active-link' : ''}>
         {type !== LIST_COLOR ? <img style={{ width: '15px' }} src={folderOpen} alt={`thư mục ${item.title}`} /> : null} {item.title}
       </Link>
-      <i className="list-quantity">{item.quantity}</i>
+      {item.hasOwnProperty('quantity') && <i className="list-quantity">{item.quantity}</i>}
     </li>
   );
 }

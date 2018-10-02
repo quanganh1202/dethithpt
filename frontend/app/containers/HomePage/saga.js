@@ -13,6 +13,7 @@ import {
   GET_TAGS_REQUEST,
   REQUEST_DOWNLOAD,
   REQUEST_PURCHASE,
+  GET_NEWS,
 } from './constants';
 import {
   loginSuccess,
@@ -22,6 +23,7 @@ import {
   getCategoriesSuccess,
   getCollectionsSuccess,
   getTagsSuccess,
+  getNewsSuccess,
   requestDownloadSuccess,
   requestDownloadFailure,
   requestPurchase,
@@ -114,6 +116,21 @@ export function* getTagsHandler() {
   }
 }
 
+
+/**
+ * Request get news list
+ */
+export function* getNewsHandler() {
+  const url = `${root}/news?sort=createdAt.desc&size=5`;
+
+  try {
+    const resp = yield call(axios.get, url);
+    yield put(getNewsSuccess(resp.data.data));
+  } catch (err) {
+    // yield put(loginFailure(err));
+  }
+}
+
 /**
  * Request download document
  */
@@ -173,6 +190,7 @@ export default function* homeSaga() {
   yield takeLatest(GET_CATE_LIST_REQUEST, getCategoriesHandler);
   yield takeLatest(GET_COLLECTION_LIST_REQUEST, getCollectionsHandler);
   yield takeLatest(GET_TAGS_REQUEST, getTagsHandler);
+  yield takeLatest(GET_NEWS.REQUEST, getNewsHandler);
   yield takeLatest(REQUEST_DOWNLOAD.REQUEST, requestDownloadHandler);
   yield takeLatest(REQUEST_PURCHASE.REQUEST, purchaseDocumentHandler);
 }

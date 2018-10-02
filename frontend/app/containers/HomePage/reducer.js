@@ -27,6 +27,7 @@ import {
   REQUEST_PURCHASE,
   REMOVE_FILE_SAVE,
   REMOVE_MESSAGE,
+  GET_NEWS,
 } from './constants';
 import { setToken, mappingUser } from 'services/auth';
 
@@ -50,6 +51,7 @@ export const initialState = fromJS({
   tags: [],
   file: null,
   message: '',
+  news: [],
 });
 
 function homeReducer(state = initialState, action) {
@@ -109,6 +111,13 @@ function homeReducer(state = initialState, action) {
       return state
         .set('loading', false)
         .set('tags', fromJS(action.tags));
+    case GET_NEWS.REQUEST:
+        return state
+          .set('loading', true);
+    case GET_NEWS.SUCCESS:
+      return state
+        .set('loading', false)
+        .set('news', fromJS(action.news));
     case REQUEST_DOWNLOAD.REQUEST:
       return state.set('loading', true);
     case REQUEST_DOWNLOAD.SUCCESS:

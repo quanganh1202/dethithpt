@@ -30,3 +30,4 @@ export const REQUEST_PURCHASE = defineAction('REQUEST_PURCHASE', ['REQUEST', 'SU
 export const REMOVE_FILE_SAVE = defineAction('REMOVE_FILE_SAVE', container);
 export const REMOVE_MESSAGE = defineAction('REMOVE_MESSAGE', container);
 export const GET_PREVIEW = defineAction('GET_PREVIEW', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
+export const GET_NEWS = defineAction('GET_NEWS', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
