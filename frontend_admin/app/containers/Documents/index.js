@@ -45,6 +45,8 @@ import checkIcon from 'assets/img/icons/check.png';
 import deleteIcon from 'assets/img/icons/delete.png';
 import editIcon from 'assets/img/icons/edit.png';
 import uncheckIcon from 'assets/img/icons/uncheck.png';
+import noteIcon from 'assets/img/icons/icon.png';
+import tranIcon from 'assets/img/icons/tran.png';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
@@ -101,6 +103,9 @@ const Wrapper = styled.div`
       }
       > p {
         margin: 0;
+      }
+      &.actions-col {
+        min-width: 80px
       }
     }
     tr > th {
@@ -233,11 +238,18 @@ export class Documents extends React.PureComponent {
               <img src={deleteIcon} height="15px" alt="delete-icon" />
             </button>
             <button
-              style={{ float: 'left', padding: '0' }}
+              style={{ float: 'left', padding: '0', marginRight: '5px' }}
               onClick={() => this.props.history.push(`/documents/${item.id}`)}
               title="Sửa"
             >
               <img src={editIcon} height="15px" alt="edit-icon" />
+            </button>
+            <button
+              style={{ float: 'left', padding: '0' }}
+              onClick={() => this.props.history.push(`/documents/${item.id}`)}
+              title="Ghi chú"
+            >
+              <img src={noteIcon} height="15px" alt="note-icon" />
             </button>
           </div>
           <div>
@@ -249,11 +261,18 @@ export class Documents extends React.PureComponent {
               <img src={checkIcon} height="15px" alt="check-icon" />
             </button>
             <button
-              style={{ float: 'left', padding: '0' }}
+              style={{ float: 'left', padding: '0', marginRight: '5px' }}
               onClick={() => this.props.updateDocs([item.id], { priority: 1 })}
               title="Nổi bật"
             >
               <img src={uncheckIcon} height="15px" alt="uncheck-icon" />
+            </button>
+            <button
+              style={{ float: 'left', padding: '0' }}
+              onClick={() => this.props.updateDocs([item.id], { priority: 1 })}
+              title="Lịch sử tải"
+            >
+              <img src={tranIcon} height="15px" alt="tran-icon" />
             </button>
           </div>
         </td>
