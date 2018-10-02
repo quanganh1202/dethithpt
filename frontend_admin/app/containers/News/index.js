@@ -42,9 +42,11 @@ const Wrapper = styled.div`
 
 /* eslint-disable react/prefer-stateless-function */
 export class News extends React.PureComponent {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {};
+    this.module = props.history.location.pathname.split('/')[2];
+    this.renderNewsRow = this.renderNewsRow.bind(this);
   }
 
   componentWillMount() {
@@ -57,9 +59,8 @@ export class News extends React.PureComponent {
       <tr key={item.id}>
         <th scope="row">{idx + 1}</th>
         <td>
-          <Link to={`/news/${item.id}`}>{item.name}</Link>
+          <Link to={`/modules/${this.module}/${item.id}`}>{item.name}</Link>
         </td>
-        <td>{item.description}</td>
         <td>{item.userEmail}</td>
         <td>{moment(item.createdAt).format('DD/MM/YYYY')}</td>
       </tr>
@@ -91,7 +92,7 @@ export class News extends React.PureComponent {
                       color="primary"
                       size="sm"
                       onClick={() =>
-                        this.props.history.push('/news/create')
+                        this.props.history.push(`/modules/${this.module}/create`)
                       }
                     >
                       Tạo mới
@@ -104,7 +105,6 @@ export class News extends React.PureComponent {
                       <tr>
                         <th scope="col">#</th>
                         <th scope="col">Tên</th>
-                        <th scope="col">Mô tả</th>
                         <th scope="col">Người tạo</th>
                         <th scope="col">Ngày tạo</th>
                       </tr>

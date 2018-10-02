@@ -22,9 +22,9 @@ export function getNews() {
  *
  * @return {object}    An action object with a type of GET_NEWS.SUCCESS
  */
-export function getNewsSuccess(subjects) {
+export function getNewsSuccess(news) {
   return {
     type: GET_NEWS.SUCCESS,
-    subjects,
+    news,
   };
 }

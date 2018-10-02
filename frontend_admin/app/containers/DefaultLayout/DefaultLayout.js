@@ -41,6 +41,7 @@ import Collection from 'containers/Collection/Loadable';
 import CollectionCreate from 'containers/CollectionCreate/Loadable';
 import News from 'containers/News/Loadable';
 import NewsCreate from 'containers/NewsCreate/Loadable';
+import NewsEdit from 'containers/NewsEdit/Loadable';
 import { getUser, setToken } from 'services/auth';
 
 class DefaultLayout extends Component {
@@ -87,8 +88,9 @@ class DefaultLayout extends Component {
               <Route path="/schools/create" exact name="Create school" component={SchoolCreate} /> */}
               <Route path="/collections" exact name="Collection" component={Collection} />
               <Route path="/collections/create" exact name="Create collection" component={CollectionCreate} />
-              <Route path="/news" exact name="News" component={News} />
-              <Route path="/news/create" exact name="Create news" component={NewsCreate} />
+              <Route path="/modules/news" exact name="News" component={News} />
+              <Route path="/modules/news/create" exact name="Create news" component={NewsCreate} />
+              <Route path="/modules/news/:id" exact name="Edit news" component={NewsEdit} />
               <Redirect from="/" to="/dashboard" />
             </Switch>
           </main>

@@ -18,7 +18,7 @@ const root = '/api';
 /**
  * Request create class
  */
-export function* createSubjectHandler({ data }) {
+export function* createNewsHandler({ data, module }) {
   const url = `${root}/news`;
   const options = {
     headers: {
@@ -28,7 +28,7 @@ export function* createSubjectHandler({ data }) {
   try {
     yield call(axios.post, url, data, options);
     yield put(createNewsSuccess());
-    yield put(push('/news'));
+    yield put(push(`/modules/${module}`));
   } catch (err) {
   yield put(createNewsFailure(_.get(err, 'response.data.error', 'Unknown error from server')));
   }
@@ -38,5 +38,5 @@ export function* createSubjectHandler({ data }) {
  * Root saga manages watcher lifecycle
  */
 export default function* subjectCreateSaga() {
-  yield takeLatest(CREATE_NEWS.REQUEST, createSubjectHandler);
+  yield takeLatest(CREATE_NEWS.REQUEST, createNewsHandler);
 }
