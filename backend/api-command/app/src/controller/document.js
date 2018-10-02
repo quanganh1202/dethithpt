@@ -71,7 +71,7 @@ async function uploadDocument(body, file) {
     if (!file.length) {
       return {
         status: 400,
-        error: 'Should be contain any file',
+        error: 'Should be provided a file to upload',
       };
     }
 
@@ -555,10 +555,52 @@ async function downloadDocument(docId, userId) {
       };
     }
     if (user[0].status.toString() === '4') {
-      return {
-        status: 400,
-        error: 'This user has been blocked download feature',
-      };
+      const {
+        collectionIds,
+        subjectIds,
+        cateIds,
+      } = doc[0];
+      const {
+        blockDownloadCollections,
+        blockDownloadSubjects,
+        blockDownloadCategories,
+      } = user[0];
+
+      if (subjectIds && blockDownloadSubjects) {
+        const subjectToArray = subjectIds.split(',');
+        const blockToArray = blockDownloadCollections.split(',');
+        const arrBlock = blockToArray.filter(i => subjectToArray.includes(i));
+        if (arrBlock.length) {
+          return {
+            status: 400,
+            error: 'This user has been blocked download feature with this subject',
+          };
+        }
+      }
+
+      if (collectionIds && blockDownloadCollections) {
+        const collectionToArray = collectionIds.split(',');
+        const blockToArray = blockDownloadCollections.split(',');
+        const arrBlock = blockToArray.filter(i => collectionToArray.includes(i));
+        if (arrBlock.length) {
+          return {
+            status: 400,
+            error: 'This user has been blocked download feature with this collection',
+          };
+        }
+      }
+
+      if (cateIds && blockDownloadCategories) {
+        const cateToArray = cateIds.split(',');
+        const blockToArray = blockDownloadCollections.split(',');
+        const arrBlock = blockToArray.filter(i => cateToArray.includes(i));
+        if (arrBlock.length) {
+          return {
+            status: 400,
+            error: 'This user has been blocked download feature with this category',
+          };
+        }
+      }
     }
     if (user[0].role !== roles.ADMIN) {
       const filter = [

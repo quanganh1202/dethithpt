@@ -76,6 +76,18 @@
       "type": "string",
       "minLength": 1
     },
+    "blockDownloadCollections": {
+      "type": "string",
+      "minLength": 1
+    },
+    "blockDownloadCategories": {
+      "type": "string",
+      "minLength": 1
+    },
+    "blockDownloadSubjects": {
+      "type": "string",
+      "minLength": 1
+    },
     "money": {
       "type": "string",
       "minLength": 1
