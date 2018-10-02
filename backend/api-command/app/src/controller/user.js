@@ -364,18 +364,45 @@ async function blockUser(id, userId, body) {
         status: 403,
       };
     }
-    if (body.status === '3' && !body.blockTo) {
-      return {
-        status: 400,
-        error: 'The end date of block should be provided. The start date auto get the date now if is empty',
-      };
+    const {
+      blockDownloadCollections,
+      blockDownloadCategories,
+      blockDownloadSubjects,
+      blockFrom,
+      blockTo,
+      status,
+    } = body;
+    const queryBody = Object.assign({}, body);
+    switch (status) {
+    case '3':
+      if (!blockTo) {
+        return {
+          status: 400,
+          error: 'The end date of block should be provided. The start date auto get the date now if is empty',
+        };
+      }
+      body.blockFrom = queryBody.blockFrom =
+      blockFrom ? moment(blockFrom).format('YYYY-MM-DDTHH:mm:ss.SSS') : moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
+      body.blockTo = queryBody.blockTo =
+      moment(blockTo).format('YYYY-MM-DDTHH:mm:ss.SSS');
+      break;
+    case '4':
+      if (!blockDownloadCollections && !blockDownloadCategories && !blockDownloadSubjects) {
+        return {
+          status: 400,
+          error: 'Should be provided block infomation. Ex: collections, categories ...',
+        };
+      }
+      if (blockDownloadCollections) queryBody.blockDownloadCollections = blockDownloadCollections.split(',');
+      if (blockDownloadCategories) queryBody.blockDownloadCategories = blockDownloadCategories.split(',');
+      if (blockDownloadSubjects) queryBody.blockDownloadSubjects = blockDownloadSubjects.split(',');
+      break;
+    default:
+      break;
     }
-    if (body.status === '3') {
-      body.blockFrom = body.blockFrom ? moment(body.blockFrom).format('YYYY-MM-DDTHH:mm:ss.SSS') : moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
-      body.blockTo = moment(body.blockTo).format('YYYY-MM-DDTHH:mm:ss.SSS');
-    }
+
     await userModel.updateUser(uid, body);
-    const serverNotify = await rabbitSender('user.update', { id: uid, body });
+    const serverNotify = await rabbitSender('user.update', { id: uid, body: queryBody });
     if (serverNotify.statusCode === 200) {
       return {
         status: 200,
