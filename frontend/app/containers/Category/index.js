@@ -21,6 +21,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { faMoneyBillAlt } from '@fortawesome/free-regular-svg-icons';;
 import Select from 'react-select';
+import FileSaver from 'file-saver';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
@@ -63,6 +64,7 @@ export class Category extends React.PureComponent {
         sort: { value: 'desc', label: 'Mới đăng' },
       },
       resetKey: Math.random(),
+      downloadingFile: '',
     };
     this.loadMoreDocs = this.loadMoreDocs.bind(this);
     this.handleChangeFilter = this.handleChangeFilter.bind(this);
