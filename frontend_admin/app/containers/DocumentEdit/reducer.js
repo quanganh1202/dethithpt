@@ -41,11 +41,11 @@ function docEditReducer(state = initialState, action) {
     case EDIT_DOC.REQUEST:
       return state.set('loading', true);
     case EDIT_DOC.SUCCESS:
-      return state.set('loading', false);
+      return state.set('loading', false).set('message', 'Cập nhật thành công!');
     case EDIT_DOC.FAILURE:
       return state
         .set('loading', false)
-        .set('message', action.error);
+        .set('error', action.error);
     case GET_DATA_INIT.REQUEST:
       return state.set('loading', true);
     case GET_DATA_INIT.SUCCESS:
@@ -53,7 +53,7 @@ function docEditReducer(state = initialState, action) {
         .set('loading', false)
         .set('dataInit', fromJS(action.data));
     case CLEAR_MESSAGE:
-      return state.set('message', '');
+      return state.set('message', '').set('error', '');
     default:
       return state;
   }

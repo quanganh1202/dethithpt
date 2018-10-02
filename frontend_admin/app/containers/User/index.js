@@ -193,8 +193,8 @@ export class User extends React.PureComponent {
         <td>{item.deposit}</td>
         <td>{item.money}</td>
         <td>{item.group}</td>
-        <td>Ghi chu</td>
-        <td>Ghi chu 2</td>
+        <td>{item.note}</td>
+        <td>{item.note2}</td>
         <td>
           {item.status === 1 ? (
             <Badge style={{ fontSize: '11px' }} color="success">
@@ -234,14 +234,14 @@ export class User extends React.PureComponent {
           <div>
             <button
               style={{ float: 'left', padding: '0', marginRight: '5px' }}
-              onClick={() => {}}
+              onClick={() => this.props.history.push(`/users/${item.id}?update=note2`)}
               title="Thêm, Sửa cột ghi chú"
             >
               <img src={noteIcon} height="15px" alt="icon" />
             </button>
             <button
               style={{ float: 'left', padding: '0', marginRight: '5px' }}
-              onClick={() => {}}
+              onClick={() => this.props.history.push(`/users/${item.id}?update=note1`)}
               title="Thêm sửa cột ghi chú 2"
             >
               <img src={noteIcon} height="15px" alt="icon" />

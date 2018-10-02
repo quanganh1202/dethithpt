@@ -239,7 +239,7 @@ export class Documents extends React.PureComponent {
         <td>{item.approved === 1
             ? <Badge style={{ fontSize: '11px' }} color="success">Đã duyệt</Badge>
             : <Badge style={{ fontSize: '11px' }} color="warning">Chưa duyệt</Badge>}</td>
-        <td>{item.group}</td>
+        <td>{item.description}</td>
         <td className="actions-col">
           <div style={{ overflow: 'auto' }}>
             <button
@@ -258,7 +258,7 @@ export class Documents extends React.PureComponent {
             </button>
             <button
               style={{ float: 'left', padding: '0' }}
-              onClick={() => this.props.history.push(`/documents/${item.id}`)}
+              onClick={() => this.props.history.push(`/documents/${item.id}?update=note`)}
               title="Ghi chú"
             >
               <img src={noteIcon} height="15px" alt="note-icon" />
