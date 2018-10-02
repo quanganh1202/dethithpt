@@ -71,7 +71,7 @@ async function uploadDocument(body, file) {
     if (!file.length) {
       return {
         status: 400,
-        error: 'Should be contain any file',
+        error: 'Should be provided a file to upload',
       };
     }
 

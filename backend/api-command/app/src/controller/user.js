@@ -342,15 +342,15 @@ async function blockUser(id, userId, body) {
     let user;
     let uid;
     const { email } = body;
-    if (id) {
-      user = await userModel.getById(id);
-      uid = id;
-    }
+
     if (email) {
       user = await userModel.getList([{ email }]);
       if (user.length) {
         uid = user[0].id;
       }
+    } else if (id) {
+      user = await userModel.getById(id);
+      uid = id;
     }
     if (!user || !user.length) {
       return {
@@ -456,15 +456,14 @@ async function bonus(userId, id, money, email) {
     };
     let uid;
     let user;
-    if (id) {
-      user = await userModel.getById(id);
-      uid = id;
-    }
     if (email) {
       user = await userModel.getList([{ email }]);
       if (user.length) {
         uid = user[0].id;
       }
+    } else if (id) {
+      user = await userModel.getById(id);
+      uid = id;
     }
     if (!user || !user.length) {
       return {
