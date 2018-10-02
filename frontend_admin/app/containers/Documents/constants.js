@@ -18,3 +18,4 @@ export const CLEAR_DELETE_STATUS = defineAction('CLEAR_DELETE_STATUS', container
 export const GET_DATA_INIT = defineAction('GET_DATA_INIT', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
 export const REQUEST_DOWNLOAD = defineAction('REQUEST_DOWNLOAD', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
 export const REMOVE_FILE_SAVE = defineAction('REMOVE_FILE_SAVE', container);
+export const GET_DOWNLOAD_HISTORY = defineAction('GET_DOWNLOAD_HISTORY', ['REQUEST', 'SUCCESS', 'FAILURE'], container);

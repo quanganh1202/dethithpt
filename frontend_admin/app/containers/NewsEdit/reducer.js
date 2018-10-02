@@ -11,52 +11,42 @@
  */
 import { fromJS } from 'immutable';
 import {
-  EDIT_DOC,
-  GET_DOC_DETAIL,
-  GET_DATA_INIT,
+  UPDATE_NEWS,
   CLEAR_MESSAGE,
+  GET_NEWS_DETAIL,
 } from './constants';
 
 // The initial state of the App
 export const initialState = fromJS({
-  document: {},
   message: '',
-  dataInit: {
-    categories: [],
-    subjects: [],
-    classes: [],
-    collections: [],
-    tags: [],
-  }
+  news: {},
 });
 
-function docEditReducer(state = initialState, action) {
+function newsCreateReducer(state = initialState, action) {
   switch (action.type) {
-    case GET_DOC_DETAIL.REQUEST:
+    case UPDATE_NEWS.REQUEST:
       return state.set('loading', true);
-    case GET_DOC_DETAIL.SUCCESS:
+    case UPDATE_NEWS.SUCCESS:
+      return state.set('loading', false);
+    case UPDATE_NEWS.FAILURE:
       return state
         .set('loading', false)
-        .set('document', fromJS(action.data));
-    case EDIT_DOC.REQUEST:
+        .set('message', action.error);
+    case GET_NEWS_DETAIL.REQUEST:
       return state.set('loading', true);
-    case EDIT_DOC.SUCCESS:
-      return state.set('loading', false).set('message', 'Cập nhật thành công!');
-    case EDIT_DOC.FAILURE:
+    case GET_NEWS_DETAIL.SUCCESS:
       return state
         .set('loading', false)
-        .set('error', action.error);
-    case GET_DATA_INIT.REQUEST:
-      return state.set('loading', true);
-    case GET_DATA_INIT.SUCCESS:
+        .set('news', fromJS(action.data));
+    case GET_NEWS_DETAIL.FAILURE:
       return state
         .set('loading', false)
-        .set('dataInit', fromJS(action.data));
+        .set('message', fromJS(action.error));
     case CLEAR_MESSAGE:
-      return state.set('message', '').set('error', '');
+      return state.set('message', '');
     default:
       return state;
   }
 }
 
-export default docEditReducer;
+export default newsCreateReducer;

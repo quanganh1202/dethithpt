@@ -41,10 +41,13 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import FileSaver from 'file-saver';
 import { HeadSort, PaginationTable, HeadFilter } from 'components/Table';
+import PopUp from 'components/PopUp';
 import checkIcon from 'assets/img/icons/check.png';
 import deleteIcon from 'assets/img/icons/delete.png';
 import editIcon from 'assets/img/icons/edit.png';
 import uncheckIcon from 'assets/img/icons/uncheck.png';
+import noteIcon from 'assets/img/icons/icon.png';
+import tranIcon from 'assets/img/icons/tran.png';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
@@ -57,6 +60,7 @@ import {
   getDataInit,
   requestDownload,
   removeFileSave,
+  getDownloadHistory,
 } from './actions';
 import {
   makeSelectDocuments,
@@ -66,6 +70,7 @@ import {
   makeSelectDataInit,
   makeSelectFile,
   makeSelectFileName,
+  makeSelectDownloadHistory,
 } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
@@ -101,6 +106,9 @@ const Wrapper = styled.div`
       }
       > p {
         margin: 0;
+      }
+      &.actions-col {
+        min-width: 80px
       }
     }
     tr > th {
@@ -143,7 +151,8 @@ export class Documents extends React.PureComponent {
         subjectId: [],
         classId: [],
         yearSchools: [],
-      }
+      },
+      showHistory: false,
     };
     this.size = 10;
     this.maxPages = 11;
@@ -157,6 +166,7 @@ export class Documents extends React.PureComponent {
     this.onQuickUpdateMultiSelect = this.onQuickUpdateMultiSelect.bind(this);
     this.handleMultiApprove = this.handleMultiApprove.bind(this);
     this.onSelectFilter = this.onSelectFilter.bind(this);
+    this.closeDownloadHistory = this.closeDownloadHistory.bind(this);
   }
 
   componentWillMount() {
@@ -189,6 +199,13 @@ export class Documents extends React.PureComponent {
       FileSaver.saveAs(blob, _.get(nextProps, 'fileName', 'download'));
       this.props.removeFileSave();
     }
+    // if (!this.props.historyDownload.length && !_.isEqual(this.props.historyDownload, nextProps.historyDownload)) {
+    //   this.setState({ showHistory: true });
+    // }
+  }
+
+  componentWillUnmount() {
+    this.props.removeFileSave();
   }
 
   handleDownloadFile(id, name) {
@@ -222,7 +239,7 @@ export class Documents extends React.PureComponent {
         <td>{item.approved === 1
             ? <Badge style={{ fontSize: '11px' }} color="success">Đã duyệt</Badge>
             : <Badge style={{ fontSize: '11px' }} color="warning">Chưa duyệt</Badge>}</td>
-        <td>{item.group}</td>
+        <td>{item.description}</td>
         <td className="actions-col">
           <div style={{ overflow: 'auto' }}>
             <button
@@ -233,11 +250,18 @@ export class Documents extends React.PureComponent {
               <img src={deleteIcon} height="15px" alt="delete-icon" />
             </button>
             <button
-              style={{ float: 'left', padding: '0' }}
+              style={{ float: 'left', padding: '0', marginRight: '5px' }}
               onClick={() => this.props.history.push(`/documents/${item.id}`)}
               title="Sửa"
             >
               <img src={editIcon} height="15px" alt="edit-icon" />
+            </button>
+            <button
+              style={{ float: 'left', padding: '0' }}
+              onClick={() => this.props.history.push(`/documents/${item.id}?update=note`)}
+              title="Ghi chú"
+            >
+              <img src={noteIcon} height="15px" alt="note-icon" />
             </button>
           </div>
           <div>
@@ -249,11 +273,21 @@ export class Documents extends React.PureComponent {
               <img src={checkIcon} height="15px" alt="check-icon" />
             </button>
             <button
-              style={{ float: 'left', padding: '0' }}
+              style={{ float: 'left', padding: '0', marginRight: '5px' }}
               onClick={() => this.props.updateDocs([item.id], { priority: 1 })}
               title="Nổi bật"
             >
               <img src={uncheckIcon} height="15px" alt="uncheck-icon" />
+            </button>
+            <button
+              style={{ float: 'left', padding: '0' }}
+              onClick={() => {
+                this.props.getDownloadHistory(item.id);
+                this.setState({ showHistory: item.name });
+              }}
+              title="Lịch sử tải"
+            >
+              <img src={tranIcon} height="15px" alt="tran-icon" />
             </button>
           </div>
         </td>
@@ -394,6 +428,11 @@ export class Documents extends React.PureComponent {
     };
     Object.keys(newFilter).forEach((k) => (query[k] = newFilter[k].join()));
     this.props.getDocs(query);
+  }
+
+  closeDownloadHistory() {
+    this.setState({ showHistory: false });
+    this.props.removeFileSave();
   }
 
   render() {
@@ -765,6 +804,57 @@ export class Documents extends React.PureComponent {
               </Card>
             </Col>
           </Row>
+          <PopUp
+            show={!!this.state.showHistory}
+            onClose={this.closeDownloadHistory}
+            content={
+              <Card style={{ maxHeight: 'calc(100vh - 200px)'}}>
+                <CardHeader>
+                  <p className="float-left"
+                    style={{
+                      wordBreak: 'break-all',
+                      maxWidth: '90%',
+                    }}
+                  >
+                    <i className="fa fa-history"></i> Lịch sử tải <span style={{ color: 'blue' }}>"{this.state.showHistory}"</span>
+                  </p>
+                  <span
+                    className="float-right btn-close-popup"
+                    title="Đóng cửa sổ"
+                    style={{
+                      fontSize: '15px',
+                      cursor: 'pointer'
+                    }}
+                    onClick={this.closeDownloadHistory}
+                  ><i className="fa fa-close"></i></span>
+                </CardHeader>
+                <CardBody style={{ overflow: 'auto' }}>
+                  <Table responsive hover striped>
+                    <thead>
+                      <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Người tải</th>
+                        <th scope="col">Thời gian tải</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {this.props.historyDownload.length ? this.props.historyDownload.map((i, idx) => (
+                        <tr key={i.id}>
+                          <td>{idx + 1}</td>
+                          <td>{i.userEmail}</td>
+                          <td>{moment(i.createdAt).format('DD/MM/YYYY hh:mm:ss')}</td>
+                        </tr>
+                      )) : (
+                        this.props.loading
+                          ? <tr><td colSpan="3">loading</td></tr>
+                          : <tr><td colSpan="3">Không tìm thấy lượt tải nào</td></tr>
+                      )}
+                    </tbody>
+                  </Table>
+                </CardBody>
+              </Card>
+            }
+          />
         </Container>
       </Wrapper>
     );
@@ -785,6 +875,7 @@ export function mapDispatchToProps(dispatch) {
     getDataInit: () => dispatch(getDataInit()),
     requestDownload: (id, name) => dispatch(requestDownload(id, name)),
     removeFileSave: () => dispatch(removeFileSave()),
+    getDownloadHistory: (id) => dispatch(getDownloadHistory(id)),
   };
 }
 
@@ -796,6 +887,7 @@ const mapStateToProps = createStructuredSelector({
   dataInit: makeSelectDataInit(),
   file: makeSelectFile(),
   fileName: makeSelectFileName(),
+  historyDownload: makeSelectDownloadHistory(),
 });
 
 const withConnect = connect(

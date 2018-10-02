@@ -192,13 +192,13 @@ export class HomePage extends React.PureComponent {
     if (!_.isEqual(this.props.user, nextProps.user)) {
       this.setState({ user: nextProps.user });
     }
-    if (!this.props.file && nextProps.file) {
+    if (!this.props.file && nextProps.file && this.props.history.location.pathname === '/') {
       const blob = new Blob([nextProps.file]);
       FileSaver.saveAs(blob, _.get(this.state, 'downloadingFile', 'download'));
       this.setState({ downloadingFile: '' });
       this.props.removeFileSave();
     }
-    if (!this.props.message && nextProps.message) {
+    if (!this.props.message && nextProps.message && this.props.history.location.pathname === '/') {
       alert(errorMapping[nextProps.message] || 'Có lỗi xảy ra, vui lòng báo lại cho admin!');
       this.props.removeMessage();
     }

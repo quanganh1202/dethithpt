@@ -19,6 +19,7 @@ import {
   GET_DATA_INIT,
   REQUEST_DOWNLOAD,
   REMOVE_FILE_SAVE,
+  GET_DOWNLOAD_HISTORY,
 } from './constants';
 
 // The initial state of the App
@@ -35,6 +36,7 @@ export const initialState = fromJS({
   },
   file: null,
   fileName: '',
+  historyDownload: [],
 });
 
 function documentReducer(state = initialState, action) {
@@ -80,7 +82,16 @@ function documentReducer(state = initialState, action) {
         .set('file', action.file)
         .set('fileName', action.name);
     case REMOVE_FILE_SAVE:
-      return state.set('file', null).set('fileName', '');
+      return state
+        .set('file', null)
+        .set('fileName', '')
+        .set('historyDownload', fromJS([]));
+    case GET_DOWNLOAD_HISTORY.REQUEST:
+      return state.set('loading', true);
+    case GET_DOWNLOAD_HISTORY.SUCCESS:
+      return state
+        .set('loading', false)
+        .set('historyDownload', fromJS(action.historyDownload));
     default:
       return state;
   }

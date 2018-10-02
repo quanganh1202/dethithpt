@@ -19,10 +19,14 @@ const makeSelectMessage = () =>
 const makeSelectLoading = () =>
   createSelector(selectHome, subjectState => subjectState.get('loading'));
 
+const makeSelectError = () =>
+  createSelector(selectHome, subjectState => subjectState.get('error'));
+
 export {
   selectHome,
   makeSelectDocDetail,
   makeSelectDataInit,
   makeSelectMessage,
   makeSelectLoading,
+  makeSelectError,
 };

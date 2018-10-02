@@ -49,10 +49,10 @@ function ListItem(props) {
         <span>
           <Link to={`/tai-lieu/${props.item.id}`}>{props.item.name || 'Đề thi THPT quốc gia chính thức - 2016 - Môn Địa lí - Bộ Giáo dục'}</Link>
         </span>
-        <span onClick={() => props.onPreview(props.item.id)}>
+        <span className="document-action-icon" onClick={() => props.onPreview(props.item.id)} title="Xem thử tài liệu">
           <FontAwesomeIcon className={'title-icon'} icon={['far', 'eye']} />
         </span>
-        <span onClick={() => props.onDownload(props.item.id, props.item.name)}>
+        <span className="document-action-icon" onClick={() => props.onDownload(props.item.id, props.item.name)} title="Tải tài liệu">
           <FontAwesomeIcon className={'title-icon'} icon={['fas', 'download']} />
         </span>
       </div>

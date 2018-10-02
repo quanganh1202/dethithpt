@@ -166,7 +166,7 @@ class DetailForm extends React.Component {
       default:
         break;
     }
-    const temp = formData.set(name, newValue);
+    const temp = formData.set(name, name === 'price' ? newValue.replace(/,/g, '') : newValue);
     this.setState({ formData: temp });
   }
 

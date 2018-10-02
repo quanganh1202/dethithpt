@@ -7,6 +7,7 @@ import {
   GET_DATA_INIT,
   REQUEST_DOWNLOAD,
   REMOVE_FILE_SAVE,
+  GET_DOWNLOAD_HISTORY,
 } from './constants';
 
 /**
@@ -193,5 +194,33 @@ export function requestDownloadSuccess(file, name) {
 export function removeFileSave() {
   return {
     type: REMOVE_FILE_SAVE,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} name The new text of the input field
+ *
+ * @return {object}    An action object with a type of GET_DOWNLOAD_HISTORY.REQUEST
+ */
+export function getDownloadHistory(id) {
+  return {
+    type: GET_DOWNLOAD_HISTORY.REQUEST,
+    id,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} name The new text of the input field
+ *
+ * @return {object}    An action object with a type of GET_DOWNLOAD_HISTORY.SUCCESS
+ */
+export function getDownloadHistorySuccess({ data }) {
+  return {
+    type: GET_DOWNLOAD_HISTORY.SUCCESS,
+    historyDownload: data,
   };
 }
