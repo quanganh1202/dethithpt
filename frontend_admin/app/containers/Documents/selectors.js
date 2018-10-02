@@ -28,6 +28,9 @@ const makeSelectFile = () =>
 const makeSelectFileName = () =>
   createSelector(selectHome, homeState => homeState.get('fileName'));
 
+const makeSelectDownloadHistory = () =>
+  createSelector(selectHome, homeState => homeState.get('historyDownload').toJS());
+
 export {
   selectHome,
   makeSelectDocuments,
@@ -37,4 +40,5 @@ export {
   makeSelectDataInit,
   makeSelectFile,
   makeSelectFileName,
+  makeSelectDownloadHistory,
 };

@@ -6,7 +6,15 @@ import _ from 'lodash';
 import { all, call, put, takeLatest } from 'redux-saga/effects';
 import request from 'utils/request';
 import { getToken } from 'services/auth';
-import { GET_DOCS, APPROVE_DOCS, DELETE_DOC, UPDATE_DOCS, GET_DATA_INIT, REQUEST_DOWNLOAD } from './constants';
+import {
+  GET_DOCS,
+  APPROVE_DOCS,
+  DELETE_DOC,
+  UPDATE_DOCS,
+  GET_DATA_INIT,
+  REQUEST_DOWNLOAD,
+  GET_DOWNLOAD_HISTORY,
+} from './constants';
 import {
   getDocsSuccess,
   approveDocsSuccess,
@@ -14,6 +22,7 @@ import {
   updateDocsSuccess,
   getDataInitSuccess,
   requestDownloadSuccess,
+  getDownloadHistorySuccess,
 } from './actions';
 
 const root = '/api';
@@ -145,6 +154,25 @@ export function* requestDownloadHandler({ id, name }) {
 }
 
 /**
+ * Request download document
+ */
+export function* requestGetDownloadHistoryHandler({ id }) {
+  const url = `${root}/download?docId=${id}`;
+  const options = {
+    headers: {
+      ['x-access-token']: getToken(),
+    },
+  }
+
+  try {
+    const resp = yield call(axios.get, url, options);
+    yield put(getDownloadHistorySuccess(resp.data));
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+/**
  * Root saga manages watcher lifecycle
  */
 export default function* documentSaga() {
@@ -154,4 +182,5 @@ export default function* documentSaga() {
   yield takeLatest(UPDATE_DOCS.REQUEST, updateDocsHandler);
   yield takeLatest(GET_DATA_INIT.REQUEST, getDataInitHandler);
   yield takeLatest(REQUEST_DOWNLOAD.REQUEST, requestDownloadHandler);
+  yield takeLatest(GET_DOWNLOAD_HISTORY.REQUEST, requestGetDownloadHistoryHandler);
 }
