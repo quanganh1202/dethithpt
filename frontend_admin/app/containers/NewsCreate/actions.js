@@ -10,10 +10,11 @@ import {
  *
  * @return {object}    An action object with a type of CREATE_NEWS.REQUEST
  */
-export function createNews(data) {
+export function createNews(data, module) {
   return {
     type: CREATE_NEWS.REQUEST,
     data,
+    module,
   };
 }
 

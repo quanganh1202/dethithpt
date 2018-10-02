@@ -68,7 +68,7 @@ export default {
       children: [
         {
           name: 'Tin tức',
-          url: '/news',
+          url: '/modules/news',
           icon: 'fa fa-table',
         },
       ],
