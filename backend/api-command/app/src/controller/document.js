@@ -75,6 +75,13 @@ async function uploadDocument(body, file) {
       };
     }
 
+    if (file[0].size > 100 * 1024 * 1024) {
+      return {
+        status: 400,
+        error: 'File upload too large, allow maximum 100Mb',
+      };
+    }
+
     const { tags, cateIds, subjectIds, classIds, collectionIds, yearSchools, userId } = body;
     const user = await checkUserActivation(userId);
     if (user.error) return user;
