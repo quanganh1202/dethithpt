@@ -1,4 +1,4 @@
-ALTER DATABASE `dethithpt` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+ALTER SCHEMA `dethithpt` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 USE dethithpt;
 
@@ -23,6 +23,11 @@ USE dethithpt;
     `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `blockTo` TIMESTAMP NULL,
     `blockFrom` TIMESTAMP NULL,
+    `blockDownloadCollections` VARCHAR(255) NULL,
+    `blockDownloadCategories` VARCHAR(255) NULL,
+    `blockDownloadSubjects` VARCHAR(255) NULL,
+    `notifyText` VARCHAR(255) NULL,
+    `notifyStatus` TINYINT DEFAULT '0',
     PRIMARY KEY (`id`),
     UNIQUE INDEX `id_UNIQUE` (`id` ASC),
     UNIQUE INDEX `email_UNIQUE` (`email` ASC),
@@ -119,6 +124,7 @@ USE dethithpt;
     `priority` INT(1) NOT NULL DEFAULT '0',
     `active` INT(1) NOT NULL DEFAULT '1',
     `type` VARCHAR(255) NOT NULL,
+    `position` VARCHAR(255) NULL,
     `userId` VARCHAR(255) NOT NULL,
     `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
