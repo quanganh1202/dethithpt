@@ -187,6 +187,25 @@
             }
           }
         },
+        "numOfDownloaded": {
+          "type": "integer"
+        },
+        "numOfUploaded": {
+          "type": "integer"
+        },
+        "notifyText": {
+          "type": "text",
+          "analyzer": "autocomplete",
+          "search_analyzer": "standard",
+          "fields": {
+            "raw": {
+              "type": "keyword"
+            }
+          }
+        },
+        "notifyStatus": {
+          "type": "integer"
+        },
         "createdAt": {
         	"type": "date"
         },
