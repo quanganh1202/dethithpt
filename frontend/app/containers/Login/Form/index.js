@@ -7,6 +7,15 @@ import Wrapper from './Wrapper';
 import local from './newLocal.json';
 
 const CreateUser = (props) => {
+  const data = _.get(props, 'data') || {};
+  const cityValue = _.get(data, 'city.value', '');
+  const districtValue = _.get(data, 'district.value', '');
+  const levelValue = _.get(data, 'level.value', '');
+  const districts = _.get(local.find((city) => city.id === cityValue), 'districts', []);
+  let school = _.get(districts.find((d) => d.id === districtValue), 'schools', []);
+  if (levelValue) {
+    school = school.filter((s) => _.get(s, 'class', []).includes(+levelValue));
+  }
   return (
     <Wrapper>
       <div className="form-header">
@@ -25,7 +34,7 @@ const CreateUser = (props) => {
                   <input
                     type="text"
                     name="name"
-                    value={_.get(props.data, 'name') || ''}
+                    value={data.name || ''}
                     placeholder="Nhập họ và tên bạn"
                     onChange={props.onChange}
                   />
@@ -37,7 +46,7 @@ const CreateUser = (props) => {
                   <input
                     type="text"
                     name="phone"
-                    value={_.get(props.data, 'phone') || ''}
+                    value={data.phone || ''}
                     placeholder="Nhập số điện thoại chính xác"
                     onChange={props.onChange}
                   />
@@ -53,7 +62,7 @@ const CreateUser = (props) => {
                       { text: 'Giáo viên', value: 'teacher' },
                       { text: 'Khác', value: 'other' },
                     ]}
-                    value={_.get(props.data, 'position') || ''}
+                    value={data.position || ''}
                     defaultText={'-- Vui lòng chọn chức danh --'}
                     onChange={props.onChange}
                   />
@@ -81,7 +90,7 @@ const CreateUser = (props) => {
                     options={Array(81)
                       .fill((new Date()).getFullYear() - 80)
                       .map((y, idx) => ({ value: y + idx, text: y + idx }))}
-                    value={_.get(props.data, 'bod') || ''}
+                    value={data.bod || ''}
                     defaultText={'-- Vui lòng chọn năm sinh --'}
                     onChange={props.onChange}
                   />
@@ -92,8 +101,8 @@ const CreateUser = (props) => {
                 <td>
                   <Select
                     name="city"
-                    options={local.map((city) => ({ text: city.name, value: city.code}))}
-                    value={_.get(props.data, 'city') || ''}
+                    options={local.map((city) => ({ text: city.name, value: city.id}))}
+                    value={cityValue}
                     defaultText={'Chọn Tỉnh/Thành phố'}
                     onChange={props.onChange}
                   />
@@ -104,11 +113,9 @@ const CreateUser = (props) => {
                 <td>
                   <Select
                     name="district"
-                    options={_.get(
-                      local.find((city) => city.code === _.get(props.data, 'city')),
-                      'districts', []
-                    ).map((district) => ({ text: district.name, value: district.name }))}
-                    value={_.get(props.data, 'district') || ''}
+                    options={districts
+                      .map((district) => ({ text: district.name, value: district.id }))}
+                    value={districtValue}
                     defaultText={'Chọn Quận/Huyện'}
                     onChange={props.onChange}
                   />
@@ -120,9 +127,21 @@ const CreateUser = (props) => {
                   <Select
                     name="level"
                     options={[
-                      { text: 'Lớp 1', value: 'Lớp 1' },
+                      { text: 'Lớp 1', value: '1' },
+                      { text: 'Lớp 2', value: '2' },
+                      { text: 'Lớp 3', value: '3' },
+                      { text: 'Lớp 4', value: '4' },
+                      { text: 'Lớp 5', value: '5' },
+                      { text: 'Lớp 6', value: '6' },
+                      { text: 'Lớp 7', value: '7' },
+                      { text: 'Lớp 8', value: '8' },
+                      { text: 'Lớp 9', value: '9' },
+                      { text: 'Lớp 10', value: '10' },
+                      { text: 'Lớp 11', value: '11' },
+                      { text: 'Lớp 12', value: '12' },
+                      { text: 'Lớp 13', value: '13' },
                     ]}
-                    value={_.get(props.data, 'level') || ''}
+                    value={levelValue || ''}
                     defaultText={'Chọn cấp học'}
                     onChange={props.onChange}
                   />
@@ -133,10 +152,9 @@ const CreateUser = (props) => {
                 <td>
                   <Select
                     name="school"
-                    options={[
-                      { text: 'Quang Trung', value: 'Quang Trung' },
-                    ]}
-                    value={_.get(props.data, 'school') || ''}
+                    options={school
+                      .map((school) => ({ text: school.name, value: school.id }))}
+                    value={_.get(data, 'school.value') || ''}
                     defaultText={'Chọn trường đang và đã học tập'}
                     onChange={props.onChange}
                   />
@@ -148,7 +166,7 @@ const CreateUser = (props) => {
                   <input
                     type="text"
                     name="facebook"
-                    value={_.get(props.data, 'facebook') || ''}
+                    value={data.facebook || ''}
                     placeholder="Dán link facebook của bạn"
                     onChange={props.onChange}
                   />

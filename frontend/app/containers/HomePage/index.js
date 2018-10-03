@@ -104,6 +104,8 @@ const errorMapping = {
   not_enough_money: 'Tài khoản không còn đủ tiền để thanh toán, vui lòng nạp thêm!',
 }
 
+const dataConvert = ['city', 'district', 'level', 'school'];
+
 /* eslint-disable react/prefer-stateless-function */
 export class HomePage extends React.PureComponent {
   constructor() {
@@ -178,10 +180,23 @@ export class HomePage extends React.PureComponent {
 
   onChange(e) {
     const { name, value } = e.currentTarget;
-    const updateUser = {
-      ...this.state.user,
-      [name]: value,
-    };
+    let updateUser;
+    if (dataConvert.includes(name)) {
+      const text = e.currentTarget.options[e.currentTarget.selectedIndex].innerHTML;
+      updateUser = {
+        ...this.state.user,
+        [name]: {
+          value,
+          text: value ? text : '',
+        },
+      };
+    } else {
+      updateUser = {
+        ...this.state.user,
+        [name]: value,
+      };
+    }
+    
     if (updateUser.facebook === null) {
       updateUser.facebook = '';
     }
@@ -208,6 +223,9 @@ export class HomePage extends React.PureComponent {
       delete update.id;
       delete update.status;
       update.role = 'member';
+      dataConvert.forEach((key) => {
+        update[key] = update[key].text;
+      })
       this.props.onSubmitUserInfo(update);
     }
   }

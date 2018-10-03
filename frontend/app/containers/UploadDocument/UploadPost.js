@@ -223,7 +223,7 @@ class UploadPost extends React.Component {
     return (
       <Wrapper>
         <div className="dropzone">
-          <Dropzone onDrop={this.onDrop.bind(this)}>
+          <Dropzone accept="image/jpeg, image/png, application/pdf, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/x-rar-compressed, application/zip" onDrop={this.onDrop.bind(this)}>
             <ButtonUpload>
               {this.state.files.count() > 0 ? 'Chọn thêm' : 'Chọn tệp'}
             </ButtonUpload>
