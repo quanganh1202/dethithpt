@@ -163,6 +163,32 @@ const updateDocumentDownload = (documentId, type) => {
   );
 };
 
+const updateUserUpload = (userId, type) => {
+  const docModel =new ES('users', 'user');
+  const operation = type === constants.INCREASE ? '++' : '--';
+
+  return docModel.updateByScript(
+    userId,
+    {
+      source: `ctx._source.numOfUploaded${operation};`,
+      lang: 'painless',
+    }
+  );
+};
+
+const updateUserDownload = (userId, type) => {
+  const docModel =new ES('users', 'user');
+  const operation = type === constants.INCREASE ? '++' : '--';
+
+  return docModel.updateByScript(
+    userId,
+    {
+      source: `ctx._source.numOfDownloaded${operation};`,
+      lang: 'painless',
+    }
+  );
+};
+
 const updateTagViewById = (tagId, type) => {
   const tagModel =new ES('tags', 'tag');
   const operation = type === constants.INCREASE ? '++' : '--';
@@ -304,6 +330,7 @@ const insertTag = async (tags, createdAt) => {
 };
 
 export {
+  updateUserDownload,
   updateMoneyUserById,
   insertTag,
   filterParamsHandler,
@@ -318,4 +345,5 @@ export {
   updateClassView,
   updateSubjectView,
   updateDocumentDownload,
+  updateUserUpload,
 };

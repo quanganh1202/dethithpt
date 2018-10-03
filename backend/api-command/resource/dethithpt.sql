@@ -26,6 +26,8 @@ USE dethithpt;
     `blockDownloadCollections` VARCHAR(255) NULL,
     `blockDownloadCategories` VARCHAR(255) NULL,
     `blockDownloadSubjects` VARCHAR(255) NULL,
+    `notifyText` VARCHAR(255) NULL,
+    `notifyStatus` TINYINT DEFAULT '0',
     PRIMARY KEY (`id`),
     UNIQUE INDEX `id_UNIQUE` (`id` ASC),
     UNIQUE INDEX `email_UNIQUE` (`email` ASC),

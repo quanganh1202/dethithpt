@@ -90,6 +90,8 @@ export default {
     try {
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.createdAt = now;
+      body.numOfDownloaded = 0;
+      body.numOfUploaded = 0;
       const result = await elasticsearch.insert(body, userId);
 
       return result;

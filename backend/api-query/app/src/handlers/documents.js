@@ -18,6 +18,7 @@ import {
   updateCollectionView,
   updateCateView,
   updateSubjectView,
+  updateUserUpload,
 } from '../libs/esHelper';
 const documentType = process.env.ES_TYPE_DOCUMENT || 'document';
 const index = process.env.ES_INDEX_DOCUMENT || 'documents';
@@ -179,12 +180,12 @@ export default {
 
   create: async (docId, body) => {
     try {
-      const { cates, tags, collections } = body;
+      const { cates, tags, collections, userId } = body;
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.createdAt = now;
       body.downloaded = 0;
       await elasticsearch.insert(body, docId);
-      const promise = [insertTag(tags)];
+      const promise = [insertTag(tags), updateUserUpload(userId, constant.INCREASE)];
       if (cates && cates.length) {
         const promiseUpdateCates = updateNumDocRefToCate(cates, constant.INCREASE);
         promise.concat([...promiseUpdateCates]);
@@ -193,7 +194,14 @@ export default {
         const promiseUpdateCollections = updateNumDocRefToCollection(collections, constant.INCREASE);
         promise.concat([...promiseUpdateCollections]);
       }
-      await Promise.all(promise);
+      await Promise.all(promise).catch((err) => {
+        logger.error(`[UPLOAD][QUERY] ${err.message || 'Unexpected error'}`);
+
+        return {
+          statusCode: 500,
+          error: '[QUERY] Unexpected error when upload file',
+        };
+      });
 
       return { statusCode: 200 };
     } catch (error) {

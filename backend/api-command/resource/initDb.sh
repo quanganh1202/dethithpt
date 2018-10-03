@@ -37,6 +37,8 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     money VARCHAR(255) DEFAULT '0',
     status TINYINT DEFAULT '2',
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    notifyText VARCHAR(255) NULL,
+    notifyStatus TINYINT DEFAULT '0',
     PRIMARY KEY (id),
     UNIQUE INDEX id_UNIQUE (id ASC),
     UNIQUE INDEX email_UNIQUE (email ASC),
