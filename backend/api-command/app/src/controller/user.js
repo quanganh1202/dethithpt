@@ -10,6 +10,7 @@ import social from '../constant/socialApiUrl';
 import rabbitSender from '../../rabbit/sender';
 import * as roles from '../constant/roles';
 import action from '../constant/action';
+import { isUndefined } from 'util';
 
 const userModel = new User();
 const createSchema = 'http://dethithpt.com/user-create-schema#';
@@ -254,7 +255,7 @@ async function updateUser(id, userInfo) {
         error: resValidate.errors,
       };
     }
-    const { email, phone, userId } = userInfo;
+    const { email, phone, userId, notifyText, notifyStatus } = userInfo;
     const actor = await checkUserActivation(userId);
     if (actor.error) return actor;
     const existed = await userModel.getById(id);
@@ -276,6 +277,16 @@ async function updateUser(id, userInfo) {
         status: 400,
         error: 'Can not update email',
       };
+    }
+    if (notifyText && role !== roles.ADMIN) {
+      return {
+        status: 400,
+        error: 'Only role admin can update field notifyText',
+      };
+    }
+
+    if (notifyText && isUndefined(notifyStatus)) {
+      userInfo.notifyStatus = 1;
     }
     const criteria = [ { email }, { phone }];
     const user = await userModel.getList(criteria);

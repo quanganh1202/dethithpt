@@ -71,6 +71,8 @@ export class UploadDocument extends React.PureComponent {
       subjects: [],
       classes: [],
       categories: [],
+      tags: [],
+      collections: [],
     };
 
     this.initData = this.initData.bind(this);

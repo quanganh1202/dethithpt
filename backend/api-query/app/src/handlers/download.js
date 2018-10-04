@@ -2,7 +2,7 @@ import { isUndefined } from 'util';
 import moment from 'moment';
 import ES from '../../elastic';
 import logger from '../libs/logger';
-import { updateDocumentDownload } from '../libs/esHelper';
+import { updateDocumentDownload, updateUserDownload } from '../libs/esHelper';
 import constant from '../constant/common';
 import { filterParamsHandler, sortParamsHandler } from '../libs/esHelper';
 const type = process.env.ES_TYPE_DOWNLOAD || 'download';
@@ -70,9 +70,19 @@ export default {
 
   create: async (id, body) => {
     try {
-      const { docId } = body;
+      const { docId, userId } = body;
       body.createdAt = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
-      await updateDocumentDownload(docId, constant.INCREASE);
+      await Promise.all([
+        updateDocumentDownload(docId, constant.INCREASE),
+        updateUserDownload(userId, constant.INCREASE),
+      ]).catch((err) => {
+        logger.error(err.message || '[DOWNLOAD][QUERY] Unexpected error when during process download');
+
+        return {
+          statusCode: 500,
+          error: '[QUERY] Unexpected error when during process download',
+        };
+      });
       await elasticsearch.insert(body);
 
       return {
