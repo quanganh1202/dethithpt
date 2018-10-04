@@ -30,7 +30,7 @@ const checkUserActivation = async (userId) => {
   case '0':
     return {
       status: 400,
-      error: 'This user has been blocked',
+      error: 'Account has been blocked',
     };
   case '2':
     return {
@@ -41,7 +41,7 @@ const checkUserActivation = async (userId) => {
     if (moment(user[0].blockTo) >= moment.now()) {
       return {
         status: 400,
-        error: `This user has been blocked from ${
+        error: `Account has been blocked from ${
           moment(user[0].blockFrom).format('YYYY-MM-DDTHH:mm:ss.SSS')} to ${moment(user[0].blockTo).format('YYYY-MM-DDTHH:mm:ss.SSS')}`,
       };
     }
@@ -172,8 +172,13 @@ async function addUser(userInfo, userId) {
         };
       } else {
         id = user[0].id;
+        const { role } = user[0];
+        if (role) userInfo.role = role;
         await userModel.updateUser(id, userInfo);
         action = 'update';
+        userInfo.numOfDownloaded = 0;
+        userInfo.numOfUploaded = 0;
+        userInfo.money = 0;
       }
     } else {
       userInfo.money = 0;
