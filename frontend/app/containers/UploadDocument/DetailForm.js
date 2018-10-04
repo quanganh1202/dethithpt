@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
-import TagsInput from 'react-tagsinput';
 import { fromJS } from 'immutable';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -12,8 +11,7 @@ import {
   faCaretDown,
 } from '@fortawesome/free-solid-svg-icons';
 import { faMoneyBillAlt } from '@fortawesome/free-regular-svg-icons';
-import Autosuggest from 'react-autosuggest';
-
+import _ from 'lodash';
 import Select, { Creatable } from 'react-select';
 import { EditorState, convertToRaw } from 'draft-js';
 import { Editor } from 'react-draft-wysiwyg';
@@ -24,14 +22,29 @@ import Button from './Button';
 
 library.add(faMoneyBillAlt, faFolder, faCog, faCloudDownloadAlt, faCaretDown);
 
-const numberWithCommas = (x) => {
-  var parts = x.toString().split(".");
-  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  return parts.join(".");
-}
+const numberWithCommas = x => {
+  const parts = x.toString().split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return parts.join('.');
+};
 
 const Wrapper = styled.section`
   margin-top: 10px;
+
+  [class^='msg-'] {
+    padding: 5px 15px;
+    border-radius: 4px;
+  }
+
+  .msg-error {
+    background: red;
+    color: #fff;
+  }
+
+  .msg-progress {
+    color: green;
+    text-align: right;
+  }
 
   .rdw-editor-main {
     background: #fff;
@@ -83,31 +96,6 @@ const Wrapper = styled.section`
       min-width: 200px;
       margin-bottom: 5px;
     }
-
-    .form-tags {
-      .react-tagsinput-tag {
-        border-radius: 2px;
-        border: 1px solid #00a884;
-        color: #00a884;
-        display: inline-block;
-        font-family: sans-serif;
-        margin-right: 5px;
-        padding: 1px 5px;
-
-        .react-tagsinput-remove {
-          color: #00a884;
-        }
-      }
-
-      .react-tagsinput-remove {
-        cursor: pointer;
-        font-weight: bold;
-      }
-
-      .react-tagsinput-tag a::before {
-        content: ' x';
-      }
-    }
   }
 `;
 
@@ -118,7 +106,6 @@ class DetailForm extends React.Component {
     this.state = {
       formData: fromJS({
         name: this.props.name,
-        tags: [],
       }),
       editorState: EditorState.createEmpty(),
     };
@@ -142,7 +129,7 @@ class DetailForm extends React.Component {
 
   handleDelete(i) {
     const { tags } = this.state;
-    this. setState({
+    this.setState({
       tags: tags.filter((tag, index) => index !== i),
     });
   }
@@ -161,12 +148,15 @@ class DetailForm extends React.Component {
         break;
       }
       case 'filePreview':
-        newValue = event.target.files[0];
-      break;
+        newValue = _.get(event, 'target.files[0]');
+        break;
       default:
         break;
     }
-    const temp = formData.set(name, name === 'price' ? newValue.replace(/,/g, '') : newValue);
+    const temp = formData.set(
+      name,
+      name === 'price' ? newValue.replace(/,/g, '') : newValue,
+    );
     this.setState({ formData: temp });
   }
 
@@ -176,23 +166,41 @@ class DetailForm extends React.Component {
 
   onSubmit() {
     const { formData } = this.state;
-    let newData = formData.set('tags', formData.get('tags').join(','));
-    Array.from(['subjectIds', 'classIds', 'cateIds', 'collectionIds']).forEach(
-      field => {
-        if (newData.has(field) && newData.get(field).length > 0) {
-          newData = newData.set(field, newData.get(field).map(i => i.value));
-        } else {
-          newData = newData.delete(field);
-        }
-      },
-    );
-    Array.from(['yearSchools']).forEach(field => {
-      if (newData.has(field)) {
-        newData = newData.set(field, newData.get(field).value);
+    const newData = _.cloneDeep(formData.toJS());
+    const list = [
+      'subjectIds',
+      'classIds',
+      'cateIds',
+      // 'collectionIds',
+      'yearSchools',
+      'tags',
+    ];
+    list.forEach(field => {
+      if (newData[field] && newData[field].length > 0) {
+        newData[field] = newData[field].map(i => i.value);
+      } else {
+        delete newData[field];
       }
     });
 
-    this.props.onSubmit(newData.toJS());
+    const err = _.pullAll(list, Object.keys(newData));
+    if (err.length > 0) {
+      this.setState({
+        message: {
+          className: 'msg-error',
+          text: 'Bạn hãy điền đầy đủ các thông tin bắt buộc!',
+        },
+      });
+    } else {
+      this.setState({
+        message: {
+          className: 'msg-progress',
+          text: 'Đang thực hiện upload...',
+        },
+      });
+
+      this.props.onSubmit(newData);
+    }
   }
 
   handleOnChange(e) {
@@ -204,48 +212,6 @@ class DetailForm extends React.Component {
   render() {
     const { formData } = this.state;
     const { subjects, classes, categories, tags, collections } = this.props;
-    const dataSuggestions = tags.map(tag => ({
-      name: tag.tag,
-      value: tag.tag,
-    }));
-
-    function autocompleteRenderInput({ addTag, ...props }) {
-      const handleOnChange = (e, { method }) => {
-        if (method === 'enter') {
-          e.preventDefault();
-        } else {
-          props.onChange(e);
-        }
-      };
-
-      const inputValue =
-        (props.value && props.value.trim().toLowerCase()) || '';
-      const inputLength = inputValue.length;
-
-      const suggestions = dataSuggestions.filter(
-        state => state.name.toLowerCase().slice(0, inputLength) === inputValue,
-      );
-
-      return (
-        <Autosuggest
-          ref={props.ref}
-          suggestions={suggestions}
-          shouldRenderSuggestions={value => value && value.trim().length > 0}
-          getSuggestionValue={suggestion => suggestion.name}
-          renderSuggestion={suggestion => <span>{suggestion.name}</span>}
-          inputProps={{
-            ...props,
-            onChange: handleOnChange,
-            placeholder: 'Enter để thêm',
-          }}
-          onSuggestionSelected={(e, { suggestion }) => {
-            addTag(suggestion.name);
-          }}
-          onSuggestionsClearRequested={() => {}}
-          onSuggestionsFetchRequested={() => {}}
-        />
-      );
-    }
     return (
       <Wrapper>
         {formData.get('name') ? (
@@ -258,12 +224,14 @@ class DetailForm extends React.Component {
               name="name"
               value={formData.get('name', '')}
               onChange={this.handleChange}
+              style={{ height: '38px', background: '#fff' }}
               required
             />
           </div>
         ) : null}
-        {
-          (this.props.name && (this.props.name.split('.')[1] === 'zip' || this.props.name.split('.')[1] === 'rar')) ?
+        {this.props.name &&
+        (this.props.name.split('.')[1] === 'zip' ||
+          this.props.name.split('.')[1] === 'rar') ? (
           <div className="form-group">
             <label htmlFor="cateIds">&nbsp;</label>
             <input
@@ -273,8 +241,8 @@ class DetailForm extends React.Component {
               type="file"
               required
             />
-          </div> : null
-        }
+          </div>
+          ) : null}
         <div className="form-group">
           <label htmlFor="cateIds">&nbsp;</label>
           <div className="form-control">
@@ -289,7 +257,6 @@ class DetailForm extends React.Component {
               hideSelectedOptions={false}
               closeMenuOnSelect={false}
               placeholder="-- Chọn danh mục --"
-              isSearchable={false}
               components={{
                 DropdownIndicator: () => (
                   <FontAwesomeIcon
@@ -300,6 +267,11 @@ class DetailForm extends React.Component {
                 ),
               }}
             />
+          </div>
+        </div>
+        <div className="form-group">
+          <label htmlFor="cateIds">&nbsp;</label>
+          <div className="form-control">
             <Select
               name="subjectIds"
               options={subjects.map(sj => ({ value: sj.id, label: sj.name }))}
@@ -321,6 +293,11 @@ class DetailForm extends React.Component {
                 ),
               }}
             />
+          </div>
+        </div>
+        <div className="form-group">
+          <label htmlFor="cateIds">&nbsp;</label>
+          <div className="form-control">
             <Select
               name="classIds"
               options={classes.map(sj => ({ value: sj.id, label: sj.name }))}
@@ -331,7 +308,6 @@ class DetailForm extends React.Component {
               hideSelectedOptions={false}
               closeMenuOnSelect={false}
               placeholder="-- Chọn lớp --"
-              isSearchable={false}
               isMulti
               components={{
                 DropdownIndicator: () => (
@@ -344,6 +320,11 @@ class DetailForm extends React.Component {
                 IndicatorSeparator: () => null,
               }}
             />
+          </div>
+        </div>
+        <div className="form-group">
+          <label htmlFor="cateIds">&nbsp;</label>
+          <div className="form-control">
             <Select
               name="yearSchools"
               options={Array(21)
@@ -356,6 +337,8 @@ class DetailForm extends React.Component {
               hideSelectedOptions={false}
               closeMenuOnSelect={false}
               placeholder="-- Chọn năm học --"
+              isMulti
+              required
               components={{
                 DropdownIndicator: () => (
                   <FontAwesomeIcon
@@ -366,6 +349,11 @@ class DetailForm extends React.Component {
                 ),
               }}
             />
+          </div>
+        </div>
+        <div className="form-group">
+          <label htmlFor="cateIds">&nbsp;</label>
+          <div className="form-control">
             <Creatable
               name="collectionIds"
               options={collections.map(sj => ({
@@ -397,12 +385,32 @@ class DetailForm extends React.Component {
           <label htmlFor="name">
             Từ khóa <i className="required">(*)</i>
           </label>
-          <TagsInput
-            className="form-control form-tags"
-            value={formData.get('tags')}
-            onChange={this.handleChangeTag}
-            renderInput={autocompleteRenderInput}
-          />
+          <div className="form-control">
+            <Creatable
+              name="tags"
+              options={tags.map(t => ({
+                value: t.tag,
+                label: t.tag,
+              }))}
+              value={formData.get('tags', '')}
+              onChange={value =>
+                this.handleChange({ target: { name: 'tags', value } })
+              }
+              hideSelectedOptions={false}
+              closeMenuOnSelect={false}
+              placeholder="-- Enter để thêm tags --"
+              isMulti
+              components={{
+                DropdownIndicator: () => (
+                  <FontAwesomeIcon
+                    style={{ margin: '0 5px' }}
+                    className="title-icon"
+                    icon={['fas', 'caret-down']}
+                  />
+                ),
+              }}
+            />
+          </div>
         </div>
         <div className="form-group">
           <label htmlFor="description">Mô tả</label>
@@ -428,6 +436,12 @@ class DetailForm extends React.Component {
           <Button name="button-save" onClick={this.onSubmit}>
             Lưu
           </Button>
+        </div>
+        <div
+          style={{ display: this.state.message ? 'block' : 'none' }}
+          className={_.get(this.state, 'message.className', '')}
+        >
+          {_.get(this.state, 'message.text', '')}
         </div>
       </Wrapper>
     );

@@ -1,5 +1,5 @@
 import React from 'react';
-import { post, put } from 'axios';
+import { post, put, all } from 'axios';
 import styled from 'styled-components';
 import _ from 'lodash';
 
@@ -26,7 +26,6 @@ const Wrapper = styled.li`
     height: 40px;
     border: 1px solid #36baa2;
     color: #00a37f;
-    font-size: 0.8em;
     line-height: 35px;
     padding-left: 10px;
   }
@@ -78,7 +77,7 @@ const Wrapper = styled.li`
   }
 `;
 
-const DocType = (props) => {
+const DocType = props => {
   let src;
   switch (props.type) {
     case 'application/msword':
@@ -93,7 +92,7 @@ const DocType = (props) => {
       break;
   }
   return <img src={src} alt="file type" className="file-type-icon" />;
-}
+};
 
 class UploadProgress extends React.Component {
   constructor() {
@@ -114,7 +113,7 @@ class UploadProgress extends React.Component {
 
   fileUpload(form) {
     const { file } = this.props;
-    const url = 'http://103.92.29.145:3001/api/documents';
+    const url = '/api/documents';
     const formData = new FormData();
     Object.keys(form).forEach(f => formData.append(f, form[f]));
     formData.append('userId', getUser().id);
@@ -133,7 +132,7 @@ class UploadProgress extends React.Component {
 
     if (this.state.successId) {
       return put(url, formData, config)
-        .then(res => {
+        .then(() => {
           this.setState({
             successId: true,
             error: null,
@@ -145,19 +144,55 @@ class UploadProgress extends React.Component {
           });
         });
     }
-    formData.append('fileUpload', file);
-    return post(url, formData, config)
-      .then(res => {
-        this.setState({
-          successId: form,
-          error: null,
+    const listCollectionCreate = _.pullAll(
+      form.collectionIds,
+      this.props.collections.map(c => c.id),
+    );
+    const collectionIds = form.collectionIds.filter(t => t.__isNew__);
+    let promiseCreates = [];
+    if (collectionIds && collectionIds.length > 0) {
+      promiseCreates = collectionIds.map(({ value }) =>
+        post(
+          '/api/collections',
+          {
+            cateIds: form.cateIds.toString(),
+            classIds: form.classIds.toString(),
+            subjectIds: form.subjectIds.toString(),
+            yearSchools: form.yearSchools.toString(),
+            name: value,
+            description: value,
+          },
+          {
+            headers: {
+              'content-type': 'application/json;charset=UTF-8',
+              'x-access-token': getToken(),
+            },
+          },
+        ),
+      );
+    }
+    return all(promiseCreates).then(response => {
+      const listNewCol = response.map(t =>
+        t.data.message.split('insertId =')[1].trim(),
+      );
+      formData.set('collectionIds', [
+        ...listNewCol,
+        ...form.collectionIds.filter(t => !t.__isNew__).map(c => c.value),
+      ]);
+      formData.append('fileUpload', file);
+      return post(url, formData, config)
+        .then(res => {
+          this.setState({
+            successId: form,
+            error: null,
+          });
+        })
+        .catch(err => {
+          this.setState({
+            error: err.message,
+          });
         });
-      })
-      .catch(err => {
-        this.setState({
-          error: err.message,
-        });
-      });
+    });
   }
 
   handleCancel() {}
@@ -209,7 +244,9 @@ class UploadProgress extends React.Component {
                 {_.get(successId, 'cateIds', []).map(
                   (key, index) =>
                     `${_.get(categories.find(c => c.id === key), 'name')}${
-                      index !== _.get(successId, 'cateIds', []).length - 1 ? ',' : ''
+                      index !== _.get(successId, 'cateIds', []).length - 1
+                        ? ','
+                        : ''
                     } `,
                 )}
               </p>
@@ -218,7 +255,9 @@ class UploadProgress extends React.Component {
                 {_.get(successId, 'subjectIds', []).map(
                   (key, index) =>
                     `${_.get(subjects.find(c => c.id === key), 'name')}${
-                      index !== _.get(successId, 'subjectIds', []).length - 1 ? ',' : ''
+                      index !== _.get(successId, 'subjectIds', []).length - 1
+                        ? ','
+                        : ''
                     } `,
                 )}
               </p>
@@ -227,26 +266,34 @@ class UploadProgress extends React.Component {
                 {_.get(successId, 'classIds', []).map(
                   (key, index) =>
                     `${_.get(classes.find(c => c.id === key), 'name')}${
-                      index !== _.get(successId, 'classIds', []).length - 1 ? ',' : ''
+                      index !== _.get(successId, 'classIds', []).length - 1
+                        ? ','
+                        : ''
                     } `,
                 )}
               </p>
               <p>
                 <b>Năm học:</b>
-                {successId.yearSchool}
+                {successId.yearSchools.toString()}
               </p>
               <p>
                 <b>Bộ sưu tập:</b>
                 {_.get(successId, 'collectionIds', []).map(
                   (key, index) =>
-                    `${_.get(collections.find(c => c.id === key), 'name')}${
-                      index !== _.get(successId, 'collectionIds', []).length - 1 ? ',' : ''
+                    `${_.get(
+                      collections.find(c => c.id === key.value),
+                      'name',
+                      key.value,
+                    )}${
+                      index !== _.get(successId, 'collectionIds', []).length - 1
+                        ? ','
+                        : ''
                     } `,
                 )}
               </p>
               <p>
                 <b>Từ khóa:</b>
-                {successId.tags}
+                {successId.tags.toString()}
               </p>
               <p>
                 <b>Mô tả:</b>
@@ -259,9 +306,9 @@ class UploadProgress extends React.Component {
                 <b>Giá bán:</b>
                 {successId.price
                   ? Number(successId.price).toLocaleString('it-IT', {
-                      style: 'currency',
-                      currency: 'VND',
-                    })
+                    style: 'currency',
+                    currency: 'VND',
+                  })
                   : 'Miễn phí'}
               </p>
             </div>
@@ -277,7 +324,7 @@ class UploadProgress extends React.Component {
             {percent && percent !== 100 ? 'Hủy tải lên' : 'Xóa'} <span>X</span>
           </span>
         </div>
-        {percent ? (
+        {percent && percent !== 100 ? (
           <progress
             value={percent}
             max={100}

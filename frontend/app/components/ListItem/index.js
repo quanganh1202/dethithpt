@@ -67,7 +67,7 @@ function ListItem(props) {
           {_.get(props.item, 'classes', []).map((i) => <li key={i.classId}>
             {i.className.includes('Lớp') ? i.className : `Lớp ${i.className}`}
           </li>)}
-          {_.get(props.item, 'yearSchool', []).map((i) => <li key={i}>{i}</li>)}
+          {_.get(props.item, 'yearSchools', []).map((i) => <li key={i}>{i}</li>)}
           {_.get(props.item, 'collections', []).map((i) => <li key={i.collectionId}>
             <FontAwesomeIcon className={'specific-icon'} icon={['far', 'folder-open']} />
             {i.collectionName}

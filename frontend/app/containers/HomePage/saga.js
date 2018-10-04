@@ -91,11 +91,13 @@ export function* getCategoriesHandler() {
 /**
  * Request get collections list
  */
-export function* getCollectionsHandler() {
+export function* getCollectionsHandler({ queryCollection }) {
   const url = `${root}/collections`;
 
   try {
-    const resp = yield call(axios.get, url);
+    const resp = yield call(axios.get, url, {
+      params: queryCollection,
+    });
     yield put(getCollectionsSuccess(resp.data.data));
   } catch (err) {
     // yield put(loginFailure(err));
