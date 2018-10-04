@@ -97,6 +97,11 @@ const NewLoadingIndicator = styled.div`
     height: 20px;
     margin: 0;
   }
+
+  .table-renponsive {
+    position: relative;
+    display: block;
+  }
 `;
 
 function validateEmail(email) {
@@ -129,6 +134,7 @@ export class User extends React.PureComponent {
     this.quickSubmit = this.quickSubmit.bind(this);
     this.handleSelectUsers = this.handleSelectUsers.bind(this);
     this.onSelectFilter = this.onSelectFilter.bind(this);
+    this.scrollTable = this.scrollTable.bind(this);
   }
 
   componentWillMount() {
@@ -140,6 +146,31 @@ export class User extends React.PureComponent {
       offset: 0,
       size: this.size,
     });
+  }
+
+  componentDidUpdate() {
+    const thead = document.querySelector('.table-responsive > table > thead');
+    const table = document.querySelector('.table-responsive');
+    if (thead) {
+      const rect = thead.getBoundingClientRect();
+
+      if (rect.top >= 0) {
+        table.style.maxHeight = `${window.innerHeight - rect.top}px`;
+      }
+    }
+    window.addEventListener('scroll', this.scrollTable);
+  }
+
+  scrollTable() {
+    const thead = document.querySelector('.table-responsive > table > thead');
+    const table = document.querySelector('.table-responsive');
+    if (thead) {
+      const rect = thead.getBoundingClientRect();
+
+      if (rect.top >= 0) {
+        table.style.maxHeight = `${window.innerHeight - rect.top}px`;
+      }
+    }
   }
 
   onEditorStateChange(editorState) {
@@ -208,50 +239,50 @@ export class User extends React.PureComponent {
         </td>
         {/* <td>{item.userName}</td> */}
         <td className="actions-col">
-          <div style={{ overflow: 'auto' }}>
+          <div>
             <button
               style={{ float: 'left', padding: '0', marginRight: '5px' }}
               onClick={() => this.props.deleteUser([item.id])}
               title="Xóa"
             >
-              <img src={deleteIcon} height="15px" alt="delete-icon" />
+              <i className="fa fa-trash-o fa-lg" aria-hidden="true" style={{ color: "#555" }}></i>
             </button>
             <button
               style={{ float: 'left', padding: '0', marginRight: '5px' }}
               onClick={() => this.props.history.push(`/users/${item.id}`)}
               title="Sửa"
             >
-              <img src={editIcon} height="15px" alt="edit-icon" />
+              <i className="fa fa-pencil-square-o fa-lg" aria-hidden="true"></i>
             </button>
             <button
               style={{ float: 'left', padding: '0' }}
               onClick={() => {}}
               title="Block/Unblock thành viên"
             >
-              <img src={checkIcon} height="15px" alt="check-icon" />
+              <i className="fa fa-lock fa-lg" aria-hidden="true"></i>
             </button>
           </div>
           <div>
             <button
               style={{ float: 'left', padding: '0', marginRight: '5px' }}
               onClick={() => this.props.history.push(`/users/${item.id}?update=note2`)}
-              title="Thêm, Sửa cột ghi chú"
+              title="Ghi chú"
             >
-              <img src={noteIcon} height="15px" alt="icon" />
+              <i className="fa fa-sticky-note fa-lg" aria-hidden="true"></i>
             </button>
             <button
               style={{ float: 'left', padding: '0', marginRight: '5px' }}
               onClick={() => this.props.history.push(`/users/${item.id}?update=note1`)}
-              title="Thêm sửa cột ghi chú 2"
+              title="Ghi chú 2"
             >
-              <img src={noteIcon} height="15px" alt="icon" />
+              <i className="fa fa-sticky-note fa-lg" aria-hidden="true"></i>
             </button>
             <button
               style={{ float: 'left', padding: '0' }}
               onClick={() => {}}
-              title="Xem lịch sử hoạt động thành viên"
+              title="Lịch sử hoạt động thành viên"
             >
-              <img src={tranIcon} height="15px" alt="icon" />
+              <i className="fa fa-history fa-lg" aria-hidden="true"></i>
             </button>
           </div>
         </td>

@@ -3,6 +3,7 @@
  */
 import axios from 'axios';
 import _ from 'lodash';
+import { push } from 'react-router-redux';
 import { getToken } from 'services/auth';
 import { call, put, takeLatest, all } from 'redux-saga/effects';
 import { UPDATE_USER, GET_USER_DETAIL, GET_DATA_INIT } from './constants';
@@ -51,7 +52,8 @@ export function* updateUserHandler({ data, id }) {
   try {
     yield call(axios.put, url, data, options);
     yield put(updateUserSuccess());
-    yield getDetailUserHandler({ id });
+    yield put('/users');
+    // yield getDetailUserHandler({ id });
   } catch (err) {
     yield put(
       updateUserFailure(

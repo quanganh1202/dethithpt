@@ -41,13 +41,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import FileSaver from 'file-saver';
 import { HeadSort, PaginationTable, HeadFilter } from 'components/Table';
+import ScrollBar from 'components/Scrollbar';
 import PopUp from 'components/PopUp';
-import checkIcon from 'assets/img/icons/check.png';
-import deleteIcon from 'assets/img/icons/delete.png';
-import editIcon from 'assets/img/icons/edit.png';
-import uncheckIcon from 'assets/img/icons/uncheck.png';
-import noteIcon from 'assets/img/icons/icon.png';
-import tranIcon from 'assets/img/icons/tran.png';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
@@ -96,6 +91,11 @@ const Wrapper = styled.div`
     padding-left: 5px;
     padding-right: 5px;
   }
+  .sticky {
+    position: fixed;
+    top: 0;
+    width: 100%;
+  }
   table {
     font-size: 11px;
     tr > td {
@@ -136,6 +136,12 @@ const Wrapper = styled.div`
       color: red;
     }
   }
+
+  .table-renponsive {
+    position: relative;
+    display: block;
+  }
+}
 `;
 
 /* eslint-disable react/prefer-stateless-function */
@@ -167,6 +173,7 @@ export class Documents extends React.PureComponent {
     this.handleMultiApprove = this.handleMultiApprove.bind(this);
     this.onSelectFilter = this.onSelectFilter.bind(this);
     this.closeDownloadHistory = this.closeDownloadHistory.bind(this);
+    this.scrollTable = this.scrollTable.bind(this);
   }
 
   componentWillMount() {
@@ -202,6 +209,31 @@ export class Documents extends React.PureComponent {
     // if (!this.props.historyDownload.length && !_.isEqual(this.props.historyDownload, nextProps.historyDownload)) {
     //   this.setState({ showHistory: true });
     // }
+  }
+
+  componentDidUpdate() {
+    const thead = document.querySelector('.table-responsive > table > thead');
+    const table = document.querySelector('.table-responsive');
+    if (thead) {
+      const rect = thead.getBoundingClientRect();
+
+      if (rect.top >= 0) {
+        table.style.maxHeight = `${window.innerHeight - rect.top}px`;
+      }
+    }
+    window.addEventListener('scroll', this.scrollTable);
+  }
+
+  scrollTable() {
+    const thead = document.querySelector('.table-responsive > table > thead');
+    const table = document.querySelector('.table-responsive');
+    if (thead) {
+      const rect = thead.getBoundingClientRect();
+
+      if (rect.top >= 0) {
+        table.style.maxHeight = `${window.innerHeight - rect.top}px`;
+      }
+    }
   }
 
   componentWillUnmount() {
@@ -241,27 +273,27 @@ export class Documents extends React.PureComponent {
             : <Badge style={{ fontSize: '11px' }} color="warning">Chưa duyệt</Badge>}</td>
         <td>{item.description}</td>
         <td className="actions-col">
-          <div style={{ overflow: 'auto' }}>
+          <div>
             <button
               style={{ float: 'left', padding: '0', marginRight: '5px' }}
               onClick={() => this.props.deleteDoc([item.id])}
               title="Xóa"
             >
-              <img src={deleteIcon} height="15px" alt="delete-icon" />
+              <i className="fa fa-trash-o fa-lg" aria-hidden="true" style={{ color: "#555" }}></i>
             </button>
             <button
               style={{ float: 'left', padding: '0', marginRight: '5px' }}
               onClick={() => this.props.history.push(`/documents/${item.id}`)}
               title="Sửa"
             >
-              <img src={editIcon} height="15px" alt="edit-icon" />
+              <i className="fa fa-pencil-square-o fa-lg" aria-hidden="true"></i>
             </button>
             <button
               style={{ float: 'left', padding: '0' }}
               onClick={() => this.props.history.push(`/documents/${item.id}?update=note`)}
               title="Ghi chú"
             >
-              <img src={noteIcon} height="15px" alt="note-icon" />
+              <i className="fa fa-sticky-note fa-lg" aria-hidden="true"></i>
             </button>
           </div>
           <div>
@@ -270,14 +302,14 @@ export class Documents extends React.PureComponent {
               onClick={() => this.props.approve([item.id])}
               title="Xuất bản"
             >
-              <img src={checkIcon} height="15px" alt="check-icon" />
+              <i className="fa fa-newspaper-o fa-lg" aria-hidden="true"></i>
             </button>
             <button
               style={{ float: 'left', padding: '0', marginRight: '5px' }}
               onClick={() => this.props.updateDocs([item.id], { priority: 1 })}
               title="Nổi bật"
             >
-              <img src={uncheckIcon} height="15px" alt="uncheck-icon" />
+              <i className="fa fa-star fa-lg" aria-hidden="true"></i>
             </button>
             <button
               style={{ float: 'left', padding: '0' }}
@@ -287,7 +319,7 @@ export class Documents extends React.PureComponent {
               }}
               title="Lịch sử tải"
             >
-              <img src={tranIcon} height="15px" alt="tran-icon" />
+              <i className="fa fa-history fa-lg" aria-hidden="true"></i>
             </button>
           </div>
         </td>
