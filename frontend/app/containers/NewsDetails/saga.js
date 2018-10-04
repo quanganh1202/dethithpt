@@ -21,7 +21,6 @@ export function* getNewsDetailsHandler({ id }) {
 
   try {
     const resp = yield call(axios.get, url);
-    console.log(id);
     const newData = _.get(resp.data, 'data', []).find((i) => i.id === id);
     yield put(getNewsDetailsSuccess(newData));
   } catch (err) {
