@@ -49,11 +49,16 @@ export function* loginHandler({ payload }) {
 /**
  * Request update user info
  */
-export function* updateUserHandler({ payload }) {
+export function* updateUserHandler({ payload, token }) {
   const url = `${root}/register`;
+  const options = {
+    headers: {
+      ['x-access-token']: token,
+    },
+  }
 
   try {
-    const resp = yield call(axios.post, url, payload);
+    const resp = yield call(axios.post, url, payload, options);
     yield put(updateUserInfoSuccess(resp.data));
   } catch (err) {
     // yield put(loginFailure(err));

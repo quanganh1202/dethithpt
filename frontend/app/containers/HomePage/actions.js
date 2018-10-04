@@ -69,10 +69,11 @@ export function loginFailure(err) {
  *
  * @return {object}    An action object with a type of UPDATE_USER_INFO_REQUEST
  */
-export function updateUserInfo(payload) {
+export function updateUserInfo(payload, token) {
   return {
     type: UPDATE_USER_INFO_REQUEST,
     payload,
+    token,
   };
 }
 

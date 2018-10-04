@@ -183,8 +183,12 @@ export class HomePage extends React.PureComponent {
   }
 
   onLogout() {
-    setToken();
-    this.props.history.push('/');
+    const gapiInstance = window.gapi.auth2.getAuthInstance();
+    if (gapiInstance.isSignedIn.get()) {
+      gapiInstance.signOut();
+      setToken();
+      this.props.history.push('/');
+    };
   }
 
   onChange(e) {
@@ -232,10 +236,12 @@ export class HomePage extends React.PureComponent {
       delete update.id;
       delete update.status;
       update.role = 'member';
+      const token = update.token;
+      delete update.token;
       dataConvert.forEach((key) => {
         update[key] = update[key].text;
       })
-      this.props.onSubmitUserInfo(update);
+      this.props.onSubmitUserInfo(update, token);
     }
   }
 
@@ -577,7 +583,7 @@ HomePage.propTypes = {
 export function mapDispatchToProps(dispatch) {
   return {
     onLogin: payload => dispatch(login(payload)),
-    onSubmitUserInfo: payload => dispatch(updateUserInfo(payload)),
+    onSubmitUserInfo: (payload, token) => dispatch(updateUserInfo(payload, token)),
     getDocumentsList: query => dispatch(getDocumentsList(query)),
     getCategories: () => dispatch(getCategories()),
     getCollections: queryCollection =>

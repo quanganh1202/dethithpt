@@ -61,6 +61,7 @@ export const initialState = fromJS({
   file: null,
   message: '',
   news: [],
+  token: '',
 });
 
 function homeReducer(state = initialState, action) {
@@ -79,13 +80,19 @@ function homeReducer(state = initialState, action) {
     case LOGIN_SUCCESS: {
       const user = mappingUser(action.payload.token);
       if (user.status === 2) {
-        return state.set('user', user).set('loading', false);
+        return state
+          .set('user', user)
+          .set('loading', false)
+          .set('token', action.payload.token);
       }
       setToken(action.payload.token);
       return state.set('loading', false);
     }
     case UPDATE_USER_INFO_REQUEST:
-      return state.set('loading', true).set('user', null);
+      return state
+        .set('loading', true)
+        .set('user', null)
+        .set('token', '');
     case UPDATE_USER_INFO_SUCCESS:
       setToken(action.payload.token);
       return state.set('loading', false);

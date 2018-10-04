@@ -6,10 +6,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { EditorState, convertToRaw } from 'draft-js';
-import { Editor } from 'react-draft-wysiwyg';
-import draftToHtml from 'draftjs-to-html';
-import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
+import CKEditor from 'components/CKEditor';
 import { Helmet } from 'react-helmet';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -117,7 +114,7 @@ export class UserEdit extends React.PureComponent {
         name: '',
         email: '',
         status: 1,
-        money: 0,
+        deposit: 0,
         role: '',
         phone: '',
         city: '',
@@ -131,12 +128,11 @@ export class UserEdit extends React.PureComponent {
         description: '',
       },
       error: {},
-      editorState: EditorState.createEmpty(),
     };
     this.resetForm = this.resetForm.bind(this);
     this.onChange = this.onChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
-    this.onEditorStateChange = this.onEditorStateChange.bind(this);
+    this.onChangeEditor = this.onChangeEditor.bind(this);
   }
 
   componentWillMount() {
@@ -150,7 +146,7 @@ export class UserEdit extends React.PureComponent {
     if (!isEqual(this.props.user, nextProps.user) && !nextProps.loading) {
       const updateNote = this.props.location.search.split('=')[1];
       const formData = !updateNote
-        ? nextProps.user
+        ? this.mappingUserToForm(nextProps.user)
         : fromJS({ [updateNote]: nextProps.user.get(updateNote, '') });
       this.setState({
         originData: formData,
@@ -164,13 +160,22 @@ export class UserEdit extends React.PureComponent {
     this.props.clearMessage();
   }
 
-  onEditorStateChange(editorState) {
+  mappingUserToForm(data) {
+    return data
+      .set('notifyStatus', data.get('notifyStatus') || '0')
+      .set('notifyText', data.get('notifyText') || '')
+      .delete('status')
+      .delete('createdAt')
+      .delete('updatedAt')
+      .delete('deposit')
+      .delete('numOfDownloaded')
+      .delete('numOfUploaded');
+  }
+
+  onChangeEditor(evt) {
+    const newContent = evt.editor.getData();
     this.setState({
-      editorState,
-      formData: this.state.formData.set(
-        'description',
-        draftToHtml(convertToRaw(this.state.editorState.getCurrentContent())),
-      ),
+      formData: this.state.formData.set('notifyText', newContent),
     });
   }
 
@@ -180,25 +185,29 @@ export class UserEdit extends React.PureComponent {
   }
 
   onChange(e) {
-    const { name, value } = e.currentTarget;
-    this.setState({ formData: this.state.formData.set(name, value) });
+    const { name, value, checked } = e.currentTarget;
+    let newData = this.state.formData.set(name, value);
+    if (name === 'notifyStatus') {
+      newData = newData.set(name, checked ? '1' : '0')
+    }
+    this.setState({ formData: newData });
   }
 
   onSubmit() {
     this.props.clearMessage();
     const error = {};
     Object.keys(this.state.formData.toJS()).forEach(key => {
-      if (!this.state.formData.toJS()[key]) {
+      if (key !== 'money' && !this.state.formData.toJS()[key]) {
         error[key] = 'Thông tin còn thiếu';
       }
     });
     if (!Object.keys(error).length) {
       this.props.updateUser(
         this.state.formData
-          .delete('status')
-          .delete('createdAt')
-          .delete('updatedAt')
-          .toJS(),
+        .set('money', `${this.state.formData.get('money') + parseInt(this.state.formData.get('deposit'))}`)
+        .delete('email')
+        .delete('deposit')
+        .toJS(),
         this.props.match.params.id,
       );
     } else {
@@ -211,12 +220,13 @@ export class UserEdit extends React.PureComponent {
   }
 
   render() {
+    console.log(this.state.formData.toJS());
     const updateNote = this.props.location.search.split('=')[1];
     const message = this.props.message || this.props.error || '';
     const AlertComponent = (
       <Alert
         color={this.props.message ? "info" : "danger"}
-        isOpen={message}
+        isOpen={!!message}
         toggle={() => this.props.clearMessage()}
       >
         {message}
@@ -336,6 +346,7 @@ export class UserEdit extends React.PureComponent {
                               onChange={this.onChange}
                               value={this.state.formData.get('email', '')}
                               className={this.state.error.email && 'is-invalid'}
+                              disabled
                             />
                             <div className="invalid-feedback">
                               {this.state.error.name}
@@ -629,14 +640,14 @@ export class UserEdit extends React.PureComponent {
                           <Col sm={5}>
                             <Input
                               type="number"
-                              name="money"
-                              id="money"
+                              name="deposit"
+                              id="deposit"
                               onChange={this.onChange}
-                              value={this.state.formData.get('money', 0)}
-                              className={this.state.error.money && 'is-invalid'}
+                              value={this.state.formData.get('deposit', '')}
+                              className={this.state.error.deposit && 'is-invalid'}
                             />
                             <div className="invalid-feedback">
-                              {this.state.error.money}
+                              {this.state.error.deposit}
                             </div>
                           </Col>
                         </FormGroup>
@@ -818,14 +829,23 @@ export class UserEdit extends React.PureComponent {
                             Thông báo popup:
                           </Label>
                           <Label check>
-                            <Input type="checkbox" id="" name="" />&nbsp;
+                            <Input
+                              type="checkbox"
+                              id=""
+                              name="notifyStatus"
+                              checked={this.state.formData.get('notifyStatus') === '1' ? true : false}
+                              onChange={this.onChange}
+                            />&nbsp;
                           </Label>
                         </FormGroup>
                         <FormGroup>
-                          <Editor
-                            editorState={this.state.editorState}
-                            name="description"
-                            onEditorStateChange={this.onEditorStateChange}
+                          <CKEditor
+                            activeClass="notifyText"
+                            name="notifyText"
+                            content={this.state.formData.get('notifyText')} 
+                            events={{
+                              "change": this.onChangeEditor
+                            }}
                           />
                         </FormGroup>
                       </Col>

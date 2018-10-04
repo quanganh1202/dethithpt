@@ -35,6 +35,54 @@ export default {
       ],
     },
     {
+      name: 'Danh mục',
+      url: '/categories',
+      icon: 'fa fa-database',
+      children: [
+        {
+          name: 'Danh mục',
+          url: '/categories',
+          icon: 'fa fa-table',
+        },
+      ],
+    },
+    {
+      name: 'Bộ sưu tập',
+      url: '/collections',
+      icon: 'fa fa-database',
+      children: [
+        {
+          name: 'Bộ sưu tập',
+          url: '/collections',
+          icon: 'fa fa-table',
+        },
+      ],
+    },
+    {
+      name: 'Môn học',
+      url: '/subject',
+      icon: 'fa fa-database',
+      children: [
+        {
+          name: 'Môn học',
+          url: '/subjects',
+          icon: 'fa fa-table',
+        },
+      ],
+    },
+    {
+      name: 'Lớp học',
+      url: '/classes',
+      icon: 'fa fa-database',
+      children: [
+        {
+          name: 'Lớp học',
+          url: '/classes',
+          icon: 'fa fa-table',
+        },
+      ],
+    },
+    {
       name: 'Tạo mục',
       url: '/create',
       icon: 'fa fa-database',
