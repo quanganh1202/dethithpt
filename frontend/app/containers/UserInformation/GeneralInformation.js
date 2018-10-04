@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import _ from 'lodash';
 
 const Wrapper = styled.div`
   .info-column {
@@ -89,11 +90,11 @@ const GeneralInformation = (props) => {
             <tbody>
               <tr>
                 <th>Số tài liệu đã tải :</th>
-                <td></td>
+                <td>{_.get(props.user, 'numOfDownloaded', 0)}</td>
               </tr>
               <tr>
                 <th>Số tài liệu đã đăng :</th>
-                <td></td>
+                <td>{_.get(props.user, 'numOfUploaded', 0)}</td>
               </tr>
             </tbody>
           </table>

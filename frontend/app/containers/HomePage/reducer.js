@@ -17,6 +17,7 @@ import {
   LOGIN_REQUEST,
   UPDATE_USER_INFO_REQUEST,
   UPDATE_USER_INFO_SUCCESS,
+  UPDATE_USER_INFO_FAILURE,
   GET_DOC_LIST_REQUEST,
   GET_DOC_LIST_SUCCESS,
   GET_CATE_LIST_REQUEST,
@@ -32,19 +33,6 @@ import {
   GET_NEWS,
   QUERY_DATA,
 } from './constants';
-
-const requiredFields = [
-  'name',
-  'phone',
-  'bod',
-  'role',
-  'city',
-  'district',
-  'level',
-  'school',
-];
-
-const validate = (input, req) => req.find(f => !input[f]);
 
 // The initial state of the App
 export const initialState = fromJS({
@@ -90,12 +78,18 @@ function homeReducer(state = initialState, action) {
     }
     case UPDATE_USER_INFO_REQUEST:
       return state
-        .set('loading', true)
-        .set('user', null)
-        .set('token', '');
+        .set('loading', true);
     case UPDATE_USER_INFO_SUCCESS:
       setToken(action.payload.token);
-      return state.set('loading', false);
+      return state
+        .set('loading', false)
+        .set('user', null)
+        .set('token', '')
+        .set('message', '');
+    case UPDATE_USER_INFO_FAILURE:
+      return state
+        .set('loading', false)
+        .set('message', 'registered_phone_number');
     case GET_DOC_LIST_REQUEST:
       return state
         .set('loading', true)

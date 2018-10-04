@@ -2,8 +2,7 @@
  * Gets the repositories of the user from Github
  */
 import axios from 'axios';
-import { call, put, select, takeLatest } from 'redux-saga/effects';
-import request from 'utils/request';
+import { call, put, takeLatest } from 'redux-saga/effects';
 import {
   LOGIN_REQUEST,
   UPDATE_USER_INFO_REQUEST,
@@ -19,6 +18,7 @@ import {
   loginSuccess,
   loginFailure,
   updateUserInfoSuccess,
+  updateUserInfoFailure,
   getDocumentsListSuccess,
   getCategoriesSuccess,
   getCollectionsSuccess,
@@ -29,7 +29,8 @@ import {
   requestPurchase,
   requestPurchaseFailure,
 } from './actions';
-import { getToken } from 'services/auth';
+import { getUserDetail } from 'containers/App/actions';
+import { getToken, mappingUser } from 'services/auth';
 
 const root = '/api';
 /**
@@ -41,6 +42,10 @@ export function* loginHandler({ payload }) {
   try {
     const resp = yield call(axios.post, url, payload);
     yield put(loginSuccess(resp.data));
+    const user = mappingUser(resp.data.token);
+    if (user.status === 1) {
+      yield put(getUserDetail(user.id, true));
+    }
   } catch (err) {
     yield put(loginFailure(err));
   }
@@ -60,7 +65,12 @@ export function* updateUserHandler({ payload, token }) {
   try {
     const resp = yield call(axios.post, url, payload, options);
     yield put(updateUserInfoSuccess(resp.data));
+    const user = mappingUser(resp.data.token);
+    if (user.status === 1) {
+      yield put(getUserDetail(user.id, true));
+    }
   } catch (err) {
+    yield put(updateUserInfoFailure());
     // yield put(loginFailure(err));
   }
 }

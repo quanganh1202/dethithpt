@@ -8,7 +8,10 @@ import { initialState } from './reducer';
 const selectHome = state => state.get('home', initialState);
 
 const makeSelectUser = () =>
-  createSelector(selectHome, homeState => ({ ...homeState.get('user'), token: homeState.get('token') }));
+  createSelector(selectHome, homeState => homeState.get('user'));
+
+const makeSelectToken = () =>
+  createSelector(selectHome, homeState => homeState.get('token'));
 
 const makeSelectLoading = () =>
   createSelector(selectHome, homeState => homeState.get('loading'));
@@ -40,6 +43,7 @@ const makeSelectQueryCollection = () =>
 export {
   selectHome,
   makeSelectUser,
+  makeSelectToken,
   makeSelectLoading,
   makeSelectDocuments,
   makeSelectCategories,

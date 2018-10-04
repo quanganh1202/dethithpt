@@ -53,6 +53,7 @@ import {
 } from './actions';
 import {
   makeSelectUser,
+  makeSelectToken,
   makeSelectLoading,
   makeSelectDocuments,
   makeSelectCategories,
@@ -63,6 +64,8 @@ import {
   makeSelectMessage,
   makeSelectQueryCollection,
 } from './selectors';
+import { makeSelectCurrentUser, makeSelectPopout } from 'containers/App/selectors';
+import { clearData, getUserDetail } from 'containers/App/actions';
 import reducer from './reducer';
 import saga from './saga';
 import CreateUserForm from '../Login/Form';
@@ -148,23 +151,37 @@ export class HomePage extends React.PureComponent {
         });
       }
     });
+    const user = getUser();
+    if (user) {
+      this.props.getUserDetail(user.id);
+    }
   }
 
   componentWillUnmount() {
     this.unlisten();
+    this.props.removeMessage();
   }
 
   componentWillReceiveProps(nextProps) {
+    // After login but not enought information to register
     if (!_.isEqual(this.props.user, nextProps.user)) {
       this.setState({ user: nextProps.user });
     }
+    // After get file download
     if (!this.props.file && nextProps.file && this.props.history.location.pathname === '/') {
       const blob = new Blob([nextProps.file]);
       FileSaver.saveAs(blob, _.get(this.state, 'downloadingFile', 'download'));
       this.setState({ downloadingFile: '' });
       this.props.removeFileSave();
     }
+    // If any error from request
     if (!this.props.message && nextProps.message && this.props.history.location.pathname === '/') {
+      if (nextProps.message === 'registered_phone_number') {
+        this.setState({ error: 'Số điện thoại đã được sử dụng để đăng ký' });
+        const formError = document.querySelector('.form-header');
+        formError.scrollIntoView();
+        return;
+      }
       alert(errorMapping[nextProps.message] || 'Có lỗi xảy ra, vui lòng báo lại cho admin!');
       this.props.removeMessage();
     }
@@ -236,12 +253,10 @@ export class HomePage extends React.PureComponent {
       delete update.id;
       delete update.status;
       update.role = 'member';
-      const token = update.token;
-      delete update.token;
       dataConvert.forEach((key) => {
         update[key] = update[key].text;
       })
-      this.props.onSubmitUserInfo(update, token);
+      this.props.onSubmitUserInfo(update, this.props.token);
     }
   }
 
@@ -301,18 +316,18 @@ export class HomePage extends React.PureComponent {
                 icon={['far', 'file-alt']}
               />
               Số dư :{' '}
-              <span className="red bold">{numberWithCommas(50000)}</span>đ (HSD:{' '}
+              <span className="red bold">{numberWithCommas(_.get(this.props.userDetail, 'money', 0))}</span>đ (HSD:{' '}
               <span className="green bold">5</span> ngày)
             </p>
             <p className="user-payment">
               <FontAwesomeIcon className="user-icon" icon={['fas', 'folder']} />
-              Đã tải: <span className="bold">550</span> tài liệu (<Link to="/">
+              Đã tải: <span className="bold">{_.get(this.props.userDetail, 'numOfDownloaded', 0)}</span> tài liệu (<Link to="/">
                 Chi tiết
               </Link>)
             </p>
             <p className="user-payment">
               <FontAwesomeIcon className="user-icon" icon={['fas', 'cog']} />
-              Đã đăng: <span className="bold">35</span> tài liệu (<Link to="/">
+              Đã đăng: <span className="bold">{_.get(this.props.userDetail, 'numOfUploaded', 0)}</span> tài liệu (<Link to="/">
                 Chi tiết
               </Link>)
             </p>
@@ -563,6 +578,17 @@ export class HomePage extends React.PureComponent {
               />
             }
           />
+          {this.props.popout && (<PopUp
+            show={this.props.popout}
+            close
+            onClose={() => this.props.clearData()}
+            content={
+              <div
+                style={{ padding: '10px' }}
+                dangerouslySetInnerHTML={{ __html: this.props.userDetail.notifyText }}
+              />
+            }
+          />)}
         </div>
       </article>
     );
@@ -593,6 +619,8 @@ export function mapDispatchToProps(dispatch) {
     requestDownload: id => dispatch(requestDownload(id)),
     removeFileSave: () => dispatch(removeFileSave()),
     removeMessage: () => dispatch(removeMessage()),
+    clearData: () => dispatch(clearData()),
+    getUserDetail: (id) => dispatch(getUserDetail(id)),
   };
 }
 
@@ -606,6 +634,9 @@ const mapStateToProps = createStructuredSelector({
   news: makeSelectNews(),
   file: makeSelectFile(),
   message: makeSelectMessage(),
+  token: makeSelectToken(),
+  userDetail: makeSelectCurrentUser(),
+  popout: makeSelectPopout(),
   queryCollection: makeSelectQueryCollection(),
 });
 
