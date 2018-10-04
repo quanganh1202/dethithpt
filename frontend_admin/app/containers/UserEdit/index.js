@@ -167,7 +167,6 @@ export class UserEdit extends React.PureComponent {
       .delete('status')
       .delete('createdAt')
       .delete('updatedAt')
-      .delete('deposit')
       .delete('numOfDownloaded')
       .delete('numOfUploaded');
   }
@@ -201,10 +200,12 @@ export class UserEdit extends React.PureComponent {
         error[key] = 'Thông tin còn thiếu';
       }
     });
+    console.log(error)
     if (!Object.keys(error).length) {
+      console.log(parseInt(this.state.formData.get('money', 0)), this.state.formData.get('deposit', 0))
       this.props.updateUser(
         this.state.formData
-        .set('money', `${this.state.formData.get('money') + parseInt(this.state.formData.get('deposit'))}`)
+        .set('money', `${parseInt(this.state.formData.get('money', 0)) + parseInt(this.state.formData.get('deposit'))}`)
         .delete('email')
         .delete('deposit')
         .toJS(),
