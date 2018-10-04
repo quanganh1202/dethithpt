@@ -10,7 +10,7 @@ const index = process.env.ES_INDEX_DOWNLOAD || 'downloads';
 const elasticsearch = new ES(index, type);
 
 const handleDownloadError = (error) => {
-  logger.error(`[DOWNLOAD] - ${error.message || error}`);
+  logger.error(`[DOWNLOAD][QUERY] - ${error.message || error}`);
 
   return {
     statusCode: error.status || error.code || 500,
@@ -77,11 +77,9 @@ export default {
         updateUserDownload(userId, constant.INCREASE),
       ]).catch((err) => {
         logger.error(err.message || '[DOWNLOAD][QUERY] Unexpected error when during process download');
-
-        return {
-          statusCode: 500,
-          error: '[QUERY] Unexpected error when during process download',
-        };
+        if (err.status !== 409) {
+          throw err;
+        }
       });
       await elasticsearch.insert(body);
 

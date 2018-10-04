@@ -26,19 +26,19 @@ const checkUserActivation = async (userId) => {
   case '0':
     return {
       status: 400,
-      error: 'This user has been blocked',
+      error: 'Account has been blocked',
     };
   case '2':
     return {
       status: 400,
-      error: 'This user need to provide some infomation',
+      error: 'You must be provide required infomation',
     };
 
   case '3':
     if (moment(user[0].blockTo) >= moment.now()) {
       return {
         status: 400,
-        error: `This user has been blocked from ${
+        error: `Account has been blocked from ${
           moment(user[0].blockFrom).format('YYYY-MM-DDTHH:mm:ss.SSS')} to ${moment(user[0].blockTo).format('YYYY-MM-DDTHH:mm:ss.SSS')}`,
       };
     }

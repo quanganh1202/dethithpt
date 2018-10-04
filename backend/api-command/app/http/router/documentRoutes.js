@@ -13,7 +13,8 @@ import { isUndefined } from 'util';
 const routerDefine =  function defineRouter() {
   // Destination folder path
   const pathDesFolder = process.env.PATH_DES_FOLDER || '/tmp/';
-  const uploader = multer({ dest: pathDesFolder });
+  const limits = { fileSize: 100 * 1024 * 1024 };
+  const uploader = multer({ dest: pathDesFolder, limits });
   const route = express.Router();
 
   // Upload
@@ -109,6 +110,13 @@ const routerDefine =  function defineRouter() {
       statusCode: status,
       message,
     });
+  });
+
+  route.use((err, req, res, next) => {
+    if (err && err.code === 'LIMIT_FILE_SIZE') {
+      res.status(400).json({ statusCode: 400, error: `File upload [${err.field}] too large, allow maximum 100Mb` });
+    }
+    next();
   });
 
   return route;
