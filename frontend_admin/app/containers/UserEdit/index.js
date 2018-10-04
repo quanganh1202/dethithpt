@@ -220,7 +220,6 @@ export class UserEdit extends React.PureComponent {
   }
 
   render() {
-    console.log(this.state.formData.toJS());
     const updateNote = this.props.location.search.split('=')[1];
     const message = this.props.message || this.props.error || '';
     const AlertComponent = (

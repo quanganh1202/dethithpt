@@ -4,6 +4,7 @@ import {
   LOGIN_FAILURE,
   UPDATE_USER_INFO_REQUEST,
   UPDATE_USER_INFO_SUCCESS,
+  UPDATE_USER_INFO_FAILURE,
   GET_DOC_LIST_REQUEST,
   GET_DOC_LIST_SUCCESS,
   GET_CATE_LIST_REQUEST,
@@ -87,6 +88,21 @@ export function updateUserInfoSuccess(payload) {
   return {
     type: UPDATE_USER_INFO_SUCCESS,
     payload,
+  };
+}
+
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {payload} payload get from backend after update successfully
+ *
+ * @return {object}    An action object with a type of UPDATE_USER_INFO_FAILURE
+ */
+export function updateUserInfoFailure(message) {
+  return {
+    type: UPDATE_USER_INFO_FAILURE,
+    message,
   };
 }
 

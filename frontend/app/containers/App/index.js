@@ -8,9 +8,11 @@
 
 import React from 'react';
 import { Helmet } from 'react-helmet';
+import { compose } from 'redux';
 import styled from 'styled-components';
 import { Switch, Route, withRouter } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
+import injectSaga from 'utils/injectSaga';
 
 import HomePage from 'containers/HomePage/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
@@ -18,6 +20,7 @@ import UserInformation from 'containers/UserInformation/Loadable';
 import Header from 'components/Header';
 import Footer from 'components/Footer';
 import { getUser } from 'services/auth';
+import saga from './saga';
 
 const AppWrapper = styled.div`
   margin: 0 auto;
@@ -91,4 +94,8 @@ class App extends React.Component {
   }
 }
 
-export default withRouter(App);
+const withSaga = injectSaga({ key: 'global', saga });
+
+export default compose(
+  withSaga,
+)(withRouter(App));

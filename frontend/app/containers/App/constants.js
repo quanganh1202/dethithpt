@@ -8,7 +8,7 @@
  * Follow this format:
  * export const YOUR_ACTION_CONSTANT = 'yourproject/YourContainer/YOUR_ACTION_CONSTANT';
  */
-
-export const LOAD_REPOS = 'boilerplate/App/LOAD_REPOS';
-export const LOAD_REPOS_SUCCESS = 'boilerplate/App/LOAD_REPOS_SUCCESS';
-export const LOAD_REPOS_ERROR = 'boilerplate/App/LOAD_REPOS_ERROR';
+import { defineAction } from 'redux-define';
+const container = 'thpt/App';
+export const GET_USER_DETAILS = defineAction('GET_USER_DETAILS', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
+export const CLEAR_DATA = defineAction('CLEAR_DATA', container);

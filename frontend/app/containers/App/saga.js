@@ -2,14 +2,13 @@
  * Gets the repositories of the user from Github
  */
 import axios from 'axios';
-import { call, put, select, takeLatest } from 'redux-saga/effects';
-import request from 'utils/request';
+import { call, put, takeLatest } from 'redux-saga/effects';
 import {
   GET_USER_DETAILS,
 } from './constants';
 import {
-  getUserDetailsSuccess,
-  getUserDetailsFailure,
+  getUserDetailSuccess,
+  getUserDetailFailure,
 } from './actions';
 import { getToken } from 'services/auth';
 
@@ -17,19 +16,23 @@ const rootCommand = '/api';
 /**
  * Request to login using social network token
  */
-export function* getUserDetailsHandler({ id }) {
+export function* getUserDetailsHandler({ id, popout }) {
   const url = `${rootCommand}/users/${id}`;
   const options = {
     headers: {
       ['x-access-token']: getToken(),
     },
   }
-
   try {
     const resp = yield call(axios.get, url, options);
-    yield put(getUserDetailsSuccess(resp.data.data));
+    const { notifyStatus, notifyText } = resp.data.data;
+    let popoutStt = popout;
+    if (notifyStatus !== '1' || !notifyText) {
+      popoutStt = false;
+    }
+    yield put(getUserDetailSuccess(resp.data.data, popoutStt));
   } catch (err) {
-    yield put(getUserDetailsFailure(err));
+    yield put(getUserDetailFailure(err));
   }
 }
 

@@ -37,6 +37,9 @@ const Wrapper = styled.div`
     width: 40px;
     height: 40px;
     padding: 0;
+    > * {
+      vertical-align: top;
+    }
   }
   /* 
     ##Device = Most of the Smartphones Mobiles (Portrait)
