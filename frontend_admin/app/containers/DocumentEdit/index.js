@@ -108,8 +108,8 @@ export class DocumentEdit extends React.PureComponent {
   }
 
   onChange(e) {
-    const { name, value } = e.currentTarget
-    this.setState({ formData: { ...this.state.formData, [name]: value } })
+    const { name, value } = e.currentTarget;
+    this.setState({ formData: { ...this.state.formData, [name]: value } });
   }
 
   onSubmit() {
@@ -267,7 +267,7 @@ export class DocumentEdit extends React.PureComponent {
                     <Row>
                       <Col xs="12">
                         <FormGroup row>
-                          <Label htmlFor="email" sm={3}>
+                          <Label htmlFor="note" sm={3}>
                           Ghi chú:
                           </Label>
                           <Col sm={9}>
@@ -277,7 +277,6 @@ export class DocumentEdit extends React.PureComponent {
                               type="textarea"
                               id="note"
                               name="description"
-                              required
                               onChange={this.onChange}
                               value={this.state.formData.description || ''}
                               className={

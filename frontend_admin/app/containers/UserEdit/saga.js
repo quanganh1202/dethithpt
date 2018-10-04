@@ -52,7 +52,7 @@ export function* updateUserHandler({ data, id }) {
   try {
     yield call(axios.put, url, data, options);
     yield put(updateUserSuccess());
-    yield put('/users');
+    yield put(push('/users'));
     // yield getDetailUserHandler({ id });
   } catch (err) {
     yield put(
