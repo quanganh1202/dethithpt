@@ -4,6 +4,7 @@
 import axios from 'axios';
 import _ from 'lodash';
 import { getToken } from 'services/auth';
+import { push } from 'react-router-redux';
 import { call, put, takeLatest } from 'redux-saga/effects';
 import { UPDATE_CLASS, GET_CLASS_DETAIL } from './constants';
 import {
@@ -50,7 +51,8 @@ export function* updateClassHandler({ data, id }) {
   try {
     yield call(axios.put, url, data, options);
     yield put(updateClassSuccess());
-    yield getDetailClassHandler({ id });
+    yield put(push('/classes'));
+    // yield getDetailClassHandler({ id });
   } catch (err) {
     yield put(
       updateClassFailure(

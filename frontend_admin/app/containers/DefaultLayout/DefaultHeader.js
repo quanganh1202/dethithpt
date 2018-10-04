@@ -37,7 +37,7 @@ class DefaultHeader extends Component {
         <AppSidebarToggler className="d-md-down-none" display="lg" />
 
         <Nav className="d-md-down-none" navbar>
-          <NavItem className="px-3">
+          {/* <NavItem className="px-3">
             <Link className="nav-link" to="/">Trang chủ</Link>
           </NavItem>
           <NavItem className="px-3">
@@ -57,7 +57,7 @@ class DefaultHeader extends Component {
           </NavItem>
           <NavItem className="px-3">
             <Link className="nav-link" to="/classes">Lớp</Link>
-          </NavItem>
+          </NavItem> */}
         </Nav>
         <Nav className="ml-auto" navbar>
           <NavItem className="d-md-down-none">
