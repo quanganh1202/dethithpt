@@ -132,7 +132,7 @@ async function auth(info) {
   }
 }
 
-async function addUser(userInfo) {
+async function addUser(userInfo, userId) {
   try {
     userInfo.role = roles.MEMBER; // Default role is member when register account
     const resValidate = dataValidator(userInfo, createSchema);
@@ -142,12 +142,23 @@ async function addUser(userInfo) {
         error: resValidate.errors,
       };
     }
-    const { name, email, phone } = userInfo;
-    const criteria = [ { email }, { phone }];
-    // Temporary data. Need to remove after.
-    if (email === 'vuanhdung.khmt2k7@gmail.com') {
-      userInfo.role = roles.ADMIN;
+    const actor = await userModel.getById(userId);
+    if (!actor || !actor.length) {
+      return {
+        error: 'User email or phone not registed',
+        status: 400,
+      };
     }
+
+    const { name, email, phone } = userInfo;
+    if (actor[0].email !== email && actor[0].role !== roles.ADMIN) {
+      return {
+        error: 'Email in the token not match with email in the body',
+        status: 400,
+      };
+    }
+
+    const criteria = [ { email }, { phone }];
     const user = await userModel.getList(criteria);
     userInfo.status = 1;
     delete userInfo.money;
