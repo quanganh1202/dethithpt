@@ -49,6 +49,8 @@ export default {
         classId,
         description,
         yearSchools,
+        userName,
+        userId,
         scroll,
       } = options;
       const numberRegex = new RegExp(/^[0-9]*$/);
@@ -71,6 +73,8 @@ export default {
         'subjects.subjectId': subjectId,
         'classes.className': className,
         'classes.classId': classId,
+        userName,
+        userId,
         description,
         yearSchools,
       });
