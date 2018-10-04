@@ -41,7 +41,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import FileSaver from 'file-saver';
 import { HeadSort, PaginationTable, HeadFilter } from 'components/Table';
-import ScrollBar from 'components/Scrollbar';
+// import ScrollBar from 'components/Scrollbar';
 import PopUp from 'components/PopUp';
 
 import injectReducer from 'utils/injectReducer';
