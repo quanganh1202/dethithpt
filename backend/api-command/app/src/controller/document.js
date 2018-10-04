@@ -30,18 +30,18 @@ const checkUserActivation = async (userId) => {
   case '0':
     return {
       status: 400,
-      error: 'This user has been blocked',
+      error: 'Account has been blocked',
     };
   case '2':
     return {
       status: 400,
-      error: 'This user need to provide some infomation',
+      error: 'You must be provide required infomation',
     };
   case '3':
     if (moment(user[0].blockTo) >= moment.now()) {
       return {
         status: 400,
-        error: `This user has been blocked from ${
+        error: `Account has been blocked from ${
           moment(user[0].blockFrom).format('YYYY-MM-DDTHH:mm:ss.SSS')} to ${moment(user[0].blockTo).format('YYYY-MM-DDTHH:mm:ss.SSS')}`,
       };
     }
@@ -189,7 +189,7 @@ async function uploadDocument(body, file) {
     let numPages = 0;
     if (filePreview) {
       // For zip, rar
-      await fileHelpers.storeFile(file, filePreview, true);
+      fileHelpers.storeFile(file, filePreview, true);
     } else {
       // For docx, doc, pdf
       const result = await fileHelpers.preview(fileName);
@@ -573,7 +573,7 @@ async function downloadDocument(docId, userId) {
         if (arrBlock.length) {
           return {
             status: 400,
-            error: 'This user has been blocked download feature with this subject',
+            error: 'Account has been blocked download feature with this subject',
           };
         }
       }
@@ -585,7 +585,7 @@ async function downloadDocument(docId, userId) {
         if (arrBlock.length) {
           return {
             status: 400,
-            error: 'This user has been blocked download feature with this collection',
+            error: 'Account has been blocked download feature with this collection',
           };
         }
       }
@@ -597,7 +597,7 @@ async function downloadDocument(docId, userId) {
         if (arrBlock.length) {
           return {
             status: 400,
-            error: 'This user has been blocked download feature with this category',
+            error: 'Account has been blocked download feature with this category',
           };
         }
       }

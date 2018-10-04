@@ -22,8 +22,9 @@ const routerDefine =  function defineRouter() {
   });
 
   route.post('/register', async (req, res) => {
+    const userId = req.app.locals.id.toString();
     const userInfo = req.body;
-    const { error, status, token, expiresIn } = await addUser(userInfo);
+    const { error, status, token, expiresIn } = await addUser(userInfo, userId);
 
     if (error) {
       return res.status(status || 500).json({

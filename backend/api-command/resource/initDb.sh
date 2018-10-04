@@ -148,6 +148,48 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE INDEX id_UNIQUE (id ASC));
+
+  INSERT INTO $DATABASE.tbUser(
+    name,
+    email,
+    role,
+    status
+  ) VALUES ('administator', 'vuanhdung.khmt2k7@gmail.com', 'admin', '2');
+
+  INSERT INTO $DATABASE.tbUser(
+    name,
+    email,
+    role,
+    status
+  ) VALUES ('administator', 'vuanhdung.khmt2@gmail.com', 'admin', '2');
+
+    INSERT INTO $DATABASE.tbUser(
+    name,
+    email,
+    role,
+    status
+  ) VALUES ('administator', 'quanganh1202@gmail.com', 'admin', '2');
+
+  INSERT INTO $DATABASE.tbUser(
+    name,
+    email,
+    role,
+    status
+  ) VALUES ('administator', 'tdgalaxycorp@gmail.com', 'admin', '2');
+
+  INSERT INTO $DATABASE.tbUser(
+    name,
+    email,
+    role,
+    status
+  ) VALUES ('administator', 'phamdung282@gmail.com', 'admin', '2');
+
+  INSERT INTO $DATABASE.tbUser(
+    name,
+    email,
+    role,
+    status
+  ) VALUES ('administator', 'nguoiran2000@gmail.com', 'admin', '2');
 "
 
 if [ $? == 0 ]

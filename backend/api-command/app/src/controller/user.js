@@ -30,7 +30,7 @@ const checkUserActivation = async (userId) => {
   case '0':
     return {
       status: 400,
-      error: 'This user has been blocked',
+      error: 'Account has been blocked',
     };
   case '2':
     return {
@@ -41,7 +41,7 @@ const checkUserActivation = async (userId) => {
     if (moment(user[0].blockTo) >= moment.now()) {
       return {
         status: 400,
-        error: `This user has been blocked from ${
+        error: `Account has been blocked from ${
           moment(user[0].blockFrom).format('YYYY-MM-DDTHH:mm:ss.SSS')} to ${moment(user[0].blockTo).format('YYYY-MM-DDTHH:mm:ss.SSS')}`,
       };
     }
@@ -132,7 +132,7 @@ async function auth(info) {
   }
 }
 
-async function addUser(userInfo) {
+async function addUser(userInfo, userId) {
   try {
     userInfo.role = roles.MEMBER; // Default role is member when register account
     const resValidate = dataValidator(userInfo, createSchema);
@@ -142,12 +142,23 @@ async function addUser(userInfo) {
         error: resValidate.errors,
       };
     }
-    const { name, email, phone } = userInfo;
-    const criteria = [ { email }, { phone }];
-    // Temporary data. Need to remove after.
-    if (email === 'vuanhdung.khmt2k7@gmail.com') {
-      userInfo.role = roles.ADMIN;
+    const actor = await userModel.getById(userId);
+    if (!actor || !actor.length) {
+      return {
+        error: 'User email or phone not registed',
+        status: 400,
+      };
     }
+
+    const { name, email, phone } = userInfo;
+    if (actor[0].email !== email && actor[0].role !== roles.ADMIN) {
+      return {
+        error: 'Email in the token not match with email in the body',
+        status: 400,
+      };
+    }
+
+    const criteria = [ { email }, { phone }];
     const user = await userModel.getList(criteria);
     userInfo.status = 1;
     delete userInfo.money;
@@ -161,8 +172,13 @@ async function addUser(userInfo) {
         };
       } else {
         id = user[0].id;
+        const { role } = user[0];
+        if (role) userInfo.role = role;
         await userModel.updateUser(id, userInfo);
         action = 'update';
+        userInfo.numOfDownloaded = 0;
+        userInfo.numOfUploaded = 0;
+        userInfo.money = 0;
       }
     } else {
       userInfo.money = 0;
