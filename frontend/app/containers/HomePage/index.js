@@ -38,6 +38,7 @@ import ListItem from 'components/ListItem';
 import PopUp from 'components/PopUp';
 import SocialButton from 'components/SocialButton';
 import TagList from 'components/TagList';
+import { getUser, setToken } from 'services/auth';
 import {
   login,
   updateUserInfo,
@@ -61,13 +62,13 @@ import {
   makeSelectNews,
   makeSelectFile,
   makeSelectMessage,
+  makeSelectQueryCollection,
 } from './selectors';
 import { makeSelectCurrentUser, makeSelectPopout } from 'containers/App/selectors';
 import { clearData, getUserDetail } from 'containers/App/actions';
 import reducer from './reducer';
 import saga from './saga';
 import CreateUserForm from '../Login/Form';
-import { getUser, setToken } from 'services/auth';
 import GreyTitle from './GreyTitle';
 import HomeWrapper from './Wrapper';
 import UserDashboard from './UserDashboard';
@@ -136,7 +137,7 @@ export class HomePage extends React.PureComponent {
     // get document's categories
     this.props.getCategories();
     // get document's collections
-    this.props.getCollections();
+    this.props.getCollections(this.props.queryCollection);
     // get tags
     this.props.getTags();
     // get news
@@ -183,6 +184,14 @@ export class HomePage extends React.PureComponent {
       }
       alert(errorMapping[nextProps.message] || 'Có lỗi xảy ra, vui lòng báo lại cho admin!');
       this.props.removeMessage();
+    }
+
+    if (
+      this.props.queryCollection &&
+      !_.isEqual(this.props.queryCollection, nextProps.queryCollection)
+    ) {
+      // get document's collections
+      this.props.getCollections(nextProps.queryCollection);
     }
   }
 
@@ -366,13 +375,13 @@ export class HomePage extends React.PureComponent {
           title="Bộ sưu tập nổi bật"
           content={
             <List
-              items={this.props.collections}
+              items={this.props.collections.sort((a, b) => b.numDocRefs - a.numDocRefs)}
               component={({ item }) => (
                 <TabList
                   item={{
                     link: `/bo-suu-tap/${item.id}`,
                     title: item.name,
-                    quantity: item.quantity || 4,
+                    quantity: item.numDocRefs || 0,
                   }}
                 />
               )}
@@ -603,10 +612,11 @@ export function mapDispatchToProps(dispatch) {
     onSubmitUserInfo: (payload, token) => dispatch(updateUserInfo(payload, token)),
     getDocumentsList: query => dispatch(getDocumentsList(query)),
     getCategories: () => dispatch(getCategories()),
-    getCollections: () => dispatch(getCollections()),
+    getCollections: queryCollection =>
+      dispatch(getCollections(queryCollection)),
     getTags: () => dispatch(getTags()),
     getNews: () => dispatch(getNews()),
-    requestDownload: (id) => dispatch(requestDownload(id)),
+    requestDownload: id => dispatch(requestDownload(id)),
     removeFileSave: () => dispatch(removeFileSave()),
     removeMessage: () => dispatch(removeMessage()),
     clearData: () => dispatch(clearData()),
@@ -627,6 +637,7 @@ const mapStateToProps = createStructuredSelector({
   token: makeSelectToken(),
   userDetail: makeSelectCurrentUser(),
   popout: makeSelectPopout(),
+  queryCollection: makeSelectQueryCollection(),
 });
 
 const withConnect = connect(

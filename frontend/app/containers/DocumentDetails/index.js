@@ -112,8 +112,13 @@ export class DocumentDetails extends React.PureComponent {
       size: itemsPerLoad,
     });
   }
-  
+
   handleDownloadFile() {
+    setTimeout(() => {
+      this.setState({ loading: false });
+    }, 5000);
+
+    this.setState({ loading: true });
     this.props.requestDownload(this.props.match.params.id);
   }
 
@@ -157,7 +162,7 @@ export class DocumentDetails extends React.PureComponent {
                 {_.get(document, 'classes', []).map((i) => <li key={i.classId}>
                   {i.className.includes('Lớp') ? i.className : `Lớp ${i.className}`}
                 </li>)}
-                {_.get(document, 'yearSchool', []).map((i) => <li key={i}>{i}</li>)}
+                {_.get(document, 'yearSchools', []).map((i) => <li key={i}>{i}</li>)}
                 {_.get(document, 'collections', []).map((i) => <li key={i.collectionId}>
                   <FontAwesomeIcon className={'specific-icon'} icon={['far', 'folder-open']} />
                   {i.collectionName}
@@ -165,12 +170,12 @@ export class DocumentDetails extends React.PureComponent {
                 </ul>
               </div>
               <div className="doc-action">
-                <button className="btn-download" onClick={this.handleDownloadFile}>
+                <button className={`btn-download ${this.state.loading ? 'loading' : ''}`} onClick={this.handleDownloadFile}>
                   <FontAwesomeIcon className={'title-icon'} icon={['fas', 'cloud-download-alt']} /> Tải file word ({numberWithCommas((document.price || 0).toString())}đ)
-                </button>
-                <button className={`btn-view ${!document.images ? 'loading' : ''}`} onClick={document.images ? this.showPreview : () => {}}>
-                  <FontAwesomeIcon className={'title-icon'} icon={['far', 'eye']} /> Xem thử ({numberWithCommas((document.totalPages || 0).toString())} trang)
                   <img src={downloading} />
+                </button>
+                <button className="btn-view" onClick={this.showPreview}>
+                  <FontAwesomeIcon className={'title-icon'} icon={['far', 'eye']} /> Xem thử ({numberWithCommas((document.totalPages || 0).toString())} trang)
                 </button>
               </div>
               <div className="doc-action">

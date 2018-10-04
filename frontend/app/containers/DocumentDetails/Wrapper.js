@@ -68,16 +68,16 @@ const Wrapper = styled.div`
         margin: 10px 10px 10px 0;
       }
       .btn-download {
-        background-color: orange;
-      }
-      .btn-view {
         position: relative;
-        background-color: LightSeaGreen;
+        background-color: orange;
         img {
           display: none;
         }
       }
-      .btn-view.loading {
+      .btn-view {
+        background-color: LightSeaGreen;
+      }
+      .btn-download.loading {
         padding-top: 2px;
         padding-bottom: 0px;
         img {

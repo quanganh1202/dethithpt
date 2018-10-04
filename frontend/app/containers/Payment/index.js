@@ -143,7 +143,7 @@ export class Payment extends React.PureComponent {
                       ? document.className
                       : `Lớp ${document.className}`}
                   </li>}
-                  {document.yearSchool && <li>{document.yearSchool}</li>}
+                  {document.yearSchools && <li>{document.yearSchools}</li>}
                   {document.collectionName && <li>
                     <FontAwesomeIcon className={'specific-icon'} icon={['far', 'folder-open']} />
                     {document.collectionName}

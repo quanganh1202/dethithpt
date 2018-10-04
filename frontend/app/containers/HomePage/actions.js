@@ -18,6 +18,7 @@ import {
   REMOVE_FILE_SAVE,
   REMOVE_MESSAGE,
   GET_NEWS,
+  QUERY_DATA,
 } from './constants';
 
 /**
@@ -170,9 +171,10 @@ export function getCategoriesSuccess(categories) {
  *
  * @return {object}    An action object with a type of GET_CATE_LIST_REQUEST
  */
-export function getCollections() {
+export function getCollections(queryCollection = {}) {
   return {
     type: GET_COLLECTION_LIST_REQUEST,
+    queryCollection,
   };
 }
 
@@ -338,5 +340,12 @@ export function removeFileSave() {
 export function removeMessage() {
   return {
     type: REMOVE_MESSAGE,
+  };
+}
+
+export function updateQuery(queryCollection) {
+  return {
+    type: QUERY_DATA,
+    queryCollection,
   };
 }

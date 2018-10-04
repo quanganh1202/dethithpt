@@ -37,6 +37,9 @@ const makeSelectFile = () =>
 const makeSelectMessage = () =>
   createSelector(selectHome, homeState => homeState.get('message'));
 
+const makeSelectQueryCollection = () =>
+  createSelector(selectHome, homeState => homeState.get('queryCollection'));
+
 export {
   selectHome,
   makeSelectUser,
@@ -49,4 +52,5 @@ export {
   makeSelectNews,
   makeSelectFile,
   makeSelectMessage,
+  makeSelectQueryCollection,
 };

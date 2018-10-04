@@ -22,6 +22,7 @@ import {
 import { faMoneyBillAlt } from '@fortawesome/free-regular-svg-icons';;
 import Select from 'react-select';
 import FileSaver from 'file-saver';
+import _ from 'lodash';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
@@ -30,7 +31,7 @@ import List from 'components/List';
 import ListItem from 'components/ListItem';
 import LoadingIndicator from 'components/LoadingIndicator';
 import { getFilterData, getDocumentsList } from './actions';
-import { requestDownload, removeFileSave, removeMessage } from 'containers/HomePage/actions';
+import { requestDownload, removeFileSave, removeMessage, updateQuery } from 'containers/HomePage/actions';
 import {
   makeSelectDocument,
   makeSelectLoading,
@@ -81,6 +82,10 @@ export class Category extends React.PureComponent {
     };
     if (this.props.match.params.id) {
       queries.cateId = this.props.match.params.id;
+      // Update filter for Collections
+      this.props.updateQuery({
+        cateId: this.props.match.params.id,
+      });
     }
     this.props.getDocumentsList(queries, true);
   }
@@ -98,10 +103,15 @@ export class Category extends React.PureComponent {
         filter: {
           subjectId: '',
           classId: '',
-          yearSchool: '',
+          yearSchools: '',
           sort: { value: 'desc', label: 'Mới đăng' },
         },
         resetKey: Math.random(),
+      });
+
+      // Update filter for Collections
+      this.props.updateQuery({
+        cateId: nextProps.match.params.id,
       });
     }
     if (!this.props.file && nextProps.file) {
@@ -116,6 +126,37 @@ export class Category extends React.PureComponent {
     }
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    const currentFilter = {
+      ...this.state.filter,
+      cateId: this.props.match.params.id,
+    };
+    const prevFilter = {
+      ...prevState.filter,
+      cateId: prevProps.match.params.id,
+    };
+
+    if (!_.isEqual(currentFilter, prevFilter)) {
+      const queryCollection = {
+        cateId: currentFilter.cateId,
+      };
+      Object.keys(currentFilter).forEach(key => {
+        if (
+          ['classId', 'subjectId', 'yearSchools'].includes(key) &&
+          currentFilter[key] &&
+          _.isArray(currentFilter[key]) &&
+          currentFilter[key].length > 0
+        ) {
+          queryCollection[key] = currentFilter[key]
+            .map(t => t.value)
+            .toString();
+        }
+      });
+
+      this.props.updateQuery(queryCollection);
+    }
+  }
+
   loadMoreDocs() {
     const { filter } = this.state;
     const queries = {
@@ -123,7 +164,7 @@ export class Category extends React.PureComponent {
       offset: this.props.documents.data.length,
       size: itemsPerLoad,
     }
-    Array.from(['subjectId', 'classId', 'yearSchool']).forEach((f) => {
+    Array.from(['subjectId', 'classId', 'yearSchools']).forEach((f) => {
       if (filter[f] && filter[f].length > 0) {
         queries[f] = filter[f].map((i) => i.value).join(',');
       }
@@ -142,7 +183,7 @@ export class Category extends React.PureComponent {
       size: itemsPerLoad,
       cateId: this.props.match.params.id,
     }
-    Array.from(['subjectId', 'classId', 'yearSchool']).forEach((filter) => {
+    Array.from(['subjectId', 'classId', 'yearSchools']).forEach((filter) => {
       if (newFilter[filter] && newFilter[filter].length > 0) {
         queries[filter] = newFilter[filter].map((i) => i.value).join(',');
       }
@@ -180,7 +221,6 @@ export class Category extends React.PureComponent {
                   placeholder={'Chọn môn'}
                   isSearchable={false}
                   components={{
-                    MultiValueContainer: () => null,
                     DropdownIndicator: () => (
                       <FontAwesomeIcon style={{ margin: '0 5px'}} className={'title-icon'} icon={['fas', 'caret-down']} />
                     ),
@@ -201,7 +241,6 @@ export class Category extends React.PureComponent {
                   placeholder={'Chọn lớp'}
                   isSearchable={false}
                   components={{
-                    MultiValueContainer: () => null,
                     DropdownIndicator: () => (
                       <FontAwesomeIcon style={{ margin: '0 5px'}} className={'title-icon'} icon={['fas', 'caret-down']} />
                     ),
@@ -212,9 +251,9 @@ export class Category extends React.PureComponent {
               <div className="doc-filter">
                 <Select
                   key={this.state.resetKey}
-                  name="yearSchool"
-                  value={this.state.filter.yearSchool}
-                  onChange={this.handleChangeFilter.bind(this, 'yearSchool')}
+                  name="yearSchools"
+                  value={this.state.filter.yearSchools}
+                  onChange={this.handleChangeFilter.bind(this, 'yearSchools')}
                   options={Array(21)
                     .fill((new Date()).getFullYear() - 10)
                     .map((y, idx) => ({ value: y + idx, label: y + idx }))}
@@ -224,7 +263,6 @@ export class Category extends React.PureComponent {
                   placeholder={'Chọn năm học'}
                   isSearchable={false}
                   components={{
-                    MultiValueContainer: () => null,
                     DropdownIndicator: () => (
                       <FontAwesomeIcon style={{ margin: '0 5px'}} className={'title-icon'} icon={['fas', 'caret-down']} />
                     ),
@@ -249,7 +287,6 @@ export class Category extends React.PureComponent {
                   placeholder={'Sắp xếp'}
                   isSearchable={false}
                   components={{
-                    MultiValueContainer: () => null,
                     DropdownIndicator: () => (
                       <FontAwesomeIcon style={{ margin: '0 5px'}} className={'title-icon'} icon={['fas', 'caret-down']} />
                     ),
@@ -298,15 +335,18 @@ Category.propTypes = {
   onSubmitForm: PropTypes.func,
   username: PropTypes.string,
   onChangeUsername: PropTypes.func,
+  updateQuery: PropTypes.func,
 };
 
 export function mapDispatchToProps(dispatch) {
   return {
     getFilterData: () => dispatch(getFilterData()),
-    getDocumentsList: (query, clear) => dispatch(getDocumentsList(query, clear)),
-    requestDownload: (id) => dispatch(requestDownload(id)),
+    getDocumentsList: (query, clear) =>
+      dispatch(getDocumentsList(query, clear)),
+    requestDownload: id => dispatch(requestDownload(id)),
     removeFileSave: () => dispatch(removeFileSave()),
     removeMessage: () => dispatch(removeMessage()),
+    updateQuery: query => dispatch(updateQuery(query)),
   };
 }
 

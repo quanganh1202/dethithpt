@@ -10,6 +10,8 @@
  *   return state.set('yourStateVariable', true);
  */
 import { fromJS } from 'immutable';
+
+import { setToken, mappingUser } from 'services/auth';
 import {
   LOGIN_SUCCESS,
   LOGIN_REQUEST,
@@ -29,8 +31,8 @@ import {
   REMOVE_FILE_SAVE,
   REMOVE_MESSAGE,
   GET_NEWS,
+  QUERY_DATA,
 } from './constants';
-import { setToken, mappingUser } from 'services/auth';
 
 // The initial state of the App
 export const initialState = fromJS({
@@ -53,11 +55,14 @@ export const initialState = fromJS({
 function homeReducer(state = initialState, action) {
   switch (action.type) {
     case '@@router/LOCATION_CHANGE':
-      return state.set('documents', fromJS({
-        data: [],
-        total: 0,
-        query: null,
-      }));
+      return state.set(
+        'documents',
+        fromJS({
+          data: [],
+          total: 0,
+          query: null,
+        }),
+      );
     case LOGIN_REQUEST:
       return state.set('loading', true);
     case LOGIN_SUCCESS: {
@@ -89,43 +94,39 @@ function homeReducer(state = initialState, action) {
       return state
         .set('loading', true)
         .setIn(['documents', 'query'], action.query);
-    case GET_DOC_LIST_SUCCESS:
-      const documents = state.getIn(['documents', 'data']).push(...fromJS(action.documents));
-      return state
-        .set('loading', false)
-        .set('documents', fromJS({
+    case GET_DOC_LIST_SUCCESS: {
+      const documents = state
+        .getIn(['documents', 'data'])
+        .push(...fromJS(action.documents));
+      return state.set('loading', false).set(
+        'documents',
+        fromJS({
           data: documents,
           total: action.total,
           query: state.getIn(['documents', 'query']),
-        }));
+        }),
+      );
+    }
     case GET_CATE_LIST_REQUEST:
-      return state
-        .set('loading', true);
+      return state.set('loading', true);
     case GET_CATE_LIST_SUCCESS:
       return state
         .set('loading', false)
         .set('categories', fromJS(action.categories));
     case GET_COLLECTION_LIST_REQUEST:
-      return state
-        .set('loading', true);
+      return state.set('loading', true).set('queryCollection', action.queryCollection);
     case GET_COLLECTION_LIST_SUCCESS:
       return state
         .set('loading', false)
         .set('collections', fromJS(action.collections));
     case GET_TAGS_REQUEST:
-        return state
-          .set('loading', true);
+      return state.set('loading', true);
     case GET_TAGS_SUCCESS:
-      return state
-        .set('loading', false)
-        .set('tags', fromJS(action.tags));
+      return state.set('loading', false).set('tags', fromJS(action.tags));
     case GET_NEWS.REQUEST:
-        return state
-          .set('loading', true);
+      return state.set('loading', true);
     case GET_NEWS.SUCCESS:
-      return state
-        .set('loading', false)
-        .set('news', fromJS(action.news));
+      return state.set('loading', false).set('news', fromJS(action.news));
     case REQUEST_DOWNLOAD.REQUEST:
       return state.set('loading', true);
     case REQUEST_DOWNLOAD.SUCCESS:
@@ -142,6 +143,8 @@ function homeReducer(state = initialState, action) {
       return state.set('file', null);
     case REMOVE_MESSAGE:
       return state.set('message', '');
+    case QUERY_DATA:
+      return state.set('queryCollection', action.queryCollection);
     default:
       return state;
   }
