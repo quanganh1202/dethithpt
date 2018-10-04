@@ -4,6 +4,7 @@
 import axios from 'axios';
 import _ from 'lodash';
 import { getToken } from 'services/auth';
+import { push } from 'react-router-redux';
 import { call, put, takeLatest } from 'redux-saga/effects';
 import { UPDATE_CATEGORY, GET_CATEGORY_DETAIL } from './constants';
 import {
@@ -50,7 +51,8 @@ export function* updateCategoryHandler({ data, id }) {
   try {
     yield call(axios.put, url, data, options);
     yield put(updateCategorySuccess());
-    yield getDetailCategoryHandler({ id });
+    yield put(push('/categories'));
+    // yield getDetailCategoryHandler({ id });
   } catch (err) {
     yield put(
       updateCategoryFailure(

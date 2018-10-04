@@ -13,7 +13,7 @@ const HeadSort = ({
 }) => {
   const arrow = sortBy === 'desc' ? 'down' : 'up';
   return (
-    <th className="sort-column" {...rest}>
+    <th className="sort-column" style={{ cursor: 'pointer' }} {...rest}>
       {children}
       <span style={{ paddingLeft: '5px' }}>
         {

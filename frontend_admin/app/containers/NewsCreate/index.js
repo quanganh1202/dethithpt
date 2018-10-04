@@ -85,7 +85,7 @@ export class NewsCreate extends React.PureComponent {
   }
 
   onChangeEditor(evt) {
-    var newContent = evt.editor.getData();
+    const newContent = evt.editor.getData();
     this.setState({
       formData: {
         ...this.state.formData,
