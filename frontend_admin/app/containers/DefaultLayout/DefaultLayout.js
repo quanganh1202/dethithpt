@@ -39,6 +39,7 @@ import SubjectEdit from 'containers/SubjectEdit/Loadable';
 // import SchoolCreate from 'containers/SchoolCreate/Loadable';
 import Collection from 'containers/Collection/Loadable';
 import CollectionCreate from 'containers/CollectionCreate/Loadable';
+import CollectionEdit from 'containers/CollectionEdit/Loadable';
 import News from 'containers/News/Loadable';
 import NewsCreate from 'containers/NewsCreate/Loadable';
 import NewsEdit from 'containers/NewsEdit/Loadable';
@@ -88,6 +89,7 @@ class DefaultLayout extends Component {
               <Route path="/schools/create" exact name="Create school" component={SchoolCreate} /> */}
               <Route path="/collections" exact name="Collection" component={Collection} />
               <Route path="/collections/create" exact name="Create collection" component={CollectionCreate} />
+              <Route path="/collections/:id" exact name="Edit collection" component={CollectionEdit} />
               <Route path="/modules/news" exact name="News" component={News} />
               <Route path="/modules/news/create" exact name="Create news" component={NewsCreate} />
               <Route path="/modules/news/:id" exact name="Edit news" component={NewsEdit} />

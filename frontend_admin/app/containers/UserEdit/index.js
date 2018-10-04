@@ -187,7 +187,7 @@ export class UserEdit extends React.PureComponent {
     const { name, value, checked } = e.currentTarget;
     let newData = this.state.formData.set(name, value);
     if (name === 'notifyStatus') {
-      newData = newData.set(name, checked ? '1' : '0')
+      newData = newData.set(name, checked ? '1' : '0');
     }
     this.setState({ formData: newData });
   }
@@ -200,17 +200,19 @@ export class UserEdit extends React.PureComponent {
         error[key] = 'Thông tin còn thiếu';
       }
     });
-    console.log(error)
     if (!Object.keys(error).length) {
-      console.log(parseInt(this.state.formData.get('money', 0)), this.state.formData.get('deposit', 0))
-      this.props.updateUser(
-        this.state.formData
-        .set('money', `${parseInt(this.state.formData.get('money', 0)) + parseInt(this.state.formData.get('deposit'))}`)
-        .delete('email')
-        .delete('deposit')
-        .toJS(),
-        this.props.match.params.id,
-      );
+      if (!this.props.location.search.split('=')[1]) {
+        this.props.updateUser(
+          this.state.formData
+          .set('money', `${parseInt(this.state.formData.get('money', 0)) + parseInt(this.state.formData.get('deposit'))}`)
+          .delete('email')
+          .delete('deposit')
+          .toJS(),
+          this.props.match.params.id,
+        );
+      } else {
+        this.props.updateUser(this.state.formData, this.props.match.params.id);
+      }
     } else {
       this.setState({ error });
     }
@@ -225,7 +227,7 @@ export class UserEdit extends React.PureComponent {
     const message = this.props.message || this.props.error || '';
     const AlertComponent = (
       <Alert
-        color={this.props.message ? "info" : "danger"}
+        color={this.props.message ? 'info' : 'danger'}
         isOpen={!!message}
         toggle={() => this.props.clearMessage()}
       >
@@ -262,7 +264,7 @@ export class UserEdit extends React.PureComponent {
                     <Row>
                       <Col xs="12">
                         <FormGroup row>
-                          <Label htmlFor="email" sm={3}>
+                          <Label htmlFor="note" sm={3}>
                             {updateNote === 'note1' ? 'Ghi chú:' : 'Ghi chú 2:'}
                           </Label>
                           <Col sm={9}>
@@ -272,7 +274,6 @@ export class UserEdit extends React.PureComponent {
                               type="textarea"
                               id="note"
                               name={updateNote}
-                              required
                               onChange={this.onChange}
                               value={this.state.formData.get(updateNote, '')}
                               className={
@@ -842,7 +843,7 @@ export class UserEdit extends React.PureComponent {
                           <CKEditor
                             activeClass="notifyText"
                             name="notifyText"
-                            content={this.state.formData.get('notifyText')} 
+                            content={this.state.formData.get('notifyText')}
                             events={{
                               "change": this.onChangeEditor
                             }}

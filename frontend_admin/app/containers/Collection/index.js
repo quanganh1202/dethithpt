@@ -4,9 +4,9 @@
  * This is the first thing users see of our App, at the '/' route
  */
 
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
 // import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
@@ -30,10 +30,7 @@ import styled from 'styled-components';
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
 import { getCollections } from './actions';
-import {
-  makeSelectCollections,
-  makeSelectLoading,
-} from './selectors';
+import { makeSelectCollections, makeSelectLoading } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 
@@ -58,13 +55,15 @@ export class Collection extends React.PureComponent {
   renderCategoryRow(categories) {
     return categories.map((cate, idx) => (
       <tr key={cate.id}>
-          <th scope="row">{idx + 1}</th>
-          <td>{cate.name}</td>
-          <td>{cate.description}</td>
-          <td>{cate.userEmail}</td>
-          <td>{moment(cate.createdAt).format('DD/MM/YYYY')}</td>
+        <th scope="row">{idx + 1}</th>
+        <td>
+          <Link to={`/collections/${cate.id}`}>{cate.name}</Link>
+        </td>
+        <td>{cate.description}</td>
+        <td>{cate.userEmail}</td>
+        <td>{moment(cate.createdAt).format('DD/MM/YYYY')}</td>
       </tr>
-    ))
+    ));
   }
 
   render() {
@@ -73,7 +72,9 @@ export class Collection extends React.PureComponent {
         <Row>
           <Col xl={12}>
             <Breadcrumb>
-              <BreadcrumbItem><Link to="/">Trang chủ</Link></BreadcrumbItem>
+              <BreadcrumbItem>
+                <Link to="/">Trang chủ</Link>
+              </BreadcrumbItem>
               <BreadcrumbItem active>Bộ sưu tập</BreadcrumbItem>
             </Breadcrumb>
           </Col>
@@ -83,14 +84,18 @@ export class Collection extends React.PureComponent {
             <Col xl={12}>
               <Card>
                 <CardHeader>
-                  <i className="fa fa-align-justify"></i> Bộ sưu tập
+                  <i className="fa fa-align-justify" /> Bộ sưu tập
                   <div className="float-right">
                     <Button
                       block
                       color="primary"
                       size="sm"
-                      onClick={() => this.props.history.push('/collections/create')}
-                    >Tạo mới</Button>
+                      onClick={() =>
+                        this.props.history.push('/collections/create')
+                      }
+                    >
+                      Tạo mới
+                    </Button>
                   </div>
                 </CardHeader>
                 <CardBody>

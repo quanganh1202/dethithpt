@@ -97,11 +97,6 @@ const NewLoadingIndicator = styled.div`
     height: 20px;
     margin: 0;
   }
-
-  .table-renponsive {
-    position: relative;
-    display: block;
-  }
 `;
 
 function validateEmail(email) {
@@ -224,7 +219,7 @@ export class User extends React.PureComponent {
         <td>{item.deposit}</td>
         <td>{item.money}</td>
         <td>{item.group}</td>
-        <td>{item.note}</td>
+        <td>{item.note1}</td>
         <td>{item.note2}</td>
         <td>
           {item.status === 1 ? (
@@ -265,14 +260,14 @@ export class User extends React.PureComponent {
           <div>
             <button
               style={{ float: 'left', padding: '0', marginRight: '5px' }}
-              onClick={() => this.props.history.push(`/users/${item.id}?update=note2`)}
+              onClick={() => this.props.history.push(`/users/${item.id}?update=note1`)}
               title="Ghi chú"
             >
               <i className="fa fa-sticky-note fa-lg" aria-hidden="true"></i>
             </button>
             <button
               style={{ float: 'left', padding: '0', marginRight: '5px' }}
-              onClick={() => this.props.history.push(`/users/${item.id}?update=note1`)}
+              onClick={() => this.props.history.push(`/users/${item.id}?update=note2`)}
               title="Ghi chú 2"
             >
               <i className="fa fa-sticky-note fa-lg" aria-hidden="true"></i>
