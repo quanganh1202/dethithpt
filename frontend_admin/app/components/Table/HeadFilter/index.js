@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Input } from 'reactstrap';
 
 const Wrapper = styled.th`
   position: 'relative';
@@ -44,7 +45,7 @@ class HeadFilter extends React.PureComponent {
   render() {
     return (
       <th
-        style={{ position: 'relative'}}
+        style={{ position: 'relative', cursor: 'pointer' }}
         ref={(node) => { this.node = node }}
       >
         <span
@@ -56,19 +57,30 @@ class HeadFilter extends React.PureComponent {
             background: 'white',
             position: 'absolute',
             display: this.state.open ? 'block' : 'none',
-            border: '1px solid black'
+            border: '1px solid black',
+            zIndex: '1000000',
           }}>
-          <select
+          <Input
+            type="select"
+            name={this.props.selectName}
+            id="multiple-select"
+            multiple
+            onChange={this.props.onSelect}
+            defaultValue={this.props.value}
+            style={{ width: 'auto', height: '60px' }}
+          >
+          {/* <select
             name={this.props.selectName}
             style={{ minWidth: '100px' }}
             multiple
             onChange={this.props.onSelect}
             defaultValue={this.props.value}
-          >
+          > */}
             {this.props.options.map((i) => (
-              <option key={i.value} value={i.value}>{i.label}</option>
+              <option key={i.value} value={i.value} title={i.label}>{i.label}</option>
             ))}
-          </select>
+          {/* </select> */}
+          </Input>
         </div>
       </th>
     );
