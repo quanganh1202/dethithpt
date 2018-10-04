@@ -40,6 +40,7 @@ export default {
         offset,
         sort,
         fields,
+        userName,
         name,
         scroll,
       } = options;
@@ -55,7 +56,7 @@ export default {
       }
       const sortObj = sortParamsHandler(sort);
       if (sortObj.statusCode !== 200) return sortObj; // Return error
-      const filterBuilt = filterParamsHandler({ name });
+      const filterBuilt = filterParamsHandler({ name, userName });
       if (filterBuilt.statusCode !== 200) return filterBuilt; // Return error
       const fieldsToArray = fields ? fields.split(',') : undefined; // List fields specific by ","
       const from = size && offset && !isScroll ? offset : 0; // Fulfil size and offset to get from value. Default equal 0
