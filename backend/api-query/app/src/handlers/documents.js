@@ -25,7 +25,7 @@ const index = process.env.ES_INDEX_DOCUMENT || 'documents';
 const elasticsearch = new ES(index, documentType);
 
 const handleDocumentError = (error) => {
-  logger.error(`[DOCUMENT] - ${error.message || error}`);
+  logger.error(`[DOCUMENT][QUERY] - ${error.message || error}`);
 
   return {
     statusCode: error.status || error.code || 500,
@@ -64,6 +64,7 @@ export default {
         updateClassView(classes, constant.INCREASE);
       }
       await Promise.all(promises).catch(ex => {
+        logger.error(`[GET][QUERY] ${ex.message || 'Unexpected error'}`);
         // Ignore error data conflic version [409]
         if (ex.status !== 409) {
           throw ex;
@@ -196,11 +197,9 @@ export default {
       }
       await Promise.all(promise).catch((err) => {
         logger.error(`[UPLOAD][QUERY] ${err.message || 'Unexpected error'}`);
-
-        return {
-          statusCode: 500,
-          error: '[QUERY] Unexpected error when upload file',
-        };
+        if (err.status !== 409) {
+          throw err;
+        }
       });
 
       return { statusCode: 200 };
@@ -272,7 +271,12 @@ export default {
       }
       // Perform update
       const result = await elasticsearch.update(body, docId);
-      await Promise.all(promise);
+      await Promise.all(promise).catch(ex => {
+        logger.error(`[UPDATE][QUERY] ${ex.message || 'Unexpected error'}`);
+        if (ex.status !== 409) {
+          throw ex;
+        }
+      });
 
       return result;
     } catch (error) {
