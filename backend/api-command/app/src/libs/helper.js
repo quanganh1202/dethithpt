@@ -73,26 +73,24 @@ const preview = function getPreview(fileName) {
     if (extension === '.docx' || extension === '.doc') {
       office2Pdf(fileName, dirname).then(async (pdfName) => {
         const { numPages } = await pdfjs.getDocument(pdfName);
+        resolve({
+          statusCode: 200,
+          message: 'Thumb file is created',
+          numPages,
+        });
         const timeToLoop = numPages < limitTimeToLoop ? numPages : limitTimeToLoop;
         const promises = [];
         for (let i = 0; i < timeToLoop; i += 1) {
           promises.push(pdf2Image(`${pdfName}[${i}]`, `${previewFile}0${i}.png`));
         }
         Promise.all(promises).then(() => {
-          resolve({
-            statusCode: 200,
-            message: 'Thumb file is created',
-            numPages,
-          });
           fs.unlink(pdfName);
         }).catch(err => {
-          reject({
-            statusCode: 500,
-            error: err.message || 'Create thumb file failed',
-          });
+          logger.error(`[DOCUMENT] ${err.message || 'Generate preview file has error'}`);
           fs.unlink(pdfName);
         });
       }).catch((err) => {
+        logger.error(`[DOCUMENT] ${err.message || 'Generate preview file has error'}`);
         reject({
           statusCode: 500,
           error: err.message || 'Create thumb file failed',
@@ -103,24 +101,21 @@ const preview = function getPreview(fileName) {
     if (extension === '.pdf') {
       pdfjs.getDocument(fileName).then(result => {
         const { numPages } = result;
+        resolve({
+          statusCode: 200,
+          message: 'Thumb file is created',
+          numPages,
+        });
         const timeToLoop = numPages < limitTimeToLoop ? numPages : limitTimeToLoop;
         const promises = [];
         for (let i = 0; i < timeToLoop; i += 1) {
           promises.push(pdf2Image(`${fileName}[${i}]`, `${previewFile}0${i}.png`));
         }
-        Promise.all(promises).then(async () => {
-          resolve({
-            statusCode: 200,
-            message: 'Thumb file is created',
-            numPages,
-          });
-        }).catch(err => {
-          reject({
-            statusCode: 500,
-            error: err.message || 'Create thumb file failed',
-          });
+        Promise.all(promises).catch(err => {
+          logger.error(`[DOCUMENT] ${err.message || 'Generate preview file has error'}`);
         });
       }).catch(err => {
+        logger.error(`[DOCUMENT] ${err.message || 'Generate preview file has error'}`);
         reject({
           statusCode: 500,
           error: err.message || 'Create thumb file failed',

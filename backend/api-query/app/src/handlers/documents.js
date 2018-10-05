@@ -187,11 +187,11 @@ export default {
       body.downloaded = 0;
       await elasticsearch.insert(body, docId);
       const promise = [insertTag(tags), updateUserUpload(userId, constant.INCREASE)];
-      if (cates && cates.length) {
+      if (cates && cates.length && body.approved) {
         const promiseUpdateCates = updateNumDocRefToCate(cates, constant.INCREASE);
         promise.concat([...promiseUpdateCates]);
       }
-      if (collections && collections.length) {
+      if (collections && collections.length && body.approved) {
         const promiseUpdateCollections = updateNumDocRefToCollection(collections, constant.INCREASE);
         promise.concat([...promiseUpdateCollections]);
       }
@@ -256,12 +256,22 @@ export default {
 
         return pre;
       }, []): [];
-      if (cates && cates.length) {
+      if (!oldDoc.data.approved && body.approved) {
+        const { cates, collections } = oldDoc.data;
+        if (cates && cates.length) {
+          promise.concat(updateNumDocRefToCate(cates, constant.INCREASE));
+        }
+
+        if (collections && collections.length) {
+          promise.concat(updateNumDocRefToCollection(collections, constant.INCREASE));
+        }
+      }
+      if (cates && cates.length && oldDoc.data.approved) {
         const upCate = updateNumDocRefToCate(increaseCate, constant.INCREASE);
         const downCate = updateNumDocRefToCate(descreaseCate, constant.DECREASE);
         promise.concat([...upCate, ...downCate]);
       }
-      if (collections && collections.length) {
+      if (collections && collections.length && oldDoc.data.approved) {
         const upCollection = updateNumDocRefToCollection(increaseCollection, constant.INCREASE);
         const downCollection = updateNumDocRefToCollection(descreaseCollection, constant.DECREASE);
         promise.concat([...upCollection, ...downCollection]);
@@ -292,14 +302,22 @@ export default {
           error: 'Missing document id',
         };
       }
+      const promise = [];
       const oldDoc = await elasticsearch.get(docId);
       if (oldDoc.error) {
         return oldDoc;
       }
       if (oldDoc.data.collections && oldDoc.data.collections.length) {
-        await updateNumDocRefToCollection(oldDoc.data.collections, constant.DECREASE);
+        promise.push(updateNumDocRefToCollection(oldDoc.data.collections, constant.DECREASE));
       }
-      await elasticsearch.remove(docId);
+
+      if (oldDoc.data.cates && oldDoc.data.collections.length) {
+        promise.push(updateNumDocRefToCate(oldDoc.data.cates, constant.DECREASE));
+      }
+      promise.push(elasticsearch.remove(docId));
+      await Promise.all(promise).catch(err => {
+        throw err;
+      });
 
       return {
         statusCode: 201,
