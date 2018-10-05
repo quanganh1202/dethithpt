@@ -292,14 +292,22 @@ export default {
           error: 'Missing document id',
         };
       }
+      const promise = [];
       const oldDoc = await elasticsearch.get(docId);
       if (oldDoc.error) {
         return oldDoc;
       }
       if (oldDoc.data.collections && oldDoc.data.collections.length) {
-        await updateNumDocRefToCollection(oldDoc.data.collections, constant.DECREASE);
+        promise.push(updateNumDocRefToCollection(oldDoc.data.collections, constant.DECREASE));
       }
-      await elasticsearch.remove(docId);
+
+      if (oldDoc.data.cates && oldDoc.data.collections.length) {
+        promise.push(updateNumDocRefToCate(oldDoc.data.cates, constant.DECREASE));
+      }
+      promise.push(elasticsearch.remove(docId));
+      await Promise.all(promise).catch(err => {
+        throw err;
+      });
 
       return {
         statusCode: 201,
