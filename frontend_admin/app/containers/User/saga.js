@@ -39,9 +39,16 @@ export function* getDataInitHandler() {
   try {
     const resp = yield all([
       call(axios.get, `${root}/classes`),
+      call(axios.get, `${root}/purchase?action=RECHARGE`)
     ]);
     const classes = _.get(resp, '[0].data.data');
-    yield put(getDataInitSuccess({ classes }));
+    const purchaseHistory = _.get(resp, '[1].data.data', []).reduce((acc, item) => {
+      if (acc[item.userId]) {
+        return { ...acc, [item.userId]: acc[item.userId] + item.money };
+      }
+      return { ...acc, [item.userId]: item.money };
+    }, {});
+    yield put(getDataInitSuccess({ classes, purchaseHistory }));
   } catch (err) {
   // yield put(editDocFailure(_.get(err, 'response.data.error', 'Unknown error from server')));
   }
