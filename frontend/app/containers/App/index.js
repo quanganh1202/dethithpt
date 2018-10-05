@@ -35,7 +35,7 @@ const theme = {
 };
 
 class App extends React.Component {
-  componentDidMount() {
+  componentWillMount() {
     // Facebook init
     window.fbAsyncInit = function () {
       FB.init({
