@@ -132,7 +132,7 @@ const preview = function getPreview(fileName) {
 
 const pdf2Image = (pdf, image) => {
   return new Promise((resolve, reject) => {
-    gm().command('convert').in('+adjoin').quality(100).flatten().density(170, 170).in(pdf).write(image, function(err) {
+    gm('img.png').command('convert').in('+adjoin').quality(100).in(pdf).write(image, function(err) {
       if(err) return reject(err);
 
       return resolve();
@@ -146,7 +146,7 @@ const office2Pdf = (word, pdf) => {
     const wordBuffer = fs.readFileSync(word);
     file.writeFile(wordBuffer, (err) => {
       if(err) reject(err);
-      let cmd = `soffice --headless --convert-to pdf ${file.path} --outdir ${pdf}`;
+      let cmd = `soffice --headless --convert-to pdf:writer_pdf_Export ${file.path} --outdir ${pdf}`;
       childProcess.exec(cmd, (error) => {
         if(error) {
           reject(error);
