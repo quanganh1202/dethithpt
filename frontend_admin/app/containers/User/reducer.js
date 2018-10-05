@@ -18,6 +18,7 @@ export const initialState = fromJS({
   total: 0,
   dataInit: {
     classes: [],
+    purchaseHistory: {},
   },
 });
 
