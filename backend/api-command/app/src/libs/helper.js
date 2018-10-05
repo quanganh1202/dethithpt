@@ -127,7 +127,8 @@ const preview = function getPreview(fileName) {
 
 const pdf2Image = (pdf, image) => {
   return new Promise((resolve, reject) => {
-    gm('img.png').command('convert').in('+adjoin').quality(100).in(pdf).write(image, function(err) {
+    // gm('img.png').command('convert').in('+adjoin').quality(100).in(pdf).write(image, function(err) {
+    gm().command('convert').in('+adjoin').quality(100).flatten().density(170, 170).in(pdf).write(image, function(err) {
       if(err) return reject(err);
 
       return resolve();
