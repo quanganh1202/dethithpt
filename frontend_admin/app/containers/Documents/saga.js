@@ -40,7 +40,16 @@ export function* getDocsHandler({ query }) {
 
   try {
     const resp = yield call(axios.get, url, options);
-    yield put(getDocsSuccess(resp.data));
+    const ids = resp.data.data.map((i) => i.id);
+    const comments = yield call(axios.get, `${root}/comments?docId=${ids.join()}`);
+    const commentsByDocId = comments.data.data.reduce((acc, i) => {
+      if (acc[i.docId]) {
+        return { ...acc, [i.docId]: acc[i.docId] + 1 };
+      }
+      return { ...acc, [i.docId]: 1 };
+    }, {});
+    const data = resp.data.data.map((i) => ({ ...i, comment: commentsByDocId[i.id] || 0 }));
+    yield put(getDocsSuccess({ data, total: resp.data.total }));
   } catch (err) {
     // yield put(loginFailure(err));
   }

@@ -8,7 +8,9 @@ class GoogleLogin extends Component {
 	}
 
   componentDidMount() {
-    this.auth2 = window.gapi.auth2.getAuthInstance();
+    gapi.load('auth2', () => {
+      this.auth2 = window.gapi.auth2.getAuthInstance();
+    });
   }
 
   googleLogin(data) {
