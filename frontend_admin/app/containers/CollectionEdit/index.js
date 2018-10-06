@@ -343,7 +343,7 @@ export class CollectionEdit extends React.PureComponent {
                       size="sm"
                       onClick={this.onSubmit}
                     >
-                      Tạo
+                      Sửa
                     </Button>
                   </div>
                   <div className="float-right">

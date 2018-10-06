@@ -14,3 +14,4 @@ export const GET_CATEGORIES_REQUEST = 'thpt/categories/GET_CATEGORIES/REQUEST';
 export const GET_CATEGORIES_SUCCESS = 'thpt/categories/GET_CATEGORIES/SUCCESS';
 export const DELETE_CATES = defineAction('DELETE_CATES', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
 export const CLEAR_PROCESS_STATUS = defineAction('CLEAR_PROCESS_STATUS', container);
+export const UPDATE_CATES = defineAction('UPDATE_CATES', ['REQUEST', 'SUCCESS', 'FAILURE'], container);

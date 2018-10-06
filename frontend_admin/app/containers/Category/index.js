@@ -29,7 +29,7 @@ import styled from 'styled-components';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
-import { getCategories, deleteCates, clearProcessStatus } from './actions';
+import { getCategories, deleteCates, clearProcessStatus, updateCategories } from './actions';
 import {
   makeSelectCategories,
   makeSelectLoading,
@@ -50,8 +50,12 @@ export class Category extends React.PureComponent {
     super();
     this.state = {
       selectedCates: [],
+      categories: [],
+      changedCategories: [],
     };
     this.handleSelectCate = this.handleSelectCate.bind(this);
+    this.handleSavePosition = this.handleSavePosition.bind(this);
+    this.handleChangePosition = this.handleChangePosition.bind(this);
   }
 
   componentWillMount() {
@@ -67,6 +71,15 @@ export class Category extends React.PureComponent {
       this.props.getCategories();
       this.props.clearProcessStatus();
     }
+    if (!_.isEqual(nextProps.categories, this.props.categories)) {
+      this.setState({
+        categories: nextProps.categories,
+      });
+    }
+  }
+
+  componentWillUnmount() {
+    this.props.clearProcessStatus(true);
   }
 
   renderCategoryRow(categories) {
@@ -88,7 +101,15 @@ export class Category extends React.PureComponent {
         <td>{cate.numOfCollections}</td>
         <td>{cate.numDocRefs}</td>
         <td>{cate.view}</td>
-        <td></td>
+        <td>
+          <input
+            style={{ border: '1px solid #ccc', maxWidth: '50px'}}
+            type="number"
+            name={`position-item-${cate.id}-${idx}`}
+            value={cate.position}
+            onChange={this.handleChangePosition}
+          />
+        </td>
         <td>{moment(cate.createdAt).format('DD/MM/YYYY')}</td>
       </tr>
     ));
@@ -107,6 +128,28 @@ export class Category extends React.PureComponent {
           : this.state.selectedCates.filter((i) => i !== value),
       });
     }
+  }
+
+  handleSavePosition() {
+    if (this.state.changedCategories.length) {
+      const updatedCates = this.state.categories
+        .filter((item) => this.state.changedCategories.includes(item.id))
+        .map((item) => ({ id: item.id, position: parseInt(item.position) }))
+      this.props.updateCategories(updatedCates);
+    }
+  }
+
+  handleChangePosition(e) {
+    const { name, value } = e.currentTarget;
+    const field = name.split('-')[0];
+    const item = name.split('-')[2];
+    const index = name.split('-')[3];
+    const categories = _.cloneDeep(this.state.categories);
+    categories[index] = { ...this.state.categories[index], [field]: value };
+    this.setState({
+      categories,
+      changedCategories: _.uniq([ ...this.state.changedCategories, item ]),
+    })
   }
 
   render() {
@@ -139,7 +182,7 @@ export class Category extends React.PureComponent {
                       block
                       color="warning"
                       size="sm"
-                      onClick={() => {}}
+                      onClick={this.handleSavePosition}
                       style={{ color: 'white' }}
                     >Sắp xếp</Button>
                   </div>
@@ -177,7 +220,7 @@ export class Category extends React.PureComponent {
                       </tr>
                     </thead>
                     <tbody>
-                      {this.renderCategoryRow(this.props.categories)}
+                      {this.renderCategoryRow(this.state.categories)}
                     </tbody>
                   </Table>
                 </CardBody>
@@ -198,7 +241,8 @@ export function mapDispatchToProps(dispatch) {
   return {
     getCategories: () => dispatch(getCategories()),
     deleteCates: (id) => dispatch(deleteCates(id)),
-    clearProcessStatus: () => dispatch(clearProcessStatus()),
+    clearProcessStatus: (all) => dispatch(clearProcessStatus(all)),
+    updateCategories: (cates) => dispatch(updateCategories(cates)),
   };
 }
 

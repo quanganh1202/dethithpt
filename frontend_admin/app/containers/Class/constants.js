@@ -13,3 +13,4 @@ const container = 'thpt/classes';
 export const GET_CLASSES = defineAction('GET_CLASSES', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
 export const DELETE_CLASSES = defineAction('DELETE_CLASSES', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
 export const CLEAR_PROCESS_STATUS = defineAction('CLEAR_PROCESS_STATUS', container);
+export const UPDATE_CLASSES = defineAction('UPDATE_CLASSES', ['REQUEST', 'SUCCESS', 'FAILURE'], container);

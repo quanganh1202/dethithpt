@@ -15,6 +15,7 @@ import {
   GET_CATEGORIES_SUCCESS,
   DELETE_CATES,
   CLEAR_PROCESS_STATUS,
+  UPDATE_CATES,
 } from './constants';
 
 // The initial state of the App
@@ -38,7 +39,14 @@ function categoryReducer(state = initialState, action) {
         .set('loading', false)
         .set('processDone', true);
     case CLEAR_PROCESS_STATUS:
-      return state.set('processDone', false);
+      const newState = action.all ? state.set('categories', fromJS([])) : state; 
+      return newState.set('processDone', false);
+    case UPDATE_CATES.REQUEST:
+      return state.set('loading', true);
+    case UPDATE_CATES.SUCCESS:
+      return state
+        .set('loading', false)
+        .set('processDone', true);
     default:
       return state;
   }

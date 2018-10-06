@@ -29,7 +29,7 @@ import styled from 'styled-components';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
-import { getSubjects, deleteSubjects, clearProcessStatus } from './actions';
+import { getSubjects, deleteSubjects, clearProcessStatus, updateSubjects } from './actions';
 import { makeSelectSubjects, makeSelectLoading, makeSelectProcessStatus } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
@@ -46,8 +46,12 @@ export class Subject extends React.PureComponent {
     super();
     this.state = {
       selectedSubjects: [],
+      subjects: [],
+      changedSubjects: [],
     };
     this.handleSelectSubject = this.handleSelectSubject.bind(this);
+    this.handleSavePosition = this.handleSavePosition.bind(this);
+    this.handleChangePosition = this.handleChangePosition.bind(this);
   }
 
   componentWillMount() {
@@ -63,6 +67,15 @@ export class Subject extends React.PureComponent {
       this.props.getSubjects();
       this.props.clearProcessStatus();
     }
+    if (!_.isEqual(nextProps.subjects, this.props.subjects)) {
+      this.setState({
+        subjects: nextProps.subjects,
+      });
+    }
+  }
+
+  componentWillUnmount() {
+    this.props.clearProcessStatus(true);
   }
 
   renderSubjectRow(subjects) {
@@ -85,8 +98,16 @@ export class Subject extends React.PureComponent {
         <td>{item.userEmail}</td>
         <td>{moment(item.createdAt).format('DD/MM/YYYY')}</td>
         <td>{item.view}</td>
-        <td>{}</td>
-        <td>{}</td>
+        <td>{item.numDocRefs}</td>
+        <td>
+          <input
+            style={{ border: '1px solid #ccc', maxWidth: '50px'}}
+            type="number"
+            name={`position-item-${item.id}-${idx}`}
+            value={item.position}
+            onChange={this.handleChangePosition}
+          />
+        </td>
       </tr>
     ));
   }
@@ -104,6 +125,28 @@ export class Subject extends React.PureComponent {
           : this.state.selectedSubjects.filter((i) => i !== value),
       });
     }
+  }
+
+  handleSavePosition() {
+    if (this.state.changedSubjects.length) {
+      const updatedSubjects = this.state.subjects
+        .filter((item) => this.state.changedSubjects.includes(item.id))
+        .map((item) => ({ id: item.id, position: parseInt(item.position) }))
+      this.props.updateSubjects(updatedSubjects);
+    }
+  }
+
+  handleChangePosition(e) {
+    const { name, value } = e.currentTarget;
+    const field = name.split('-')[0];
+    const item = name.split('-')[2];
+    const index = name.split('-')[3];
+    const subjects = _.cloneDeep(this.state.subjects);
+    subjects[index] = { ...this.state.subjects[index], [field]: value };
+    this.setState({
+      subjects,
+      changedSubjects: _.uniq([ ...this.state.changedSubjects, item ]),
+    })
   }
 
   render() {
@@ -142,7 +185,7 @@ export class Subject extends React.PureComponent {
                       block
                       color="warning"
                       size="sm"
-                      onClick={() => {}}
+                      onClick={this.handleSavePosition}
                       style={{ color: 'white' }}
                     >Sắp xếp</Button>
                   </div>
@@ -178,7 +221,7 @@ export class Subject extends React.PureComponent {
                         <th scope="col">Vị trí</th>
                       </tr>
                     </thead>
-                    <tbody>{this.renderSubjectRow(this.props.subjects)}</tbody>
+                    <tbody>{this.renderSubjectRow(this.state.subjects)}</tbody>
                   </Table>
                 </CardBody>
               </Card>
@@ -198,7 +241,8 @@ export function mapDispatchToProps(dispatch) {
   return {
     getSubjects: () => dispatch(getSubjects()),
     deleteSubjects: (id) => dispatch(deleteSubjects(id)),
-    clearProcessStatus: () => dispatch(clearProcessStatus()),
+    clearProcessStatus: (all) => dispatch(clearProcessStatus(all)),
+    updateSubjects: (subjects) => dispatch(updateSubjects(subjects)),
   };
 }
 

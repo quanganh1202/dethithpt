@@ -13,3 +13,4 @@ const container = 'thpt/collections';
 export const GET_COLLECTIONS = defineAction('GET_COLLECTIONS', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
 export const DELETE_COLLECTIONS = defineAction('DELETE_COLLECTIONS', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
 export const CLEAR_PROCESS_STATUS = defineAction('CLEAR_PROCESS_STATUS', container);
+export const UPDATE_COLLECTIONS = defineAction('UPDATE_COLLECTIONS', ['REQUEST', 'SUCCESS', 'FAILURE'], container);

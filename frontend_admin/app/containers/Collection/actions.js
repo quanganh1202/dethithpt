@@ -2,6 +2,7 @@ import {
   GET_COLLECTIONS,
   DELETE_COLLECTIONS,
   CLEAR_PROCESS_STATUS,
+  UPDATE_COLLECTIONS,
 } from './constants';
 
 /**
@@ -65,8 +66,36 @@ export function deleteCollectionsSuccess() {
  *
  * @return {object}    An action object with a type of CLEAR_PROCESS_STATUS
  */
-export function clearProcessStatus() {
+export function clearProcessStatus(all) {
   return {
     type: CLEAR_PROCESS_STATUS,
+    all
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} name The new text of the input field
+ *
+ * @return {object}    An action object with a type of UPDATE_COLLECTIONS.REQUEST
+ */
+export function updateCollections(collections) {
+  return {
+    type: UPDATE_COLLECTIONS.REQUEST,
+    collections,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} name The new text of the input field
+ *
+ * @return {object}    An action object with a type of UPDATE_COLLECTIONS.SUCCESS
+ */
+export function updateCollectionsSuccess() {
+  return {
+    type: UPDATE_COLLECTIONS.SUCCESS,
   };
 }
