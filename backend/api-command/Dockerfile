@@ -12,6 +12,7 @@ RUN npm install
 
 # Copy sourcecode
 COPY . .
+COPY resource/fonts /usr/share/fonts
 
 COPY wait-for-it.sh /
 RUN chmod 755 /wait-for-it.sh
