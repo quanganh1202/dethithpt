@@ -13,8 +13,8 @@ import { isUndefined } from 'util';
 const routerDefine =  function defineRouter() {
   // Destination folder path
   const pathDesFolder = process.env.PATH_DES_FOLDER || '/tmp/';
-  const limits = { fileSize: 100 * 1024 * 1024 };
-  const uploader = multer({ dest: pathDesFolder, limits });
+  // const limits = { fileSize: 100 * 1024 * 1024 };
+  const uploader = multer({ dest: pathDesFolder });
   const route = express.Router();
 
   // Upload
