@@ -29,14 +29,21 @@ import styled from 'styled-components';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
-import { getCollections } from './actions';
-import { makeSelectCollections, makeSelectLoading } from './selectors';
+import { getCollections, deleteCollections, clearProcessStatus } from './actions';
+import { makeSelectCollections, makeSelectLoading, makeSelectProcessStatus } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 
 const Wrapper = styled.div`
   table {
     font-size: 11px;
+    tbody {
+      tr > td {
+        p {
+          margin: 0;
+        }
+      }
+    }
   }
 `;
 
@@ -44,7 +51,10 @@ const Wrapper = styled.div`
 export class Collection extends React.PureComponent {
   constructor() {
     super();
-    this.state = {};
+    this.state = {
+      selectedCollections: [],
+    };
+    this.handleSelectCollections = this.handleSelectCollections.bind(this);
   }
 
   componentWillMount() {
@@ -52,18 +62,75 @@ export class Collection extends React.PureComponent {
     this.props.getCollections();
   }
 
-  renderCategoryRow(categories) {
-    return categories.map((cate, idx) => (
-      <tr key={cate.id}>
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.processStatus && !this.props.processStatus) {
+      this.setState({
+        selectedCollections: [],
+      });
+      this.props.getCollections();
+      this.props.clearProcessStatus();
+    }
+  }
+
+  renderCollectionRow(collections) {
+    return collections.map((item, idx) => (
+      <tr key={item.id}>
         <th scope="row">{idx + 1}</th>
         <td>
-          <Link to={`/collections/${cate.id}`}>{cate.name}</Link>
+          <input
+            type="checkbox"
+            name={`select-${item.id}`}
+            value={item.id}
+            onClick={this.handleSelectCollections}
+            checked={this.state.selectedCollections.includes(item.id)}
+          />
         </td>
-        <td>{cate.description}</td>
-        <td>{cate.userEmail}</td>
-        <td>{moment(cate.createdAt).format('DD/MM/YYYY')}</td>
+        <td>
+          <Link to={`/collections/${item.id}`}>{item.name}</Link>
+        </td>
+        <td>{item.description}</td>
+        <td>{(item.cates || []).map((i) => <p key={i.cateId}>{i.cateName}</p>)}</td>
+        <td>{(item.subjects || []).map((i) => <p key={i.subjectId}>{i.subjectName}</p>)}</td>
+        <td>{(item.classes || []).map((i) => <p key={i.classId}>{i.className}</p>)}</td>
+        <td>{(item.yearSchools || '').split(',').map((i) => <p key={i}>{i}</p>)}</td>
+        <td>{item.userEmail}</td>
+        <td>{moment(item.createdAt).format('DD/MM/YYYY')}</td>
+        <td>{item.view}</td>
+        <td>{item.numDocRefs}</td>
+        <td style={{ textAlign: 'center' }}>
+          <button
+            onClick={() => {}}
+            title="Nổi bật trang chủ"
+          >
+            <i className={`fa ${item.priorityHome ? 'fa-check' : 'fa-close'} fa-lg`} aria-hidden="true"></i>
+          </button>
+        </td>
+        <td style={{ textAlign: 'center' }}>
+          <button
+            onClick={() => {}}
+            title="Nổi bật danh mục"
+          >
+            <i className={`fa ${item.priorityCate ? 'fa-check' : 'fa-close'} fa-lg`} aria-hidden="true"></i>
+          </button>
+        </td>
+        <td></td>
       </tr>
     ));
+  }
+
+  handleSelectCollections(e) {
+    const { value, checked } = e.currentTarget;
+    if (value === 'all') {
+      this.setState({
+        selectedCollections: checked ? this.props.collections.map((i) => i.id) : [],
+      });
+    } else {
+      this.setState({
+        selectedCollections: checked
+          ? [ ...this.state.selectedCollections, value ]
+          : this.state.selectedCollections.filter((i) => i !== value),
+      });
+    }
   }
 
   render() {
@@ -97,20 +164,55 @@ export class Collection extends React.PureComponent {
                       Tạo mới
                     </Button>
                   </div>
+                  <div className="float-right" style={{ marginLeft: '10px' }}>
+                    <Button
+                      block
+                      color="warning"
+                      size="sm"
+                      onClick={() => {}}
+                      style={{ color: 'white' }}
+                    >Sắp xếp</Button>
+                  </div>
+                  <div className="float-right">
+                    <Button
+                      block
+                      color="danger"
+                      size="sm"
+                      onClick={() => this.props.deleteCollections((this.state.selectedCollections))}
+                    >Xoá</Button>
+                  </div>
                 </CardHeader>
                 <CardBody>
                   <Table responsive hover striped>
                     <thead>
                       <tr>
                         <th scope="col">#</th>
+                        <th>
+                          <input
+                            type="checkbox"
+                            value="all"
+                            name="select"
+                            onChange={this.handleSelectCollections}
+                            checked={_.isEqual(this.state.selectedCollections, this.props.collections.map((i) => i.id))}
+                          />
+                        </th>
                         <th scope="col">Tên</th>
                         <th scope="col">Mô tả</th>
+                        <th scope="col">Danh mục</th>
+                        <th scope="col">Môn</th>
+                        <th scope="col">Lớp</th>
+                        <th scope="col">Năm</th>
                         <th scope="col">Người tạo</th>
                         <th scope="col">Ngày tạo</th>
+                        <th scope="col">Lượt xem</th>
+                        <th scope="col">Tài liệu</th>
+                        <th scope="col">Nổi bật trang chủ</th>
+                        <th scope="col">Nổi bật danh mục</th>
+                        <th scope="col">Vị trí</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {this.renderCategoryRow(this.props.categories)}
+                      {this.renderCollectionRow(this.props.collections)}
                     </tbody>
                   </Table>
                 </CardBody>
@@ -130,12 +232,15 @@ Collection.propTypes = {
 export function mapDispatchToProps(dispatch) {
   return {
     getCollections: () => dispatch(getCollections()),
+    deleteCollections: (id) => dispatch(deleteCollections(id)),
+    clearProcessStatus: () => dispatch(clearProcessStatus()),
   };
 }
 
 const mapStateToProps = createStructuredSelector({
-  categories: makeSelectCollections(),
+  collections: makeSelectCollections(),
   loading: makeSelectLoading(),
+  processStatus: makeSelectProcessStatus(),
 });
 
 const withConnect = connect(

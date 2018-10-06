@@ -12,11 +12,14 @@
 import { fromJS } from 'immutable';
 import {
   GET_CLASSES,
+  DELETE_CLASSES,
+  CLEAR_PROCESS_STATUS,
 } from './constants';
 
 // The initial state of the App
 export const initialState = fromJS({
   classes: [],
+  processDone: false,
 });
 
 function classReducer(state = initialState, action) {
@@ -27,6 +30,14 @@ function classReducer(state = initialState, action) {
       return state
         .set('loading', false)
         .set('classes', fromJS(action.classes));
+    case DELETE_CLASSES.REQUEST:
+      return state.set('loading', true);
+    case DELETE_CLASSES.SUCCESS:
+      return state
+        .set('loading', false)
+        .set('processDone', true);
+    case CLEAR_PROCESS_STATUS:
+      return state.set('processDone', false);
     default:
       return state;
   }
