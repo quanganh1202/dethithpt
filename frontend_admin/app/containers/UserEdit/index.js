@@ -207,9 +207,7 @@ export class UserEdit extends React.PureComponent {
 
   onChangeMultiple(e) {
     const { name, selectedOptions } = e.currentTarget;
-    console.log(name);
     const newFormData = this.state.formData.set(name, Array.prototype.slice.call(selectedOptions).map(i => i.value));
-    console.log(newFormData.toJS(), 'newForm')
     this.setState({
       formData: newFormData,
     });
@@ -269,7 +267,6 @@ export class UserEdit extends React.PureComponent {
   }
 
   render() {
-    console.log(this.state.formData.get('blockDownloadCollections'))
     const updateNote = this.props.location.search.split('=')[1];
     const message = this.props.message || this.props.error || '';
     const AlertComponent = (

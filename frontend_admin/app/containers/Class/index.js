@@ -67,7 +67,6 @@ export class Classes extends React.PureComponent {
       this.props.getClasses();
       this.props.clearProcessStatus();
     }
-    console.log(nextProps.classes, this.props.classes)
     if (!_.isEqual(nextProps.classes, this.props.classes)) {
       this.setState({
         classes: nextProps.classes,

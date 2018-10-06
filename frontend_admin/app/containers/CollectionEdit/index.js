@@ -86,6 +86,11 @@ export class CollectionEdit extends React.PureComponent {
     }
   }
 
+  componentWillUnmount() {
+    this.props.clearData();
+    this.props.clearMessage();
+  }
+
   resetForm() {
     this.setState({ formData: this.state.originData, error: {} });
     this.props.clearMessage();

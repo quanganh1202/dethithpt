@@ -44,7 +44,7 @@ import { faMoneyBillAlt } from '@fortawesome/free-regular-svg-icons';
 import Autosuggest from 'react-autosuggest';
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
-import { getDocDetail, clearMessage, editDoc, getDataInit } from './actions';
+import { getDocDetail, clearMessage, clearData, editDoc, getDataInit } from './actions';
 import {
   makeSelectMessage,
   makeSelectLoading,
@@ -98,6 +98,7 @@ export class DocumentEdit extends React.PureComponent {
 
   componentWillUnmount() {
     this.props.clearMessage();
+    this.props.clearData();
   }
 
   resetForm() {
@@ -572,6 +573,7 @@ export function mapDispatchToProps(dispatch) {
     getDocDetail: (id) => dispatch(getDocDetail(id)),
     editDoc: (data, id) => dispatch(editDoc(data, id)),
     clearMessage: () => dispatch(clearMessage()),
+    clearData: () => dispatch(clearData()),
     getDataInit: () => dispatch(getDataInit()),
   };
 }

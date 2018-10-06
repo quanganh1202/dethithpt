@@ -74,6 +74,10 @@ export class CollectionCreate extends React.PureComponent {
     this.props.getInitData();
   }
 
+  componentWillUnmount() {
+    this.props.clearMessage();
+  }
+
   resetForm() {
     this.setState({ formData: dataInit, error: {} });
     this.props.clearMessage();

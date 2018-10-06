@@ -2,12 +2,12 @@ export default {
   items: [
     {
       name: 'Dashboard',
-      url: '/dashboard',
+      url: '/',
       icon: 'icon-speedometer',
     },
     {
       name: 'Thành viên',
-      url: '/users',
+      url: '/',
       icon: 'fa fa-database',
       children: [
         {
@@ -19,7 +19,7 @@ export default {
     },
     {
       name: 'Đề thi',
-      url: '/documents',
+      url: '/',
       icon: 'fa fa-database',
       children: [
         {
@@ -36,7 +36,7 @@ export default {
     },
     {
       name: 'Tạo mục',
-      url: '/create',
+      url: '/',
       icon: 'fa fa-database',
       children: [
         {
@@ -63,12 +63,17 @@ export default {
     },
     {
       name: 'Quản lý module',
-      url: '/modules',
+      url: '/',
       icon: 'fa fa-database',
       children: [
         {
           name: 'Tin tức',
           url: '/modules/news',
+          icon: 'fa fa-table',
+        },
+        {
+          name: 'Thông tin chung',
+          url: '/modules/general',
           icon: 'fa fa-table',
         },
       ],

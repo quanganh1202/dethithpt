@@ -13,6 +13,7 @@ import { fromJS } from 'immutable';
 import {
   UPDATE_NEWS,
   CLEAR_MESSAGE,
+  CLEAR_DATA,
   GET_NEWS_DETAIL,
 } from './constants';
 
@@ -44,6 +45,8 @@ function newsCreateReducer(state = initialState, action) {
         .set('message', fromJS(action.error));
     case CLEAR_MESSAGE:
       return state.set('message', '');
+    case CLEAR_DATA:
+      return state.set('news', fromJS({}));
     default:
       return state;
   }

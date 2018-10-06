@@ -15,6 +15,7 @@ import {
   GET_DOC_DETAIL,
   GET_DATA_INIT,
   CLEAR_MESSAGE,
+  CLEAR_DATA,
 } from './constants';
 
 // The initial state of the App
@@ -54,6 +55,8 @@ function docEditReducer(state = initialState, action) {
         .set('dataInit', fromJS(action.data));
     case CLEAR_MESSAGE:
       return state.set('message', '').set('error', '');
+    case CLEAR_DATA:
+      return state.set('document', fromJS({}));
     default:
       return state;
   }

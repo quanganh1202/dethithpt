@@ -2,6 +2,7 @@ import {
   EDIT_DOC,
   GET_DOC_DETAIL,
   CLEAR_MESSAGE,
+  CLEAR_DATA,
   GET_DATA_INIT,
 } from './constants';
 
@@ -113,5 +114,18 @@ export function getDataInitSuccess(data) {
 export function clearMessage() {
   return {
     type: CLEAR_MESSAGE,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} name The new text of the input field
+ *
+ * @return {object}    An action object with a type of CLEAR_DATA
+ */
+export function clearData() {
+  return {
+    type: CLEAR_DATA,
   };
 }
