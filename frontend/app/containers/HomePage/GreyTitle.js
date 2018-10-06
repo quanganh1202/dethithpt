@@ -1,11 +1,11 @@
 import styled from 'styled-components';
 
 const GreyTitle = styled.h2`
-  font-size: 1em;
+  font-size: 0.8em;
   padding: 5px 10px;
   margin: 0;
   color: #fff;
-  background: silver;
+  background: #BFB8B8;
   overflow: auto;
   > p {
     margin: 0;

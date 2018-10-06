@@ -8,15 +8,19 @@
 
 import React from 'react';
 import { Helmet } from 'react-helmet';
+import { compose } from 'redux';
 import styled from 'styled-components';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, withRouter } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
+import injectSaga from 'utils/injectSaga';
 
 import HomePage from 'containers/HomePage/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
+import UserInformation from 'containers/UserInformation/Loadable';
 import Header from 'components/Header';
 import Footer from 'components/Footer';
 import { getUser } from 'services/auth';
+import saga from './saga';
 
 const AppWrapper = styled.div`
   margin: 0 auto;
@@ -31,7 +35,7 @@ const theme = {
 };
 
 class App extends React.Component {
-  componentDidMount() {
+  componentWillMount() {
     // Facebook init
     window.fbAsyncInit = function () {
       FB.init({
@@ -55,11 +59,19 @@ class App extends React.Component {
       js.src = "https://connect.facebook.net/en_US/sdk.js";
       fjs.parentNode.insertBefore(js, fjs);
     }(document, 'script', 'facebook-jssdk'));
+
+    // Google init
+    gapi.load('auth2', () => {
+      // Retrieve the singleton for the GoogleAuth library and set up the client.
+      this.auth2 = window.gapi.auth2.init({
+        client_id: '33146074840-tdm6djs1ckddpkqktn0k04nabjh0fpde.apps.googleusercontent.com', // TODO: need to replace using const
+        cookiepolicy: 'single_host_origin',
+      });
+    });
   }
 
   render() {
     const user = getUser();
-    console.log(user)
     return (
       <ThemeProvider theme={theme}>
         <AppWrapper>
@@ -69,10 +81,11 @@ class App extends React.Component {
           >
             <meta name="description" content="DethiTHPT" />
           </Helmet>
-          <Header user={user} />
+          <Header push={this.props.history.push} user={user} />
           <Switch>
+            <Route exact path="/404" component={NotFoundPage} />
+            <Route exact path="/trang-ca-nhan" component={UserInformation} />
             <Route path="/" component={HomePage} />
-          {/* <Route path="" component={NotFoundPage} /> */}
           </Switch>
           {/* <Footer /> */}
         </AppWrapper>
@@ -81,4 +94,8 @@ class App extends React.Component {
   }
 }
 
-export default App;
+const withSaga = injectSaga({ key: 'global', saga });
+
+export default compose(
+  withSaga,
+)(withRouter(App));

@@ -40,7 +40,7 @@ const Wrapper = styled.section`
     -ms-user-select: none;
     user-select: none;
 
-    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
     -webkit-tap-highlight-color: transparent;
   }
 
@@ -67,7 +67,7 @@ const Wrapper = styled.section`
     height: 24px;
     padding: 0;
     border-radius: 30px;
-    background-color: #4D4D4D;
+    background-color: #4d4d4d;
     -webkit-transition: all 0.2s ease;
     -moz-transition: all 0.2s ease;
     transition: all 0.2s ease;
@@ -78,11 +78,12 @@ const Wrapper = styled.section`
   }
 
   .react-toggle--checked .react-toggle-track {
-    background-color: #19AB27;
+    background-color: #19ab27;
   }
 
-  .react-toggle--checked:hover:not(.react-toggle--disabled) .react-toggle-track {
-    background-color: #128D15;
+  .react-toggle--checked:hover:not(.react-toggle--disabled)
+    .react-toggle-track {
+    background-color: #128d15;
   }
 
   .react-toggle-track-check {
@@ -135,9 +136,9 @@ const Wrapper = styled.section`
     left: 1px;
     width: 22px;
     height: 22px;
-    border: 1px solid #4D4D4D;
+    border: 1px solid #4d4d4d;
     border-radius: 50%;
-    background-color: #FAFAFA;
+    background-color: #fafafa;
 
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -150,25 +151,25 @@ const Wrapper = styled.section`
 
   .react-toggle--checked .react-toggle-thumb {
     left: 27px;
-    border-color: #19AB27;
+    border-color: #19ab27;
   }
 
   .react-toggle--focus .react-toggle-thumb {
-    -webkit-box-shadow: 0px 0px 3px 2px #0099E0;
-    -moz-box-shadow: 0px 0px 3px 2px #0099E0;
-    box-shadow: 0px 0px 2px 3px #0099E0;
+    -webkit-box-shadow: 0px 0px 3px 2px #0099e0;
+    -moz-box-shadow: 0px 0px 3px 2px #0099e0;
+    box-shadow: 0px 0px 2px 3px #0099e0;
   }
 
   .react-toggle:active:not(.react-toggle--disabled) .react-toggle-thumb {
-    -webkit-box-shadow: 0px 0px 5px 5px #0099E0;
-    -moz-box-shadow: 0px 0px 5px 5px #0099E0;
-    box-shadow: 0px 0px 5px 5px #0099E0;
+    -webkit-box-shadow: 0px 0px 5px 5px #0099e0;
+    -moz-box-shadow: 0px 0px 5px 5px #0099e0;
+    box-shadow: 0px 0px 5px 5px #0099e0;
   }
 `;
 
 class UploadPost extends React.Component {
   constructor() {
-    super()
+    super();
     this.state = { files: fromJS([]) };
 
     this.handleDeleteFile = this.handleDeleteFile.bind(this);
@@ -181,9 +182,11 @@ class UploadPost extends React.Component {
     const { files } = this.state;
     let newFiles;
     if (files.count()) {
-      newFiles = files.concat(fromJS(listFiles.map((f) => ({ content: f, show: this.state.add2All }))));
+      newFiles = files.concat(
+        fromJS(listFiles.map(f => ({ content: f, show: this.state.add2All }))),
+      );
     } else {
-      newFiles = fromJS(listFiles.map((f) => ({ content: f, show: false })));
+      newFiles = fromJS(listFiles.map(f => ({ content: f, show: false })));
     }
     this.setState({
       files: newFiles,
@@ -199,7 +202,7 @@ class UploadPost extends React.Component {
   handleAdd2All(event) {
     this.setState({
       add2All: event.target.checked,
-      files: this.state.files.map((f) => f.set('show', event.target.checked)),
+      files: this.state.files.map(f => f.set('show', event.target.checked)),
     });
   }
 
@@ -220,26 +223,34 @@ class UploadPost extends React.Component {
     return (
       <Wrapper>
         <div className="dropzone">
-          <Dropzone onDrop={this.onDrop.bind(this)}>
-            <ButtonUpload>{this.state.files.count() > 0 ? 'Chọn thêm' : 'Chọn tệp'}</ButtonUpload>
-            <p>Chọn nút tải lên để chọn nhiều file từ máy tính của bạn hoặc kéo file thả vào đây</p>
+          <Dropzone accept="image/jpeg, image/png, application/pdf, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/x-rar-compressed, application/zip" onDrop={this.onDrop.bind(this)}>
+            <ButtonUpload>
+              {this.state.files.count() > 0 ? 'Chọn thêm' : 'Chọn tệp'}
+            </ButtonUpload>
+            <p>
+              Chọn nút tải lên để chọn nhiều file từ máy tính của bạn hoặc kéo
+              file thả vào đây
+            </p>
             <em>Ấn nút Shift hoặc Ctrl để chọn nhiều file</em>
           </Dropzone>
         </div>
-        {this.state.files.count() > 0 ? (<aside>
-          <div className="form-group">
-            <label>
-              <Toggle
-                defaultChecked={this.state.add2All}
-                icons={false}
-                onChange={this.handleAdd2All} />
+        {this.state.files.count() > 0 ? (
+          <aside>
+            <div className="form-group">
+              <label>
+                <Toggle
+                  defaultChecked={this.state.add2All}
+                  icons={false}
+                  onChange={this.handleAdd2All}
+                />
                 <span>Thêm thông tin cho toàn bộ tài liệu tải lên</span>
-            </label>
-          </div>
-          {this.state.add2All ? <DetailForm onSubmit={this.onSubmit} /> : null}
-          <ul className="list-item-upload">
-            {
-              this.state.files.map((f, ind) => 
+              </label>
+            </div>
+            {this.state.add2All ? (
+              <DetailForm onSubmit={this.onSubmit} {...this.props} />
+            ) : null}
+            <ul className="list-item-upload">
+              {this.state.files.map((f, ind) => (
                 <UploadProgress
                   sendNow={f.get('sendNow')}
                   showSelected={f.get('show')}
@@ -247,14 +258,14 @@ class UploadPost extends React.Component {
                   handleDeleteFile={this.handleDeleteFile}
                   fileIndex={ind}
                   file={f.get('content')}
-                  key={`file-${ind}`}
+                  key={`file-${ind + 1}`}
                   handleChangeSelected={this.handleChangeSelected}
                   {...this.props}
                 />
-              )
-            }
-          </ul>
-        </aside>) : null }
+              ))}
+            </ul>
+          </aside>
+        ) : null}
       </Wrapper>
     );
   }

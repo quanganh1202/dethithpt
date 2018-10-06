@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 import { Badge, DropdownItem, DropdownMenu, DropdownToggle, Nav, NavItem, NavLink } from 'reactstrap';
 import PropTypes from 'prop-types';
 
@@ -14,8 +14,16 @@ const propTypes = {
 const defaultProps = {};
 
 class DefaultHeader extends Component {
+  constructor() {
+    super();
+    this.state = {};
+    this.onLogout = this.onLogout.bind(this);
+  }
+  onLogout() {
+    this.props.setToken();
+    this.props.history.push('/login');
+  }
   render() {
-
     // eslint-disable-next-line
     const { children, ...attributes } = this.props;
 
@@ -29,12 +37,27 @@ class DefaultHeader extends Component {
         <AppSidebarToggler className="d-md-down-none" display="lg" />
 
         <Nav className="d-md-down-none" navbar>
-          <NavItem className="px-3">
-            <Link className="nav-link" to="/">Dashboard</Link>
+          {/* <NavItem className="px-3">
+            <Link className="nav-link" to="/">Trang chủ</Link>
           </NavItem>
           <NavItem className="px-3">
-            <Link className="nav-link" to="/categories">Categories</Link>
+            <Link className="nav-link" to="/users">Thành viên</Link>
           </NavItem>
+          <NavItem className="px-3">
+            <Link className="nav-link" to="/documents">Tài liệu</Link>
+          </NavItem>
+          <NavItem className="px-3">
+            <Link className="nav-link" to="/collections">Bộ sưu tập</Link>
+          </NavItem>
+          <NavItem className="px-3">
+            <Link className="nav-link" to="/categories">Danh mục</Link>
+          </NavItem>
+          <NavItem className="px-3">
+            <Link className="nav-link" to="/subjects">Môn học</Link>
+          </NavItem>
+          <NavItem className="px-3">
+            <Link className="nav-link" to="/classes">Lớp</Link>
+          </NavItem> */}
         </Nav>
         <Nav className="ml-auto" navbar>
           <NavItem className="d-md-down-none">
@@ -48,10 +71,11 @@ class DefaultHeader extends Component {
           </NavItem>
           <AppHeaderDropdown direction="down">
             <DropdownToggle nav>
-              <img src={'assets/img/avatars/6.jpg'} className="img-avatar" alt="admin@bootstrapmaster.com" />
+              {/* <img src={'assets/img/avatars/6.jpg'} className="img-avatar" alt="admin@bootstrapmaster.com" /> */}
+              {this.props.user.email}
             </DropdownToggle>
             <DropdownMenu right style={{ right: 'auto' }}>
-              <DropdownItem header tag="div" className="text-center"><strong>Account</strong></DropdownItem>
+              {/* <DropdownItem header tag="div" className="text-center"><strong>Account</strong></DropdownItem>
               <DropdownItem><i className="fa fa-bell-o"></i> Updates<Badge color="info">42</Badge></DropdownItem>
               <DropdownItem><i className="fa fa-envelope-o"></i> Messages<Badge color="success">42</Badge></DropdownItem>
               <DropdownItem><i className="fa fa-tasks"></i> Tasks<Badge color="danger">42</Badge></DropdownItem>
@@ -62,8 +86,8 @@ class DefaultHeader extends Component {
               <DropdownItem><i className="fa fa-usd"></i> Payments<Badge color="secondary">42</Badge></DropdownItem>
               <DropdownItem><i className="fa fa-file"></i> Projects<Badge color="primary">42</Badge></DropdownItem>
               <DropdownItem divider />
-              <DropdownItem><i className="fa fa-shield"></i> Lock Account</DropdownItem>
-              <DropdownItem><i className="fa fa-lock"></i> Logout</DropdownItem>
+              <DropdownItem><i className="fa fa-shield"></i> Lock Account</DropdownItem> */}
+              <DropdownItem onClick={this.onLogout}><i className="fa fa-lock"></i> Logout</DropdownItem>
             </DropdownMenu>
           </AppHeaderDropdown>
         </Nav>
@@ -77,4 +101,4 @@ class DefaultHeader extends Component {
 DefaultHeader.propTypes = propTypes;
 DefaultHeader.defaultProps = defaultProps;
 
-export default DefaultHeader;
+export default withRouter(DefaultHeader);

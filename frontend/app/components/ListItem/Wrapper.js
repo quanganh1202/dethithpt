@@ -14,13 +14,25 @@ const Wrapper = styled.li`
   }
 
   .doc-title {
-    > span:first-child {
+    margin-bottom: 5px;
+    > span.document-icon {
+      margin-right: 5px;
+    }
+    > span:nth-child(2) {
       color: #295496;
       font-weight: bold;
     }
-    > .title-icon {
-      margin-left: 5px;
+    > span.document-action-icon{
+      padding: 0 2px;
+      border: 1px solid transparent;
+      margin-left: 2px;
+      cursor: pointer;
+      &:hover {
+        border: 1px solid #295496;
+      }
+      > .title-icon {
       color: orange;
+      }
     }
   }
 
@@ -58,7 +70,7 @@ const Wrapper = styled.li`
       > p {
         margin: 15px 0 0;
         float: left;
-        padding: 0 5px;
+        padding: 0 10px 0 5px;
         &:first-child {
           padding-left: 0;
         }

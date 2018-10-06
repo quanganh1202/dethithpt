@@ -11,7 +11,7 @@ function List(props) {
   // If we have items, render them
   if (props.items) {
     content = props.items.map(item => (
-      <ComponentToRender key={`item-${item.id}`} item={item} />
+      <ComponentToRender key={`item-${item.id}`} item={item} onPreview={props.onPreview} onDownload={props.onDownload} />
     ));
   } else {
     // Otherwise render a single component
@@ -31,5 +31,10 @@ List.propTypes = {
   component: PropTypes.func.isRequired,
   items: PropTypes.array,
 };
+
+List.defaultProps = {
+  onPreview: (id) => console.log('preview ' + id),
+  onDownload: (id) => console.log('download ' + id)
+}
 
 export default List;

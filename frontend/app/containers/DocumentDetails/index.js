@@ -17,19 +17,27 @@ import { faCog, faFolder, faCloudDownloadAlt } from '@fortawesome/free-solid-svg
 import { faMoneyBillAlt } from '@fortawesome/free-regular-svg-icons';
 import _ from 'lodash';
 import moment from 'moment';
+import FileSaver from 'file-saver';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
 import Tab from 'components/Tab';
 import List from 'components/List';
 import ListItem from 'components/ListItem';
+import PopUp from 'components/PopUp';
 import LoadingIndicator from 'components/LoadingIndicator';
+import downloading from 'images/download.gif';
 import { getDocumentDetails, getDocumentsList } from './actions';
+import { requestDownload, removeFileSave, removeMessage } from 'containers/HomePage/actions';
 import {
   makeSelectDocument,
   makeSelectLoading,
   makeSelectDocuments,
 } from './selectors';
+import {
+  makeSelectFile,
+  makeSelectMessage,
+} from 'containers/HomePage/selectors';
 import reducer from './reducer';
 import saga from './saga';
 import GreyTitle from 'containers/HomePage/GreyTitle';
@@ -45,6 +53,11 @@ const numberWithCommas = (x) => {
 
 const itemsPerLoad = 10;
 
+const errorMapping = {
+  unknown_error_download: 'Tài liệu không còn tồn tại hoặc có lỗi, vui lòng báo lại cho admin!',
+  not_enough_money: 'Tài khoản không còn đủ tiền để thanh toán, vui lòng nạp thêm!',
+}
+
 /* eslint-disable react/prefer-stateless-function */
 export class DocumentDetails extends React.PureComponent {
   constructor() {
@@ -53,9 +66,12 @@ export class DocumentDetails extends React.PureComponent {
       data: null,
     };
     this.loadMoreDocs = this.loadMoreDocs.bind(this);
+    this.handleDownloadFile = this.handleDownloadFile.bind(this);
+    this.showPreview = this.showPreview.bind(this);
   }
 
   componentWillMount() {
+    window.scrollTo(0, 0);
     if (this.props.match.params.id) {
       this.props.getDocumentDetails(this.props.match.params.id);
     }
@@ -78,6 +94,15 @@ export class DocumentDetails extends React.PureComponent {
         size: itemsPerLoad,
       }, true);
     }
+    if (!this.props.file && nextProps.file) {
+      const blob = new Blob([nextProps.file]);
+      FileSaver.saveAs(blob, _.get(this.props, 'document.name', 'download'));
+      this.props.removeFileSave();
+    }
+  }
+
+  componentWillUnmount() {
+    this.props.removeMessage();
   }
 
   loadMoreDocs() {
@@ -86,6 +111,19 @@ export class DocumentDetails extends React.PureComponent {
       offset: this.props.documents.data.length,
       size: itemsPerLoad,
     });
+  }
+
+  handleDownloadFile() {
+    setTimeout(() => {
+      this.setState({ loading: false });
+    }, 5000);
+
+    this.setState({ loading: true });
+    this.props.requestDownload(this.props.match.params.id);
+  }
+
+  showPreview() {
+    this.setState({ preview: true });
   }
 
   render() {
@@ -107,37 +145,37 @@ export class DocumentDetails extends React.PureComponent {
             ) : (
             !_.isEmpty(document) ? (
             <div style={{ padding: "0px 20px 10px" }}>
+              <div className={`error-document ${this.props.message && 'show'}`}>
+                {errorMapping[this.props.message] || 'Có lỗi xảy ra, vui lòng báo lại cho admin!'}
+              </div>
               <div className="doc-title">
                 <p>{_.get(document, 'name')}</p>
               </div>
               <div className="doc-category">
                 <ul>
-                  {_.get(document, 'cates[0].cateName') && <li>
-                    {_.get(document, 'cates[0].cateName')}
-                  </li>}
-                  {document.subjectName && <li>
-                    {document.subjectName.includes('Môn') 
-                      ? document.subjectName
-                      : `Môn ${document.subjectName}`}
-                  </li>}
-                  {document.className && <li>
-                    {document.className.includes('Lớp') 
-                      ? document.className
-                      : `Lớp ${document.className}`}
-                  </li>}
-                  {document.yearSchool && <li>{document.yearSchool}</li>}
-                  {document.collectionName && <li>
-                    <FontAwesomeIcon className={'specific-icon'} icon={['far', 'folder-open']} />
-                    {document.collectionName}
-                  </li>}
+                {_.get(document, 'cates', []).map((i) => <li key={i.cateId}>
+                  {i.cateName}
+                </li>)}
+                {_.get(document, 'subjects', []).map((i) => <li key={i.subjectId}>
+                  {i.subjectName.includes('Môn') ? i.subjectName : `Môn ${i.subjectName}`}
+                </li>)}
+                {_.get(document, 'classes', []).map((i) => <li key={i.classId}>
+                  {i.className.includes('Lớp') ? i.className : `Lớp ${i.className}`}
+                </li>)}
+                {_.get(document, 'yearSchools', []).map((i) => <li key={i}>{i}</li>)}
+                {_.get(document, 'collections', []).map((i) => <li key={i.collectionId}>
+                  <FontAwesomeIcon className={'specific-icon'} icon={['far', 'folder-open']} />
+                  {i.collectionName}
+                </li>)}
                 </ul>
               </div>
               <div className="doc-action">
-                <button className="btn-download">
+                <button className={`btn-download ${this.state.loading ? 'loading' : ''}`} onClick={this.handleDownloadFile}>
                   <FontAwesomeIcon className={'title-icon'} icon={['fas', 'cloud-download-alt']} /> Tải file word ({numberWithCommas((document.price || 0).toString())}đ)
+                  <img src={downloading} />
                 </button>
-                <button className="btn-view">
-                  <FontAwesomeIcon className={'title-icon'} icon={['far', 'eye']} /> Xem thử ({numberWithCommas((document.views || 0).toString())} trang)
+                <button className="btn-view" onClick={this.showPreview}>
+                  <FontAwesomeIcon className={'title-icon'} icon={['far', 'eye']} /> Xem thử ({numberWithCommas((document.totalPages || 0).toString())} trang)
                 </button>
               </div>
               <div className="doc-action">
@@ -149,13 +187,11 @@ export class DocumentDetails extends React.PureComponent {
               </div>
               <div className="doc-description">
                 <p>Mô tả đề thi</p>
-                <p>{document.description || 'description'}</p>
+                <p dangerouslySetInnerHTML={{ __html: document.description }}></p>
               </div>
               <div className="doc-tags">
                 <p>Từ khóa:</p>
-                {document.tags && document.tags.map((t) => (
-                  t.tagText && <p className="tag-item">#{t.tagText}</p>
-                ))}
+                {document.tags && document.tags.map((t, idx) => <p key={idx} className="tag-item">#{t}</p>)}
               </div>
             </div>) : null)
           }
@@ -180,6 +216,27 @@ export class DocumentDetails extends React.PureComponent {
             </div>
           }
         />
+        <PopUp
+          show={this.state.preview}
+          close
+          width="auto"
+          onClose={() => this.setState({ preview: false })}
+          content={
+            <div style={{ textAlign: 'center' }}>
+              <div className="document-title">
+                <span className="bold">Đọc thử:</span> {this.props.document.name}
+              </div>
+              {
+                _.get(document, 'images', [])
+                  .map((imgData, index) => 
+                    <div key={`preview-${index}`} ><img
+                      src={`data:image/png;base64,${imgData}`} 
+                      alt="preview"
+                    /></div>)
+              }
+            </div>
+          }
+        />
       </Wrapper> 
     );
   }
@@ -198,6 +255,9 @@ export function mapDispatchToProps(dispatch) {
   return {
     getDocumentDetails: (id) => dispatch(getDocumentDetails(id)),
     getDocumentsList: (query, clear) => dispatch(getDocumentsList(query, clear)),
+    requestDownload: (id) => dispatch(requestDownload(id)),
+    removeFileSave: () => dispatch(removeFileSave()),
+    removeMessage: () => dispatch(removeMessage()),
   };
 }
 
@@ -205,6 +265,8 @@ const mapStateToProps = createStructuredSelector({
   document: makeSelectDocument(),
   documents: makeSelectDocuments(),
   loading: makeSelectLoading(),
+  file: makeSelectFile(),
+  message: makeSelectMessage(),
 });
 
 const withConnect = connect(

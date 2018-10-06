@@ -13,11 +13,14 @@ import { fromJS } from 'immutable';
 import {
   GET_CATEGORIES_REQUEST,
   GET_CATEGORIES_SUCCESS,
+  DELETE_CATES,
+  CLEAR_PROCESS_STATUS,
 } from './constants';
 
 // The initial state of the App
 export const initialState = fromJS({
   categories: [],
+  processDone: false,
 });
 
 function categoryReducer(state = initialState, action) {
@@ -28,6 +31,14 @@ function categoryReducer(state = initialState, action) {
       return state
         .set('loading', false)
         .set('categories', fromJS(action.categories));
+    case DELETE_CATES.REQUEST:
+      return state.set('loading', true);
+    case DELETE_CATES.SUCCESS:
+      return state
+        .set('loading', false)
+        .set('processDone', true);
+    case CLEAR_PROCESS_STATUS:
+      return state.set('processDone', false);
     default:
       return state;
   }
