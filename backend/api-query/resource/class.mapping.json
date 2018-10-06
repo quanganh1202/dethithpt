@@ -44,6 +44,14 @@
             }
           }
         },
+        "numDocRefs": {
+          "type": "text",
+          "fields": {
+            "raw":{
+              "type": "integer"
+            }
+          }
+        },
         "userId": {
           "type": "keyword"
         },

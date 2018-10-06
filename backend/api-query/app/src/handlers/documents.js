@@ -12,6 +12,8 @@ import {
   insertTag,
   updateNumDocRefToCate,
   updateNumDocRefToCollection,
+  updateNumDocRefToClass,
+  updateNumDocRefToSubject,
   updateTagView,
   updateDocumentView,
   updateClassView,
@@ -181,13 +183,21 @@ export default {
 
   create: async (docId, body) => {
     try {
-      const { cates, tags, collections, userId } = body;
+      const { cates, subjects, classes, tags, collections, userId } = body;
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.createdAt = now;
       body.downloaded = 0;
       await elasticsearch.insert(body, docId);
       const promise = [insertTag(tags), updateUserUpload(userId, constant.INCREASE)];
       if (cates && cates.length && body.approved) {
+        const promiseUpdateCates = updateNumDocRefToCate(cates, constant.INCREASE);
+        promise.concat([...promiseUpdateCates]);
+      }
+      if (subjects && subjects.length && body.approved) {
+        const promiseUpdateCates = updateNumDocRefToCate(cates, constant.INCREASE);
+        promise.concat([...promiseUpdateCates]);
+      }
+      if (classes && classes.length && body.approved) {
         const promiseUpdateCates = updateNumDocRefToCate(cates, constant.INCREASE);
         promise.concat([...promiseUpdateCates]);
       }
@@ -220,42 +230,10 @@ export default {
       if (oldDoc.error) {
         return oldDoc;
       }
-      const { cates, collections, tags } = body;
+      const { classes, subjects, cates, collections, tags } = body;
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.updatedAt = now;
       const promise = [];
-      const descreaseCate = oldDoc.data.cates && oldDoc.data.cates.length ? oldDoc.data.cates.reduce((pre, cur) => {
-        const ft = _.filter(cates, cur);
-        if (!ft.length) {
-          pre.push(cur);
-        }
-
-        return pre;
-      }, []) : [];
-      const increaseCate = cates && cates.length ? cates.reduce((pre, cur) => {
-        const ft = _.filter(oldDoc.data.cates, cur);
-        if (!ft.length) {
-          pre.push(cur);
-        }
-
-        return pre;
-      }, []): [];
-      const descreaseCollection = oldDoc.data.collections && oldDoc.data.collections.length ? oldDoc.data.collections.reduce((pre, cur) => {
-        const ft = _.filter(collections, cur);
-        if (!ft.length) {
-          pre.push(cur);
-        }
-
-        return pre;
-      }, []) : [];
-      const increaseCollection = collections && collections.length ? collections.reduce((pre, cur) => {
-        const ft = _.filter(oldDoc.data.collections, cur);
-        if (!ft.length) {
-          pre.push(cur);
-        }
-
-        return pre;
-      }, []): [];
       if (!oldDoc.data.approved && body.approved) {
         const { cates, collections } = oldDoc.data;
         if (cates && cates.length) {
@@ -265,16 +243,100 @@ export default {
         if (collections && collections.length) {
           promise.concat(updateNumDocRefToCollection(collections, constant.INCREASE));
         }
+
+        if (classes && classes.length) {
+          promise.concat(updateNumDocRefToClass(classes, constant.INCREASE));
+        }
+
+        if (subjects && subjects.length) {
+          promise.concat(updateNumDocRefToSubject(subjects, constant.INCREASE));
+        }
       }
       if (cates && cates.length && oldDoc.data.approved) {
+        const descreaseCate = oldDoc.data.cates && oldDoc.data.cates.length ? oldDoc.data.cates.reduce((pre, cur) => {
+          const ft = _.filter(cates, cur);
+          if (!ft.length) {
+            pre.push(cur);
+          }
+
+          return pre;
+        }, []) : [];
+        const increaseCate = cates && cates.length ? cates.reduce((pre, cur) => {
+          const ft = _.filter(oldDoc.data.cates, cur);
+          if (!ft.length) {
+            pre.push(cur);
+          }
+
+          return pre;
+        }, []): [];
         const upCate = updateNumDocRefToCate(increaseCate, constant.INCREASE);
         const downCate = updateNumDocRefToCate(descreaseCate, constant.DECREASE);
         promise.concat([...upCate, ...downCate]);
       }
       if (collections && collections.length && oldDoc.data.approved) {
+        const descreaseCollection = oldDoc.data.collections && oldDoc.data.collections.length ? oldDoc.data.collections.reduce((pre, cur) => {
+          const ft = _.filter(collections, cur);
+          if (!ft.length) {
+            pre.push(cur);
+          }
+
+          return pre;
+        }, []) : [];
+        const increaseCollection = collections && collections.length ? collections.reduce((pre, cur) => {
+          const ft = _.filter(oldDoc.data.collections, cur);
+          if (!ft.length) {
+            pre.push(cur);
+          }
+
+          return pre;
+        }, []): [];
         const upCollection = updateNumDocRefToCollection(increaseCollection, constant.INCREASE);
         const downCollection = updateNumDocRefToCollection(descreaseCollection, constant.DECREASE);
         promise.concat([...upCollection, ...downCollection]);
+      }
+      if (classes && classes.length && oldDoc.data.approved) {
+        const descreaseClass = oldDoc.data.classes && oldDoc.data.classes.length ? oldDoc.data.classes.reduce((pre, cur) => {
+          const ft = _.filter(classes, cur);
+          if (!ft.length) {
+            pre.push(cur);
+          }
+
+          return pre;
+        }, []) : [];
+
+        const increaseClass = classes && classes.length ? classes.reduce((pre, cur) => {
+          const ft = _.filter(oldDoc.data.classes, cur);
+          if (!ft.length) {
+            pre.push(cur);
+          }
+
+          return pre;
+        }, []): [];
+        const upClasses = updateNumDocRefToClass(increaseClass, constant.INCREASE);
+        const downClasses = updateNumDocRefToClass(descreaseClass, constant.DECREASE);
+        promise.concat([...upClasses, ...downClasses]);
+      }
+      if (subjects && subjects.length && oldDoc.data.approved) {
+        const descreaseSubject = oldDoc.data.subjects && oldDoc.data.subjects.length ? oldDoc.data.subjects.reduce((pre, cur) => {
+          const ft = _.filter(subjects, cur);
+          if (!ft.length) {
+            pre.push(cur);
+          }
+
+          return pre;
+        }, []) : [];
+
+        const increaseSubject = subjects && subjects.length ? subjects.reduce((pre, cur) => {
+          const ft = _.filter(oldDoc.data.subjects, cur);
+          if (!ft.length) {
+            pre.push(cur);
+          }
+
+          return pre;
+        }, []): [];
+        const upSubject = updateNumDocRefToSubject(increaseSubject, constant.INCREASE);
+        const downSubject = updateNumDocRefToSubject(descreaseSubject, constant.DECREASE);
+        promise.concat([...upSubject, ...downSubject]);
       }
       if (tags && tags.length) {
         promise.concat(insertTag(tags));
@@ -313,6 +375,16 @@ export default {
 
       if (oldDoc.data.cates && oldDoc.data.collections.length) {
         promise.push(updateNumDocRefToCate(oldDoc.data.cates, constant.DECREASE));
+      }
+
+
+      if (oldDoc.data.classes && oldDoc.data.classes.length) {
+        promise.push(updateNumDocRefToClass(oldDoc.data.classes, constant.DECREASE));
+      }
+
+
+      if (oldDoc.data.subjects && oldDoc.data.subjects.length) {
+        promise.push(updateNumDocRefToSubject(oldDoc.data.subjects, constant.DECREASE));
       }
       promise.push(elasticsearch.remove(docId));
       await Promise.all(promise).catch(err => {
