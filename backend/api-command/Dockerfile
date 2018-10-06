@@ -1,5 +1,5 @@
 # Use Node v8.9.0 LTS
-FROM node:alpine
+FROM node:carbon
 
 # Setup app working directory
 WORKDIR /usr/src/app
