@@ -11,3 +11,5 @@
 import { defineAction } from 'redux-define';
 const container = 'thpt/subjects';
 export const GET_SUBJECTS = defineAction('GET_SUBJECTS', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
+export const DELETE_SUBJECTS = defineAction('DELETE_SUBJECTS', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
+export const CLEAR_PROCESS_STATUS = defineAction('CLEAR_PROCESS_STATUS', container);

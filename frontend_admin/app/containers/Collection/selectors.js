@@ -12,9 +12,13 @@ const makeSelectCollections = () =>
 
 const makeSelectLoading = () =>
   createSelector(selectHome, collectionState => collectionState.get('loading'));
+  
+const makeSelectProcessStatus = () =>
+  createSelector(selectHome, collectionState => collectionState.get('processDone'));
 
 export {
   selectHome,
   makeSelectCollections,
   makeSelectLoading,
+  makeSelectProcessStatus
 };

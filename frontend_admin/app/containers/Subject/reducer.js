@@ -12,6 +12,8 @@
 import { fromJS } from 'immutable';
 import {
   GET_SUBJECTS,
+  DELETE_SUBJECTS,
+  CLEAR_PROCESS_STATUS,
 } from './constants';
 
 // The initial state of the App
@@ -27,6 +29,14 @@ function subjectReducer(state = initialState, action) {
       return state
         .set('loading', false)
         .set('subjects', fromJS(action.subjects));
+    case DELETE_SUBJECTS.REQUEST:
+      return state.set('loading', true);
+    case DELETE_SUBJECTS.SUCCESS:
+      return state
+        .set('loading', false)
+        .set('processDone', true);
+    case CLEAR_PROCESS_STATUS:
+      return state.set('processDone', false);
     default:
       return state;
   }
