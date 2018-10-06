@@ -104,6 +104,12 @@ function validateEmail(email) {
   return re.test(String(email).toLowerCase());
 }
 
+const numberWithCommas = x => {
+  const parts = x.toString().split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return parts.join('.');
+};
+
 /* eslint-disable react/prefer-stateless-function */
 export class User extends React.PureComponent {
   constructor() {
@@ -192,7 +198,7 @@ export class User extends React.PureComponent {
     }
   }
 
-  renderUserRow(users) {
+  renderUserRow(users, purchase) {
     return users.map((item, idx) => (
       <tr key={item.id}>
         <th scope="row">{idx + 1}</th>
@@ -214,10 +220,10 @@ export class User extends React.PureComponent {
         <td>{item.level}</td>
         <td>{item.school}</td>
         <td>{item.city}</td>
-        <td>{item.download}</td>
-        <td>{item.upload}</td>
-        <td>{item.deposit}</td>
-        <td>{item.money}</td>
+        <td>{item.numOfDownloaded || 0}</td>
+        <td>{item.numOfUploaded || 0}</td>
+        <td>{numberWithCommas(purchase[item.id] || 0)}</td>
+        <td>{numberWithCommas(item.money || 0)}</td>
         <td>{item.group}</td>
         <td>{item.note1}</td>
         <td>{item.note2}</td>
@@ -743,7 +749,7 @@ export class User extends React.PureComponent {
                             { value: 'student', label: 'student' },
                           ]}
                           onSelect={this.onSelectFilter}
-                          value={this.state.filters.role || ''}
+                          value={this.state.filters.role || []}
                         >
                           Bạn là
                         </HeadFilter>
@@ -759,7 +765,7 @@ export class User extends React.PureComponent {
                               label: y + idx,
                             }))}
                           onSelect={this.onSelectFilter}
-                          value={this.state.filters.bod || ''}
+                          value={this.state.filters.bod || []}
                         >
                           Năm sinh
                         </HeadFilter>
@@ -772,7 +778,7 @@ export class User extends React.PureComponent {
                             label: v.name,
                           }))}
                           onSelect={this.onSelectFilter}
-                          value={this.state.filters.level || ''}
+                          value={this.state.filters.level || []}
                         >
                           Lớp
                         </HeadFilter>
@@ -784,7 +790,7 @@ export class User extends React.PureComponent {
                             { value: 'Quang Trung', label: 'Quang Trung' },
                           ]}
                           onSelect={this.onSelectFilter}
-                          value={this.state.filters.school || ''}
+                          value={this.state.filters.school || []}
                         >
                           Trường
                         </HeadFilter>
@@ -797,7 +803,7 @@ export class User extends React.PureComponent {
                             value: city.code,
                           }))}
                           onSelect={this.onSelectFilter}
-                          value={this.state.filters.city || ''}
+                          value={this.state.filters.city || []}
                         >
                           Thành phố
                         </HeadFilter>
@@ -814,7 +820,7 @@ export class User extends React.PureComponent {
                             { value: 'group2', label: 'group2' },
                           ]}
                           onSelect={this.onSelectFilter}
-                          value={this.state.filters.group || ''}
+                          value={this.state.filters.group || []}
                         >
                           Group
                         </HeadFilter>
@@ -825,7 +831,7 @@ export class User extends React.PureComponent {
                           scope="col"
                           options={[]}
                           onSelect={this.onSelectFilter}
-                          value={this.state.filters.description2 || ''}
+                          value={this.state.filters.description2 || []}
                         >
                           Ghi chú 2
                         </HeadFilter>
@@ -838,7 +844,7 @@ export class User extends React.PureComponent {
                             { value: 2, label: 'Pending' },
                           ]}
                           onSelect={this.onSelectFilter}
-                          value={this.state.filters.status || ''}
+                          value={this.state.filters.status || []}
                         >
                           Trạng thái
                         </HeadFilter>
@@ -847,7 +853,7 @@ export class User extends React.PureComponent {
                         <th scope="col">Hoạt động gần đây</th>
                       </tr>
                     </thead>
-                    <tbody>{this.renderUserRow(this.props.users)}</tbody>
+                    <tbody>{this.renderUserRow(this.props.users, this.props.dataInit.purchaseHistory)}</tbody>
                   </Table>
                   <PaginationTable
                     maxPages={this.maxPages}

@@ -4,7 +4,6 @@
 import axios from 'axios';
 import _ from 'lodash';
 import { all, call, put, takeLatest } from 'redux-saga/effects';
-import request from 'utils/request';
 import { getToken } from 'services/auth';
 import {
   GET_DOCS,
@@ -31,16 +30,26 @@ const root = '/api';
  * Request get document list
  */
 export function* getDocsHandler({ query }) {
-  const url = `${root}/documents?approved=all`;
+  const url = `${root}/documents`;
   const options = {
     params: {
       ...query,
+      approved: query.approved ? query.approved : 'all',
     }
   }
 
   try {
     const resp = yield call(axios.get, url, options);
-    yield put(getDocsSuccess(resp.data));
+    const ids = resp.data.data.map((i) => i.id);
+    const comments = yield call(axios.get, `${root}/comments?docId=${ids.join()}`);
+    const commentsByDocId = comments.data.data.reduce((acc, i) => {
+      if (acc[i.docId]) {
+        return { ...acc, [i.docId]: acc[i.docId] + 1 };
+      }
+      return { ...acc, [i.docId]: 1 };
+    }, {});
+    const data = resp.data.data.map((i) => ({ ...i, comment: commentsByDocId[i.id] || 0 }));
+    yield put(getDocsSuccess({ data, total: resp.data.total }));
   } catch (err) {
     // yield put(loginFailure(err));
   }

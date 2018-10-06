@@ -263,6 +263,12 @@ async function updateDocumentById(id, body, file) {
         error: 'Forbidden',
       };
     }
+    if (user[0].role !== roles.ADMIN && body.approved) {
+      return {
+        status: 403,
+        error: 'Forbidden: Not allow update approved',
+      };
+    }
     const queryBody = Object.assign({}, body);
     if (cateIds) {
       const cateModel = new Category();

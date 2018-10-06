@@ -40,6 +40,7 @@ import {
   faCaretDown,
 } from '@fortawesome/free-solid-svg-icons';
 import FileSaver from 'file-saver';
+import _ from 'lodash';
 import { HeadSort, PaginationTable, HeadFilter } from 'components/Table';
 import PopUp from 'components/PopUp';
 
@@ -145,8 +146,8 @@ const Wrapper = styled.div`
 
 /* eslint-disable react/prefer-stateless-function */
 export class Documents extends React.PureComponent {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       currentPage: 1,
       selectedDocs: [],
@@ -159,6 +160,7 @@ export class Documents extends React.PureComponent {
       },
       showHistory: false,
     };
+    this.additionalQuery = _.trimStart(props.location.search, '?').split('&')[0];
     this.size = 10;
     this.maxPages = 11;
     this.sort = this.sort.bind(this);
@@ -181,7 +183,7 @@ export class Documents extends React.PureComponent {
       sort: 'createdAt.desc',
       offset: 0,
       size: this.size,
-    });
+    }, this.additionalQuery);
     this.props.getDataInit();
   }
 
@@ -197,7 +199,7 @@ export class Documents extends React.PureComponent {
         sort: 'createdAt.desc',
         offset: 0,
         size: this.size,
-      });
+      }, this.additionalQuery);
       this.props.clearDeleteStatus();
     }
     if (!this.props.file && nextProps.file) {
@@ -205,9 +207,14 @@ export class Documents extends React.PureComponent {
       FileSaver.saveAs(blob, _.get(nextProps, 'fileName', 'download'));
       this.props.removeFileSave();
     }
-    // if (!this.props.historyDownload.length && !_.isEqual(this.props.historyDownload, nextProps.historyDownload)) {
-    //   this.setState({ showHistory: true });
-    // }
+    if (this.props.location.search !== nextProps.location.search) {
+      this.additionalQuery = _.trimStart(nextProps.location.search, '?').split('&')[0];
+      this.props.getDocs({
+        sort: 'createdAt.desc',
+        offset: 0,
+        size: this.size,
+      }, this.additionalQuery);
+    }
   }
 
   componentDidUpdate() {
@@ -344,7 +351,7 @@ export class Documents extends React.PureComponent {
       offset: this.size * (this.state.currentPage - 1),
     };
     Object.keys(filters).forEach((k) => (query[k] = filters[k].join()));
-    this.props.getDocs(query);
+    this.props.getDocs(query, this.additionalQuery);
   }
 
   onSearch(e) {
@@ -365,7 +372,7 @@ export class Documents extends React.PureComponent {
       filters: {
         cateId: [],
       }
-    });
+    }, this.additionalQuery);
   }
 
   onSelectPage(page) {
@@ -384,7 +391,7 @@ export class Documents extends React.PureComponent {
         query.sort = `${sortField}.${sortBy}`;
       }
       Object.keys(filters).forEach((k) => (query[k] = filters[k].join()));
-      this.props.getDocs(query)
+      this.props.getDocs(query, this.additionalQuery)
     }
   }
 
@@ -458,7 +465,7 @@ export class Documents extends React.PureComponent {
       offset: 0,
     };
     Object.keys(newFilter).forEach((k) => (query[k] = newFilter[k].join()));
-    this.props.getDocs(query);
+    this.props.getDocs(query, this.additionalQuery);
   }
 
   closeDownloadHistory() {
@@ -898,7 +905,7 @@ Documents.propTypes = {
 
 export function mapDispatchToProps(dispatch) {
   return {
-    getDocs: (query) => dispatch(getDocs(query)),
+    getDocs: (query, additionalQuery) => dispatch(getDocs(query, additionalQuery)),
     approve: (id) => dispatch(approveDocs(id)),
     deleteDoc: (id) => dispatch(deleteDoc(id)),
     updateDocs: (ids, data) => dispatch(updateDocs(ids, data)),

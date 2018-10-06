@@ -29,55 +29,7 @@ export default {
         },
         {
           name: 'Đề thi cần duyệt',
-          url: '/documents?approved=2',
-          icon: 'fa fa-table',
-        },
-      ],
-    },
-    {
-      name: 'Danh mục',
-      url: '/categories',
-      icon: 'fa fa-database',
-      children: [
-        {
-          name: 'Danh mục',
-          url: '/categories',
-          icon: 'fa fa-table',
-        },
-      ],
-    },
-    {
-      name: 'Bộ sưu tập',
-      url: '/collections',
-      icon: 'fa fa-database',
-      children: [
-        {
-          name: 'Bộ sưu tập',
-          url: '/collections',
-          icon: 'fa fa-table',
-        },
-      ],
-    },
-    {
-      name: 'Môn học',
-      url: '/subject',
-      icon: 'fa fa-database',
-      children: [
-        {
-          name: 'Môn học',
-          url: '/subjects',
-          icon: 'fa fa-table',
-        },
-      ],
-    },
-    {
-      name: 'Lớp học',
-      url: '/classes',
-      icon: 'fa fa-database',
-      children: [
-        {
-          name: 'Lớp học',
-          url: '/classes',
+          url: '/documents?approved=0',
           icon: 'fa fa-table',
         },
       ],
@@ -88,23 +40,23 @@ export default {
       icon: 'fa fa-database',
       children: [
         {
-          name: 'Tạo danh mục',
-          url: '/categories/create',
+          name: 'Danh mục',
+          url: '/categories',
           icon: 'fa fa-table',
         },
         {
-          name: 'Tạo môn',
-          url: '/subjects/create',
+          name: 'Môn',
+          url: '/subjects',
           icon: 'fa fa-table',
         },
         {
-          name: 'Tạo lớp',
-          url: '/classes/create',
+          name: 'Lớp',
+          url: '/classes',
           icon: 'fa fa-table',
         },
         {
-          name: 'Tạo bộ sưu tập',
-          url: '/collections/create',
+          name: 'Bộ sưu tập',
+          url: '/collections',
           icon: 'fa fa-table',
         },
       ],
