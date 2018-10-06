@@ -47,10 +47,14 @@ export class UploadDocument extends React.PureComponent {
     super(props);
     this.state = {
       step: 0,
+      policy: null,
       stepDefinitions: [
         { id: "step1", title: "", component: (props) => <div>
           <label>Nội quy:</label>
-          <div style={{ width: '100%', height: '200px' }}></div>
+          <div
+            style={{ width: '100%', minHeight: '200px' }}
+            dangerouslySetInnerHTML={{ __html: this.state.policy  }}
+          />
           <label>
             <input
               type="checkbox"
@@ -97,6 +101,10 @@ export class UploadDocument extends React.PureComponent {
     });
     get(`${url}/collections`).then((res) => {
       this.initData('collections', res.data.data);
+    });
+    get(`${url}/news?type=general`).then((res) => {
+      const policy = res.data.data.find((i) => i.position === 1);
+      this.setState({ policy: policy ? policy.text : null });
     });
   }
 
