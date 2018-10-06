@@ -31,10 +31,12 @@ const root = '/api';
  * Request get document list
  */
 export function* getDocsHandler({ query }) {
-  const url = `${root}/documents?approved=all`;
+  console.log(query)
+  const url = `${root}/documents`;
   const options = {
     params: {
       ...query,
+      approved: query.approved ? query.approved : 'all',
     }
   }
 
