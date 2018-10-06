@@ -722,10 +722,7 @@ export class UserEdit extends React.PureComponent {
                                 name="cateIds"
                                 id="categories"
                                 multiple
-                                className={
-                                  this.state.error.cateIds && 'is-invalid'
-                                }
-                                value={this.state.formData.cateIds}
+                                value={get(this.state.formData, 'blockDownloadCategoris', '')}
                               >
                                 {get(this.props, 'dataInit.categories', []).map(
                                   i => (
@@ -735,9 +732,6 @@ export class UserEdit extends React.PureComponent {
                                   ),
                                 )}
                               </Input>
-                              <div className="invalid-feedback">
-                                {this.state.error.cateIds}
-                              </div>
                             </FormGroup>
                           </Col>
                           <Col xs="2">
@@ -749,10 +743,7 @@ export class UserEdit extends React.PureComponent {
                                 name="subjectIds"
                                 id="subjects"
                                 multiple
-                                className={
-                                  this.state.error.subjectIds && 'is-invalid'
-                                }
-                                value={this.state.formData.subjectIds}
+                                value={get(this.state.formData, 'blockDownloadSubjects', '')}
                               >
                                 {get(this.props, 'dataInit.subjects', []).map(
                                   i => (
@@ -762,9 +753,6 @@ export class UserEdit extends React.PureComponent {
                                   ),
                                 )}
                               </Input>
-                              <div className="invalid-feedback">
-                                {this.state.error.subjectIds}
-                              </div>
                             </FormGroup>
                           </Col>
                           <Col xs="2">
@@ -776,10 +764,7 @@ export class UserEdit extends React.PureComponent {
                                 name="classIds"
                                 id="classes"
                                 multiple
-                                className={
-                                  this.state.error.classIds && 'is-invalid'
-                                }
-                                value={this.state.formData.classIds}
+                                value={get(this.state.formData, 'blockDownloadClasses', '')}
                               >
                                 {get(this.props, 'dataInit.classes', []).map(
                                   i => (
@@ -789,9 +774,6 @@ export class UserEdit extends React.PureComponent {
                                   ),
                                 )}
                               </Input>
-                              <div className="invalid-feedback">
-                                {this.state.error.classIds}
-                              </div>
                             </FormGroup>
                           </Col>
                           <Col xs="2">
@@ -803,10 +785,7 @@ export class UserEdit extends React.PureComponent {
                                 name="yearSchools"
                                 id="school-year"
                                 multiple
-                                className={
-                                  this.state.error.yearSchools && 'is-invalid'
-                                }
-                                value={this.state.formData.yearSchools}
+                                value={get(this.state.formData, 'blockDownloadYearschool', '')}
                               >
                                 {Array(21)
                                   .fill(new Date().getFullYear() - 20)
@@ -819,9 +798,6 @@ export class UserEdit extends React.PureComponent {
                                     </option>
                                   ))}
                               </Input>
-                              <div className="invalid-feedback">
-                                {this.state.error.yearSchools}
-                              </div>
                             </FormGroup>
                           </Col>
                           <Col xs="3">
@@ -833,10 +809,7 @@ export class UserEdit extends React.PureComponent {
                                 name="collections"
                                 id="collections"
                                 multiple
-                                className={
-                                  this.state.error.yearSchools && 'is-invalid'
-                                }
-                                value={this.state.formData.yearSchools}
+                                value={get(this.state.formData, 'blockDownloadCollections', '')}
                               >
                                 {get(this.props, 'dataInit.collections', [])
                                   .map(i => (
@@ -844,9 +817,6 @@ export class UserEdit extends React.PureComponent {
                                       {i.name}
                                     </option>))}
                               </Input>
-                              <div className="invalid-feedback">
-                                {this.state.error.yearSchools}
-                              </div>
                             </FormGroup>
                           </Col>
                         </Row>
