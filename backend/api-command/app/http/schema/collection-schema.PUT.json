@@ -76,6 +76,13 @@
     "priority": {
       "type": "integer",
       "enum": [0, 1]
+    },
+    "priorityCate": {
+      "type": "integer",
+      "enum": [0, 1]
+    },
+    "position": {
+      "type": "integer"
     }
   }
 }

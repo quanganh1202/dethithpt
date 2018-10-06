@@ -38,11 +38,10 @@ const checkUserActivation = async (userId) => {
       error: 'You must be provide required infomation',
     };
   case '3':
-    if (moment(user[0].blockTo) >= moment.now()) {
+    if (moment(user[0].blockFrom) <= moment.now()) {
       return {
         status: 400,
-        error: `Account has been blocked from ${
-          moment(user[0].blockFrom).format('YYYY-MM-DDTHH:mm:ss.SSS')} to ${moment(user[0].blockTo).format('YYYY-MM-DDTHH:mm:ss.SSS')}`,
+        error: `Account has been blocked from ${moment(user[0].blockFrom).format('YYYY-MM-DDTHH:mm:ss.SSS')}`,
       };
     }
     break;

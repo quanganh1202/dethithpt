@@ -116,6 +116,19 @@
         "priority": {
           "type": "integer"
         },
+        "priorityCate": {
+          "type": "integer"
+        },
+        "position": {
+          "type": "text",
+          "analyzer": "autocomplete",
+          "search_analyzer": "standard",
+          "fields": {
+            "raw": {
+              "type": "integer"
+            }
+          }
+        },
         "view": {
           "type": "integer"
         },
