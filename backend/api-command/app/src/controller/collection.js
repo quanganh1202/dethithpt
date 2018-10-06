@@ -246,7 +246,7 @@ async function updateCollection(id, body) {
           cateName: cate[0].name,
         };
       });
-
+      body.cateIds = Array.isArray(cateIds) ? cateIds.join(',') : cateIds;
       queryBody.cates = newCate;
     }
 
@@ -300,7 +300,6 @@ async function updateCollection(id, body) {
       queryBody.classes = newClass;
     }
 
-    body.cateIds = Array.isArray(cateIds) ? cateIds.join(',') : cateIds;
     delete queryBody.cateIds;
     delete queryBody.classIds;
     delete queryBody.subjectIds;

@@ -71,6 +71,7 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     description TEXT(255) NOT NULL,
     userId TEXT(15) NOT NULL,
     priority INT(1) NOT NULL DEFAULT '0',
+    position VARCHAR(5) NOT NULL DEFAULT '0',
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE INDEX id_UNIQUE (id ASC),
@@ -81,6 +82,8 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     name VARCHAR(50) NOT NULL,
     description TEXT(255) NOT NULL,
     userId INT(11) NOT NULL,
+    priority INT(1) NOT NULL DEFAULT '0',
+    position VARCHAR(5) NOT NULL DEFAULT '0',
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE INDEX id_UNIQUE (id ASC));
@@ -90,6 +93,8 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     name VARCHAR(50) NOT NULL,
     description TEXT(255) NOT NULL,
     userId INT(11) NOT NULL,
+    priority INT(1) NOT NULL DEFAULT '0',
+    position VARCHAR(5) NOT NULL DEFAULT '0',
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE INDEX id_UNIQUE (id ASC));
@@ -103,6 +108,8 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     subjectIds VARCHAR(255) NOT NULL,
     userId INT(11) NOT NULL,
     priority INT(1) NOT NULL DEFAULT '0',
+    priorityCate INT(1) NOT NULL DEFAULT '0',
+    position VARCHAR(5) NOT NULL DEFAULT '0',
     yearSchools VARCHAR(255) NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
@@ -116,15 +123,6 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     money VARCHAR(255) NOT NULL DEFAULT '0',
     PRIMARY KEY (id),
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE INDEX id_UNIQUE (id ASC));
-
-  CREATE TABLE IF NOT EXISTS $DATABASE.tbRole (
-    id INT NOT NULL AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL,
-    userId VARCHAR(255) NOT NULL,
-    roles VARCHAR(255) NOT NULL,
-    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (id),
     UNIQUE INDEX id_UNIQUE (id ASC));
 
   CREATE TABLE IF NOT EXISTS $DATABASE.tbNews (
