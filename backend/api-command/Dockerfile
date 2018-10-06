@@ -1,9 +1,13 @@
 # Use Node v8.9.0 LTS
-FROM node:carbon
+FROM ubuntu
 
 # Setup app working directory
 WORKDIR /usr/src/app
 
+RUN apt-get install libreoffice-headless libreoffice-writer curl
+RUN apt-get install graphicsmagick ghostscript -y
+RUN curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+RUN apt-get install -y nodejs
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
@@ -16,7 +20,6 @@ COPY resource/fonts /usr/share/fonts
 
 COPY wait-for-it.sh /
 RUN chmod 755 /wait-for-it.sh
-RUN apt-get install libreoffice-headless libreoffice-writer
-RUN apt-get install graphicsmagick ghostscript -y
+
 # Start app
 CMD /wait-for-it.sh mysql:3306 -- npm start
