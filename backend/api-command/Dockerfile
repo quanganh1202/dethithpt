@@ -38,7 +38,7 @@ COPY resource/fonts /usr/share/fonts
 
 COPY wait-for-it.sh /
 RUN chmod 755 /wait-for-it.sh /tmp/start-libreoffice.sh
-RUN /tmp/start-libreoffice.sh
+# RUN /tmp/start-libreoffice.sh
 
 # Start app
 CMD /wait-for-it.sh mysql:3306 -- npm start
