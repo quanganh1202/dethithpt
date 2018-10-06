@@ -4,7 +4,7 @@ FROM ubuntu
 # Setup app working directory
 WORKDIR /usr/src/app
 
-RUN apt-get update && apt-get install libreoffice curl
+RUN apt-get update && apt-get install libreoffice curl -y
 RUN apt-get update && apt-get install graphicsmagick ghostscript -y
 RUN curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
 RUN apt-get install -y nodejs
