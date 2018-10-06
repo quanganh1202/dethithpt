@@ -68,6 +68,13 @@ services:
       - "5672:5672"
     networks:
       - overlay
+  
+  libreoffice:
+    image: xcgd/libreoffice
+    ports:
+      - "8997:8997"
+    networks:
+      - overlay
 
   
   frontend:
