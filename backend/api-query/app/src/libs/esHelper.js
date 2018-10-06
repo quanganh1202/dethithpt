@@ -137,6 +137,38 @@ const updateNumDocRefToCollection = (collections, type) => {
   return promiseUpdateCates;
 };
 
+const updateNumDocRefToSubject = (subjects, type) => {
+  const subjectModel =new ES('subjects', 'subject');
+  const operation = type === constants.INCREASE ? '++' : '--';
+  const promiseUpdate = subjects.map((subject) => {
+    return subjectModel.updateByScript(
+      subject.subjectId,
+      {
+        source: `ctx._source.numDocRefs${operation};`,
+        lang: 'painless',
+      }
+    );
+  });
+
+  return promiseUpdate;
+};
+
+const updateNumDocRefToClass = (classes, type) => {
+  const classModel =new ES('classes', 'class');
+  const operation = type === constants.INCREASE ? '++' : '--';
+  const promiseUpdate = classes.map((_class) => {
+    return classModel.updateByScript(
+      _class.classId,
+      {
+        source: `ctx._source.numDocRefs${operation};`,
+        lang: 'painless',
+      }
+    );
+  });
+
+  return promiseUpdate;
+};
+
 const updateDocumentView = (documentId, type) => {
   const docModel =new ES('documents', 'document');
   const operation = type === constants.INCREASE ? '++' : '--';
@@ -330,6 +362,8 @@ const insertTag = async (tags, createdAt) => {
 };
 
 export {
+  updateNumDocRefToClass,
+  updateNumDocRefToSubject,
   updateUserDownload,
   updateMoneyUserById,
   insertTag,

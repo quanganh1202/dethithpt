@@ -18,9 +18,8 @@
       "type": "string",
       "minLength": 1
     },
-    "postition": {
-      "type": "string",
-      "minLength": 1
+    "position": {
+      "type": "integer"
     },
     "active": {
       "type": "string",
