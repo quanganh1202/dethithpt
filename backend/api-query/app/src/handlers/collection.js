@@ -51,6 +51,8 @@ export default {
         yearSchools,
         userName,
         userId,
+        priority,
+        priorityCate,
         scroll,
       } = options;
       const numberRegex = new RegExp(/^[0-9]*$/);
@@ -73,6 +75,8 @@ export default {
         'subjects.subjectId': subjectId,
         'classes.className': className,
         'classes.classId': classId,
+        priority,
+        priorityCate,
         userName,
         userId,
         description,
@@ -107,6 +111,8 @@ export default {
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.createdAt = now;
       body.numDocRefs = 0;
+      body.position = 0;
+      body.priority = 0;
       const result = await elasticsearch.insert(body, collectionId);
 
       return result;

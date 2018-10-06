@@ -142,7 +142,7 @@ const office2Pdf = (word, pdf) => {
     const wordBuffer = fs.readFileSync(word);
     file.writeFile(wordBuffer, (err) => {
       if(err) reject(err);
-      let cmd = `soffice --headless --convert-to pdf:writer_pdf_Export ${file.path} --outdir ${pdf}`;
+      let cmd = `libreoffice6.1 --headless --convert-to pdf:writer_pdf_Export ${file.path} --outdir ${pdf}`;
       childProcess.exec(cmd, (error) => {
         if(error) {
           reject(error);

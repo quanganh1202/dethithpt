@@ -44,6 +44,7 @@ export default {
         userName,
         userId,
         userEmail,
+        priority,
         scroll,
       } = options;
       const numberRegex = new RegExp(/^[0-9]*$/);
@@ -59,6 +60,7 @@ export default {
       const sortObj = sortParamsHandler(sort);
       if (sortObj.statusCode !== 200) return sortObj; // Return error
       const filterBuilt = filterParamsHandler({
+        priority,
         name,
         userName,
         userId,
@@ -92,6 +94,9 @@ export default {
       body.view = 0;
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.createdAt = now;
+      body.numDocRefs = 0;
+      body.position = 0;
+      body.priority = 0;
       const result = await elasticsearch.insert(body, subjectId);
 
       return result;

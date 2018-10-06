@@ -151,9 +151,6 @@
         "role": {
           "type": "text"
         },
-        "blockTo": {
-          "type": "date"
-        },
         "blockFrom": {
           "type": "date"
         },

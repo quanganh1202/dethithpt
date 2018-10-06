@@ -21,7 +21,6 @@ USE dethithpt;
     `note1` TEXT(255) NULL,
     `note2` TEXT(255) NULL,
     `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    `blockTo` TIMESTAMP NULL,
     `blockFrom` TIMESTAMP NULL,
     `blockDownloadCollections` VARCHAR(255) NULL,
     `blockDownloadCategories` VARCHAR(255) NULL,
@@ -61,6 +60,7 @@ USE dethithpt;
     `description` TEXT(255) NOT NULL,
     `userId` TEXT(15) NOT NULL,
     `priority` INT(1) NOT NULL DEFAULT '0',
+    `position` VARCHAR(5) NOT NULL DEFAULT '0',
     `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `id_UNIQUE` (`id` ASC),
@@ -71,6 +71,8 @@ USE dethithpt;
     `name` VARCHAR(50) NOT NULL,
     `description` TEXT(255) NOT NULL,
     `userId` INT(11) NOT NULL,
+    `priority` INT(1) NOT NULL DEFAULT '0',
+    `position` VARCHAR(5) NOT NULL DEFAULT '0',
     `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `id_UNIQUE` (`id` ASC));
@@ -80,6 +82,8 @@ USE dethithpt;
     `name` VARCHAR(50) NOT NULL,
     `description` TEXT(255) NOT NULL,
     `userId` INT(11) NOT NULL,
+    `priority` INT(1) NOT NULL DEFAULT '0',
+    `position` VARCHAR(5) NOT NULL DEFAULT '0',
     `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `id_UNIQUE` (`id` ASC));
@@ -94,6 +98,8 @@ USE dethithpt;
     `userId` INT(11) NOT NULL,
     `yearSchools` VARCHAR(255) NOT NULL,
     `priority` INT(1) NOT NULL DEFAULT '0',
+    `priorityCate` INT(1) NOT NULL DEFAULT '0',
+    `position` VARCHAR(5) NOT NULL DEFAULT '0',
     `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `id_UNIQUE` (`id` ASC));
@@ -104,15 +110,6 @@ USE dethithpt;
     `docId` VARCHAR(255),
     `money` VARCHAR(255) NOT NULL DEFAULT '0',
     `action` VARCHAR(255) NOT NULL,
-    `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`),
-    UNIQUE INDEX `id_UNIQUE` (`id` ASC));
-
-  CREATE TABLE IF NOT EXISTS `dethithpt`.`tbRole` (
-    `id` INT NOT NULL AUTO_INCREMENT,
-    `name` VARCHAR(255) NOT NULL,
-    `userId` VARCHAR(255) NOT NULL,
-    `roles` VARCHAR(255) NOT NULL,
     `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `id_UNIQUE` (`id` ASC));
