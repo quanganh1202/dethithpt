@@ -3,20 +3,20 @@ import styled from 'styled-components';
 const Wrapper = styled.div`
   margin-bottom: 15px;
   &.green-tab .title {
-    background: green;
+    background: #2FA538;
   }
 
   & .title {
-    font-size: 1em;
+    font-size: 0.8em;
     padding: 5px 0;
     margin: 0;
     text-align: center;
-    color: #fff;
+    color: ${props => props.color || '#fff'};
     background: ${props => props.theme.headerMenu};
   }
 
   & .content {
-    font-size: 0.9em;
+    font-size: 0.8em;
     padding: 10px 0;
     min-height: 50px;
 
@@ -46,6 +46,9 @@ const Wrapper = styled.div`
 
       :hover {
         text-decoration: underline;
+      }
+      &.active-link {
+        font-weight: bold;
       }
     }
   }

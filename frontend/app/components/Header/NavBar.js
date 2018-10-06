@@ -10,7 +10,6 @@ export default styled.div`
     ##Screen = B/w 320px to 479px
   */
   @media (min-width: 320px) and (max-width: 480px) {
-    text-align: center;
     .bm-item-list .mobile-nav-menu a {
       display: inline-block;
       width: 100%;
@@ -90,4 +89,34 @@ export default styled.div`
       }
     }
   }
+
+  .header-search-box.mobile {
+    float: left;
+    width: calc(100% - 44px);
+    height: 44px;
+    > form {
+      position: relative;
+      height: 100%;
+      > input[type="text"] {
+        width: 80%;
+        padding: 5px 15px 5px 40px;
+        margin: 7px 20px;
+        border: 1px solid rgba(74, 80, 82, 0.29);
+        border-radius: 5px 5px;
+        background-color: white;
+        vertical-align: middle;
+      }
+      > button[type="submit"] {
+        padding: 10px 15px;
+        outline: none;
+        position: absolute;
+        height: 30px;
+        width: 20px;
+        background: url('https://cdn1.iconfinder.com/data/icons/hawcons/32/698627-icon-111-search-128.png');
+        background-size: 100%;
+        top: 7px;
+        left: 25px;
+      }
+    }
+  }  
 `;

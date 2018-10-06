@@ -11,18 +11,34 @@ const Wrapper = styled.div`
   display: ${(props) => props.show ? 'flex' : 'none'};
   align-items: center;
   justify-content: center;
-  > .popup-content {
+  background-color: rgba(0, 0, 0, .80); 
+
+  .popup-body {
     position: relative;
+    box-shadow: -50px 0 200px -50px #504bff, 50px 0 200px -50px #4cfa63;
+  }
+  .popup-content {
     background-color: white;
-    width: 750px;
+    width: ${(props) => props.width || '750px'};
     z-index: 10;
-    border: 2px solid black;
-    max-height: calc(100vh - 20px);
+    max-height: calc(100vh - 100px);
     overflow: auto;
-    > .close-btn {
-      position: absolute;
-      top: -20px;
-      right: -20px;
+  }
+  .popup-close-btn {
+    background-color: white;
+    border-radius: 50%;
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    color: #555555;
+    z-index: 11;
+    font-size: 40px;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    > * {
+      vertical-align: top;
     }
   }
   /* 

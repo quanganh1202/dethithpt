@@ -9,11 +9,7 @@ class GoogleLogin extends Component {
 
   componentDidMount() {
     gapi.load('auth2', () => {
-      // Retrieve the singleton for the GoogleAuth library and set up the client.
-      this.auth2 = window.gapi.auth2.init({
-        client_id: '33146074840-tdm6djs1ckddpkqktn0k04nabjh0fpde.apps.googleusercontent.com', // TODO: need to replace using const
-        cookiepolicy: 'single_host_origin',
-      });
+      this.auth2 = window.gapi.auth2.getAuthInstance();
     });
   }
 

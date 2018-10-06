@@ -21,6 +21,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { faMoneyBillAlt } from '@fortawesome/free-regular-svg-icons';;
 import Select from 'react-select';
+import FileSaver from 'file-saver';
+import _ from 'lodash';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
@@ -29,12 +31,14 @@ import List from 'components/List';
 import ListItem from 'components/ListItem';
 import LoadingIndicator from 'components/LoadingIndicator';
 import { getFilterData, getDocumentsList } from './actions';
+import { requestDownload, removeFileSave, removeMessage, updateQuery } from 'containers/HomePage/actions';
 import {
   makeSelectDocument,
   makeSelectLoading,
   makeSelectDocuments,
   makeSelectFilterData,
 } from './selectors';
+import { makeSelectFile, makeSelectMessage } from 'containers/HomePage/selectors'
 import reducer from './reducer';
 import saga from './saga';
 import GreyTitle from 'containers/HomePage/GreyTitle';
@@ -42,13 +46,12 @@ import Wrapper from './Wrapper';
 
 library.add(faMoneyBillAlt, faFolder, faCog, faCloudDownloadAlt, faCaretDown);
 
-const numberWithCommas = (x) => {
-  var parts = x.toString().split(".");
-  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  return parts.join(".");
-}
-
 const itemsPerLoad = 10;
+
+const errorMapping = {
+  unknown_error_download: 'Tài liệu không còn tồn tại hoặc có lỗi, vui lòng báo lại cho admin!',
+  not_enough_money: 'Tài khoản không còn đủ tiền để thanh toán, vui lòng nạp thêm!',
+}
 
 /* eslint-disable react/prefer-stateless-function */
 export class Category extends React.PureComponent {
@@ -62,44 +65,95 @@ export class Category extends React.PureComponent {
         sort: { value: 'desc', label: 'Mới đăng' },
       },
       resetKey: Math.random(),
+      downloadingFile: '',
     };
     this.loadMoreDocs = this.loadMoreDocs.bind(this);
     this.handleChangeFilter = this.handleChangeFilter.bind(this);
   }
 
   componentWillMount() {
+    window.scrollTo(0, 0);
     // get filter data
     this.props.getFilterData();
-    
-    if (!this.props.documents.data.length) {
-      const queries = {
-        sort: 'createdAt.desc',
-        size: itemsPerLoad,
-      };
-      if (this.props.match.params.id) {
-        queries.cateId = this.props.match.params.id
-      }
-      this.props.getDocumentsList(queries);
+
+    const queries = {
+      sort: 'createdAt.desc',
+      size: itemsPerLoad,
+    };
+    if (this.props.match.params.id) {
+      queries.cateId = this.props.match.params.id;
+      // Update filter for Collections
+      this.props.updateQuery({
+        cateId: this.props.match.params.id,
+      });
     }
+    this.props.getDocumentsList(queries, true);
   }
 
   componentWillReceiveProps(nextProps) {
     if (this.props.match.params.id !== nextProps.match.params.id) {
+      window.scrollTo(0, 0);
       const queries = {
         sort: 'createdAt.desc',
         size: itemsPerLoad,
         cateId: nextProps.match.params.id,
-      }
+      };
       this.props.getDocumentsList(queries, true);
       this.setState({
         filter: {
           subjectId: '',
           classId: '',
-          yearSchool: '',
+          yearSchools: '',
           sort: { value: 'desc', label: 'Mới đăng' },
         },
         resetKey: Math.random(),
-      })
+      });
+
+      // Update filter for Collections
+      this.props.updateQuery({
+        cateId: nextProps.match.params.id,
+      });
+    }
+    if (!this.props.file && nextProps.file) {
+      const blob = new Blob([nextProps.file]);
+      FileSaver.saveAs(blob, _.get(this.state, 'downloadingFile', 'download'));
+      this.setState({ downloadingFile: '' });
+      this.props.removeFileSave();
+    }
+    if (!this.props.message && nextProps.message) {
+      alert(errorMapping[nextProps.message] || 'Có lỗi xảy ra, vui lòng báo lại cho admin!');
+      this.props.removeMessage();
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const currentFilter = {
+      ...this.state.filter,
+      cateId: this.props.match.params.id,
+    };
+    const prevFilter = {
+      ...prevState.filter,
+      cateId: prevProps.match.params.id,
+    };
+
+    if (!_.isEqual(currentFilter, prevFilter)) {
+      const queryCollection = {
+        cateId: currentFilter.cateId,
+      };
+      Object.keys(currentFilter).forEach(key => {
+        if (
+          ['classId', 'subjectId', 'yearSchools'].includes(key) &&
+          currentFilter[key] &&
+          _.isArray(currentFilter[key]) &&
+          currentFilter[key].length > 0
+        ) {
+          queryCollection[key] = currentFilter[key]
+            .map(t => t.value)
+            .toString();
+        }
+      });
+
+      this.props.updateQuery(queryCollection);
     }
   }
 
@@ -110,7 +164,7 @@ export class Category extends React.PureComponent {
       offset: this.props.documents.data.length,
       size: itemsPerLoad,
     }
-    Array.from(['subjectId', 'classId', 'yearSchool']).forEach((f) => {
+    Array.from(['subjectId', 'classId', 'yearSchools']).forEach((f) => {
       if (filter[f] && filter[f].length > 0) {
         queries[f] = filter[f].map((i) => i.value).join(',');
       }
@@ -129,7 +183,7 @@ export class Category extends React.PureComponent {
       size: itemsPerLoad,
       cateId: this.props.match.params.id,
     }
-    Array.from(['subjectId', 'classId', 'yearSchool']).forEach((filter) => {
+    Array.from(['subjectId', 'classId', 'yearSchools']).forEach((filter) => {
       if (newFilter[filter] && newFilter[filter].length > 0) {
         queries[filter] = newFilter[filter].map((i) => i.value).join(',');
       }
@@ -167,7 +221,6 @@ export class Category extends React.PureComponent {
                   placeholder={'Chọn môn'}
                   isSearchable={false}
                   components={{
-                    MultiValueContainer: () => null,
                     DropdownIndicator: () => (
                       <FontAwesomeIcon style={{ margin: '0 5px'}} className={'title-icon'} icon={['fas', 'caret-down']} />
                     ),
@@ -188,7 +241,6 @@ export class Category extends React.PureComponent {
                   placeholder={'Chọn lớp'}
                   isSearchable={false}
                   components={{
-                    MultiValueContainer: () => null,
                     DropdownIndicator: () => (
                       <FontAwesomeIcon style={{ margin: '0 5px'}} className={'title-icon'} icon={['fas', 'caret-down']} />
                     ),
@@ -199,9 +251,9 @@ export class Category extends React.PureComponent {
               <div className="doc-filter">
                 <Select
                   key={this.state.resetKey}
-                  name="yearSchool"
-                  value={this.state.filter.yearSchool}
-                  onChange={this.handleChangeFilter.bind(this, 'yearSchool')}
+                  name="yearSchools"
+                  value={this.state.filter.yearSchools}
+                  onChange={this.handleChangeFilter.bind(this, 'yearSchools')}
                   options={Array(21)
                     .fill((new Date()).getFullYear() - 10)
                     .map((y, idx) => ({ value: y + idx, label: y + idx }))}
@@ -211,7 +263,6 @@ export class Category extends React.PureComponent {
                   placeholder={'Chọn năm học'}
                   isSearchable={false}
                   components={{
-                    MultiValueContainer: () => null,
                     DropdownIndicator: () => (
                       <FontAwesomeIcon style={{ margin: '0 5px'}} className={'title-icon'} icon={['fas', 'caret-down']} />
                     ),
@@ -236,7 +287,6 @@ export class Category extends React.PureComponent {
                   placeholder={'Sắp xếp'}
                   isSearchable={false}
                   components={{
-                    MultiValueContainer: () => null,
                     DropdownIndicator: () => (
                       <FontAwesomeIcon style={{ margin: '0 5px'}} className={'title-icon'} icon={['fas', 'caret-down']} />
                     ),
@@ -265,11 +315,15 @@ export class Category extends React.PureComponent {
                   component={ListItem}
                   loadMore={this.props.documents.data.length < this.props.documents.total}
                   onLoadMore={this.loadMoreDocs}
+                  onDownload={(id, name) => {
+                    this.setState({ downloadingFile: name });
+                    this.props.requestDownload(id);
+                  }}
                 />
               </div>)
           }
         />
-      </Wrapper> 
+      </Wrapper>
     );
   }
 }
@@ -281,12 +335,18 @@ Category.propTypes = {
   onSubmitForm: PropTypes.func,
   username: PropTypes.string,
   onChangeUsername: PropTypes.func,
+  updateQuery: PropTypes.func,
 };
 
 export function mapDispatchToProps(dispatch) {
   return {
     getFilterData: () => dispatch(getFilterData()),
-    getDocumentsList: (query, clear) => dispatch(getDocumentsList(query, clear)),
+    getDocumentsList: (query, clear) =>
+      dispatch(getDocumentsList(query, clear)),
+    requestDownload: id => dispatch(requestDownload(id)),
+    removeFileSave: () => dispatch(removeFileSave()),
+    removeMessage: () => dispatch(removeMessage()),
+    updateQuery: query => dispatch(updateQuery(query)),
   };
 }
 
@@ -295,6 +355,8 @@ const mapStateToProps = createStructuredSelector({
   documents: makeSelectDocuments(),
   filterData: makeSelectFilterData(),
   loading: makeSelectLoading(),
+  file: makeSelectFile(),
+  message: makeSelectMessage(),
 });
 
 const withConnect = connect(

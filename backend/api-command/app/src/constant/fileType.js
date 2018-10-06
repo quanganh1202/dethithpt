@@ -6,4 +6,8 @@ export default  [
   'xls',
   'rar',
   'zip',
+  'png',
+  'jpg',
+  'PNG',
+  'JPG',
 ];

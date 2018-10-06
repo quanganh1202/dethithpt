@@ -8,7 +8,7 @@ const UserDashboard = styled.div`
       text-decoration: none;
     }
     p {
-      font-size: 0.9em;
+      font-size: 0.8em;
       margin: 0;
       &.user-payment {
         text-align: left;
@@ -20,11 +20,13 @@ const UserDashboard = styled.div`
     text-align: center;
     & .user-email {
       color: orange;
+      font-weight: bold;
     }
     & .user-page-link {
       margin-bottom: 10px;
       a {
         color: blue;
+        font-weight: bold;
       }
     }
   }
@@ -37,6 +39,10 @@ const UserDashboard = styled.div`
       width: 90%;
       margin: 0 auto 5px;
     }
+  }
+
+  .control-btns {
+    margin-top: 10px;
   }
 
   /* 

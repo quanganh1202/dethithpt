@@ -62,16 +62,27 @@ const Wrapper = styled.div`
     .doc-action {
       border-bottom: 1px dashed darkgrey;
       .btn-download, .btn-view {
-        padding: 15px 10px;
+        padding: 12px 10px;
         border-radius: 10px;
         color: white;
         margin: 10px 10px 10px 0;
       }
       .btn-download {
+        position: relative;
         background-color: orange;
+        img {
+          display: none;
+        }
       }
       .btn-view {
         background-color: LightSeaGreen;
+      }
+      .btn-download.loading {
+        padding-top: 2px;
+        padding-bottom: 0px;
+        img {
+          display: unset;
+        }
       }
       .btn-report, .btn-favorite {
         padding: 3px 5px;
@@ -101,7 +112,7 @@ const Wrapper = styled.div`
       > p:first-child {
         padding: 10px 0 5px;
         font-weight: bold;
-        font-size: 1.1em;
+        font-size: 1em;
         color: grey;
       }
       > p:nth-child(2) {
@@ -131,6 +142,31 @@ const Wrapper = styled.div`
           }
         }
       }
+    }
+  }
+
+  .error-document {
+    display: none;
+    &.show {
+      display: block;
+      height: 30px;
+      line-height: 30px;
+      color: white;
+      background-color: red;
+      font-size: 0.9em;
+      padding: 0 10px;
+      margin-bottom: 10px;
+    }
+  }
+  .document-title {
+    text-align: left;
+    font-size: 0.9em;
+    font-weight: bold;
+    padding: 5px 10px;
+    color: #3f48cc;
+    background-color: #E5E5E5;
+    > span.bold {
+      color: black;
     }
   }
 `;
