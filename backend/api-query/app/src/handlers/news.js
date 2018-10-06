@@ -88,7 +88,6 @@ export default {
 
   create: async (newsId, body) => {
     try {
-      body.view = 0;
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.createdAt = now;
       const result = await elasticsearch.insert(body, newsId);
