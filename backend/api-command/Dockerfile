@@ -24,7 +24,7 @@ RUN wget -q https://ftp.gwdg.de/pub/tdf/libreoffice/stable/6.1.2/deb/x86_64/$LIB
     && rm -f /tmp/$LIBREOFFICEPACKAGE \
     && rm -rf /tmp/LibreOffice
 COPY start-libreoffice.sh /tmp/
-RUN /tmp/start-libreoffice.sh
+
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
@@ -37,7 +37,8 @@ COPY . .
 COPY resource/fonts /usr/share/fonts
 
 COPY wait-for-it.sh /
-RUN chmod 755 /wait-for-it.sh
+RUN chmod 755 /wait-for-it.sh /tmp/start-libreoffice.sh
+RUN /tmp/start-libreoffice.sh
 
 # Start app
 CMD /wait-for-it.sh mysql:3306 -- npm start
