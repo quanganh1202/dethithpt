@@ -4,7 +4,6 @@
 import axios from 'axios';
 import _ from 'lodash';
 import { all, call, put, takeLatest } from 'redux-saga/effects';
-import request from 'utils/request';
 import { getToken } from 'services/auth';
 import {
   GET_DOCS,
@@ -31,10 +30,11 @@ const root = '/api';
  * Request get document list
  */
 export function* getDocsHandler({ query }) {
-  const url = `${root}/documents?approved=all`;
+  const url = `${root}/documents`;
   const options = {
     params: {
       ...query,
+      approved: query.approved ? query.approved : 'all',
     }
   }
 

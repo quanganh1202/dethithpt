@@ -29,8 +29,8 @@ import styled from 'styled-components';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
-import { getSubjects } from './actions';
-import { makeSelectSubjects, makeSelectLoading } from './selectors';
+import { getSubjects, deleteSubjects, clearProcessStatus } from './actions';
+import { makeSelectSubjects, makeSelectLoading, makeSelectProcessStatus } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 
@@ -44,7 +44,10 @@ const Wrapper = styled.div`
 export class Subject extends React.PureComponent {
   constructor() {
     super();
-    this.state = {};
+    this.state = {
+      selectedSubjects: [],
+    };
+    this.handleSelectSubject = this.handleSelectSubject.bind(this);
   }
 
   componentWillMount() {
@@ -52,18 +55,55 @@ export class Subject extends React.PureComponent {
     this.props.getSubjects();
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.processStatus && !this.props.processStatus) {
+      this.setState({
+        selectedSubjects: [],
+      });
+      this.props.getSubjects();
+      this.props.clearProcessStatus();
+    }
+  }
+
   renderSubjectRow(subjects) {
     return subjects.map((item, idx) => (
       <tr key={item.id}>
         <th scope="row">{idx + 1}</th>
+        <td>
+          <input
+            type="checkbox"
+            name={`select-${item.id}`}
+            value={item.id}
+            onClick={this.handleSelectSubject}
+            checked={this.state.selectedSubjects.includes(item.id)}
+          />
+        </td>
         <td>
           <Link to={`/subjects/${item.id}`}>{item.name}</Link>
         </td>
         <td>{item.description}</td>
         <td>{item.userEmail}</td>
         <td>{moment(item.createdAt).format('DD/MM/YYYY')}</td>
+        <td>{item.view}</td>
+        <td>{}</td>
+        <td>{}</td>
       </tr>
     ));
+  }
+
+  handleSelectSubject(e) {
+    const { value, checked } = e.currentTarget;
+    if (value === 'all') {
+      this.setState({
+        selectedSubjects: checked ? this.props.subjects.map((i) => i.id) : [],
+      });
+    } else {
+      this.setState({
+        selectedSubjects: checked
+          ? [ ...this.state.selectedSubjects, value ]
+          : this.state.selectedSubjects.filter((i) => i !== value),
+      });
+    }
   }
 
   render() {
@@ -85,7 +125,7 @@ export class Subject extends React.PureComponent {
               <Card>
                 <CardHeader>
                   <i className="fa fa-align-justify" /> Môn học
-                  <div className="float-right">
+                  <div className="float-right" style={{ marginLeft: '10px' }}>
                     <Button
                       block
                       color="primary"
@@ -97,16 +137,45 @@ export class Subject extends React.PureComponent {
                       Tạo mới
                     </Button>
                   </div>
+                  <div className="float-right" style={{ marginLeft: '10px' }}>
+                    <Button
+                      block
+                      color="warning"
+                      size="sm"
+                      onClick={() => {}}
+                      style={{ color: 'white' }}
+                    >Sắp xếp</Button>
+                  </div>
+                  <div className="float-right">
+                    <Button
+                      block
+                      color="danger"
+                      size="sm"
+                      onClick={() => this.props.deleteSubjects((this.state.selectedSubjects))}
+                    >Xoá</Button>
+                  </div>
                 </CardHeader>
                 <CardBody>
                   <Table responsive hover striped>
                     <thead>
                       <tr>
                         <th scope="col">#</th>
+                        <th>
+                          <input
+                            type="checkbox"
+                            value="all"
+                            name="select"
+                            onChange={this.handleSelectSubject}
+                            checked={_.isEqual(this.state.selectedSubjects, this.props.subjects.map((i) => i.id))}
+                          />
+                        </th>
                         <th scope="col">Tên</th>
                         <th scope="col">Mô tả</th>
                         <th scope="col">Người tạo</th>
                         <th scope="col">Ngày tạo</th>
+                        <th scope="col">Lượt xem</th>
+                        <th scope="col">Tài liệu</th>
+                        <th scope="col">Vị trí</th>
                       </tr>
                     </thead>
                     <tbody>{this.renderSubjectRow(this.props.subjects)}</tbody>
@@ -128,12 +197,15 @@ Subject.propTypes = {
 export function mapDispatchToProps(dispatch) {
   return {
     getSubjects: () => dispatch(getSubjects()),
+    deleteSubjects: (id) => dispatch(deleteSubjects(id)),
+    clearProcessStatus: () => dispatch(clearProcessStatus()),
   };
 }
 
 const mapStateToProps = createStructuredSelector({
   subjects: makeSelectSubjects(),
   loading: makeSelectLoading(),
+  processStatus: makeSelectProcessStatus(),
 });
 
 const withConnect = connect(

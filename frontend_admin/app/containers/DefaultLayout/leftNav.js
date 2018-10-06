@@ -29,7 +29,7 @@ export default {
         },
         {
           name: 'Đề thi cần duyệt',
-          url: '/documents?approved=2',
+          url: '/documents?approved=0',
           icon: 'fa fa-table',
         },
       ],

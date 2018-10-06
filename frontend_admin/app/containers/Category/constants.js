@@ -8,7 +8,9 @@
  * Follow this format:
  * export const YOUR_ACTION_CONSTANT = 'yourproject/YourContainer/YOUR_ACTION_CONSTANT';
  */
-
+import { defineAction } from 'redux-define';
 const container = 'thpt/categories';
-export const GET_CATEGORIES_REQUEST = 'thpt/DocumentDetails/GET_CATEGORIES/REQUEST';
-export const GET_CATEGORIES_SUCCESS = 'thpt/DocumentDetails/GET_CATEGORIES/SUCCESS';
+export const GET_CATEGORIES_REQUEST = 'thpt/categories/GET_CATEGORIES/REQUEST';
+export const GET_CATEGORIES_SUCCESS = 'thpt/categories/GET_CATEGORIES/SUCCESS';
+export const DELETE_CATES = defineAction('DELETE_CATES', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
+export const CLEAR_PROCESS_STATUS = defineAction('CLEAR_PROCESS_STATUS', container);

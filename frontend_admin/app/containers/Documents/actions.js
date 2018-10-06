@@ -17,10 +17,12 @@ import {
  *
  * @return {object}    An action object with a type of GET_DOCS.REQUEST
  */
-export function getDocs(query) {
+export function getDocs(query, additionalQuery = '') {
+  const qrName = additionalQuery.split('=')[0];
+  const qrValue = additionalQuery.split('=')[1];
   return {
     type: GET_DOCS.REQUEST,
-    query,
+    query: qrName === 'approved' && qrValue === '0' ? { ...query, [qrName]: qrValue } : query,
   };
 }
 
