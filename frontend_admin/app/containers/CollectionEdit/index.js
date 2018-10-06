@@ -163,7 +163,7 @@ export class CollectionEdit extends React.PureComponent {
               <BreadcrumbItem>
                 <Link to="/collections">Bộ sưu tập</Link>
               </BreadcrumbItem>
-              <BreadcrumbItem active>Xem chi tiết</BreadcrumbItem>
+              <BreadcrumbItem active>Sửa bộ sưu tập</BreadcrumbItem>
             </Breadcrumb>
           </Col>
         </Row>
@@ -172,7 +172,7 @@ export class CollectionEdit extends React.PureComponent {
             <Col xl={12}>
               <Card>
                 <CardHeader>
-                  <i className="fa fa-align-justify" /> Tạo mới bộ sưu tập
+                  <i className="fa fa-align-justify" /> Thông tin chung
                 </CardHeader>
                 {this.props.loading ? (
                   <LoadingIndicator />

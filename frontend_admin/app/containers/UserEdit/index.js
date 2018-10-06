@@ -246,7 +246,7 @@ export class UserEdit extends React.PureComponent {
                 <Link to="/users">Thành viên</Link>
               </BreadcrumbItem>
               <BreadcrumbItem active>
-                {updateNote ? 'Xem, Sửa ghi chú' : 'Xem chi tiết'}
+                {updateNote ? 'Xem, Sửa ghi chú' : 'Cập nhật thành viên'}
               </BreadcrumbItem>
             </Breadcrumb>
           </Col>
@@ -611,7 +611,7 @@ export class UserEdit extends React.PureComponent {
                           <Col sm={5}>
                             <Input
                               type="select"
-                              name="role"
+                              name="group"
                               options={[
                                 { label: 'Thành viên', value: 'member' },
                                 { label: 'Admin', value: 'admin' },
@@ -670,6 +670,7 @@ export class UserEdit extends React.PureComponent {
                             Khóa tải:
                           </Label>
                           <Col sm={{ size: 3 }}>
+                            <Input type="checkbox" id="checkbox2" />
                             <DatePicker
                               selected={this.state.formData.get(
                                 'dateBlock',

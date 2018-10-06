@@ -133,7 +133,7 @@ export class CategoryCreate extends React.PureComponent {
               <BreadcrumbItem>
                 <Link to="/categories">Danh mục</Link>
               </BreadcrumbItem>
-              <BreadcrumbItem active>Xem chi tiết</BreadcrumbItem>
+              <BreadcrumbItem active>Cập nhật danh mục</BreadcrumbItem>
             </Breadcrumb>
           </Col>
         </Row>
@@ -142,7 +142,7 @@ export class CategoryCreate extends React.PureComponent {
             <Col xl={6}>
               <Card>
                 <CardHeader>
-                  <i className="fa fa-align-justify" /> Xem chi tiết danh mục
+                  <i className="fa fa-align-justify" /> Thông tin chung
                 </CardHeader>
                 <CardBody>
                   <Alert

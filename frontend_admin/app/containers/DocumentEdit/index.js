@@ -58,8 +58,6 @@ import Wrapper from './Wrapper';
 
 library.add(faMoneyBillAlt, faFolder, faCog, faCloudDownloadAlt, faCaretDown);
 
-const dataInit = {};
-
 /* eslint-disable react/prefer-stateless-function */
 export class DocumentEdit extends React.PureComponent {
   constructor() {
@@ -103,7 +101,7 @@ export class DocumentEdit extends React.PureComponent {
   }
 
   resetForm() {
-    this.setState({ formData: dataInit, error: {} });
+    this.setState({ formData: this.state.originData, error: {} });
     this.props.clearMessage();
   }
 
