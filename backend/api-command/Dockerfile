@@ -1,12 +1,11 @@
 # Use Node v8.9.0 LTS
-FROM ubuntu
+FROM alpine
 
 # Setup app working directory
 WORKDIR /usr/src/app
 
 RUN apt-get update && apt-get install libreoffice curl -y
 RUN apt-get update && apt-get install graphicsmagick ghostscript -y
-RUN curl -sL https://deb.nodesource.com/setup_8.x
 RUN apt-get install -y nodejs
 # Copy package.json and package-lock.json
 COPY package*.json ./
