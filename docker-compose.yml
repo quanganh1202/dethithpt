@@ -69,14 +69,6 @@ services:
     networks:
       - overlay
   
-  libreoffice:
-    image: xcgd/libreoffice
-    ports:
-      - "8997:8997"
-    networks:
-      - overlay
-
-  
   frontend:
     build: .
     env_file:
