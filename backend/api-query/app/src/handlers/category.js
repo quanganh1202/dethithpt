@@ -105,7 +105,7 @@ export default {
       }
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.updatedAt = now;
-      const result = await elasticsearch.insert(body, cateId);
+      const result = await elasticsearch.update(body, cateId);
 
       return result;
     } catch (error) {
