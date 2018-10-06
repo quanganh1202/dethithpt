@@ -103,6 +103,20 @@ const Wrapper = styled.div`
   .card {
     height: 100%;
   }
+  #checkBlockDate {
+    margin: 0px;
+    margin-top: 10px;
+  }
+  .react-datepicker-wrapper {
+    margin-right: 10px;
+    margin-left: 20px;
+  }
+  .row .group-block-download {
+    .col-3,
+    .col-2 {
+      padding: 3px;
+    }
+  }
 `;
 
 /* eslint-disable react/prefer-stateless-function */
@@ -325,7 +339,7 @@ export class UserEdit extends React.PureComponent {
             <Row className="row-alert">{AlertComponent}</Row>
             <Row>
               {/* Thông tin chung */}
-              <Col xl={5}>
+              <Col xl={4}>
                 <Card>
                   <CardHeader>
                     <i className="fa fa-align-justify" /> Thông tin chung
@@ -596,7 +610,7 @@ export class UserEdit extends React.PureComponent {
                 </Card>
               </Col>
               {/* Chức năng thành viên */}
-              <Col xl={7}>
+              <Col xl={8}>
                 <Card>
                   <CardHeader>
                     <i className="fa fa-align-justify" /> Chức năng thành viên
@@ -653,33 +667,26 @@ export class UserEdit extends React.PureComponent {
                           </Col>
                         </FormGroup>
                         <FormGroup row>
-                          <Label for="checkbox2" sm={3}>
-                            Block tài khoản:
-                          </Label>
+                          <Label sm={3}> Block tài khoản: </Label>
                           <Col sm={{ size: 9 }}>
                             <FormGroup check>
                               <Label check>
-                                <Input type="checkbox" id="checkbox2" />
+                                <Input type="checkbox" id="blocked" />
                                 <b>Khóa ngay</b>
                               </Label>
                             </FormGroup>
                           </Col>
                         </FormGroup>
                         <FormGroup row>
-                          <Label for="checkbox2" sm={3}>
-                            Khóa tải:
-                          </Label>
+                          <Label sm={3}> Khóa tải:</Label>
                           <Col sm={{ size: 3 }}>
-                            <Input type="checkbox" id="checkbox2" />
+                            <Input type="checkbox" id="checkBlockDate" />
                             <DatePicker
-                              selected={this.state.formData.get(
-                                'dateBlock',
-                                '',
-                              )}
+                              selected={this.state.formData.get('blockFrom', '')}
                               onChange={date =>
                                 this.onChange({
                                   currentTarget: {
-                                    name: 'dateBlock',
+                                    name: 'blockFrom',
                                     value: date,
                                   },
                                 })
@@ -700,24 +707,20 @@ export class UserEdit extends React.PureComponent {
                           </Col>
                         </FormGroup>
                         <FormGroup row>
-                          <Label for="checkbox2" sm={4}>
-                            Khóa Download theo danh mục:
-                          </Label>
+                          <Label sm={4}> Khóa Download theo danh mục:</Label>
                           <Label check>
-                            <Input type="checkbox" id="" name="" />&nbsp;
+                            <Input type="checkbox" id="checkBlockDownload" name="" />&nbsp;
                           </Label>
                         </FormGroup>
-                        <Row>
+                        <Row className="group-block-download">
                           <Col xs="3">
                             <FormGroup>
-                              <Label htmlFor="collection-categories">
-                                Danh mục
-                              </Label>
+                              <Label htmlFor="categories">Danh mục</Label>
                               <Input
                                 onChange={this.onChangeMultiple}
                                 type="select"
                                 name="cateIds"
-                                id="collection-categories"
+                                id="categories"
                                 multiple
                                 className={
                                   this.state.error.cateIds && 'is-invalid'
@@ -737,16 +740,14 @@ export class UserEdit extends React.PureComponent {
                               </div>
                             </FormGroup>
                           </Col>
-                          <Col xs="3">
+                          <Col xs="2">
                             <FormGroup>
-                              <Label htmlFor="collection-subjects">
-                                Môn học
-                              </Label>
+                              <Label htmlFor="subjects">Môn học</Label>
                               <Input
                                 onChange={this.onChangeMultiple}
                                 type="select"
                                 name="subjectIds"
-                                id="collection-subjects"
+                                id="subjects"
                                 multiple
                                 className={
                                   this.state.error.subjectIds && 'is-invalid'
@@ -766,14 +767,14 @@ export class UserEdit extends React.PureComponent {
                               </div>
                             </FormGroup>
                           </Col>
-                          <Col xs="3">
+                          <Col xs="2">
                             <FormGroup>
-                              <Label htmlFor="collection-classes">Lớp</Label>
+                              <Label htmlFor="classes">Lớp</Label>
                               <Input
                                 onChange={this.onChangeMultiple}
                                 type="select"
                                 name="classIds"
-                                id="collection-classes"
+                                id="classes"
                                 multiple
                                 className={
                                   this.state.error.classIds && 'is-invalid'
@@ -793,16 +794,14 @@ export class UserEdit extends React.PureComponent {
                               </div>
                             </FormGroup>
                           </Col>
-                          <Col xs="3">
+                          <Col xs="2">
                             <FormGroup>
-                              <Label htmlFor="collection-school-year">
-                                Năm học
-                              </Label>
+                              <Label htmlFor="school-year">Năm học</Label>
                               <Input
                                 onChange={this.onChangeMultiple}
                                 type="select"
                                 name="yearSchools"
-                                id="collection-school-year"
+                                id="school-year"
                                 multiple
                                 className={
                                   this.state.error.yearSchools && 'is-invalid'
@@ -819,6 +818,31 @@ export class UserEdit extends React.PureComponent {
                                       {`${v + idx} - ${v + idx + 1}`}
                                     </option>
                                   ))}
+                              </Input>
+                              <div className="invalid-feedback">
+                                {this.state.error.yearSchools}
+                              </div>
+                            </FormGroup>
+                          </Col>
+                          <Col xs="3">
+                            <FormGroup>
+                              <Label htmlFor="collections"> Bộ sưu tập</Label>
+                              <Input
+                                onChange={this.onChangeMultiple}
+                                type="select"
+                                name="collections"
+                                id="collections"
+                                multiple
+                                className={
+                                  this.state.error.yearSchools && 'is-invalid'
+                                }
+                                value={this.state.formData.yearSchools}
+                              >
+                                {get(this.props, 'dataInit.collections', [])
+                                  .map(i => (
+                                    <option key={i.id} value={i.id}>
+                                      {i.name}
+                                    </option>))}
                               </Input>
                               <div className="invalid-feedback">
                                 {this.state.error.yearSchools}
