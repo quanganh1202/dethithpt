@@ -133,7 +133,7 @@ export class SubjectCreate extends React.PureComponent {
               <BreadcrumbItem>
                 <Link to="/subjects">Môn học</Link>
               </BreadcrumbItem>
-              <BreadcrumbItem active>Xem chi Tiết</BreadcrumbItem>
+              <BreadcrumbItem active>Sửa môn học</BreadcrumbItem>
             </Breadcrumb>
           </Col>
         </Row>
@@ -142,7 +142,7 @@ export class SubjectCreate extends React.PureComponent {
             <Col xl={6}>
               <Card>
                 <CardHeader>
-                  <i className="fa fa-align-justify" /> Xem chi tiết môn học
+                  <i className="fa fa-align-justify" /> Thông tin chung
                 </CardHeader>
                 <CardBody>
                   <Alert
