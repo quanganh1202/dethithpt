@@ -1,13 +1,11 @@
 # Use Node v8.9.0 LTS
-FROM ubuntu
+FROM ubuntu:16.04
 
 # Setup app working directory
 WORKDIR /usr/src/app
 
-RUN apt-get update && apt-get install libreoffice curl -y
-RUN apt-get update && apt-get install graphicsmagick ghostscript -y
+RUN apt-get update && apt-get install libreoffice graphicsmagick ghostscript nodejs -y
 
-RUN apt-get install -y nodejs
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
