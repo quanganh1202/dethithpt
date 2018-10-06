@@ -21,7 +21,6 @@ USE dethithpt;
     `note1` TEXT(255) NULL,
     `note2` TEXT(255) NULL,
     `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    `blockTo` TIMESTAMP NULL,
     `blockFrom` TIMESTAMP NULL,
     `blockDownloadCollections` VARCHAR(255) NULL,
     `blockDownloadCategories` VARCHAR(255) NULL,

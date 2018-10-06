@@ -18,10 +18,6 @@
       "type": "string",
       "minLength": 1
     },
-    "blockTo": {
-      "type": "string",
-      "minLength": 1
-    },
     "blockDownloadCollections": {
       "type": "string",
       "minLength": 1

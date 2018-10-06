@@ -38,11 +38,10 @@ const checkUserActivation = async (userId) => {
       error: 'This user need to provide enough infomation',
     };
   case '3':
-    if (moment(user[0].blockTo) >= moment.now()) {
+    if (moment(user[0].blockFrom) <= moment.now()) {
       return {
         status: 400,
-        error: `Account has been blocked from ${
-          moment(user[0].blockFrom).format('YYYY-MM-DDTHH:mm:ss.SSS')} to ${moment(user[0].blockTo).format('YYYY-MM-DDTHH:mm:ss.SSS')}`,
+        error: `Account has been blocked from ${moment(user[0].blockFrom).format('YYYY-MM-DDTHH:mm:ss.SSS')}`,
       };
     }
     break;
@@ -396,22 +395,19 @@ async function blockUser(id, userId, body) {
       blockDownloadCategories,
       blockDownloadSubjects,
       blockFrom,
-      blockTo,
       status,
     } = body;
     const queryBody = Object.assign({}, body);
     switch (status) {
     case '3':
-      if (!blockTo) {
+      if (!blockFrom) {
         return {
           status: 400,
-          error: 'The end date of block should be provided. The start date auto get the date now if is empty',
+          error: 'The start date of block should be provided',
         };
       }
       body.blockFrom = queryBody.blockFrom =
       blockFrom ? moment(blockFrom).format('YYYY-MM-DDTHH:mm:ss.SSS') : moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
-      body.blockTo = queryBody.blockTo =
-      moment(blockTo).format('YYYY-MM-DDTHH:mm:ss.SSS');
       break;
     case '4':
       if (!blockDownloadCollections && !blockDownloadCategories && !blockDownloadSubjects) {

@@ -29,7 +29,6 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     position VARCHAR(45) NULL,
     note1 TEXT(255) NULL,
     note2 TEXT(255) NULL,
-    blockTo TIMESTAMP NULL,
     blockFrom TIMESTAMP NULL,
     blockDownloadCollections VARCHAR(255) NULL,
     blockDownloadCategories VARCHAR(255) NULL,

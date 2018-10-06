@@ -72,10 +72,6 @@
       "type": "string",
       "minLength": 1
     },
-    "blockTo": {
-      "type": "string",
-      "minLength": 1
-    },
     "blockFrom": {
       "type": "string",
       "minLength": 1
