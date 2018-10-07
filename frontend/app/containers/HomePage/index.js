@@ -50,6 +50,7 @@ import {
   requestDownload,
   removeFileSave,
   removeMessage,
+  updateQuery,
 } from './actions';
 import {
   makeSelectUser,
@@ -192,6 +193,11 @@ export class HomePage extends React.PureComponent {
     ) {
       // get document's collections
       this.props.getCollections(nextProps.queryCollection);
+    }
+    // If user get out of category route then get collection by default
+    if (this.props.location.pathname.split('/')[1] === 'danh-muc'
+    && this.props.location.pathname.split('/')[1] !== nextProps.location.pathname.split('/')[1]) {
+      this.props.updateQuery({});
     }
   }
 
@@ -375,13 +381,14 @@ export class HomePage extends React.PureComponent {
           title="Bộ sưu tập nổi bật"
           content={
             <List
-              items={this.props.collections.sort((a, b) => b.numDocRefs - a.numDocRefs)}
+              items={this.props.collections}
               component={({ item }) => (
                 <TabList
                   item={{
                     link: `/bo-suu-tap/${item.id}`,
                     title: item.name,
                     quantity: item.numDocRefs || 0,
+                    priority: pathname.includes('danh-muc') ? item.priorityCate : item.priority,
                   }}
                 />
               )}
@@ -621,6 +628,7 @@ export function mapDispatchToProps(dispatch) {
     removeMessage: () => dispatch(removeMessage()),
     clearData: () => dispatch(clearData()),
     getUserDetail: (id) => dispatch(getUserDetail(id)),
+    updateQuery: (query) => dispatch(updateQuery(query)),
   };
 }
 

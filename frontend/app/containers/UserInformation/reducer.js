@@ -18,7 +18,10 @@ import { setToken, mappingUser } from 'services/auth';
 // The initial state of the App
 export const initialState = fromJS({
   user: null,
-  message: ''
+  history: [],
+  upload: [],
+  download: [],
+  message: '',
 });
 
 function homeReducer(state = initialState, action) {
@@ -28,7 +31,10 @@ function homeReducer(state = initialState, action) {
     case GET_USER_DETAILS.SUCCESS:
       return state
         .set('loading', false)
-        .set('user', action.user);
+        .set('user', action.user)
+        .set('history', fromJS(action.history))
+        .set('upload', fromJS(action.upload))
+        .set('download', fromJS(action.download));
     case GET_USER_DETAILS.FAILURE:
       return state.set('loading', true);
     default:
