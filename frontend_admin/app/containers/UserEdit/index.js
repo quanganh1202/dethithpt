@@ -8,6 +8,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import CKEditor from 'components/CKEditor';
 import { Helmet } from 'react-helmet';
+import moment from 'moment';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Link } from 'react-router-dom';
@@ -182,6 +183,7 @@ export class UserEdit extends React.PureComponent {
       .set('blockDownloadCategories', data.get('blockDownloadCategories', '').split(','))
       .set('blockDownloadCollections', data.get('blockDownloadCollections', '').split(','))
       .set('blockDownloadSubjects', data.get('blockDownloadSubjects', '').split(','))
+      .set('blockFrom', moment(data.get('blockFrom', '')))
       .delete('createdAt')
       .delete('updatedAt')
       .delete('numOfDownloaded')
@@ -189,13 +191,34 @@ export class UserEdit extends React.PureComponent {
   }
 
   mappingUserToSave(data) {
-    return data
-      .set('blockDownloadCategories', data.get('blockDownloadCategories', []).join(','))
-      .set('blockDownloadCollections', data.get('blockDownloadCollections', []).join(','))
-      .set('blockDownloadSubjects', data.get('blockDownloadSubjects', []).join(','))
+    const newData = data
       .set('money', `${parseInt(this.state.formData.get('money', 0)) + parseInt(this.state.formData.get('deposit'))}`)
+      .delete('blockDownloadCategories')
+      .delete('blockDownloadCollections')
+      .delete('blockDownloadSubjects')
+      .delete('blockFrom')
+      .delete('status')
       .delete('email')
       .delete('deposit');
+    const blockUser = {
+      status: data.get('status'),
+    };
+    if (data.get('status') === '3') {
+      blockUser.blockFrom = data.get('blockFrom');
+    }
+    if (data.get('status') === '4') {
+      blockUser.blockDownloadCategories = data.get('blockDownloadCategories', []).join(',');
+      blockUser.blockDownloadSubjects = data.get('blockDownloadCollections', []).join(',');
+      blockUser.blockDownloadCollections = data.get('blockDownloadSubjects', []).join(',');
+    }
+    const dataBlock = { ...blockUser };
+    Object.keys(dataBlock).forEach(v => {
+      if (!blockUser[v]) delete blockUser[v];
+    });
+    return {
+      user: newData.toJS(),
+      blockUser,
+    };
   }
 
   onChangeEditor(evt) {
@@ -250,8 +273,10 @@ export class UserEdit extends React.PureComponent {
     });
     if (!Object.keys(error).length) {
       if (!this.props.location.search.split('=')[1]) {
+        const { user, blockUser } = this.mappingUserToSave(this.state.formData);
         this.props.updateUser(
-          this.mappingUserToSave(this.state.formData).toJS(),
+          user,
+          blockUser,
           this.props.match.params.id,
         );
       } else {
@@ -927,11 +952,12 @@ export class UserEdit extends React.PureComponent {
 
 UserEdit.propTypes = {
   loading: PropTypes.bool,
+  clearData: PropTypes.func,
 };
 
 export function mapDispatchToProps(dispatch) {
   return {
-    updateUser: (data, id) => dispatch(updateUser(data, id)),
+    updateUser: (data, blockUser, id) => dispatch(updateUser(data, blockUser, id)),
     getUserDetail: id => dispatch(getUserDetail(id)),
     getDataInit: () => dispatch(getDataInit()),
     clearMessage: () => dispatch(clearMessage()),
