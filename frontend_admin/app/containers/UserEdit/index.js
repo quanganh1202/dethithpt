@@ -180,9 +180,6 @@ export class UserEdit extends React.PureComponent {
     return data
       .set('notifyStatus', data.get('notifyStatus') || '0')
       .set('notifyText', data.get('notifyText') || '')
-      .set('blockDownloadCategories', data.get('blockDownloadCategories', '').split(','))
-      .set('blockDownloadCollections', data.get('blockDownloadCollections', '').split(','))
-      .set('blockDownloadSubjects', data.get('blockDownloadSubjects', '').split(','))
       .set('blockFrom', moment(data.get('blockFrom', '')))
       .delete('createdAt')
       .delete('updatedAt')
@@ -230,7 +227,7 @@ export class UserEdit extends React.PureComponent {
 
   onChangeMultiple(e) {
     const { name, selectedOptions } = e.currentTarget;
-    const newFormData = this.state.formData.set(name, Array.prototype.slice.call(selectedOptions).map(i => i.value));
+    const newFormData = this.state.formData.set(name, fromJS(Array.prototype.slice.call(selectedOptions).map(i => i.value)));
     this.setState({
       formData: newFormData,
     });
@@ -797,7 +794,7 @@ export class UserEdit extends React.PureComponent {
                                 id="blockDownloadCategories"
                                 multiple
                                 disabled={this.state.formData.get('status') !== '4' ? true : false}
-                                value={this.state.formData.get('blockDownloadCategories', [])}
+                                value={this.state.formData.get('blockDownloadCategories', fromJS([])).toJS()}
                               >
                                 {get(this.props, 'dataInit.categories', []).map(
                                   i => (
@@ -819,7 +816,7 @@ export class UserEdit extends React.PureComponent {
                                 id="blockDownloadSubjects"
                                 multiple
                                 disabled={this.state.formData.get('status') !== '4' ? true : false}
-                                value={this.state.formData.get('blockDownloadSubjects', [])}
+                                value={this.state.formData.get('blockDownloadSubjects', fromJS([])).toJS()}
                               >
                                 {get(this.props, 'dataInit.subjects', []).map(
                                   i => (
@@ -841,7 +838,7 @@ export class UserEdit extends React.PureComponent {
                                 id="blockDownloadClasses"
                                 multiple
                                 disabled={this.state.formData.get('status') !== '4' ? true : false}
-                                value={this.state.formData.get('blockDownloadClasses', [])}
+                                value={this.state.formData.get('blockDownloadClasses', fromJS([])).toJS()}
                               >
                                 {get(this.props, 'dataInit.classes', []).map(
                                   i => (
@@ -863,7 +860,7 @@ export class UserEdit extends React.PureComponent {
                                 id="blockDownloadYearschool"
                                 multiple
                                 disabled={this.state.formData.get('status') !== '4' ? true : false}
-                                value={this.state.formData.get('blockDownloadYearschool', [])}
+                                value={this.state.formData.get('blockDownloadYearschool', fromJS([])).toJS()}
                               >
                                 {Array(21)
                                   .fill(new Date().getFullYear() - 20)
@@ -888,7 +885,7 @@ export class UserEdit extends React.PureComponent {
                                 id="blockDownloadCollections"
                                 multiple
                                 disabled={this.state.formData.get('status') !== '4' ? true : false}
-                                value={this.state.formData.get('blockDownloadCollections', [])}
+                                value={this.state.formData.get('blockDownloadCollections', fromJS([])).toJS()}
                               >
                                 {get(this.props, 'dataInit.collections', [])
                                   .map(i => (
