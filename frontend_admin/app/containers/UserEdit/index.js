@@ -180,7 +180,7 @@ export class UserEdit extends React.PureComponent {
     return data
       .set('notifyStatus', data.get('notifyStatus') || '0')
       .set('notifyText', data.get('notifyText') || '')
-      .set('blockFrom', moment(data.get('blockFrom', '')))
+      .set('blockFrom', data.get('blockFrom') ? moment(data.get('blockFrom')) : '')
       .delete('createdAt')
       .delete('updatedAt')
       .delete('numOfDownloaded')
