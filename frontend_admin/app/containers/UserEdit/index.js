@@ -241,22 +241,24 @@ export class UserEdit extends React.PureComponent {
   onChange(e) {
     const { name, value, checked } = e.currentTarget;
     let newData;
+    const status = this.props.user.get('status');
     switch (name) {
       case 'notifyStatus':
         newData = this.state.formData.set(name, checked ? '1' : '0');
         break;
       case 'checkBlocked':
-        newData = this.state.formData.set('status', checked ? '0' : this.state.formData.status);
+        newData = this.state.formData.set('status', checked ? '0' : status);
         break;
       case 'checkBlockDate':
-        newData = this.state.formData.set('status', checked ? '3' : this.state.formData.status);
+        newData = this.state.formData.set('status', checked ? '3' : status);
         break;
       case 'checkBlockDownload':
-        newData = this.state.formData.set('status', checked ? '4' : this.state.formData.status);
+        newData = this.state.formData.set('status', checked ? '4' : status);
         break;
       default:
         newData = this.state.formData.set(name, value);
     }
+    console.log(newData.get('status'));
     this.setState({ formData: newData });
   }
 
@@ -400,10 +402,10 @@ export class UserEdit extends React.PureComponent {
                     <Row>
                       <Col xs="12">
                         <FormGroup row>
-                          <Label htmlFor="email" sm={3}>
+                          <Label htmlFor="email" sm={4}>
                             Email:
                           </Label>
-                          <Col sm={9}>
+                          <Col sm={8}>
                             <Input
                               sm={10}
                               type="text"
@@ -425,10 +427,10 @@ export class UserEdit extends React.PureComponent {
                     <Row>
                       <Col xs="12">
                         <FormGroup row>
-                          <Label htmlFor="name" sm={3}>
+                          <Label htmlFor="name" sm={4}>
                             Tên đầy đủ:
                           </Label>
-                          <Col sm={9}>
+                          <Col sm={8}>
                             <Input
                               type="text"
                               id="name"
@@ -448,10 +450,10 @@ export class UserEdit extends React.PureComponent {
                     <Row>
                       <Col xs="12">
                         <FormGroup row>
-                          <Label htmlFor="phone" sm={3}>
+                          <Label htmlFor="phone" sm={4}>
                             Số điện thoại:
                           </Label>
-                          <Col sm={9}>
+                          <Col sm={8}>
                             <Input
                               type="text"
                               id="phone"
@@ -471,7 +473,7 @@ export class UserEdit extends React.PureComponent {
                     <Row>
                       <Col xs="12">
                         <FormGroup row>
-                          <Label htmlFor="bod" sm={3}>
+                          <Label htmlFor="bod" sm={4}>
                             Năm sinh:
                           </Label>
                           <Col sm={5}>
@@ -504,10 +506,10 @@ export class UserEdit extends React.PureComponent {
                     <Row>
                       <Col xs="12">
                         <FormGroup row>
-                          <Label htmlFor="role" sm={3}>
+                          <Label htmlFor="role" sm={4}>
                             Bạn là:
                           </Label>
-                          <Col sm={9}>
+                          <Col sm={8}>
                             <Input
                               type="select"
                               name="role"
@@ -531,7 +533,7 @@ export class UserEdit extends React.PureComponent {
                     <Row>
                       <Col xs="12">
                         <FormGroup row>
-                          <Label htmlFor="level" sm={3}>
+                          <Label htmlFor="level" sm={4}>
                             Lớp:
                           </Label>
                           <Col sm={5}>
@@ -561,10 +563,10 @@ export class UserEdit extends React.PureComponent {
                     <Row>
                       <Col xs="12">
                         <FormGroup row>
-                          <Label htmlFor="city" sm={3}>
+                          <Label htmlFor="city" sm={4}>
                             Thành phố:
                           </Label>
-                          <Col sm={9}>
+                          <Col sm={8}>
                             <Input
                               type="select"
                               name="city"
@@ -591,10 +593,10 @@ export class UserEdit extends React.PureComponent {
                     <Row>
                       <Col xs="12">
                         <FormGroup row>
-                          <Label htmlFor="district" sm={3}>
+                          <Label htmlFor="district" sm={4}>
                             Quận/Huyện:
                           </Label>
-                          <Col sm={9}>
+                          <Col sm={8}>
                             <Input
                               type="select"
                               name="district"
@@ -634,10 +636,10 @@ export class UserEdit extends React.PureComponent {
                     <Row>
                       <Col xs="12">
                         <FormGroup row>
-                          <Label htmlFor="school" sm={3}>
+                          <Label htmlFor="school" sm={4}>
                             Trường học:
                           </Label>
-                          <Col sm={9}>
+                          <Col sm={8}>
                             <Input
                               type="select"
                               name="school"
@@ -671,7 +673,7 @@ export class UserEdit extends React.PureComponent {
                     <Row>
                       <Col xs="12">
                         <FormGroup row>
-                          <Label htmlFor="name" sm={3}>
+                          <Label htmlFor="group" sm={3}>
                             Nhóm thành viên:
                           </Label>
                           <Col sm={5}>
