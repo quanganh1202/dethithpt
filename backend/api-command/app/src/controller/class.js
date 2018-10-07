@@ -6,6 +6,7 @@ import { dataValidator } from '../libs/ajv';
 import { exception } from '../constant/error';
 import rabbitSender from '../../rabbit/sender';
 import * as roles from '../constant/roles';
+import { isUndefined } from 'util';
 
 const classModel = new Class;
 const createSchema = 'http://dethithpt.com/class-create-schema#';
@@ -65,6 +66,12 @@ async function createClass(body) {
         error: `Class ${body.name} already existed`,
         status: 400,
       };
+    }
+    if (!isUndefined(body.priority)) {
+      body.priority = user[0].role === roles.ADMIN ? body.priority : 0;
+    }
+    if (!isUndefined(body.position)) {
+      body.position = user[0].role === roles.ADMIN ? body.position : 0;
     }
     const queryBody = Object.assign({}, body);
     queryBody.userName = user[0].name;
