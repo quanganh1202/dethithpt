@@ -1,4 +1,5 @@
 import moment from 'moment';
+import { isUndefined } from 'util';
 import Subject from '../model/subject';
 import User from '../model/user';
 import logger from '../libs/logger';
@@ -71,7 +72,12 @@ async function createSubject(body) {
         status: 400,
       };
     }
-
+    if (!isUndefined(body.priority)) {
+      body.priority = user[0].role === roles.ADMIN ? body.priority : 0;
+    }
+    if (!isUndefined(body.position)) {
+      body.position = user[0].role === roles.ADMIN ? body.position : 0;
+    }
     const res = await subModel.addNewSubject(body);
     const queryBody = Object.assign({}, body, {
       userName: user[0].name,

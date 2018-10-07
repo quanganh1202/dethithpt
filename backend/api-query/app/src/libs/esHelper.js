@@ -70,7 +70,7 @@ const sortParamsHandler = (sort) => {
         throw new Error('Sort type can only be asc or desc');
       }
       pre[
-        extractString[0] === 'createdAt' || extractString[0] === 'updatedAt' ? extractString[0] : `${extractString[0]}.raw`
+        ['createdAt', 'updatedAt', 'priority'].includes(extractString[0]) ? extractString[0] : `${extractString[0]}.raw`
       ] = extractString[1];
 
       return pre;
@@ -85,7 +85,7 @@ const sortParamsHandler = (sort) => {
 
       return {
         [
-        sortToArray[0] === 'createdAt' || sortToArray[0] === 'updatedAt' ? sortToArray[0] : `${sortToArray[0]}.raw`
+        ['createdAt', 'updatedAt', 'priority'].includes(sortToArray[0]) ? sortToArray[0] : `${sortToArray[0]}.raw`
         ]: sortToArray[1],
       };
     })() : undefined;

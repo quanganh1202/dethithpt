@@ -74,6 +74,9 @@ async function createCollection(body) {
     if (!isUndefined(body.priority)) {
       body.priority = user[0].role === roles.ADMIN ? body.priority : 0;
     }
+    if (!isUndefined(body.position)) {
+      body.position = user[0].role === roles.ADMIN ? body.position : 0;
+    }
     const queryBody = Object.assign({}, body);
     if (cateIds && cateIds.length) {
       const cateModel = new Category();

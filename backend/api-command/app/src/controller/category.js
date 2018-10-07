@@ -71,7 +71,10 @@ async function createCategory(body) {
     const user = await checkUserActivation(userId);
     if (user.error) return user;
     if (!isUndefined(body.priority)) {
-      body.priority = user[0].role === 'admin' ? body.priority : 0;
+      body.priority = user[0].role === roles.ADMIN ? body.priority : 0;
+    }
+    if (!isUndefined(body.position)) {
+      body.position = user[0].role === roles.ADMIN ? body.position : 0;
     }
     const { insertId } = await cateModel.addNewCategory(body);
     const queryBody = Object.assign({}, body, {
