@@ -194,12 +194,12 @@ export default {
         promise.concat([...promiseUpdateCates]);
       }
       if (subjects && subjects.length && body.approved) {
-        const promiseUpdateCates = updateNumDocRefToCate(cates, constant.INCREASE);
-        promise.concat([...promiseUpdateCates]);
+        const promiseUpdateSubjects = updateNumDocRefToSubject(subjects, constant.INCREASE);
+        promise.concat([...promiseUpdateSubjects]);
       }
       if (classes && classes.length && body.approved) {
-        const promiseUpdateCates = updateNumDocRefToCate(cates, constant.INCREASE);
-        promise.concat([...promiseUpdateCates]);
+        const promiseUpdateClass = updateNumDocRefToClass(classes, constant.INCREASE);
+        promise.concat([...promiseUpdateClass]);
       }
       if (collections && collections.length && body.approved) {
         const promiseUpdateCollections = updateNumDocRefToCollection(collections, constant.INCREASE);

@@ -126,14 +126,7 @@
           "type": "text"
         },
         "money": {
-          "type": "text",
-          "analyzer": "autocomplete",
-          "search_analyzer": "standard",
-          "fields": {
-            "raw": {
-              "type": "keyword"
-            }
-          }
+          "type": "integer"
         },
         "status": {
           "type": "text"
