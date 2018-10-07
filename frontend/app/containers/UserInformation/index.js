@@ -49,6 +49,12 @@ import winrarIcon from 'images/winrar.png';
 
 library.add(faTv, faCopy, faUserCircle, faChartLine, faFileInvoiceDollar, faClock);
 
+const numberWithCommas = x => {
+  const parts = x.toString().split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return parts.join('.');
+};
+
 const mappingIconType = (type) => {
   switch (type) {
     case 'doc':
@@ -182,6 +188,7 @@ export class UserInformation extends React.PureComponent {
                   <th>#</th>
                   <th>Loại giao dịch</th>
                   <th>Tài liệu</th>
+                  <th>Số tiền</th>
                   <th>Ngày giao dịch</th>
                 </tr>
               </thead>
@@ -195,6 +202,9 @@ export class UserInformation extends React.PureComponent {
                     <td>
                       {i.get('action') === 'PURCHASE'
                         && <Link to={`/tai-lieu/${i.get('docId')}`}>{i.get('docName')}</Link>}
+                    </td>
+                    <td>
+                      {numberWithCommas(i.get('money', 0))}
                     </td>
                     <td className="list-item-created-at">
                       <FontAwesomeIcon className={'info-icon'} icon={['far', 'clock']} style={{ marginRight: '5px' }} />
