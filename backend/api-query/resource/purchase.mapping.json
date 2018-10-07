@@ -51,14 +51,7 @@
           }
         },
         "money": {
-          "type": "text",
-          "analyzer": "autocomplete",
-          "search_analyzer": "standard",
-          "fields": {
-            "raw": {
-              "type": "integer"
-            }
-          }
+          "type": "integer"
         },
         "action": {
           "type": "keyword"
