@@ -14,3 +14,4 @@ const container = 'thpt/newsEdit';
 export const UPDATE_NEWS = defineAction('UPDATE_NEWS', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
 export const GET_NEWS_DETAIL = defineAction('GET_NEWS_DETAIL', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
 export const CLEAR_MESSAGE = defineAction('CLEAR_MESSAGE', container);
+export const CLEAR_DATA = defineAction('CLEAR_DATA', container);

@@ -2,6 +2,7 @@ import {
   GET_CLASSES,
   DELETE_CLASSES,
   CLEAR_PROCESS_STATUS,
+  UPDATE_CLASSES,
 } from './constants';
 
 /**
@@ -65,8 +66,36 @@ export function deleteClassesSuccess() {
  *
  * @return {object}    An action object with a type of CLEAR_PROCESS_STATUS
  */
-export function clearProcessStatus() {
+export function clearProcessStatus(all) {
   return {
     type: CLEAR_PROCESS_STATUS,
+    all,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} name The new text of the input field
+ *
+ * @return {object}    An action object with a type of UPDATE_CLASSES.REQUEST
+ */
+export function updateClasses(classes) {
+  return {
+    type: UPDATE_CLASSES.REQUEST,
+    classes,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} name The new text of the input field
+ *
+ * @return {object}    An action object with a type of UPDATE_CLASSES.SUCCESS
+ */
+export function updateClassesSuccess() {
+  return {
+    type: UPDATE_CLASSES.SUCCESS,
   };
 }

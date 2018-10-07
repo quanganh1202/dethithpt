@@ -13,3 +13,4 @@ import { defineAction } from 'redux-define';
 const container = 'thpt/newsCreate';
 export const CREATE_NEWS = defineAction('CREATE_NEWS', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
 export const CLEAR_MESSAGE = defineAction('CLEAR_MESSAGE', container);
+export const GET_NEWS = defineAction('GET_NEWS', ['REQUEST', 'SUCCESS', 'FAILURE'], container);

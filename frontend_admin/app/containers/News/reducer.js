@@ -12,11 +12,14 @@
 import { fromJS } from 'immutable';
 import {
   GET_NEWS,
+  DELETE_NEWS,
+  CLEAR_PROCESS_STATUS,
 } from './constants';
 
 // The initial state of the App
 export const initialState = fromJS({
   news: [],
+  processDone: false,
 });
 
 function newsReducer(state = initialState, action) {
@@ -27,6 +30,15 @@ function newsReducer(state = initialState, action) {
       return state
         .set('loading', false)
         .set('news', fromJS(action.news));
+    case CLEAR_PROCESS_STATUS:
+      const newState = action.all ? state.set('news', fromJS([])) : state; 
+      return newState.set('processDone', false);
+    case DELETE_NEWS.REQUEST:
+      return state.set('loading', true);
+    case DELETE_NEWS.SUCCESS:
+      return state
+        .set('loading', false)
+        .set('processDone', true);
     default:
       return state;
   }

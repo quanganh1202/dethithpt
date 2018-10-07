@@ -15,3 +15,4 @@ export const GET_DOC_DETAIL = defineAction('GET_DOC_DETAIL', ['REQUEST', 'SUCCES
 export const EDIT_DOC = defineAction('EDIT_DOC', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
 export const GET_DATA_INIT = defineAction('GET_DATA_INIT', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
 export const CLEAR_MESSAGE = defineAction('CLEAR_MESSAGE', container);
+export const CLEAR_DATA = defineAction('CLEAR_DATA', container);

@@ -39,7 +39,7 @@ function subjectEditReducer(state = initialState, action) {
     case CLEAR_MESSAGE:
       return state.set('message', '');
     case CLEAR_DATA:
-      return state.set('data', {});
+      return state.set('data', fromJS({}));
     default:
       return state;
   }

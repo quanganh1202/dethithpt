@@ -13,8 +13,12 @@ const makeSelectMessage = () =>
 const makeSelectLoading = () =>
   createSelector(selectHome, newsState => newsState.get('loading'));
 
+const makeSelectNews = () =>
+  createSelector(selectHome, newsState => newsState.get('news').toJS());
+
 export {
   selectHome,
   makeSelectMessage,
   makeSelectLoading,
+  makeSelectNews,
 };

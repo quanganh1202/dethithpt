@@ -2,6 +2,7 @@ import {
   GET_SUBJECTS,
   DELETE_SUBJECTS,
   CLEAR_PROCESS_STATUS,
+  UPDATE_SUBJECTS,
 } from './constants';
 
 /**
@@ -65,8 +66,36 @@ export function deleteSubjectsSuccess() {
  *
  * @return {object}    An action object with a type of CLEAR_PROCESS_STATUS
  */
-export function clearProcessStatus() {
+export function clearProcessStatus(all) {
   return {
     type: CLEAR_PROCESS_STATUS,
+    all,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} name The new text of the input field
+ *
+ * @return {object}    An action object with a type of UPDATE_SUBJECTS.REQUEST
+ */
+export function updateSubjects(subjects) {
+  return {
+    type: UPDATE_SUBJECTS.REQUEST,
+    subjects,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} name The new text of the input field
+ *
+ * @return {object}    An action object with a type of UPDATE_SUBJECTS.SUCCESS
+ */
+export function updateSubjectsSuccess() {
+  return {
+    type: UPDATE_SUBJECTS.SUCCESS,
   };
 }

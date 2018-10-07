@@ -13,8 +13,12 @@ const makeSelectNews = () =>
 const makeSelectLoading = () =>
   createSelector(selectHome, newsState => newsState.get('loading'));
 
+const makeSelectProcessStatus = () =>
+  createSelector(selectHome, subjectState => subjectState.get('processDone'));
+
 export {
   selectHome,
   makeSelectNews,
   makeSelectLoading,
+  makeSelectProcessStatus,
 };

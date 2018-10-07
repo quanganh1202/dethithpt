@@ -14,6 +14,7 @@ import {
   GET_COLLECTIONS,
   DELETE_COLLECTIONS,
   CLEAR_PROCESS_STATUS,
+  UPDATE_COLLECTIONS,
 } from './constants';
 
 // The initial state of the App
@@ -37,7 +38,14 @@ function collectionReducer(state = initialState, action) {
         .set('loading', false)
         .set('processDone', true);
     case CLEAR_PROCESS_STATUS:
-      return state.set('processDone', false);
+      const newState = action.all ? state.set('collections', fromJS([])) : state; 
+      return newState.set('processDone', false);
+    case UPDATE_COLLECTIONS.REQUEST:
+      return state.set('loading', true);
+    case UPDATE_COLLECTIONS.SUCCESS:
+      return state
+        .set('loading', false)
+        .set('processDone', true);
     default:
       return state;
   }

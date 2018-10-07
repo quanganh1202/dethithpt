@@ -128,7 +128,7 @@ export class ClassCreate extends React.PureComponent {
               <BreadcrumbItem>
                 <Link to="/classes">Lớp</Link>
               </BreadcrumbItem>
-              <BreadcrumbItem active>Xem chi tiết</BreadcrumbItem>
+              <BreadcrumbItem active>Sửa lớp</BreadcrumbItem>
             </Breadcrumb>
           </Col>
         </Row>
@@ -137,7 +137,7 @@ export class ClassCreate extends React.PureComponent {
             <Col xl={6}>
               <Card>
                 <CardHeader>
-                  <i className="fa fa-align-justify" /> Xem chi tiết lớp
+                  <i className="fa fa-align-justify" /> Thông tin chung
                 </CardHeader>
                 <CardBody>
                   <Alert

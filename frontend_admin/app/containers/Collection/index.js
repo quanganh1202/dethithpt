@@ -29,7 +29,7 @@ import styled from 'styled-components';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
-import { getCollections, deleteCollections, clearProcessStatus } from './actions';
+import { getCollections, deleteCollections, clearProcessStatus, updateCollections } from './actions';
 import { makeSelectCollections, makeSelectLoading, makeSelectProcessStatus } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
@@ -53,8 +53,12 @@ export class Collection extends React.PureComponent {
     super();
     this.state = {
       selectedCollections: [],
+      collections: [],
+      changedCollections: [],
     };
     this.handleSelectCollections = this.handleSelectCollections.bind(this);
+    this.handleSavePosition = this.handleSavePosition.bind(this);
+    this.handleChangePosition = this.handleChangePosition.bind(this);
   }
 
   componentWillMount() {
@@ -70,6 +74,15 @@ export class Collection extends React.PureComponent {
       this.props.getCollections();
       this.props.clearProcessStatus();
     }
+    if (!_.isEqual(nextProps.collections, this.props.collections)) {
+      this.setState({
+        collections: nextProps.collections,
+      });
+    }
+  }
+
+  componentWillUnmount() {
+    this.props.clearProcessStatus(true);
   }
 
   renderCollectionRow(collections) {
@@ -99,21 +112,29 @@ export class Collection extends React.PureComponent {
         <td>{item.numDocRefs}</td>
         <td style={{ textAlign: 'center' }}>
           <button
-            onClick={() => {}}
+            onClick={() => this.props.updateCollections([{ id: item.id, priority: item.priority ? 0 : 1 }])}
             title="Nổi bật trang chủ"
           >
-            <i className={`fa ${item.priorityHome ? 'fa-check' : 'fa-close'} fa-lg`} aria-hidden="true"></i>
+            <i className={`fa ${item.priority ? 'fa-check' : 'fa-close'} fa-lg`} aria-hidden="true"></i>
           </button>
         </td>
         <td style={{ textAlign: 'center' }}>
           <button
-            onClick={() => {}}
+            onClick={() => this.props.updateCollections([{ id: item.id, priorityCate: item.priorityCate ? 0 : 1 }])}
             title="Nổi bật danh mục"
           >
             <i className={`fa ${item.priorityCate ? 'fa-check' : 'fa-close'} fa-lg`} aria-hidden="true"></i>
           </button>
         </td>
-        <td></td>
+        <td>
+          <input
+            style={{ border: '1px solid #ccc', maxWidth: '50px'}}
+            type="number"
+            name={`position-item-${item.id}-${idx}`}
+            value={item.position}
+            onChange={this.handleChangePosition}
+          />
+        </td>
       </tr>
     ));
   }
@@ -132,6 +153,29 @@ export class Collection extends React.PureComponent {
       });
     }
   }
+
+  handleSavePosition() {
+    if (this.state.changedCollections.length) {
+      const updatedCollections = this.state.collections
+        .filter((item) => this.state.changedCollections.includes(item.id))
+        .map((item) => ({ id: item.id, position: parseInt(item.position) }))
+      this.props.updateCollections(updatedCollections);
+    }
+  }
+
+  handleChangePosition(e) {
+    const { name, value } = e.currentTarget;
+    const field = name.split('-')[0];
+    const item = name.split('-')[2];
+    const index = name.split('-')[3];
+    const collections = _.cloneDeep(this.state.collections);
+    collections[index] = { ...this.state.collections[index], [field]: value };
+    this.setState({
+      collections,
+      changedCollections: _.uniq([ ...this.state.changedCollections, item ]),
+    })
+  }
+
 
   render() {
     return (
@@ -152,7 +196,7 @@ export class Collection extends React.PureComponent {
               <Card>
                 <CardHeader>
                   <i className="fa fa-align-justify" /> Bộ sưu tập
-                  <div className="float-right">
+                  <div className="float-right" style={{ marginLeft: '10px' }}>
                     <Button
                       block
                       color="primary"
@@ -169,7 +213,7 @@ export class Collection extends React.PureComponent {
                       block
                       color="warning"
                       size="sm"
-                      onClick={() => {}}
+                      onClick={this.handleSavePosition}
                       style={{ color: 'white' }}
                     >Sắp xếp</Button>
                   </div>
@@ -212,7 +256,7 @@ export class Collection extends React.PureComponent {
                       </tr>
                     </thead>
                     <tbody>
-                      {this.renderCollectionRow(this.props.collections)}
+                      {this.renderCollectionRow(this.state.collections)}
                     </tbody>
                   </Table>
                 </CardBody>
@@ -233,7 +277,8 @@ export function mapDispatchToProps(dispatch) {
   return {
     getCollections: () => dispatch(getCollections()),
     deleteCollections: (id) => dispatch(deleteCollections(id)),
-    clearProcessStatus: () => dispatch(clearProcessStatus()),
+    clearProcessStatus: (all) => dispatch(clearProcessStatus(all)),
+    updateCollections: (collections) => dispatch(updateCollections(collections)),
   };
 }
 

@@ -5,10 +5,11 @@ import axios from 'axios';
 import _ from 'lodash';
 import { all, call, put, takeLatest } from 'redux-saga/effects';
 import { getToken } from 'services/auth';
-import { GET_CATEGORIES_REQUEST, DELETE_CATES } from './constants';
+import { GET_CATEGORIES_REQUEST, DELETE_CATES, UPDATE_CATES } from './constants';
 import {
   getCategoriesSuccess,
   deleteCatesSuccess,
+  updateCategoriesSuccess,
 } from './actions';
 
 const root = '/api';
@@ -69,9 +70,34 @@ export function* deleteCatesHandler({ ids }) {
 }
 
 /**
+ * Request update categories
+ */
+export function* updateCatesHandler({ cates }) {
+  const options = {
+    headers: {
+      ['x-access-token']: getToken(),
+    }
+  }
+
+  try {
+    yield all(cates.map((i) => {
+      const item = { ...i };
+      const url = `${root}/categories/${item.id}`;
+      delete item.id;
+      return call(axios.put, url, item, options);
+    }));
+    yield put(updateCategoriesSuccess());
+  } catch (err) {
+    console.log(err);
+    // yield put(loginFailure(err));
+  }
+}
+
+/**
  * Root saga manages watcher lifecycle
  */
 export default function* homeSaga() {
   yield takeLatest(GET_CATEGORIES_REQUEST, getCategoriesHandler);
   yield takeLatest(DELETE_CATES.REQUEST, deleteCatesHandler);
+  yield takeLatest(UPDATE_CATES.REQUEST, updateCatesHandler);
 }

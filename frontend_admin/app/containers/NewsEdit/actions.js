@@ -2,6 +2,7 @@ import {
   UPDATE_NEWS,
   CLEAR_MESSAGE,
   GET_NEWS_DETAIL,
+  CLEAR_DATA,
 } from './constants';
 
 /**
@@ -52,11 +53,24 @@ export function updateNewsFailure(error) {
  *
  * @param  {name} name The new text of the input field
  *
- * @return {object}    An action object with a type of CREATE_CATEGORY.SUCCESS
+ * @return {object}    An action object with a type of CLEAR_DATA
  */
 export function clearMessage() {
   return {
     type: CLEAR_MESSAGE,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} name The new text of the input field
+ *
+ * @return {object}    An action object with a type of CLEAR_DATA
+ */
+export function clearData() {
+  return {
+    type: CLEAR_DATA,
   };
 }
 
