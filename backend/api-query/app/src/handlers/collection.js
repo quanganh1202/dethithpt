@@ -111,8 +111,8 @@ export default {
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.createdAt = now;
       body.numDocRefs = 0;
-      body.position = 0;
-      body.priority = 0;
+      body.position = !body.position ? 0 : body.position;
+      body.priority = !body.priority ? 0 : body.priority;
       const result = await elasticsearch.insert(body, collectionId);
 
       return result;
