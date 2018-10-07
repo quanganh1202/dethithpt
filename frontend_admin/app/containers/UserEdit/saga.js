@@ -42,8 +42,9 @@ export function* getDetailUserHandler({ id }) {
 /**
  * Request update user
  */
-export function* updateUserHandler({ data, id }) {
+export function* updateUserHandler({ data, blockUser, id }) {
   const url = `${root}/users/${id}`;
+  const urlBlock = `${root}/users/block/${id}`;
   const options = {
     headers: {
       'x-access-token': getToken(),
@@ -51,6 +52,7 @@ export function* updateUserHandler({ data, id }) {
   };
   try {
     yield call(axios.put, url, data, options);
+    yield call(axios.put, urlBlock, blockUser, options);
     yield put(updateUserSuccess());
     yield put(push('/users'));
     // yield getDetailUserHandler({ id });

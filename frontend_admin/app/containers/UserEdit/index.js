@@ -8,6 +8,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import CKEditor from 'components/CKEditor';
 import { Helmet } from 'react-helmet';
+import moment from 'moment';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Link } from 'react-router-dom';
@@ -179,9 +180,7 @@ export class UserEdit extends React.PureComponent {
     return data
       .set('notifyStatus', data.get('notifyStatus') || '0')
       .set('notifyText', data.get('notifyText') || '')
-      .set('blockDownloadCategories', data.get('blockDownloadCategories', '').split(','))
-      .set('blockDownloadCollections', data.get('blockDownloadCollections', '').split(','))
-      .set('blockDownloadSubjects', data.get('blockDownloadSubjects', '').split(','))
+      .set('blockFrom', moment(data.get('blockFrom', '')))
       .delete('createdAt')
       .delete('updatedAt')
       .delete('numOfDownloaded')
@@ -189,13 +188,34 @@ export class UserEdit extends React.PureComponent {
   }
 
   mappingUserToSave(data) {
-    return data
-      .set('blockDownloadCategories', data.get('blockDownloadCategories', []).join(','))
-      .set('blockDownloadCollections', data.get('blockDownloadCollections', []).join(','))
-      .set('blockDownloadSubjects', data.get('blockDownloadSubjects', []).join(','))
+    const newData = data
       .set('money', `${parseInt(this.state.formData.get('money', 0)) + parseInt(this.state.formData.get('deposit'))}`)
+      .delete('blockDownloadCategories')
+      .delete('blockDownloadCollections')
+      .delete('blockDownloadSubjects')
+      .delete('blockFrom')
+      .delete('status')
       .delete('email')
       .delete('deposit');
+    const blockUser = {
+      status: data.get('status'),
+    };
+    if (data.get('status') === '3') {
+      blockUser.blockFrom = data.get('blockFrom');
+    }
+    if (data.get('status') === '4') {
+      blockUser.blockDownloadCategories = data.get('blockDownloadCategories', []).join(',');
+      blockUser.blockDownloadSubjects = data.get('blockDownloadCollections', []).join(',');
+      blockUser.blockDownloadCollections = data.get('blockDownloadSubjects', []).join(',');
+    }
+    const dataBlock = { ...blockUser };
+    Object.keys(dataBlock).forEach(v => {
+      if (!blockUser[v]) delete blockUser[v];
+    });
+    return {
+      user: newData.toJS(),
+      blockUser,
+    };
   }
 
   onChangeEditor(evt) {
@@ -207,7 +227,7 @@ export class UserEdit extends React.PureComponent {
 
   onChangeMultiple(e) {
     const { name, selectedOptions } = e.currentTarget;
-    const newFormData = this.state.formData.set(name, Array.prototype.slice.call(selectedOptions).map(i => i.value));
+    const newFormData = this.state.formData.set(name, fromJS(Array.prototype.slice.call(selectedOptions).map(i => i.value)));
     this.setState({
       formData: newFormData,
     });
@@ -250,8 +270,10 @@ export class UserEdit extends React.PureComponent {
     });
     if (!Object.keys(error).length) {
       if (!this.props.location.search.split('=')[1]) {
+        const { user, blockUser } = this.mappingUserToSave(this.state.formData);
         this.props.updateUser(
-          this.mappingUserToSave(this.state.formData).toJS(),
+          user,
+          blockUser,
           this.props.match.params.id,
         );
       } else {
@@ -772,7 +794,7 @@ export class UserEdit extends React.PureComponent {
                                 id="blockDownloadCategories"
                                 multiple
                                 disabled={this.state.formData.get('status') !== '4' ? true : false}
-                                value={this.state.formData.get('blockDownloadCategories', [])}
+                                value={this.state.formData.get('blockDownloadCategories', fromJS([])).toJS()}
                               >
                                 {get(this.props, 'dataInit.categories', []).map(
                                   i => (
@@ -794,7 +816,7 @@ export class UserEdit extends React.PureComponent {
                                 id="blockDownloadSubjects"
                                 multiple
                                 disabled={this.state.formData.get('status') !== '4' ? true : false}
-                                value={this.state.formData.get('blockDownloadSubjects', [])}
+                                value={this.state.formData.get('blockDownloadSubjects', fromJS([])).toJS()}
                               >
                                 {get(this.props, 'dataInit.subjects', []).map(
                                   i => (
@@ -816,7 +838,7 @@ export class UserEdit extends React.PureComponent {
                                 id="blockDownloadClasses"
                                 multiple
                                 disabled={this.state.formData.get('status') !== '4' ? true : false}
-                                value={this.state.formData.get('blockDownloadClasses', [])}
+                                value={this.state.formData.get('blockDownloadClasses', fromJS([])).toJS()}
                               >
                                 {get(this.props, 'dataInit.classes', []).map(
                                   i => (
@@ -838,7 +860,7 @@ export class UserEdit extends React.PureComponent {
                                 id="blockDownloadYearschool"
                                 multiple
                                 disabled={this.state.formData.get('status') !== '4' ? true : false}
-                                value={this.state.formData.get('blockDownloadYearschool', [])}
+                                value={this.state.formData.get('blockDownloadYearschool', fromJS([])).toJS()}
                               >
                                 {Array(21)
                                   .fill(new Date().getFullYear() - 20)
@@ -863,7 +885,7 @@ export class UserEdit extends React.PureComponent {
                                 id="blockDownloadCollections"
                                 multiple
                                 disabled={this.state.formData.get('status') !== '4' ? true : false}
-                                value={this.state.formData.get('blockDownloadCollections', [])}
+                                value={this.state.formData.get('blockDownloadCollections', fromJS([])).toJS()}
                               >
                                 {get(this.props, 'dataInit.collections', [])
                                   .map(i => (
@@ -927,11 +949,12 @@ export class UserEdit extends React.PureComponent {
 
 UserEdit.propTypes = {
   loading: PropTypes.bool,
+  clearData: PropTypes.func,
 };
 
 export function mapDispatchToProps(dispatch) {
   return {
-    updateUser: (data, id) => dispatch(updateUser(data, id)),
+    updateUser: (data, blockUser, id) => dispatch(updateUser(data, blockUser, id)),
     getUserDetail: id => dispatch(getUserDetail(id)),
     getDataInit: () => dispatch(getDataInit()),
     clearMessage: () => dispatch(clearMessage()),

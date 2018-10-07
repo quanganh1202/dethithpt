@@ -108,11 +108,15 @@ export function* getCategoriesHandler() {
  */
 export function* getCollectionsHandler({ queryCollection }) {
   const url = `${root}/collections`;
-
+  const sort = [ queryCollection.cateId ? 'priorityCate.desc' : 'priority.desc', 'position.desc']
+  const options = {
+    params: {
+      ...queryCollection,
+      sort,
+    },
+  };
   try {
-    const resp = yield call(axios.get, url, {
-      params: queryCollection,
-    });
+    const resp = yield call(axios.get, url, options);
     yield put(getCollectionsSuccess(resp.data.data));
   } catch (err) {
     // yield put(loginFailure(err));
