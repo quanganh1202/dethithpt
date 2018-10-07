@@ -19,6 +19,7 @@ import { faMoneyBillAlt } from '@fortawesome/free-regular-svg-icons';
 import UploadDocument from 'containers/UploadDocument/Loadable';
 import DocumentDetails from 'containers/DocumentDetails/Loadable';
 import NewsDetails from 'containers/NewsDetails/Loadable';
+import Collection from 'containers/Collection/Loadable';
 import Category from 'containers/Category/Loadable';
 import Payment from 'containers/Payment/Loadable';
 import SearchResult from 'containers/SearchResult/Loadable';
@@ -554,6 +555,11 @@ export class HomePage extends React.PureComponent {
                         exact
                         path="/tin-tuc/:id"
                         component={NewsDetails}
+                      />
+                      <Route
+                        exact
+                        path="/bo-suu-tap/:id"
+                        component={Collection}
                       />
                       <Route exact path="/danh-muc/:id" component={Category} />
                       <Route exact path="/tim-kiem" component={SearchResult} />

@@ -9,7 +9,7 @@
  * export const YOUR_ACTION_CONSTANT = 'yourproject/YourContainer/YOUR_ACTION_CONSTANT';
  */
 
-const container = 'thpt/category';
+const container = 'thpt/collection';
 export const GET_FILTER_DATA_REQUEST = 'thpt/DocumentDetails/GET_FILTER_DATA/REQUEST';
 export const GET_FILTER_DATA_SUCCESS = 'thpt/DocumentDetails/GET_FILTER_DATA/SUCCESS';
 export const GET_DOC_LIST_REQUEST = 'thpt/DocumentDetails/GET_DOC_LIST/REQUEST';
