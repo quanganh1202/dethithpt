@@ -214,7 +214,7 @@ class DetailForm extends React.Component {
     const { subjects, classes, categories, tags, collections } = this.props;
     return (
       <Wrapper>
-        {formData.get('name') ? (
+        {this.props.name ? (
           <div className="form-group">
             <label htmlFor="name">
               Tên tài liệu <i className="required">(*)</i>

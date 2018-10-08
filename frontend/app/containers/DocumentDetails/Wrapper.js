@@ -1,7 +1,8 @@
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
-  p, ul {
+  p,
+  ul {
     margin: 0;
   }
   .grey-box > .content {
@@ -19,7 +20,7 @@ const Wrapper = styled.div`
       margin-bottom: 15px;
     }
   }
-  
+
   .doc-details {
     .doc-title {
       text-align: center;
@@ -40,12 +41,13 @@ const Wrapper = styled.div`
       }
       > ul > li {
         margin-bottom: 0;
-        font-size: 0.8em;
+        font-size: 0.95em;
         float: left;
         padding: 0 5px;
         border-right: 1px solid black;
         list-style: none;
         color: red;
+
         &:first-child {
           padding-left: 0;
         }
@@ -61,7 +63,8 @@ const Wrapper = styled.div`
 
     .doc-action {
       border-bottom: 1px dashed darkgrey;
-      .btn-download, .btn-view {
+      .btn-download,
+      .btn-view {
         padding: 12px 10px;
         border-radius: 10px;
         color: white;
@@ -70,8 +73,18 @@ const Wrapper = styled.div`
       .btn-download {
         position: relative;
         background-color: orange;
+
         img {
           display: none;
+        }
+      }
+
+      .btn-download,
+      .btn-view {
+        cursor: pointer;
+
+        :hover {
+          opacity: 0.8;
         }
       }
       .btn-view {
@@ -84,10 +97,11 @@ const Wrapper = styled.div`
           display: unset;
         }
       }
-      .btn-report, .btn-favorite {
+      .btn-report,
+      .btn-favorite {
         padding: 3px 5px;
         color: white;
-        font-size: 0.8em;
+        font-size: 0.9em;
         font-weight: bold;
         border-radius: 5px;
         margin: 10px 5px 10px 0;
@@ -164,7 +178,7 @@ const Wrapper = styled.div`
     font-weight: bold;
     padding: 5px 10px;
     color: #3f48cc;
-    background-color: #E5E5E5;
+    background-color: #e5e5e5;
     > span.bold {
       color: black;
     }

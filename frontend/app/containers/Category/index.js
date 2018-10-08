@@ -38,7 +38,7 @@ import {
   makeSelectDocuments,
   makeSelectFilterData,
 } from './selectors';
-import { makeSelectFile, makeSelectMessage } from 'containers/HomePage/selectors'
+import { makeSelectFile, makeSelectMessage, makeSelectCategories } from 'containers/HomePage/selectors'
 import reducer from './reducer';
 import saga from './saga';
 import GreyTitle from 'containers/HomePage/GreyTitle';
@@ -195,16 +195,19 @@ export class Category extends React.PureComponent {
   }
 
   render() {
+    const categories = _.get(this.props, 'categories', []);
+    const currentCat = categories.find((c) => c.id ===  this.props.match.params.id);
+    const catName = _.get(currentCat, 'name', '');
     return (
       <Wrapper>
         <Helmet>
-          <title>Danh mục</title>
+          <title>Danh mục: {catName}</title>
           <meta name="description" content="Description of UploadDocument" />
         </Helmet>
         <Tab
           key="bo-loc-danh-muc"
           style={{ background: 'white' }}
-          title={'Đề thi thử THPT Quốc Gia'}
+          title={`Danh mục: ${catName}`}
           className="doc-filters"
           content={
             <React.Fragment>
@@ -357,6 +360,7 @@ const mapStateToProps = createStructuredSelector({
   loading: makeSelectLoading(),
   file: makeSelectFile(),
   message: makeSelectMessage(),
+  categories: makeSelectCategories(),
 });
 
 const withConnect = connect(
