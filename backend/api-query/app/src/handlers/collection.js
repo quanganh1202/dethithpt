@@ -113,6 +113,7 @@ export default {
       body.numDocRefs = 0;
       body.position = !body.position ? 0 : body.position;
       body.priority = !body.priority ? 0 : body.priority;
+      body.priorityCate = !body.priorityCate ? 0 : body.priorityCate;
       const result = await elasticsearch.insert(body, collectionId);
 
       return result;
