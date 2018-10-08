@@ -6,7 +6,8 @@ const routerDefine =  function defineRouter() {
   const route = express.Router();
 
   route.post('/login', async (req, res) => {
-    const { token, expiresIn, error, status } = await auth(req.body);
+    const { admin } = req.query;
+    const { token, expiresIn, error, status } = await auth(req.body, admin);
     if (error) {
       res.status(error.status || 401).json({
         error,

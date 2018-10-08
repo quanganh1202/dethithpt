@@ -26,18 +26,19 @@ const checkUserActivation = async (userId) => {
     };
   }
 
-  switch (user[0].status.toString()) {
-  case '0':
+  switch (user[0].status) {
+  case 0:
     return {
       status: 400,
       error: 'Account has been blocked',
     };
-  case '2':
+  case 2:
     return {
       status: 400,
-      error: 'This user need to provide enough infomation',
+      error: 'You must be provide required infomation',
     };
-  case '3':
+
+  case 3:
     if (moment(user[0].blockFrom) <= moment.now()) {
       return {
         status: 400,
@@ -52,7 +53,7 @@ const checkUserActivation = async (userId) => {
   return user;
 };
 
-async function auth(info) {
+async function auth(info, admin) {
   try {
     const { fbToken, ggToken } = info;
     if (!fbToken && !ggToken) {
@@ -106,6 +107,13 @@ async function auth(info) {
         return {
           status: 423,
           error: 'Account has been locked',
+        };
+      }
+
+      if (!isUndefined(admin) && user[0].role !== roles.ADMIN) {
+        return {
+          status: 403,
+          error: 'Forbidden: Only account admin can login to admin site',
         };
       }
 
@@ -270,7 +278,7 @@ async function updateUser(id, userInfo) {
         error: resValidate.errors,
       };
     }
-    const { email, phone, userId, notifyText, notifyStatus } = userInfo;
+    const { email, phone, userId, notifyText, notifyStatus, status } = userInfo;
     const actor = await checkUserActivation(userId);
     if (actor.error) return actor;
     const existed = await userModel.getById(id);
@@ -302,6 +310,13 @@ async function updateUser(id, userInfo) {
 
     if (notifyText && isUndefined(notifyStatus)) {
       userInfo.notifyStatus = 1;
+    }
+
+    if (!isUndefined(status) && role !== roles.ADMIN) {
+      return {
+        status: 400,
+        error: 'Only role admin can update field status',
+      };
     }
     const criteria = [ { email }, { phone }];
     const user = await userModel.getList(criteria);
@@ -399,7 +414,7 @@ async function blockUser(id, userId, body) {
     } = body;
     const queryBody = Object.assign({}, body);
     switch (status) {
-    case '3':
+    case 3:
       if (!blockFrom) {
         return {
           status: 400,
@@ -409,7 +424,7 @@ async function blockUser(id, userId, body) {
       body.blockFrom = queryBody.blockFrom =
       blockFrom ? moment(blockFrom).format('YYYY-MM-DDTHH:mm:ss.SSS') : moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       break;
-    case '4':
+    case 4:
       if (!blockDownloadCollections && !blockDownloadCategories && !blockDownloadSubjects) {
         return {
           status: 400,
