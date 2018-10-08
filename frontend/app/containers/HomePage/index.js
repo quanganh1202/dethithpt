@@ -386,14 +386,17 @@ export class HomePage extends React.PureComponent {
             <List
               items={this.props.collections}
               component={({ item }) => (
-                <TabList
-                  item={{
-                    link: `/bo-suu-tap/${item.id}`,
-                    title: item.name,
-                    quantity: item.numDocRefs || 0,
-                    priority: pathname.includes('danh-muc') ? item.priorityCate : item.priority,
-                  }}
-                />
+                this.props.loading ? null : (
+                  <TabList
+                    item={{
+                      link: `/bo-suu-tap/${item.id}`,
+                      title: item.name,
+                      quantity: item.numDocRefs || 0,
+                      priority: pathname.includes('danh-muc') ? (item.priorityCate || 0) : (item.priority || 0),
+                      active: pathname.includes('bo-suu-tap') && pathname.split('/').pop() === item.id ? true : false,
+                    }}
+                  />
+                )
               )}
             />
           }

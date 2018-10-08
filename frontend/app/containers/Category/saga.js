@@ -10,7 +10,6 @@ import {
   getFilterDataSuccess,
   getDocumentsListSuccess,
 } from './actions';
-import { makeSelectUsername } from 'containers/HomePage/selectors';
 
 const root = '/api';
 

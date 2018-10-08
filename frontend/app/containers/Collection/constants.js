@@ -10,7 +10,5 @@
  */
 
 const container = 'thpt/collection';
-export const GET_FILTER_DATA_REQUEST = 'thpt/DocumentDetails/GET_FILTER_DATA/REQUEST';
-export const GET_FILTER_DATA_SUCCESS = 'thpt/DocumentDetails/GET_FILTER_DATA/SUCCESS';
-export const GET_DOC_LIST_REQUEST = 'thpt/DocumentDetails/GET_DOC_LIST/REQUEST';
-export const GET_DOC_LIST_SUCCESS = 'thpt/DocumentDetails/GET_DOC_LIST/SUCCESS';
+export const GET_DOC_LIST_REQUEST = `${container}/GET_DOC_LIST/REQUEST`;
+export const GET_DOC_LIST_SUCCESS = `${container}/GET_DOC_LIST/SUCCESS`;

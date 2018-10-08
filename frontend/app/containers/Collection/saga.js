@@ -3,44 +3,32 @@
  */
 import axios from 'axios';
 import _ from 'lodash';
-import { all, call, put, select, takeLatest } from 'redux-saga/effects';
-import request from 'utils/request';
-import { GET_FILTER_DATA_REQUEST, GET_DOC_LIST_REQUEST } from './constants';
+import { all, call, put, takeLatest } from 'redux-saga/effects';
+import { getToken } from 'services/auth';
+import { GET_DOC_LIST_REQUEST } from './constants';
 import {
-  getFilterDataSuccess,
   getDocumentsListSuccess,
 } from './actions';
-import { makeSelectUsername } from 'containers/HomePage/selectors';
 
 const root = '/api';
 
 /**
- * Request to get document details by id
- */
-export function* getFilterDataHandler() {
-  try {
-    const resp = yield all([
-      call(axios.get, `${root}/subjects`),
-      call(axios.get, `${root}/classes`),
-    ]);
-    const subjects = _.get(resp, '[0].data.data');
-    const classes = _.get(resp, '[1].data.data');
-    yield put(getFilterDataSuccess({ subjects, classes }));
-  } catch (err) {
-    // yield put(loginFailure(err));
-  }
-}
-
-/**
  * Request get document list
  */
-export function* getDocumentsListHandler({ query }) {
+export function* getDocumentsListHandler({ id, query }) {
   const url = `${root}/documents`;
+  const options = {
+    headers: {
+      ['x-access-token']: getToken(),
+    },
+  };
 
   try {
-    const resp = yield call(axios.get, url, { params: query });
-    yield put(getDocumentsListSuccess(resp.data));
+    const collection = yield call(axios.get, `${root}/collections/${id}`, options);
+    const resp = yield call(axios.get, url, { params: query }, options);
+    yield put(getDocumentsListSuccess(resp.data, collection.data.data));
   } catch (err) {
+    console.log(err.response);
     // yield put(loginFailure(err));
   }
 }
@@ -49,6 +37,5 @@ export function* getDocumentsListHandler({ query }) {
  * Root saga manages watcher lifecycle
  */
 export default function* homeSaga() {
-  yield takeLatest(GET_FILTER_DATA_REQUEST, getFilterDataHandler);
-  yield takeLatest(GET_DOC_LIST_REQUEST, getDocumentsListHandler)
+  yield takeLatest(GET_DOC_LIST_REQUEST, getDocumentsListHandler);
 }
