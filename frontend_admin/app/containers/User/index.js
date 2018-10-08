@@ -110,6 +110,12 @@ const numberWithCommas = x => {
   return parts.join('.');
 };
 
+const mappingRolePosition = {
+  admin: 'Admin',
+  student: 'Học sinh',
+  teacher: 'Giáo viên',
+  other: 'Khác',
+};
 /* eslint-disable react/prefer-stateless-function */
 export class User extends React.PureComponent {
   constructor() {
@@ -214,7 +220,7 @@ export class User extends React.PureComponent {
         <td>{moment(item.createdAt).format('DD/MM/YYYY')}</td>
         <td>{item.name}</td>
         <td>{item.email}</td>
-        <td>{item.role}</td>
+        <td>{mappingRolePosition[item.role === 'admin' ? 'admin' : item.position]}</td>
         <td>{item.phone}</td>
         <td>{item.bod}</td>
         <td>{item.level}</td>
