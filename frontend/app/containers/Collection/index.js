@@ -30,13 +30,12 @@ import Tab from 'components/Tab';
 import List from 'components/List';
 import ListItem from 'components/ListItem';
 import LoadingIndicator from 'components/LoadingIndicator';
-import { getFilterData, getDocumentsList } from './actions';
+import { getDocumentsList, getCollection } from './actions';
 import { requestDownload, removeFileSave, removeMessage, updateQuery } from 'containers/HomePage/actions';
 import {
-  makeSelectDocument,
+  makeSelectCollection,
   makeSelectLoading,
   makeSelectDocuments,
-  makeSelectFilterData,
 } from './selectors';
 import { makeSelectFile, makeSelectMessage } from 'containers/HomePage/selectors'
 import reducer from './reducer';
@@ -54,7 +53,7 @@ const errorMapping = {
 }
 
 /* eslint-disable react/prefer-stateless-function */
-export class Category extends React.PureComponent {
+export class Collection extends React.PureComponent {
   constructor() {
     super();
     this.state = {
@@ -68,26 +67,22 @@ export class Category extends React.PureComponent {
       downloadingFile: '',
     };
     this.loadMoreDocs = this.loadMoreDocs.bind(this);
-    this.handleChangeFilter = this.handleChangeFilter.bind(this);
   }
 
   componentWillMount() {
     window.scrollTo(0, 0);
-    // get filter data
-    this.props.getFilterData();
-
     const queries = {
       sort: 'createdAt.desc',
       size: itemsPerLoad,
     };
     if (this.props.match.params.id) {
-      queries.collectionIds = this.props.match.params.id;
+      queries.collectionId = this.props.match.params.id;
       // Update filter for Collections
       // this.props.updateQuery({
       //   cateId: this.props.match.params.id,
       // });
+      this.props.getDocumentsList(this.props.match.params.id, queries, true);
     }
-    this.props.getDocumentsList(queries, true);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -96,9 +91,9 @@ export class Category extends React.PureComponent {
       const queries = {
         sort: 'createdAt.desc',
         size: itemsPerLoad,
-        cateId: nextProps.match.params.id,
+        collectionId: nextProps.match.params.id,
       };
-      this.props.getDocumentsList(queries, true);
+      this.props.getDocumentsList(nextProps.match.params.id, queries, true);
       this.setState({
         filter: {
           subjectId: '',
@@ -126,37 +121,6 @@ export class Category extends React.PureComponent {
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    const currentFilter = {
-      ...this.state.filter,
-      cateId: this.props.match.params.id,
-    };
-    const prevFilter = {
-      ...prevState.filter,
-      cateId: prevProps.match.params.id,
-    };
-
-    if (!_.isEqual(currentFilter, prevFilter)) {
-      const queryCollection = {
-        cateId: currentFilter.cateId,
-      };
-      Object.keys(currentFilter).forEach(key => {
-        if (
-          ['classId', 'subjectId', 'yearSchools'].includes(key) &&
-          currentFilter[key] &&
-          _.isArray(currentFilter[key]) &&
-          currentFilter[key].length > 0
-        ) {
-          queryCollection[key] = currentFilter[key]
-            .map(t => t.value)
-            .toString();
-        }
-      });
-
-      // this.props.updateQuery(queryCollection);
-    }
-  }
-
   loadMoreDocs() {
     const { filter } = this.state;
     const queries = {
@@ -169,38 +133,28 @@ export class Category extends React.PureComponent {
         queries[f] = filter[f].map((i) => i.value).join(',');
       }
     })
-    this.props.getDocumentsList(queries);
-  }
-
-  handleChangeFilter(name, options) {
-    const newFilter = {
-      ...this.state.filter,
-      [name]: options,
-    }
-    const queries = {
-      sort: `createdAt.${newFilter.sort.value}` || 'createdAt.desc',
-      offset: 0,
-      size: itemsPerLoad,
-      cateId: this.props.match.params.id,
-    }
-    Array.from(['subjectId', 'classId', 'yearSchools']).forEach((filter) => {
-      if (newFilter[filter] && newFilter[filter].length > 0) {
-        queries[filter] = newFilter[filter].map((i) => i.value).join(',');
-      }
-    })
-    this.props.getDocumentsList(queries, true);
-    this.setState({
-      filter: newFilter,
-    });
+    this.props.getDocumentsList(this.props.match.params.id, queries);
   }
 
   render() {
+    console.log(this.props.collection);
     return (
       <Wrapper>
         <Helmet>
-          <title>Danh mục</title>
+          <title>Bộ sưu tập</title>
           <meta name="description" content="Description of UploadDocument" />
         </Helmet>
+        <Tab
+          key="bo-loc-danh-muc"
+          style={{ background: 'white' }}
+          title={this.props.loading ? <p style={{ minHeight: '19px' }}></p> : this.props.collection.name}
+          className="doc-filters"
+          content={
+            this.props.loading ? null : (
+              <div style={{ padding: '0 10px' }} dangerouslySetInnerHTML={{ __html: this.props.collection.description }} />
+            )
+          }
+        />
         <Tab
           key="latest-docs"
           title="Tài liệu khác liên quan"
@@ -232,7 +186,7 @@ export class Category extends React.PureComponent {
   }
 }
 
-Category.propTypes = {
+Collection.propTypes = {
   loading: PropTypes.bool,
   error: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
   repos: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
@@ -244,9 +198,8 @@ Category.propTypes = {
 
 export function mapDispatchToProps(dispatch) {
   return {
-    getFilterData: () => dispatch(getFilterData()),
-    getDocumentsList: (query, clear) =>
-      dispatch(getDocumentsList(query, clear)),
+    getDocumentsList: (collectionId, query, clear) =>
+      dispatch(getDocumentsList(collectionId, query, clear)),
     requestDownload: id => dispatch(requestDownload(id)),
     removeFileSave: () => dispatch(removeFileSave()),
     removeMessage: () => dispatch(removeMessage()),
@@ -255,9 +208,8 @@ export function mapDispatchToProps(dispatch) {
 }
 
 const mapStateToProps = createStructuredSelector({
-  document: makeSelectDocument(),
+  collection: makeSelectCollection(),
   documents: makeSelectDocuments(),
-  filterData: makeSelectFilterData(),
   loading: makeSelectLoading(),
   file: makeSelectFile(),
   message: makeSelectMessage(),
@@ -275,4 +227,4 @@ export default compose(
   withReducer,
   withSaga,
   withConnect,
-)(Category);
+)(Collection);
