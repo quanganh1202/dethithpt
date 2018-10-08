@@ -100,7 +100,6 @@ export class UserInformation extends React.PureComponent {
   }
 
   renderContent(tab) {
-    console.log(this.props.download.toJS());
     switch (tab) {
       case 1:
         return <GeneralInformation user={this.props.user} />;

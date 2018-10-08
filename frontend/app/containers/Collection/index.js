@@ -77,10 +77,6 @@ export class Collection extends React.PureComponent {
     };
     if (this.props.match.params.id) {
       queries.collectionId = this.props.match.params.id;
-      // Update filter for Collections
-      // this.props.updateQuery({
-      //   cateId: this.props.match.params.id,
-      // });
       this.props.getDocumentsList(this.props.match.params.id, queries, true);
     }
   }
@@ -103,11 +99,6 @@ export class Collection extends React.PureComponent {
         },
         resetKey: Math.random(),
       });
-
-      // Update filter for Collections
-      // this.props.updateQuery({
-      //   cateId: nextProps.match.params.id,
-      // });
     }
     if (!this.props.file && nextProps.file) {
       const blob = new Blob([nextProps.file]);
@@ -146,7 +137,6 @@ export class Collection extends React.PureComponent {
           <title>Bộ sưu tập</title>
           <meta name="description" content="Description of UploadDocument" />
         </Helmet>
-        <Tab className="hidden-content" title={`Danh mục: ${colName}`} />
         <Tab
           key="bo-loc-danh-muc"
           style={{ background: 'white' }}

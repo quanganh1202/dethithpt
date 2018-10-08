@@ -36,7 +36,6 @@ export function* getUserDetailsHandler({ id }) {
     const history = resp[1].data.data;
     const download = resp[2].data.data;
     const upload = resp[3].data.data.filter((i) => parseInt(i.userId) === parseInt(id));
-    console.log('upload', download);
     yield put(getUserDetailsSuccess({ user, history, upload, download }));
   } catch (err) {
     yield put(getUserDetailsFailure(err));
