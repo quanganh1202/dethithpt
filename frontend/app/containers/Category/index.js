@@ -162,6 +162,11 @@ export class Category extends React.PureComponent {
       mappedQueries.offset = 0;
       mappedQueries.size = itemsPerLoad;
       this.props.getDocumentsList(mappedQueries, true);
+      if (!nextProps.location.search) {
+        this.setState({
+          resetKey: Math.random(),
+        });
+      }
     }
   }
 
