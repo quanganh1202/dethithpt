@@ -119,6 +119,23 @@ const Wrapper = styled.div`
       padding: 3px;
     }
   }
+  .wrapper-loading {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    opacity: 0.7;
+    top: 0;
+    left: 0;
+    position: fixed;
+    z-index: 999999;
+
+    .loading-icon {
+      position: absolute;
+      left: 50%;
+      top: 200px;
+      z-index: 999;
+    }
+  }
 `;
 
 /* eslint-disable react/prefer-stateless-function */
@@ -205,21 +222,27 @@ export class UserEdit extends React.PureComponent {
       .delete('status')
       .delete('email')
       .delete('deposit');
-    const blockUser = {
-      status: data.get('status'),
-    };
-    if (data.get('status') === 4) {
+    const blockUser = {};
+    if (data.get('status') === 3) {
       blockUser.blockFrom = data.get('blockFrom');
     }
     if (data.get('status') === 4) {
-      blockUser.blockDownloadCategories = data.get('blockDownloadCategories', []).join(',');
-      blockUser.blockDownloadSubjects = data.get('blockDownloadCollections', []).join(',');
-      blockUser.blockDownloadCollections = data.get('blockDownloadSubjects', []).join(',');
+      blockUser.blockDownloadCategories = data
+        .get('blockDownloadCategories', [])
+        .join(',');
+      blockUser.blockDownloadSubjects = data
+        .get('blockDownloadCollections', [])
+        .join(',');
+      blockUser.blockDownloadCollections = data
+        .get('blockDownloadSubjects', [])
+        .join(',');
     }
     const dataBlock = { ...blockUser };
     Object.keys(dataBlock).forEach(v => {
       if (!blockUser[v]) delete blockUser[v];
     });
+    blockUser.status = data.get('status');
+
     const notRequire = ['money', 'notifyText'];
     notRequire.forEach(v => {
       if (!newData.get(v)) newData = newData.delete(v);
@@ -325,6 +348,13 @@ export class UserEdit extends React.PureComponent {
     );
     return (
       <Wrapper>
+        {this.props.loading && (
+          <div className="wrapper-loading">
+            <div className="loading-icon">
+              <LoadingIndicator />
+            </div>
+          </div>
+        )}
         <Row>
           <Col xl={12}>
             <Breadcrumb>
