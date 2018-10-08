@@ -52,7 +52,7 @@ const checkUserActivation = async (userId) => {
   return user;
 };
 
-async function auth(info) {
+async function auth(info, admin) {
   try {
     const { fbToken, ggToken } = info;
     if (!fbToken && !ggToken) {
@@ -106,6 +106,13 @@ async function auth(info) {
         return {
           status: 423,
           error: 'Account has been locked',
+        };
+      }
+
+      if (!isUndefined(admin) && user[0].role !== roles.ADMIN) {
+        return {
+          status: 403,
+          error: 'Forbidden: Only account admin can login to admin site',
         };
       }
 
