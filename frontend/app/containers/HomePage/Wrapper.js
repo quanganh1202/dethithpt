@@ -20,21 +20,6 @@ const HomeWrapper = styled.div`
     text-align: center;
     color: green;
   }
-  .document-title {
-    text-align: left;
-    font-size: 0.9em;
-    font-weight: bold;
-    padding: 5px 10px;
-    color: #3f48cc;
-    background-color: #e5e5e5;
-    > span.bold {
-      color: black;
-    }
-  }
-  .popup-content {
-    min-width: 100px;
-    min-height: 100px;
-  }
 `;
 
 export default HomeWrapper;

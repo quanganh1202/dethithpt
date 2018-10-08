@@ -73,6 +73,7 @@ import {
   makeSelectIsShowPreview,
   makeSelectImagesPreview,
 } from './selectors';
+import styled from 'styled-components';
 import { makeSelectCurrentUser, makeSelectPopout } from 'containers/App/selectors';
 import { clearData, getUserDetail } from 'containers/App/actions';
 import reducer from './reducer';
@@ -82,9 +83,10 @@ import GreyTitle from './GreyTitle';
 import HomeWrapper from './Wrapper';
 import UserDashboard from './UserDashboard';
 import Button from './Button';
-import styled from 'styled-components';
 
 const Wrapper = styled.div`
+  margin-top: 20px;
+
   .document-title {
     text-align: left;
     font-size: 0.9em;
