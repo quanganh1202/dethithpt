@@ -31,7 +31,7 @@ import List from 'components/List';
 import ListItem from 'components/ListItem';
 import LoadingIndicator from 'components/LoadingIndicator';
 import { getDocumentsList, getCollection } from './actions';
-import { requestDownload, removeFileSave, removeMessage, updateQuery } from 'containers/HomePage/actions';
+import { requestDownload, removeFileSave, removeMessage, updateQuery, getPreview, previewDoc } from 'containers/HomePage/actions';
 import {
   makeSelectCollection,
   makeSelectLoading,
@@ -128,6 +128,9 @@ export class Collection extends React.PureComponent {
   }
 
   render() {
+    const collections = _.get(this.props, 'collections', []);
+    const currentCol = collections.find((c) => c.id ===  this.props.match.params.id);
+    const colName = _.get(currentCol, 'name', '');
     return (
       <Wrapper>
         <Helmet>
@@ -157,7 +160,7 @@ export class Collection extends React.PureComponent {
             this.props.load
               ? <LoadingIndicator />
               : (<div>
-                
+
                 {this.state.downloadingFile
               ? <div className="data-loading">Vui lòng chờ xử lý...<LoadingIndicator /></div> : null}
                 <List
@@ -168,6 +171,10 @@ export class Collection extends React.PureComponent {
                   onDownload={(id, name) => {
                     this.setState({ downloadingFile: name });
                     this.props.requestDownload(id);
+                  }}
+                  onPreview={doc => {
+                    this.props.previewDoc(doc);
+                    this.props.getPreview(doc.id);
                   }}
                 />
               </div>)
@@ -196,6 +203,8 @@ export function mapDispatchToProps(dispatch) {
     removeFileSave: () => dispatch(removeFileSave()),
     removeMessage: () => dispatch(removeMessage()),
     updateQuery: query => dispatch(updateQuery(query)),
+    previewDoc: doc => dispatch(previewDoc(doc)),
+    getPreview: id => dispatch(getPreview(id)),
   };
 }
 

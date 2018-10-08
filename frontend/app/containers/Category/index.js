@@ -33,7 +33,14 @@ import List from 'components/List';
 import ListItem from 'components/ListItem';
 import LoadingIndicator from 'components/LoadingIndicator';
 import { getFilterData, getDocumentsList } from './actions';
-import { requestDownload, removeFileSave, removeMessage, updateQuery } from 'containers/HomePage/actions';
+import {
+  requestDownload,
+  removeFileSave,
+  removeMessage,
+  updateQuery,
+  previewDoc,
+  getPreview,
+} from 'containers/HomePage/actions';
 import {
   makeSelectDocument,
   makeSelectLoading,
@@ -387,6 +394,10 @@ export class Category extends React.PureComponent {
                     this.setState({ downloadingFile: name });
                     this.props.requestDownload(id);
                   }}
+                  onPreview={doc => {
+                    this.props.previewDoc(doc);
+                    this.props.getPreview(doc.id);
+                  }}
                 />
               </div>)
           }
@@ -404,6 +415,7 @@ Category.propTypes = {
   username: PropTypes.string,
   onChangeUsername: PropTypes.func,
   updateQuery: PropTypes.func,
+  previewDoc: PropTypes.func,
 };
 
 export function mapDispatchToProps(dispatch) {
@@ -415,6 +427,8 @@ export function mapDispatchToProps(dispatch) {
     removeFileSave: () => dispatch(removeFileSave()),
     removeMessage: () => dispatch(removeMessage()),
     updateQuery: query => dispatch(updateQuery(query)),
+    previewDoc: doc => dispatch(previewDoc(doc)),
+    getPreview: id => dispatch(getPreview(id)),
   };
 }
 

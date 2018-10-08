@@ -50,3 +50,5 @@ export const GET_NEWS = defineAction(
   container,
 );
 export const QUERY_DATA = 'thpt/Home/HOMEPAGE/QUERY';
+export const PREVIEW_DOC = 'thpt/Home/HOMEPAGE/PREVIEW_DOC';
+export const PREVIEW_CLOSE = 'thpt/Home/HOMEPAGE/PREVIEW_CLOSE';
