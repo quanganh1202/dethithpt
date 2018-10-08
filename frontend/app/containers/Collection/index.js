@@ -137,7 +137,6 @@ export class Collection extends React.PureComponent {
   }
 
   render() {
-    console.log(this.props.collection);
     return (
       <Wrapper>
         <Helmet>
