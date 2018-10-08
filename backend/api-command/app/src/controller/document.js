@@ -26,18 +26,19 @@ const checkUserActivation = async (userId) => {
     };
   }
 
-  switch (user[0].status.toString()) {
-  case '0':
+  switch (user[0].status) {
+  case 0:
     return {
       status: 400,
       error: 'Account has been blocked',
     };
-  case '2':
+  case 2:
     return {
       status: 400,
       error: 'You must be provide required infomation',
     };
-  case '3':
+
+  case 3:
     if (moment(user[0].blockFrom) <= moment.now()) {
       return {
         status: 400,
@@ -576,7 +577,7 @@ async function downloadDocument(docId, userId) {
         error: 'User not found',
       };
     }
-    if (user[0].status.toString() === '4') {
+    if (user[0].status === 4) {
       const {
         collectionIds,
         subjectIds,
