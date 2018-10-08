@@ -13,6 +13,7 @@ import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import FileSaver from 'file-saver';
 import {
   faCog,
   faFolder,
@@ -27,7 +28,13 @@ import List from 'components/List';
 import ListItem from 'components/ListItem';
 import LoadingIndicator from 'components/LoadingIndicator';
 import GreyTitle from 'containers/HomePage/GreyTitle';
-import { getPreview, previewDoc } from 'containers/HomePage/actions';
+import {
+  getPreview,
+  previewDoc,
+  requestDownload,
+  removeMessage,
+  removeFileSave,
+} from 'containers/HomePage/actions';
 import { getDocumentsList } from './actions';
 import { makeSelectLoading, makeSelectDocuments } from './selectors';
 import reducer from './reducer';
@@ -42,7 +49,9 @@ const itemsPerLoad = 10;
 export class SearchResult extends React.PureComponent {
   constructor() {
     super();
-    this.state = {};
+    this.state = {
+      downloadingFile: '',
+    };
     this.loadMoreDocs = this.loadMoreDocs.bind(this);
   }
 
@@ -75,6 +84,20 @@ export class SearchResult extends React.PureComponent {
         },
         true,
       );
+    }
+
+    if (!this.props.file && nextProps.file) {
+      const blob = new Blob([nextProps.file]);
+      FileSaver.saveAs(blob, _.get(this.state, 'downloadingFile', 'download'));
+      this.setState({ downloadingFile: '' });
+      this.props.removeFileSave();
+    }
+    if (!this.props.message && nextProps.message) {
+      alert(
+        errorMapping[nextProps.message] ||
+          'Có lỗi xảy ra, vui lòng báo lại cho admin!',
+      );
+      this.props.removeMessage();
     }
   }
 
@@ -111,18 +134,31 @@ export class SearchResult extends React.PureComponent {
             </GreyTitle>
           }
           content={
-            <div>
-              <List
-                items={documents.data}
-                component={ListItem}
-                loadMore={documents.data.length < documents.total}
-                onLoadMore={this.loadMoreDocs}
-                onPreview={doc => {
-                  this.props.previewDoc(doc);
-                  this.props.getPreview(doc.id);
-                }}
-              />
-            </div>
+            this.props.load ? (
+              <LoadingIndicator />
+            ) : (
+              <div>
+                {this.state.downloadingFile ? (
+                  <div className="data-loading">
+                    Vui lòng chờ xử lý...<LoadingIndicator />
+                  </div>
+                ) : null}
+                <List
+                  items={documents.data}
+                  component={ListItem}
+                  loadMore={documents.data.length < documents.total}
+                  onLoadMore={this.loadMoreDocs}
+                  onDownload={(id, name) => {
+                    this.setState({ downloadingFile: name });
+                    this.props.requestDownload(id);
+                  }}
+                  onPreview={doc => {
+                    this.props.previewDoc(doc);
+                    this.props.getPreview(doc.id);
+                  }}
+                />
+              </div>
+            )
           }
         />
       </Wrapper>
@@ -143,6 +179,9 @@ export function mapDispatchToProps(dispatch) {
       dispatch(getDocumentsList(query, clear)),
     previewDoc: doc => dispatch(previewDoc(doc)),
     getPreview: id => dispatch(getPreview(id)),
+    requestDownload: id => dispatch(requestDownload(id)),
+    removeFileSave: () => dispatch(removeFileSave()),
+    removeMessage: () => dispatch(removeMessage()),
   };
 }
 

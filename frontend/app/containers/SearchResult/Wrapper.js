@@ -1,6 +1,10 @@
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
+  & .data-loading {
+    text-align: center;
+    color: green;
+  }
   p, ul {
     margin: 0;
   }
@@ -19,7 +23,7 @@ const Wrapper = styled.div`
       margin-bottom: 15px;
     }
   }
-  
+
   .doc-details {
     .doc-title {
       text-align: center;
