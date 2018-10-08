@@ -16,7 +16,7 @@ const Wrapper = styled.div`
   }
 
   & .content {
-    font-size: 0.8em;
+    font-size: 0.9em;
     padding: 10px 0;
     min-height: 50px;
 
