@@ -75,6 +75,13 @@ const Wrapper = styled.li`
   & .file-type-icon {
     height: 20px;
   }
+
+  & .input-name {
+    height: 30px;
+    padding: 0 10px;
+    width: 70%;
+    background: rgb(255, 255, 255);
+  }
 `;
 
 const DocType = props => {
@@ -95,17 +102,18 @@ const DocType = props => {
 };
 
 class UploadProgress extends React.Component {
-  constructor() {
+  constructor(props) {
     super();
-    this.state = { percent: 0 };
+    this.state = { percent: 0, name: props.file.name };
 
     this.fileUpload = this.fileUpload.bind(this);
+    this.handleChangeName = this.handleChangeName.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
     if (!this.props.sendNow && nextProps.sendNow && !this.state.successId) {
       this.fileUpload({
-        name: this.props.file.name,
+        name: this.state.name,
         ...nextProps.sendNow,
       });
     }
@@ -144,10 +152,7 @@ class UploadProgress extends React.Component {
           });
         });
     }
-    const listCollectionCreate = _.pullAll(
-      form.collectionIds,
-      this.props.collections.map(c => c.id),
-    );
+
     const collectionIds = form.collectionIds.filter(t => t.__isNew__);
     let promiseCreates = [];
     if (collectionIds && collectionIds.length > 0) {
@@ -195,6 +200,11 @@ class UploadProgress extends React.Component {
     });
   }
 
+  handleChangeName(event) {
+    const { value } = event.target;
+    this.setState({ name: value });
+  }
+
   handleCancel() {}
 
   render() {
@@ -234,7 +244,19 @@ class UploadProgress extends React.Component {
             </label>
           ) : null}
           <span>
-            <DocType type={file.type} /> {file.name} -{' '}
+            <DocType type={file.type} />{' '}
+            {add2All && !successId && showSelected ? (
+              <input
+                className="form-control input-name"
+                name="name"
+                value={this.state.name}
+                onChange={this.handleChangeName}
+                required
+              />
+            ) : (
+              file.name
+            )}
+            {' - '}
             {(file.size / 1048576).toFixed(3)} MB
           </span>
           {successId ? (

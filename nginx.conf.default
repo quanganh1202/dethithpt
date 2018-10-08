@@ -6,6 +6,7 @@ upstream api_query {
 }
 
 server {
+    client_max_body_size 100M;
     listen       80;
     server_name tailieudoc.vn www.tailieudoc.vn;
 

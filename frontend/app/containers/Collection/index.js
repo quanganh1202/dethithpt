@@ -37,7 +37,7 @@ import {
   makeSelectLoading,
   makeSelectDocuments,
 } from './selectors';
-import { makeSelectFile, makeSelectMessage } from 'containers/HomePage/selectors'
+import { makeSelectFile, makeSelectMessage, makeSelectCollections } from 'containers/HomePage/selectors'
 import reducer from './reducer';
 import saga from './saga';
 import GreyTitle from 'containers/HomePage/GreyTitle';
@@ -137,13 +137,16 @@ export class Collection extends React.PureComponent {
   }
 
   render() {
-    console.log(this.props.collection);
+    const collections = _.get(this.props, 'collections', []);
+    const currentCol = collections.find((c) => c.id ===  this.props.match.params.id);
+    const colName = _.get(currentCol, 'name', '');
     return (
       <Wrapper>
         <Helmet>
           <title>Bộ sưu tập</title>
           <meta name="description" content="Description of UploadDocument" />
         </Helmet>
+        <Tab className="hidden-content" title={`Danh mục: ${colName}`} />
         <Tab
           key="bo-loc-danh-muc"
           style={{ background: 'white' }}
@@ -157,7 +160,6 @@ export class Collection extends React.PureComponent {
         />
         <Tab
           key="latest-docs"
-          title="Tài liệu khác liên quan"
           className="grey-box"
           customTitle={
             <GreyTitle className="custom-title">
@@ -168,6 +170,9 @@ export class Collection extends React.PureComponent {
             this.props.load
               ? <LoadingIndicator />
               : (<div>
+
+                {this.state.downloadingFile
+              ? <div className="data-loading">Vui lòng chờ xử lý...<LoadingIndicator /></div> : null}
                 <List
                   items={this.props.documents.data}
                   component={ListItem}
@@ -213,6 +218,7 @@ const mapStateToProps = createStructuredSelector({
   loading: makeSelectLoading(),
   file: makeSelectFile(),
   message: makeSelectMessage(),
+  collections: makeSelectCollections(),
 });
 
 const withConnect = connect(
