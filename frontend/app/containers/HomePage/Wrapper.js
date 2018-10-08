@@ -16,6 +16,10 @@ const HomeWrapper = styled.div`
       margin-bottom: 15px;
     }
   }
-`
+  & .data-loading {
+    text-align: center;
+    color: green;
+  }
+`;
 
 export default HomeWrapper;

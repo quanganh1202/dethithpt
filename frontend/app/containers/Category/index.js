@@ -121,6 +121,7 @@ export class Category extends React.PureComponent {
       this.props.removeFileSave();
     }
     if (!this.props.message && nextProps.message) {
+      this.setState({ downloadingFile: '' });
       alert(errorMapping[nextProps.message] || 'Có lỗi xảy ra, vui lòng báo lại cho admin!');
       this.props.removeMessage();
     }
@@ -313,6 +314,8 @@ export class Category extends React.PureComponent {
             this.props.load
               ? <LoadingIndicator />
               : (<div>
+                {this.state.downloadingFile
+              ? <div className="data-loading">Vui lòng chờ xử lý...<LoadingIndicator /></div> : null}
                 <List
                   items={this.props.documents.data}
                   component={ListItem}
