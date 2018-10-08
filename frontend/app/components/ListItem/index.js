@@ -31,15 +31,13 @@ const mappingIconType = (type) => {
       return wordIcon;
     case 'pdf':
       return pdfIcon;
-    case 'rar':
-      return winrarIcon;
     default: 
-      return documentIcon;
+      return winrarIcon;
   }
 }
 
 function ListItem(props) {
-  const documentType = props.item.name.split('.').pop();
+  const documentType = props.item.path.split('.').pop();
   return (
     <Wrapper>
       <div className="doc-title">
@@ -52,14 +50,17 @@ function ListItem(props) {
         <span className="document-action-icon" onClick={() => props.onPreview(props.item.id)} title="Xem thử tài liệu">
           <FontAwesomeIcon className={'title-icon'} icon={['far', 'eye']} />
         </span>
-        <span className="document-action-icon" onClick={() => props.onDownload(props.item.id, props.item.name)} title="Tải tài liệu">
+        <span className="document-action-icon" onClick={() => props.onDownload(props.item.id, 
+          `${_.get(props, 'item.name', 'download')}.${
+          _.get(props, 'item.path', 'name.doc').split('.')[1]
+        }`)} title="Tải tài liệu">
           <FontAwesomeIcon className={'title-icon'} icon={['fas', 'download']} />
         </span>
       </div>
       <div className="doc-category">
         <ul>
           {_.get(props.item, 'cates', []).map((i) => <li key={i.cateId}>
-            {i.cateName}
+            <Link to={`/danh-muc/${i.cateId}`}>{i.cateName}</Link>
           </li>)}
           {_.get(props.item, 'subjects', []).map((i) => <li key={i.subjectId}>
             {i.subjectName.includes('Môn') ? i.subjectName : `Môn ${i.subjectName}`}
@@ -70,7 +71,7 @@ function ListItem(props) {
           {_.get(props.item, 'yearSchools', []).map((i) => <li key={i}>{i}</li>)}
           {_.get(props.item, 'collections', []).map((i) => <li key={i.collectionId}>
             <FontAwesomeIcon className={'specific-icon'} icon={['far', 'folder-open']} />
-            {i.collectionName}
+            <Link to={`/bo-suu-tap/${i.collectionId}`}>{i.collectionName}</Link>
           </li>)}
         </ul>
       </div>

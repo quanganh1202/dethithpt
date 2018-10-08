@@ -25,6 +25,7 @@ import Payment from 'containers/Payment/Loadable';
 import SearchResult from 'containers/SearchResult/Loadable';
 import _ from 'lodash';
 import FileSaver from 'file-saver';
+import LoadingIndicator from 'components/LoadingIndicator';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
@@ -185,6 +186,7 @@ export class HomePage extends React.PureComponent {
         return;
       }
       alert(errorMapping[nextProps.message] || 'Có lỗi xảy ra, vui lòng báo lại cho admin!');
+      this.setState({ downloadingFile: '' });
       this.props.removeMessage();
     }
 
@@ -525,6 +527,8 @@ export class HomePage extends React.PureComponent {
                                     </span>{' '}
                                     tài liệu
                                   </div>
+                                  {this.state.downloadingFile
+              ? <div className="data-loading">Vui lòng chờ xử lý...<LoadingIndicator /></div> : null}
                                   <List
                                     items={this.props.documents.data}
                                     component={ListItem}
