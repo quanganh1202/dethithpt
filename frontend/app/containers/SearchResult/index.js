@@ -27,6 +27,7 @@ import List from 'components/List';
 import ListItem from 'components/ListItem';
 import LoadingIndicator from 'components/LoadingIndicator';
 import GreyTitle from 'containers/HomePage/GreyTitle';
+import { getPreview, previewDoc } from 'containers/HomePage/actions';
 import { getDocumentsList } from './actions';
 import { makeSelectLoading, makeSelectDocuments } from './selectors';
 import reducer from './reducer';
@@ -116,6 +117,10 @@ export class SearchResult extends React.PureComponent {
                 component={ListItem}
                 loadMore={documents.data.length < documents.total}
                 onLoadMore={this.loadMoreDocs}
+                onPreview={doc => {
+                  this.props.previewDoc(doc);
+                  this.props.getPreview(doc.id);
+                }}
               />
             </div>
           }
@@ -136,6 +141,8 @@ export function mapDispatchToProps(dispatch) {
   return {
     getDocumentsList: (query, clear) =>
       dispatch(getDocumentsList(query, clear)),
+    previewDoc: doc => dispatch(previewDoc(doc)),
+    getPreview: id => dispatch(getPreview(id)),
   };
 }
 

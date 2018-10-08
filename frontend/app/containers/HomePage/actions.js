@@ -19,6 +19,9 @@ import {
   REMOVE_MESSAGE,
   GET_NEWS,
   QUERY_DATA,
+  PREVIEW_DOC,
+  PREVIEW_CLOSE,
+  GET_PREVIEW,
 } from './constants';
 
 /**
@@ -91,7 +94,6 @@ export function updateUserInfoSuccess(payload) {
     payload,
   };
 }
-
 
 /**
  * Changes the input field of the form
@@ -347,5 +349,39 @@ export function updateQuery(queryCollection) {
   return {
     type: QUERY_DATA,
     queryCollection,
+  };
+}
+
+export function previewDoc(doc) {
+  return {
+    type: PREVIEW_DOC,
+    doc,
+  };
+}
+
+export function closePreview() {
+  return {
+    type: PREVIEW_CLOSE
+  };
+}
+
+export function getPreview(id) {
+  return {
+    type: GET_PREVIEW.REQUEST,
+    id,
+  };
+}
+
+export function getPreviewSuccess(images) {
+  return {
+    type: GET_PREVIEW.SUCCESS,
+    images,
+  };
+}
+
+export function getPreviewFailure(error) {
+  return {
+    type: GET_PREVIEW.FAILURE,
+    error,
   };
 }

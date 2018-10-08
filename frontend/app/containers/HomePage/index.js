@@ -53,6 +53,9 @@ import {
   removeFileSave,
   removeMessage,
   updateQuery,
+  closePreview,
+  previewDoc,
+  getPreview,
 } from './actions';
 import {
   makeSelectUser,
@@ -66,6 +69,9 @@ import {
   makeSelectFile,
   makeSelectMessage,
   makeSelectQueryCollection,
+  makeSelectInfoDocPreview,
+  makeSelectIsShowPreview,
+  makeSelectImagesPreview,
 } from './selectors';
 import { makeSelectCurrentUser, makeSelectPopout } from 'containers/App/selectors';
 import { clearData, getUserDetail } from 'containers/App/actions';
@@ -76,6 +82,25 @@ import GreyTitle from './GreyTitle';
 import HomeWrapper from './Wrapper';
 import UserDashboard from './UserDashboard';
 import Button from './Button';
+import styled from 'styled-components';
+
+const Wrapper = styled.div`
+  .document-title {
+    text-align: left;
+    font-size: 0.9em;
+    font-weight: bold;
+    padding: 5px 10px;
+    color: #3f48cc;
+    background-color: #e5e5e5;
+    > span.bold {
+      color: black;
+    }
+  }
+  .popup-content {
+    min-width: 100px;
+    min-height: 100px;
+  }
+`;
 
 library.add(faMoneyBillAlt, faFolder, faCog);
 
@@ -121,6 +146,7 @@ export class HomePage extends React.PureComponent {
       user: null,
       error: '',
       downloadingFile: '',
+      preview: false,
     };
     this.onLogin = this.onLogin.bind(this);
     this.onLogout = this.onLogout.bind(this);
@@ -235,7 +261,7 @@ export class HomePage extends React.PureComponent {
         [name]: value,
       };
     }
-    
+
     if (updateUser.facebook === null) {
       updateUser.facebook = '';
     }
@@ -278,6 +304,7 @@ export class HomePage extends React.PureComponent {
   }
 
   render() {
+    console.log(this.props.docPreview);
     const { pathname } = this.props.history.location;
     const dataRight1 = [
       {
@@ -471,7 +498,7 @@ export class HomePage extends React.PureComponent {
           <title>Home Page</title>
           <meta name="description" content="DethiTHPT" />
         </Helmet>
-        <div style={{ marginTop: '20px' }}>
+        <Wrapper>
           <Layout
             content={[
               {
@@ -541,6 +568,10 @@ export class HomePage extends React.PureComponent {
                                       this.setState({ downloadingFile: name });
                                       this.props.requestDownload(id);
                                     }}
+                                    onPreview={doc => {
+                                      this.props.previewDoc(doc);
+                                      this.props.getPreview(doc.id);
+                                    }}
                                   />
                                 </div>
                               }
@@ -587,6 +618,28 @@ export class HomePage extends React.PureComponent {
             ]}
           />
           <PopUp
+            show={this.props.preview}
+            close
+            width="auto"
+            onClose={() => this.props.closePreview()}
+            content={
+              this.props.loading ? <LoadingIndicator /> : (
+                <div style={{ textAlign: 'center' }}>
+                  <div className="document-title">
+                    <span className="bold">Đọc thử:</span>{this.props.docPreview.name}
+                  </div>
+                  {_.get(this.props, 'images', []).map((imgData, index) => (
+                    <div key={`preview-${index}`}>
+                      <img
+                        src={`data:image/png;base64,${imgData}`}
+                        alt="preview"
+                      />
+                    </div>
+                  ))}
+                </div>)
+            }
+          />
+          <PopUp
             show={this.state.user}
             onClose={() => this.setState({ showCreateUserForm: false })}
             content={
@@ -609,7 +662,7 @@ export class HomePage extends React.PureComponent {
               />
             }
           />)}
-        </div>
+        </Wrapper>
       </article>
     );
   }
@@ -642,6 +695,9 @@ export function mapDispatchToProps(dispatch) {
     clearData: () => dispatch(clearData()),
     getUserDetail: (id) => dispatch(getUserDetail(id)),
     updateQuery: (query) => dispatch(updateQuery(query)),
+    closePreview: () => dispatch(closePreview()),
+    previewDoc: doc => dispatch(previewDoc(doc)),
+    getPreview: id => dispatch(getPreview(id)),
   };
 }
 
@@ -659,6 +715,9 @@ const mapStateToProps = createStructuredSelector({
   userDetail: makeSelectCurrentUser(),
   popout: makeSelectPopout(),
   queryCollection: makeSelectQueryCollection(),
+  preview: makeSelectIsShowPreview(),
+  docPreview: makeSelectInfoDocPreview(),
+  images: makeSelectImagesPreview(),
 });
 
 const withConnect = connect(
