@@ -398,7 +398,7 @@ export class User extends React.PureComponent {
         let method;
         switch (quickActive) {
           case '3':
-            content.status = quickBlock ? '3' : '1';
+            content.status = quickBlock ? 3 : 1;
             if (quickDate) {
               content.blockFrom = moment(quickDate).format('DD/MM/YYYY');
             }

@@ -34,6 +34,7 @@ import {
   Input,
   Alert,
 } from 'reactstrap';
+import LoadingIndicator from 'components/LoadingIndicator';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
@@ -180,7 +181,10 @@ export class UserEdit extends React.PureComponent {
     return data
       .set('notifyStatus', data.get('notifyStatus') || '0')
       .set('notifyText', data.get('notifyText') || '')
-      .set('blockFrom', data.get('blockFrom') ? moment(data.get('blockFrom')) : '')
+      .set(
+        'blockFrom',
+        data.get('blockFrom') ? moment(data.get('blockFrom')) : '',
+      )
       .delete('createdAt')
       .delete('updatedAt')
       .delete('numOfDownloaded')
@@ -188,8 +192,12 @@ export class UserEdit extends React.PureComponent {
   }
 
   mappingUserToSave(data) {
-    const newData = data
-      .set('money', `${parseInt(this.state.formData.get('money', 0)) + parseInt(this.state.formData.get('deposit'))}`)
+    let newData = data
+      .set(
+        'money',
+        `${parseInt(this.state.formData.get('money', 0)) +
+          parseInt(this.state.formData.get('deposit'))}`,
+      )
       .delete('blockDownloadCategories')
       .delete('blockDownloadCollections')
       .delete('blockDownloadSubjects')
@@ -200,10 +208,10 @@ export class UserEdit extends React.PureComponent {
     const blockUser = {
       status: data.get('status'),
     };
-    if (data.get('status') === '3') {
+    if (data.get('status') === 4) {
       blockUser.blockFrom = data.get('blockFrom');
     }
-    if (data.get('status') === '4') {
+    if (data.get('status') === 4) {
       blockUser.blockDownloadCategories = data.get('blockDownloadCategories', []).join(',');
       blockUser.blockDownloadSubjects = data.get('blockDownloadCollections', []).join(',');
       blockUser.blockDownloadCollections = data.get('blockDownloadSubjects', []).join(',');
@@ -211,6 +219,10 @@ export class UserEdit extends React.PureComponent {
     const dataBlock = { ...blockUser };
     Object.keys(dataBlock).forEach(v => {
       if (!blockUser[v]) delete blockUser[v];
+    });
+    const notRequire = ['money', 'notifyText'];
+    notRequire.forEach(v => {
+      if (!newData.get(v)) newData = newData.delete(v);
     });
     return {
       user: newData.toJS(),
@@ -227,7 +239,10 @@ export class UserEdit extends React.PureComponent {
 
   onChangeMultiple(e) {
     const { name, selectedOptions } = e.currentTarget;
-    const newFormData = this.state.formData.set(name, fromJS(Array.prototype.slice.call(selectedOptions).map(i => i.value)));
+    const newFormData = this.state.formData.set(
+      name,
+      fromJS(Array.prototype.slice.call(selectedOptions).map(i => i.value)),
+    );
     this.setState({
       formData: newFormData,
     });
@@ -241,43 +256,37 @@ export class UserEdit extends React.PureComponent {
   onChange(e) {
     const { name, value, checked } = e.currentTarget;
     let newData;
-    const status = this.props.user.get('status');
     switch (name) {
       case 'notifyStatus':
         newData = this.state.formData.set(name, checked ? '1' : '0');
         break;
       case 'checkBlocked':
-        newData = this.state.formData.set('status', checked ? '0' : status);
+        newData = this.state.formData.set('status', checked ? 0 : 1);
         break;
       case 'checkBlockDate':
-        newData = this.state.formData.set('status', checked ? '3' : status);
+        newData = this.state.formData.set('status', checked ? 3 : 1);
         break;
       case 'checkBlockDownload':
-        newData = this.state.formData.set('status', checked ? '4' : status);
+        newData = this.state.formData.set('status', checked ? 4 : 1);
         break;
       default:
         newData = this.state.formData.set(name, value);
     }
-    console.log(newData.get('status'));
     this.setState({ formData: newData });
   }
 
   onSubmit() {
     this.props.clearMessage();
     const error = {};
-    Object.keys(this.state.formData.toJS()).forEach(key => {
+    const { user, blockUser } = this.mappingUserToSave(this.state.formData);
+    Object.keys(user).forEach(key => {
       if (key !== 'money' && !this.state.formData.toJS()[key]) {
         error[key] = 'Thông tin còn thiếu';
       }
     });
     if (!Object.keys(error).length) {
       if (!this.props.location.search.split('=')[1]) {
-        const { user, blockUser } = this.mappingUserToSave(this.state.formData);
-        this.props.updateUser(
-          user,
-          blockUser,
-          this.props.match.params.id,
-        );
+        this.props.updateUser(user, blockUser, this.props.match.params.id);
       } else {
         this.props.updateUser(this.state.formData, this.props.match.params.id);
       }
@@ -301,6 +310,18 @@ export class UserEdit extends React.PureComponent {
       >
         {message}
       </Alert>
+    );
+    const cityValue = this.state.formData.get('city', '');
+    const districtValue = this.state.formData.get('district', '');
+    const districts = get(
+      local.find(city => city.name === cityValue),
+      'districts',
+      [],
+    );
+    const school = get(
+      districts.find(d => d.name === districtValue),
+      'schools',
+      [],
     );
     return (
       <Wrapper>
@@ -571,14 +592,14 @@ export class UserEdit extends React.PureComponent {
                               type="select"
                               name="city"
                               id="city"
-                              value={this.state.formData.get('city', '')}
+                              value={cityValue}
                               placeholder="-- Chọn thành phố --"
                               onChange={this.onChange}
                               required
                               className={this.state.error.city && 'is-invalid'}
                             >
                               {local.map(city => (
-                                <option value={city.code} key={city.code}>
+                                <option value={city.name} key={city.id}>
                                   {city.name}
                                 </option>
                               ))}
@@ -601,7 +622,7 @@ export class UserEdit extends React.PureComponent {
                               type="select"
                               name="district"
                               id="district"
-                              value={this.state.formData.get('district', '')}
+                              value={districtValue}
                               placeholder="-- Chọn Quận/Huyện --"
                               onChange={this.onChange}
                               required
@@ -609,19 +630,8 @@ export class UserEdit extends React.PureComponent {
                                 this.state.error.district && 'is-invalid'
                               }
                             >
-                              {get(
-                                local.find(
-                                  city =>
-                                    city.code ===
-                                    this.state.formData.get('city'),
-                                ),
-                                'districts',
-                                [],
-                              ).map(district => (
-                                <option
-                                  value={district.name}
-                                  key={district.name}
-                                >
+                              {districts.map(district => (
+                                <option value={district.name} key={district.id}>
                                   {district.name}
                                 </option>
                               ))}
@@ -651,7 +661,11 @@ export class UserEdit extends React.PureComponent {
                                 this.state.error.school && 'is-invalid'
                               }
                             >
-                              <option value="Quang Trung">Quang Trung</option>
+                              {school.map(s => (
+                                <option value={s.id} key={s.id}>
+                                  {s.name}
+                                </option>
+                              ))}
                             </Input>
                             <div className="invalid-feedback">
                               {this.state.error.school}
@@ -713,7 +727,9 @@ export class UserEdit extends React.PureComponent {
                               id="deposit"
                               onChange={this.onChange}
                               value={this.state.formData.get('deposit', '')}
-                              className={this.state.error.deposit && 'is-invalid'}
+                              className={
+                                this.state.error.deposit && 'is-invalid'
+                              }
                             />
                             <div className="invalid-feedback">
                               {this.state.error.deposit}
@@ -730,8 +746,10 @@ export class UserEdit extends React.PureComponent {
                                   id="blocked"
                                   name="checkBlocked"
                                   onChange={this.onChange}
-                                  checked={this.state.formData.get('status') === '0' ? true : false}
-                                  />
+                                  checked={
+                                    this.state.formData.get('status') === 0
+                                  }
+                                />
                                 <b>Khóa ngay</b>
                               </Label>
                             </FormGroup>
@@ -745,10 +763,13 @@ export class UserEdit extends React.PureComponent {
                               id="checkBlockDate"
                               name="checkBlockDate"
                               onChange={this.onChange}
-                              checked={this.state.formData.get('status') === '3' ? true : false}
+                              checked={this.state.formData.get('status') === 3}
                             />
                             <DatePicker
-                              selected={this.state.formData.get('blockFrom', '')}
+                              selected={this.state.formData.get(
+                                'blockFrom',
+                                '',
+                              )}
                               onChange={date =>
                                 this.onChange({
                                   currentTarget: {
@@ -757,7 +778,7 @@ export class UserEdit extends React.PureComponent {
                                   },
                                 })
                               }
-                              disabled={this.state.formData.get('status') !== '3' ? true : false}
+                              disabled={this.state.formData.get('status') !== 3}
                               peekNextMonth
                               showMonthDropdown
                               showYearDropdown
@@ -781,22 +802,28 @@ export class UserEdit extends React.PureComponent {
                               id="checkBlockDownload"
                               name="checkBlockDownload"
                               onChange={this.onChange}
-                              checked={this.state.formData.get('status') === '4' ? true : false}
+                              checked={this.state.formData.get('status') === 4}
                             />&nbsp;
                           </Label>
                         </FormGroup>
                         <Row className="group-block-download">
                           <Col xs="3">
                             <FormGroup>
-                              <Label htmlFor="blockDownloadCategoris">Danh mục</Label>
+                              <Label htmlFor="blockDownloadCategoris">
+                                Danh mục
+                              </Label>
                               <Input
                                 onChange={this.onChangeMultiple}
                                 type="select"
                                 name="blockDownloadCategories"
                                 id="blockDownloadCategories"
                                 multiple
-                                disabled={this.state.formData.get('status') !== '4' ? true : false}
-                                value={this.state.formData.get('blockDownloadCategories', fromJS([])).toJS()}
+                                disabled={
+                                  this.state.formData.get('status') !== 4
+                                }
+                                value={this.state.formData
+                                  .get('blockDownloadCategories', fromJS([]))
+                                  .toJS()}
                               >
                                 {get(this.props, 'dataInit.categories', []).map(
                                   i => (
@@ -810,15 +837,21 @@ export class UserEdit extends React.PureComponent {
                           </Col>
                           <Col xs="2">
                             <FormGroup>
-                              <Label htmlFor="blockDownloadSubjects">Môn học</Label>
+                              <Label htmlFor="blockDownloadSubjects">
+                                Môn học
+                              </Label>
                               <Input
                                 onChange={this.onChangeMultiple}
                                 type="select"
                                 name="blockDownloadSubjects"
                                 id="blockDownloadSubjects"
                                 multiple
-                                disabled={this.state.formData.get('status') !== '4' ? true : false}
-                                value={this.state.formData.get('blockDownloadSubjects', fromJS([])).toJS()}
+                                disabled={
+                                  this.state.formData.get('status') !== 4
+                                }
+                                value={this.state.formData
+                                  .get('blockDownloadSubjects', fromJS([]))
+                                  .toJS()}
                               >
                                 {get(this.props, 'dataInit.subjects', []).map(
                                   i => (
@@ -839,8 +872,12 @@ export class UserEdit extends React.PureComponent {
                                 name="blockDownloadClasses"
                                 id="blockDownloadClasses"
                                 multiple
-                                disabled={this.state.formData.get('status') !== '4' ? true : false}
-                                value={this.state.formData.get('blockDownloadClasses', fromJS([])).toJS()}
+                                disabled={
+                                  this.state.formData.get('status') !== 4
+                                }
+                                value={this.state.formData
+                                  .get('blockDownloadClasses', fromJS([]))
+                                  .toJS()}
                               >
                                 {get(this.props, 'dataInit.classes', []).map(
                                   i => (
@@ -854,15 +891,21 @@ export class UserEdit extends React.PureComponent {
                           </Col>
                           <Col xs="2">
                             <FormGroup>
-                              <Label htmlFor="blockDownloadYearschool">Năm học</Label>
+                              <Label htmlFor="blockDownloadYearschool">
+                                Năm học
+                              </Label>
                               <Input
                                 onChange={this.onChangeMultiple}
                                 type="select"
                                 name="blockDownloadYearschool"
                                 id="blockDownloadYearschool"
                                 multiple
-                                disabled={this.state.formData.get('status') !== '4' ? true : false}
-                                value={this.state.formData.get('blockDownloadYearschool', fromJS([])).toJS()}
+                                disabled={
+                                  this.state.formData.get('status') !== 4
+                                }
+                                value={this.state.formData
+                                  .get('blockDownloadYearschool', fromJS([]))
+                                  .toJS()}
                               >
                                 {Array(21)
                                   .fill(new Date().getFullYear() - 20)
@@ -879,21 +922,32 @@ export class UserEdit extends React.PureComponent {
                           </Col>
                           <Col xs="3">
                             <FormGroup>
-                              <Label htmlFor="blockDownloadCollections"> Bộ sưu tập</Label>
+                              <Label htmlFor="blockDownloadCollections">
+                                {' '}
+                                Bộ sưu tập
+                              </Label>
                               <Input
                                 onChange={this.onChangeMultiple}
                                 type="select"
                                 name="blockDownloadCollections"
                                 id="blockDownloadCollections"
                                 multiple
-                                disabled={this.state.formData.get('status') !== '4' ? true : false}
-                                value={this.state.formData.get('blockDownloadCollections', fromJS([])).toJS()}
+                                disabled={
+                                  this.state.formData.get('status') !== 4
+                                }
+                                value={this.state.formData
+                                  .get('blockDownloadCollections', fromJS([]))
+                                  .toJS()}
                               >
-                                {get(this.props, 'dataInit.collections', [])
-                                  .map(i => (
-                                    <option key={i.id} value={i.id}>
-                                      {i.name}
-                                    </option>))}
+                                {get(
+                                  this.props,
+                                  'dataInit.collections',
+                                  [],
+                                ).map(i => (
+                                  <option key={i.id} value={i.id}>
+                                    {i.name}
+                                  </option>
+                                ))}
                               </Input>
                             </FormGroup>
                           </Col>
@@ -907,7 +961,9 @@ export class UserEdit extends React.PureComponent {
                               type="checkbox"
                               id=""
                               name="notifyStatus"
-                              checked={this.state.formData.get('notifyStatus') === '1' ? true : false}
+                              checked={
+                                this.state.formData.get('notifyStatus') === '1'
+                              }
                               onChange={this.onChange}
                             />&nbsp;
                           </Label>
@@ -918,7 +974,7 @@ export class UserEdit extends React.PureComponent {
                             name="notifyText"
                             content={this.state.formData.get('notifyText')}
                             events={{
-                              "change": this.onChangeEditor
+                              change: this.onChangeEditor,
                             }}
                           />
                         </FormGroup>
@@ -952,11 +1008,22 @@ export class UserEdit extends React.PureComponent {
 UserEdit.propTypes = {
   loading: PropTypes.bool,
   clearData: PropTypes.func,
+  location: PropTypes.object,
+  getDataInit: PropTypes.func,
+  updateUser: PropTypes.func,
+  clearMessage: PropTypes.func,
+  dataInit: PropTypes.object,
+  message: PropTypes.string,
+  error: PropTypes.string,
+  getUserDetail: PropTypes.func,
+  match: PropTypes.object,
+  user: PropTypes.object,
 };
 
 export function mapDispatchToProps(dispatch) {
   return {
-    updateUser: (data, blockUser, id) => dispatch(updateUser(data, blockUser, id)),
+    updateUser: (data, blockUser, id) =>
+      dispatch(updateUser(data, blockUser, id)),
     getUserDetail: id => dispatch(getUserDetail(id)),
     getDataInit: () => dispatch(getDataInit()),
     clearMessage: () => dispatch(clearMessage()),
