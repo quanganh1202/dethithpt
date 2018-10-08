@@ -50,7 +50,10 @@ function ListItem(props) {
         <span className="document-action-icon" onClick={() => props.onPreview(props.item.id)} title="Xem thử tài liệu">
           <FontAwesomeIcon className={'title-icon'} icon={['far', 'eye']} />
         </span>
-        <span className="document-action-icon" onClick={() => props.onDownload(props.item.id, props.item.name)} title="Tải tài liệu">
+        <span className="document-action-icon" onClick={() => props.onDownload(props.item.id, 
+          `${_.get(props, 'item.name', 'download')}.${
+          _.get(props, 'item.path', 'name.doc').split('.')[1]
+        }`)} title="Tải tài liệu">
           <FontAwesomeIcon className={'title-icon'} icon={['fas', 'download']} />
         </span>
       </div>

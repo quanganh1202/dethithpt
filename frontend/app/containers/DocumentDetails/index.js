@@ -97,8 +97,14 @@ export class DocumentDetails extends React.PureComponent {
     }
     if (!this.props.file && nextProps.file) {
       const blob = new Blob([nextProps.file]);
-      FileSaver.saveAs(blob, _.get(this.props, 'document.name', 'download'));
+      FileSaver.saveAs(
+        blob,
+        `${_.get(this.props, 'document.name', 'download')}.${
+          _.get(this.props, 'document.path', 'name.doc').split('.')[1]
+        }`,
+      );
       this.props.removeFileSave();
+      this.setState({ loading: false });
     }
   }
 
@@ -115,10 +121,6 @@ export class DocumentDetails extends React.PureComponent {
   }
 
   handleDownloadFile() {
-    setTimeout(() => {
-      this.setState({ loading: false });
-    }, 5000);
-
     this.setState({ loading: true });
     this.props.requestDownload(this.props.match.params.id);
   }
@@ -141,8 +143,11 @@ export class DocumentDetails extends React.PureComponent {
           title={`Tài liệu: ${_.get(document, 'name')}`}
           className="doc-details"
           content={
-            this.props.loading ? (
-              <LoadingIndicator />
+            this.props.loading || this.state.loading ? (
+              <div className="data-loading">
+                Vui lòng chờ xử lý...
+                <LoadingIndicator />
+              </div>
             ) : (
             !_.isEmpty(document) ? (
             <div style={{ padding: "0px 20px 10px" }}>

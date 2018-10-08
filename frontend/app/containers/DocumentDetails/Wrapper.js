@@ -183,6 +183,11 @@ const Wrapper = styled.div`
       color: black;
     }
   }
+
+  & .data-loading {
+    text-align: center;
+    color: green;
+  }
 `;
 
 export default Wrapper;
