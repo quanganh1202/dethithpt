@@ -14,8 +14,16 @@ const initStoreFolder = async function initStoreFolder(pathFolder) {
   }
 };
 
-const validateExtension = function validate(file, userId) {
+const validateExtension = function validate(files, userId) {
   const pathFolderStore = process.env.PATH_FOLDER_STORE || path.resolve(__dirname, '../../../storage');
+  const file = files.filter(i => i.fieldname === 'fileUpload');
+  if (!file.length) {
+    return {
+      status: 400,
+      error: 'Should be provided fileUpload',
+    };
+  }
+  const preview = files.filter(i => i.fieldname === 'filePreview');
   const extension = file[0].originalname.split('.').pop();
   const response = {};
   if (!fileTypeAllowed.includes(extension)) {
@@ -25,7 +33,7 @@ const validateExtension = function validate(file, userId) {
     };
   }
   if (['zip', 'rar'].includes(extension)) {
-    if (!file[1] || file[1].fieldname !== 'filePreview') {
+    if (!preview[0] || preview[0].fieldname !== 'filePreview') {
       return {
         status: 400,
         error: 'Should be provide a file preview for zip, rar file',
@@ -38,10 +46,18 @@ const validateExtension = function validate(file, userId) {
   return response;
 };
 
-const storeFile = async function store(file, fileName, preview) {
+const storeFile = async function store(files, fileName, preview) {
   try {
+    const file = files.filter(i => i.fieldname === 'fileUpload');
+    if (!file.length) {
+      return {
+        status: 400,
+        error: 'Should be provided fileUpload',
+      };
+    }
+    const previewFile = files.filter(i => i.fieldname === 'filePreview');
     await fs.move(
-      preview ? file[1].path : file[0].path,
+      preview ? previewFile[0].path : file[0].path,
       path.resolve(__dirname, fileName)
     );
   } catch(ex) {
