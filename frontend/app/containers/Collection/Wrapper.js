@@ -23,6 +23,17 @@ const Wrapper = styled.div`
     padding: 0;
     min-height: 0;
   }
+  & .data-loading {
+    text-align: center;
+    color: green;
+  }
+
+  & .hidden-content {
+    .content {
+      display: none;
+    }
+  }
+
   /* 
     ##Device = Most of the Smartphones Mobiles (Portrait)
     ##Screen = B/w 320px to 479px

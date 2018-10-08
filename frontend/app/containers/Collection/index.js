@@ -37,7 +37,7 @@ import {
   makeSelectLoading,
   makeSelectDocuments,
 } from './selectors';
-import { makeSelectFile, makeSelectMessage } from 'containers/HomePage/selectors'
+import { makeSelectFile, makeSelectMessage, makeSelectCollections } from 'containers/HomePage/selectors'
 import reducer from './reducer';
 import saga from './saga';
 import GreyTitle from 'containers/HomePage/GreyTitle';
@@ -77,10 +77,6 @@ export class Collection extends React.PureComponent {
     };
     if (this.props.match.params.id) {
       queries.collectionId = this.props.match.params.id;
-      // Update filter for Collections
-      // this.props.updateQuery({
-      //   cateId: this.props.match.params.id,
-      // });
       this.props.getDocumentsList(this.props.match.params.id, queries, true);
     }
   }
@@ -103,11 +99,6 @@ export class Collection extends React.PureComponent {
         },
         resetKey: Math.random(),
       });
-
-      // Update filter for Collections
-      // this.props.updateQuery({
-      //   cateId: nextProps.match.params.id,
-      // });
     }
     if (!this.props.file && nextProps.file) {
       const blob = new Blob([nextProps.file]);
@@ -156,7 +147,6 @@ export class Collection extends React.PureComponent {
         />
         <Tab
           key="latest-docs"
-          title="Tài liệu khác liên quan"
           className="grey-box"
           customTitle={
             <GreyTitle className="custom-title">
@@ -167,6 +157,9 @@ export class Collection extends React.PureComponent {
             this.props.load
               ? <LoadingIndicator />
               : (<div>
+                
+                {this.state.downloadingFile
+              ? <div className="data-loading">Vui lòng chờ xử lý...<LoadingIndicator /></div> : null}
                 <List
                   items={this.props.documents.data}
                   component={ListItem}
@@ -212,6 +205,7 @@ const mapStateToProps = createStructuredSelector({
   loading: makeSelectLoading(),
   file: makeSelectFile(),
   message: makeSelectMessage(),
+  collections: makeSelectCollections(),
 });
 
 const withConnect = connect(
