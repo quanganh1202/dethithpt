@@ -521,7 +521,13 @@ async function purchaseDocument(docId, userId) {
     }
     const moneyAfterPurchase =  parseInt(user[0].money) - (parseInt(doc[0].price) || 0);
     const res = await Promise.all([
-      docModel.purchase({ docId, userId, money: doc[0].price, action: action.PURCHASE }),
+      docModel.purchase({
+        docId,
+        userId,
+        money: parseInt(doc[0].price),
+        action: action.PURCHASE,
+        actorId: userId,
+      }),
       userModel.updateUser(userId, { money: moneyAfterPurchase }),
     ]);
 
@@ -534,6 +540,9 @@ async function purchaseDocument(docId, userId) {
         userName: user[0].name,
         money: parseInt(doc[0].price),
         action: action.PURCHASE,
+        actorId: userId,
+        actorName: user[0].name,
+        actorRole: user[0].role,
       },
     });
 

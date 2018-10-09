@@ -473,7 +473,8 @@ async function recharge(userId, money) {
       docModel.purchase({
         userId: userId,
         action: action.RECHARGE,
-        money,
+        money: parseInt(money),
+        actorId: userId,
       }),
       userModel.updateUser(userId, { money: moneyAfterRecharge }),
     ]);
@@ -485,6 +486,9 @@ async function recharge(userId, money) {
         userName: user[0].name,
         money,
         action: action.RECHARGE,
+        actorId: userId,
+        actorName: user[0].name,
+        actorRole: user[0].role,
       },
     });
 
@@ -513,6 +517,13 @@ async function recharge(userId, money) {
 
 async function bonus(userId, id, money, email) {
   try {
+    const resValidate = dataValidator({ money }, 'http://dethithpt.com/bonus-schema#');
+    if (!resValidate.valid) {
+      return {
+        status: 403,
+        error: resValidate.errors,
+      };
+    }
     const actor = await checkUserActivation(userId);
     if (actor.error) return actor;
     if (actor[0].role !== roles.ADMIN) return {
@@ -537,14 +548,16 @@ async function bonus(userId, id, money, email) {
       };
     }
     const moneyAfterRecharge = parseInt(money) + parseInt(user[0].money);
+    const balance = moneyAfterRecharge < 0 ? 0 : moneyAfterRecharge;
     const docModel = new Document();
     const res = await Promise.all([
       docModel.purchase({
         userId: uid,
         action: action.BONUS,
-        money,
+        money: moneyAfterRecharge < 0 ? -parseInt(user[0].money) : parseInt(money),
+        actorId: userId,
       }),
-      userModel.updateUser(userId, { money: moneyAfterRecharge }),
+      userModel.updateUser(userId, { money: balance }),
     ]);
 
     const serverNotify = await rabbitSender('purchase.create', {
@@ -552,15 +565,18 @@ async function bonus(userId, id, money, email) {
       body: {
         userId: uid,
         userName: user[0].name,
-        money,
+        money: moneyAfterRecharge < 0 ? -parseInt(user[0].money) : parseInt(money),
         action: action.BONUS,
+        actorId: userId,
+        actorName: actor[0].name,
+        actorRole: actor[0].role,
       },
     });
 
     if (serverNotify.statusCode === 200) {
       return {
         status: 200,
-        message: `Your money: ${moneyAfterRecharge}`,
+        message: `Your money: ${balance}`,
       };
     } else {
       // HERE IS CASE API QUERY iS NOT RESOLVED

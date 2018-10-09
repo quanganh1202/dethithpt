@@ -110,6 +110,7 @@ USE dethithpt;
     `docId` INT(11),
     `money` INT(11) NOT NULL DEFAULT 0,
     `action` VARCHAR(255) NOT NULL,
+    `actorId` INT(11) NOT NULL,
     `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `id_UNIQUE` (`id` ASC));

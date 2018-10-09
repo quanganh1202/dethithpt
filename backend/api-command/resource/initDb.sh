@@ -120,6 +120,7 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     userId INT(11) NOT NULL,
     docId INT(11),
     money INT(11) NOT NULL DEFAULT 0,
+    actorId INT(11) NOT NULL,
     action VARCHAR(255) NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
