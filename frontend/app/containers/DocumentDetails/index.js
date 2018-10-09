@@ -234,16 +234,16 @@ export class DocumentDetails extends React.PureComponent {
               </div>
               {
                 _.get(document, 'images', [])
-                  .map((imgData, index) => 
+                  .map((imgData, index) =>
                     <div key={`preview-${index}`} ><img
-                      src={`data:image/png;base64,${imgData}`} 
+                      src={`data:image/png;base64,${imgData}`}
                       alt="preview"
                     /></div>)
               }
             </div>
           }
         />
-      </Wrapper> 
+      </Wrapper>
     );
   }
 }

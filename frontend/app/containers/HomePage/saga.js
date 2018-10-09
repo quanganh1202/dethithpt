@@ -13,6 +13,7 @@ import {
   REQUEST_DOWNLOAD,
   REQUEST_PURCHASE,
   GET_NEWS,
+  GET_PREVIEW,
 } from './constants';
 import {
   loginSuccess,
@@ -28,6 +29,7 @@ import {
   requestDownloadFailure,
   requestPurchase,
   requestPurchaseFailure,
+  getPreviewSuccess,
 } from './actions';
 import { getUserDetail } from 'containers/App/actions';
 import { getToken, mappingUser } from 'services/auth';
@@ -202,6 +204,20 @@ export function* purchaseDocumentHandler({ id, download }) {
 }
 
 /**
+ * Request to get preview document by id
+ */
+export function* getPreviewHandler({ id }) {
+  const url = `${root}/documents/${id}`;
+
+  try {
+    const resImages = yield call(axios.get, `${url}/preview`);
+    yield put(getPreviewSuccess(Array.isArray(resImages.data) ? resImages.data : []));
+  } catch (err) {
+    // yield put(loginFailure(err));
+  }
+}
+
+/**
  * Root saga manages watcher lifecycle
  */
 export default function* homeSaga() {
@@ -214,4 +230,5 @@ export default function* homeSaga() {
   yield takeLatest(GET_NEWS.REQUEST, getNewsHandler);
   yield takeLatest(REQUEST_DOWNLOAD.REQUEST, requestDownloadHandler);
   yield takeLatest(REQUEST_PURCHASE.REQUEST, purchaseDocumentHandler);
+  yield takeLatest(GET_PREVIEW.REQUEST, getPreviewHandler);
 }

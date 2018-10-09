@@ -32,6 +32,9 @@ import {
   REMOVE_MESSAGE,
   GET_NEWS,
   QUERY_DATA,
+  PREVIEW_DOC,
+  PREVIEW_CLOSE,
+  GET_PREVIEW,
 } from './constants';
 
 // The initial state of the App
@@ -50,6 +53,8 @@ export const initialState = fromJS({
   message: '',
   news: [],
   token: '',
+  docPreview: {},
+  isPreview: false,
 });
 
 function homeReducer(state = initialState, action) {
@@ -145,6 +150,16 @@ function homeReducer(state = initialState, action) {
       return state.set('message', '');
     case QUERY_DATA:
       return state.set('queryCollection', action.queryCollection);
+    case PREVIEW_DOC:
+      return state.set('docPreview', action.doc).set('isPreview', true);
+    case PREVIEW_CLOSE:
+      return state.set('isPreview', false);
+    case GET_PREVIEW.REQUEST:
+      return state.set('loading', true);
+    case GET_PREVIEW.SUCCESS:
+      return state.set('loading', false).set('images', action.images);
+    case GET_PREVIEW.FAILURE:
+      return state.set('loading', false).set('message', action.error);
     default:
       return state;
   }

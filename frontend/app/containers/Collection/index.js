@@ -31,7 +31,7 @@ import List from 'components/List';
 import ListItem from 'components/ListItem';
 import LoadingIndicator from 'components/LoadingIndicator';
 import { getDocumentsList, getCollection } from './actions';
-import { requestDownload, removeFileSave, removeMessage, updateQuery } from 'containers/HomePage/actions';
+import { requestDownload, removeFileSave, removeMessage, updateQuery, getPreview, previewDoc } from 'containers/HomePage/actions';
 import {
   makeSelectCollection,
   makeSelectLoading,
@@ -137,7 +137,6 @@ export class Collection extends React.PureComponent {
           <title>Bộ sưu tập</title>
           <meta name="description" content="Description of UploadDocument" />
         </Helmet>
-        <Tab className="hidden-content" title={`Danh mục: ${colName}`} />
         <Tab
           key="bo-loc-danh-muc"
           style={{ background: 'white' }}
@@ -161,7 +160,7 @@ export class Collection extends React.PureComponent {
             this.props.load
               ? <LoadingIndicator />
               : (<div>
-                
+
                 {this.state.downloadingFile
               ? <div className="data-loading">Vui lòng chờ xử lý...<LoadingIndicator /></div> : null}
                 <List
@@ -172,6 +171,10 @@ export class Collection extends React.PureComponent {
                   onDownload={(id, name) => {
                     this.setState({ downloadingFile: name });
                     this.props.requestDownload(id);
+                  }}
+                  onPreview={doc => {
+                    this.props.previewDoc(doc);
+                    this.props.getPreview(doc.id);
                   }}
                 />
               </div>)
@@ -200,6 +203,8 @@ export function mapDispatchToProps(dispatch) {
     removeFileSave: () => dispatch(removeFileSave()),
     removeMessage: () => dispatch(removeMessage()),
     updateQuery: query => dispatch(updateQuery(query)),
+    previewDoc: doc => dispatch(previewDoc(doc)),
+    getPreview: id => dispatch(getPreview(id)),
   };
 }
 

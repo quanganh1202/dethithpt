@@ -11,6 +11,7 @@ import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
+import { withRouter, Redirect } from 'react-router-dom';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -22,6 +23,7 @@ import {
 import { faMoneyBillAlt } from '@fortawesome/free-regular-svg-icons';;
 import Select from 'react-select';
 import FileSaver from 'file-saver';
+import queryString from 'query-string';
 import _ from 'lodash';
 
 import injectReducer from 'utils/injectReducer';
@@ -31,7 +33,14 @@ import List from 'components/List';
 import ListItem from 'components/ListItem';
 import LoadingIndicator from 'components/LoadingIndicator';
 import { getFilterData, getDocumentsList } from './actions';
-import { requestDownload, removeFileSave, removeMessage, updateQuery } from 'containers/HomePage/actions';
+import {
+  requestDownload,
+  removeFileSave,
+  removeMessage,
+  updateQuery,
+  previewDoc,
+  getPreview,
+} from 'containers/HomePage/actions';
 import {
   makeSelectDocument,
   makeSelectLoading,
@@ -52,6 +61,14 @@ const errorMapping = {
   unknown_error_download: 'Tài liệu không còn tồn tại hoặc có lỗi, vui lòng báo lại cho admin!',
   not_enough_money: 'Tài khoản không còn đủ tiền để thanh toán, vui lòng nạp thêm!',
 }
+const acceptedQueryKeys = ['sort', 'subjectId', 'classId', 'yearSchools'];
+const years = Array(21)
+  .fill((new Date()).getFullYear() - 10)
+  .map((y, idx) => `${y + idx}`);
+const sortOptions = [
+  { value: 'desc', label: 'Mới đăng' },
+  { value: 'asc', label: 'Cũ đến mới' },
+];
 
 /* eslint-disable react/prefer-stateless-function */
 export class Category extends React.PureComponent {
@@ -75,8 +92,15 @@ export class Category extends React.PureComponent {
     window.scrollTo(0, 0);
     // get filter data
     this.props.getFilterData();
-
+    const currentQueries = queryString.parse(this.props.location.search);
+    const mappedQueries = {};
+    Object.keys(currentQueries).forEach((k) => {
+      if (acceptedQueryKeys.includes(k)) {
+        mappedQueries[k] = currentQueries[k];
+      }
+    });
     const queries = {
+      ...mappedQueries,
       sort: 'createdAt.desc',
       size: itemsPerLoad,
     };
@@ -91,6 +115,7 @@ export class Category extends React.PureComponent {
   }
 
   componentWillReceiveProps(nextProps) {
+    // handle switch between categories
     if (this.props.match.params.id !== nextProps.match.params.id) {
       window.scrollTo(0, 0);
       const queries = {
@@ -100,12 +125,6 @@ export class Category extends React.PureComponent {
       };
       this.props.getDocumentsList(queries, true);
       this.setState({
-        filter: {
-          subjectId: '',
-          classId: '',
-          yearSchools: '',
-          sort: { value: 'desc', label: 'Mới đăng' },
-        },
         resetKey: Math.random(),
       });
 
@@ -114,26 +133,50 @@ export class Category extends React.PureComponent {
         cateId: nextProps.match.params.id,
       });
     }
+
+    // handle download success
     if (!this.props.file && nextProps.file) {
       const blob = new Blob([nextProps.file]);
       FileSaver.saveAs(blob, _.get(this.state, 'downloadingFile', 'download'));
       this.setState({ downloadingFile: '' });
       this.props.removeFileSave();
     }
+
+    // handle error
     if (!this.props.message && nextProps.message) {
       this.setState({ downloadingFile: '' });
       alert(errorMapping[nextProps.message] || 'Có lỗi xảy ra, vui lòng báo lại cho admin!');
       this.props.removeMessage();
     }
+
+    // handle change filter
+    if (this.props.location.search !== nextProps.location.search) {
+      const queries = queryString.parse(nextProps.location.search);
+      const mappedQueries = {};
+      Object.keys(queries).forEach((k) => {
+        if (acceptedQueryKeys.includes(k)) {
+          mappedQueries[k] = queries[k];
+        }
+      });
+      mappedQueries.cateId = nextProps.match.params.id;
+      mappedQueries.offset = 0;
+      mappedQueries.size = itemsPerLoad;
+      this.props.getDocumentsList(mappedQueries, true);
+      if (!nextProps.location.search) {
+        this.setState({
+          resetKey: Math.random(),
+        });
+      }
+    }
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     const currentFilter = {
-      ...this.state.filter,
+      search: this.props.location.search,
       cateId: this.props.match.params.id,
     };
     const prevFilter = {
-      ...prevState.filter,
+      search: prevProps.location.search,
       cateId: prevProps.match.params.id,
     };
 
@@ -141,16 +184,10 @@ export class Category extends React.PureComponent {
       const queryCollection = {
         cateId: currentFilter.cateId,
       };
-      Object.keys(currentFilter).forEach(key => {
-        if (
-          ['classId', 'subjectId', 'yearSchools'].includes(key) &&
-          currentFilter[key] &&
-          _.isArray(currentFilter[key]) &&
-          currentFilter[key].length > 0
-        ) {
-          queryCollection[key] = currentFilter[key]
-            .map(t => t.value)
-            .toString();
+      const currentQueries = queryString.parse(this.props.location.search);
+      Object.keys(currentQueries).forEach((k) => {
+        if (acceptedQueryKeys.includes(k) && k !== 'sort') {
+          queryCollection[k] = currentQueries[k];
         }
       });
 
@@ -158,47 +195,85 @@ export class Category extends React.PureComponent {
     }
   }
 
+  mappingQueriesToFilter(search = '') {
+    const filter = {};
+    const queries = queryString.parse(search);
+    Object.keys(queries).forEach((k) => {
+      if (acceptedQueryKeys.includes(k)) {
+        filter[k] = queries[k];
+      }
+    });
+    if (filter.subjectId) {
+      const subjectFilter = [];
+      filter.subjectId.split(',').forEach((i) => {
+        const subjectDetail = this.props.filterData.subjects.find((s) => s.id === i);
+        if (subjectDetail) subjectFilter.push({ value: i, label: subjectDetail.name });
+      });
+      filter.subjectId = subjectFilter;
+    }
+    if (filter.classId) {
+      const classFilter = [];
+      filter.classId.split(',').forEach((i) => {
+        const classDetail = this.props.filterData.classes.find((c) => c.id === i);
+        if (classDetail) classFilter.push({ value: i, label: classDetail.name });
+      });
+      filter.classId = classFilter;
+    }
+    if (filter.yearSchools) {
+      const yearFilter = [];
+      filter.yearSchools.split(',').forEach((i) => {
+        const yearDetail = years.find((y) => y === i);
+        if (yearDetail) yearFilter.push({ value: i, label: i });
+      });
+      filter.yearSchools = yearFilter;
+    }
+    if (filter.sort) {
+      const sortValue = filter.sort.split('.')[1] || 'desc';
+      const currentSort = sortOptions.find((i) => i.value === sortValue);
+      filter.sort = filter.sort.split('.')[0] === 'createdAt' && currentSort
+        ? { value: sortValue, label: currentSort.label } : {};
+    } else {
+      filter.sort = { value: 'desc', label: 'Mới đăng' };
+    }
+    return filter;
+  }
+
   loadMoreDocs() {
-    const { filter } = this.state;
+    const currentQueries = queryString.parse(this.props.location.search);
+    const mappedQueries = {};
+    Object.keys(currentQueries).forEach((k) => {
+      if (acceptedQueryKeys.includes(k)) {
+        mappedQueries[k] = currentQueries[k];
+      }
+    });
     const queries = {
-      sort: `createdAt.${filter.sort.value}` || 'createdAt.desc',
+      ...mappedQueries,
       offset: this.props.documents.data.length,
       size: itemsPerLoad,
-    }
-    Array.from(['subjectId', 'classId', 'yearSchools']).forEach((f) => {
-      if (filter[f] && filter[f].length > 0) {
-        queries[f] = filter[f].map((i) => i.value).join(',');
-      }
-    })
+      cateId: this.props.match.params.id,
+    };
     this.props.getDocumentsList(queries);
   }
 
   handleChangeFilter(name, options) {
-    const newFilter = {
-      ...this.state.filter,
-      [name]: options,
+    let mappedValue = '';
+    if ((name === 'subjectId' || name === 'classId' || name === 'yearSchools') && options.length) {
+      mappedValue = options.map((i) => i.value).join();
     }
-    const queries = {
-      sort: `createdAt.${newFilter.sort.value}` || 'createdAt.desc',
-      offset: 0,
-      size: itemsPerLoad,
-      cateId: this.props.match.params.id,
+    if (name === 'sort') {
+      mappedValue = `createdAt.${options.value}`;
     }
-    Array.from(['subjectId', 'classId', 'yearSchools']).forEach((filter) => {
-      if (newFilter[filter] && newFilter[filter].length > 0) {
-        queries[filter] = newFilter[filter].map((i) => i.value).join(',');
-      }
-    })
-    this.props.getDocumentsList(queries, true);
-    this.setState({
-      filter: newFilter,
-    });
+    const currentFilter = queryString.parse(this.props.location.search);
+    const newFilter = { ...currentFilter, [name]: mappedValue };
+    this.props.history.push(`${this.props.location.pathname}?${queryString.stringify(newFilter)}`);
   }
 
   render() {
+    const filter = this.mappingQueriesToFilter(this.props.location.search);
     const categories = _.get(this.props, 'categories', []);
     const currentCat = categories.find((c) => c.id ===  this.props.match.params.id);
     const catName = _.get(currentCat, 'name', '');
+    console.log(catName);
     return (
       <Wrapper>
         <Helmet>
@@ -216,7 +291,7 @@ export class Category extends React.PureComponent {
                 <Select
                   key={this.state.resetKey}
                   name="subjectId"
-                  value={this.state.filter.subjectId}
+                  value={filter.subjectId}
                   onChange={this.handleChangeFilter.bind(this, 'subjectId')}
                   options={this.props.filterData.subjects.map((sj) => ({ value: sj.id, label: sj.name }))}
                   isMulti
@@ -236,7 +311,7 @@ export class Category extends React.PureComponent {
                 <Select
                   key={this.state.resetKey}
                   name="classId"
-                  value={this.state.filter.classId}
+                  value={filter.classId}
                   onChange={this.handleChangeFilter.bind(this, 'classId')}
                   options={this.props.filterData.classes.map((cls) => ({ value: cls.id, label: cls.name }))}
                   isMulti
@@ -256,11 +331,9 @@ export class Category extends React.PureComponent {
                 <Select
                   key={this.state.resetKey}
                   name="yearSchools"
-                  value={this.state.filter.yearSchools}
+                  value={filter.yearSchools}
                   onChange={this.handleChangeFilter.bind(this, 'yearSchools')}
-                  options={Array(21)
-                    .fill((new Date()).getFullYear() - 10)
-                    .map((y, idx) => ({ value: y + idx, label: y + idx }))}
+                  options={years.map((y) => ({ value: y, label: y }))}
                   isMulti
                   hideSelectedOptions={false}
                   closeMenuOnSelect={false}
@@ -278,15 +351,11 @@ export class Category extends React.PureComponent {
                 <Select
                   key={this.state.resetKey}
                   name="sort"
-                  value={this.state.filter.sort}
+                  value={filter.sort}
                   onChange={this.handleChangeFilter.bind(this, 'sort')}
-                  options={[
-                    { value: 'desc', label: 'Mới đăng' },
-                    { value: 'asc', label: 'Cũ đến mới' },
-                  ]}
+                  options={sortOptions}
                   // isMulti
                   hideSelectedOptions={false}
-                  defaultValue={{ value: 'desc', label: 'Mới đăng' }}
                   // closeMenuOnSelect={false}
                   placeholder={'Sắp xếp'}
                   isSearchable={false}
@@ -325,6 +394,10 @@ export class Category extends React.PureComponent {
                     this.setState({ downloadingFile: name });
                     this.props.requestDownload(id);
                   }}
+                  onPreview={doc => {
+                    this.props.previewDoc(doc);
+                    this.props.getPreview(doc.id);
+                  }}
                 />
               </div>)
           }
@@ -342,6 +415,7 @@ Category.propTypes = {
   username: PropTypes.string,
   onChangeUsername: PropTypes.func,
   updateQuery: PropTypes.func,
+  previewDoc: PropTypes.func,
 };
 
 export function mapDispatchToProps(dispatch) {
@@ -353,6 +427,8 @@ export function mapDispatchToProps(dispatch) {
     removeFileSave: () => dispatch(removeFileSave()),
     removeMessage: () => dispatch(removeMessage()),
     updateQuery: query => dispatch(updateQuery(query)),
+    previewDoc: doc => dispatch(previewDoc(doc)),
+    getPreview: id => dispatch(getPreview(id)),
   };
 }
 
@@ -378,4 +454,4 @@ export default compose(
   withReducer,
   withSaga,
   withConnect,
-)(Category);
+)(withRouter(Category));

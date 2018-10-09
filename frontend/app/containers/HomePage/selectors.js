@@ -40,6 +40,15 @@ const makeSelectMessage = () =>
 const makeSelectQueryCollection = () =>
   createSelector(selectHome, homeState => homeState.get('queryCollection'));
 
+const makeSelectInfoDocPreview = () =>
+  createSelector(selectHome, homeState => homeState.get('docPreview'));
+
+const makeSelectIsShowPreview = () =>
+  createSelector(selectHome, homeState => homeState.get('isPreview'));
+
+const makeSelectImagesPreview = () =>
+  createSelector(selectHome, homeState => homeState.get('images'));
+
 export {
   selectHome,
   makeSelectUser,
@@ -53,4 +62,7 @@ export {
   makeSelectFile,
   makeSelectMessage,
   makeSelectQueryCollection,
+  makeSelectIsShowPreview,
+  makeSelectInfoDocPreview,
+  makeSelectImagesPreview,
 };
