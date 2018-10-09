@@ -56,6 +56,29 @@
         "action": {
           "type": "keyword"
         },
+        "actorId": {
+          "type": "keyword"
+        },
+        "actorName": {
+          "type": "text",
+          "analyzer": "autocomplete",
+          "search_analyzer": "standard",
+          "fields": {
+            "raw": {
+              "type": "keyword"
+            }
+          }
+        },
+        "actorRole": {
+          "type": "text",
+          "analyzer": "autocomplete",
+          "search_analyzer": "standard",
+          "fields": {
+            "raw": {
+              "type": "keyword"
+            }
+          }
+        },
         "createdAt": {
         	"type": "date"
         }

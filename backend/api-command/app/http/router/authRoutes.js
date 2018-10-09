@@ -84,13 +84,6 @@ const routerDefine =  function defineRouter() {
   route.post('/users/recharge', async (req, res) => {
     const userId = req.app.locals.id.toString();
     const { money } = req.body;
-    if (!/^[0-9]+$/.test(money)) {
-      res.status(400).json({
-        statusCode: 400,
-        error: 'Money must be a number',
-      });
-    }
-
     const { error, status, message } = await recharge(userId, money || 0);
     res.status(status);
     if (error) {
@@ -103,13 +96,6 @@ const routerDefine =  function defineRouter() {
   route.post('/users/bonus/:id', async (req, res) => {
     const userId = req.app.locals.id.toString();
     const { money, email } = req.body;
-    if (!/^[0-9]+$/.test(money)) {
-      res.status(400).json({
-        statusCode: 400,
-        error: 'Money must be a number',
-      });
-    }
-
     const { error, status, message } = await bonus(userId, req.params.id, money || 0, email);
     res.status(status);
     if (error) {

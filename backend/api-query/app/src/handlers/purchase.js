@@ -22,6 +22,9 @@ export default {
       userId,
       userName,
       docName,
+      actorName,
+      actorId,
+      actorRole,
       docId,
       action,
       sort,
@@ -42,7 +45,16 @@ export default {
       const isScroll = !isUndefined(scroll);
       const sortObj = sortParamsHandler(sort);
       if (sortObj.statusCode !== 200) return sortObj; // Return error
-      const filterBuilt = filterParamsHandler({ userId, action, userName, docName, docId });
+      const filterBuilt = filterParamsHandler({
+        userId,
+        action,
+        userName,
+        docName,
+        docId,
+        actorName,
+        actorId,
+        actorRole,
+      });
       if (filterBuilt.statusCode !== 200) return filterBuilt; // Return error
       const from = size && offset && !isScroll ? offset : 0;
       const result = isScroll ?

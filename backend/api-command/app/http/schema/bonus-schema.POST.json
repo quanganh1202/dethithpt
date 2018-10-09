@@ -1,0 +1,13 @@
+{
+  "$id": "http://dethithpt.com/bonus-schema#",
+  "title": "Bonus",
+  "description": "Bonus schema validation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["money"],
+  "properties": {
+    "money": {
+      "type": "integer"
+    }
+  }
+}
