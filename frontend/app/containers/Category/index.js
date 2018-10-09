@@ -273,7 +273,6 @@ export class Category extends React.PureComponent {
     const categories = _.get(this.props, 'categories', []);
     const currentCat = categories.find((c) => c.id ===  this.props.match.params.id);
     const catName = _.get(currentCat, 'name', '');
-    console.log(catName);
     return (
       <Wrapper>
         <Helmet>
