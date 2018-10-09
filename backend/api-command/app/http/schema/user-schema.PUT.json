@@ -85,8 +85,7 @@
       "minLength": 1
     },
     "money": {
-      "type": "string",
-      "minLength": 1
+      "type": "integer"
     },
     "notifyText": {
       "type": "string",

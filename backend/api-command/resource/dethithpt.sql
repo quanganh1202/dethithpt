@@ -15,8 +15,8 @@ USE dethithpt;
     `school` VARCHAR(45) NULL,
     `facebook` VARCHAR(45) NULL,
     `position` VARCHAR(45) NULL,
-    `money` VARCHAR(255) DEFAULT '0',
-    `status` TINYINT DEFAULT '2',
+    `money` INT(11) DEFAULT 0,
+    `status` INT(1) DEFAULT 2,
     `class` VARCHAR(45) NULL,
     `note1` TEXT(255) NULL,
     `note2` TEXT(255) NULL,
@@ -26,7 +26,7 @@ USE dethithpt;
     `blockDownloadCategories` VARCHAR(255) NULL,
     `blockDownloadSubjects` VARCHAR(255) NULL,
     `notifyText` VARCHAR(255) NULL,
-    `notifyStatus` TINYINT DEFAULT '0',
+    `notifyStatus` INT(1) DEFAULT 0,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `id_UNIQUE` (`id` ASC),
     UNIQUE INDEX `email_UNIQUE` (`email` ASC),
@@ -38,7 +38,7 @@ USE dethithpt;
     `tags` VARCHAR(255) NOT NULL,
     `description` LONGTEXT NULL,
     `userId` INT(11) NOT NULL,
-    `price` VARCHAR(255) NOT NULL DEFAULT '0',
+    `price` INT(11) NOT NULL DEFAULT 0,
     `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `path` MEDIUMTEXT NULL,
     `cateIds` VARCHAR(255) NULL,
@@ -47,10 +47,10 @@ USE dethithpt;
     `yearSchools` VARCHAR(255) NULL,
     `note` TEXT(255) NULL,
     `collectionIds` VARCHAR(255) NULL,
-    `totalPages` INT(11) NOT NULL DEFAULT '0',
-    `priority` INT(1) NOT NULL DEFAULT '0',
-    `approved` TINYINT DEFAULT '0',
-    `approverId` VARCHAR(255),
+    `totalPages` INT(11) NOT NULL DEFAULT 0,
+    `priority` INT(1) NOT NULL DEFAULT 0,
+    `approved` INT(1) DEFAULT 0,
+    `approverId` INT(11),
     PRIMARY KEY (`id`),
     UNIQUE INDEX `id_UNIQUE` (`id` ASC));
 
@@ -58,9 +58,9 @@ USE dethithpt;
     `id` INT NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(50) NOT NULL,
     `description` TEXT(255) NOT NULL,
-    `userId` TEXT(15) NOT NULL,
-    `priority` INT(1) NOT NULL DEFAULT '0',
-    `position` VARCHAR(5) NOT NULL DEFAULT '0',
+    `userId` INT(11) NOT NULL,
+    `priority` INT(1) NOT NULL DEFAULT 0,
+    `position` INT(11) NOT NULL DEFAULT 0,
     `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `id_UNIQUE` (`id` ASC),
@@ -71,8 +71,8 @@ USE dethithpt;
     `name` VARCHAR(50) NOT NULL,
     `description` TEXT(255) NOT NULL,
     `userId` INT(11) NOT NULL,
-    `priority` INT(1) NOT NULL DEFAULT '0',
-    `position` VARCHAR(5) NOT NULL DEFAULT '0',
+    `priority` INT(1) NOT NULL DEFAULT 0,
+    `position` INT(11) NOT NULL DEFAULT 0,
     `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `id_UNIQUE` (`id` ASC));
@@ -82,8 +82,8 @@ USE dethithpt;
     `name` VARCHAR(50) NOT NULL,
     `description` TEXT(255) NOT NULL,
     `userId` INT(11) NOT NULL,
-    `priority` INT(1) NOT NULL DEFAULT '0',
-    `position` VARCHAR(5) NOT NULL DEFAULT '0',
+    `priority` INT(1) NOT NULL DEFAULT 0,
+    `position` INT(11) NOT NULL DEFAULT 0,
     `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `id_UNIQUE` (`id` ASC));
@@ -97,18 +97,18 @@ USE dethithpt;
     `subjectIds` VARCHAR(255) NOT NULL,
     `userId` INT(11) NOT NULL,
     `yearSchools` VARCHAR(255) NOT NULL,
-    `priority` INT(1) NOT NULL DEFAULT '0',
-    `priorityCate` INT(1) NOT NULL DEFAULT '0',
-    `position` VARCHAR(5) NOT NULL DEFAULT '0',
+    `priority` INT(1) NOT NULL DEFAULT 0,
+    `priorityCate` INT(1) NOT NULL DEFAULT 0,
+    `position` INT(11) NOT NULL DEFAULT 0,
     `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `id_UNIQUE` (`id` ASC));
 
   CREATE TABLE IF NOT EXISTS `dethithpt`.`tbPurchase`(
     `id` INT NOT NULL AUTO_INCREMENT,
-    `userId` VARCHAR(255) NOT NULL,
-    `docId` VARCHAR(255),
-    `money` VARCHAR(255) NOT NULL DEFAULT '0',
+    `userId` INT(11) NOT NULL,
+    `docId` INT(11),
+    `money` INT(11) NOT NULL DEFAULT 0,
     `action` VARCHAR(255) NOT NULL,
     `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
@@ -118,11 +118,11 @@ USE dethithpt;
     `id` INT NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(255) NOT NULL,
     `text` LONGTEXT NOT NULL,
-    `priority` INT(1) NOT NULL DEFAULT '0',
-    `active` INT(1) NOT NULL DEFAULT '1',
+    `priority` INT(1) NOT NULL DEFAULT 0,
+    `active` INT(1) NOT NULL DEFAULT 1,
     `type` VARCHAR(255) NOT NULL,
     `position` VARCHAR(255) NULL,
-    `userId` VARCHAR(255) NOT NULL,
+    `userId` INT(11) NOT NULL,
     `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `id_UNIQUE` (`id` ASC));
@@ -142,39 +142,39 @@ USE dethithpt;
     `email`,
     `role`,
     `status`
-  ) VALUES ('administator', 'vuanhdung.khmt2k7@gmail.com', 'admin', '2');
+  ) VALUES ('administator', 'vuanhdung.khmt2k7@gmail.com', 'admin', 2);
 
   INSERT INTO `dethithpt`.`tbUser`(
     `name`,
     `email`,
     `role`,
     `status`
-  ) VALUES ('administator', 'vuanhdung.khmt2@gmail.com', 'admin', '2');
+  ) VALUES ('administator', 'vuanhdung.khmt2@gmail.com', 'admin', 2);
 
   INSERT INTO `dethithpt`.`tbUser`(
     `name`,
     `email`,
     `role`,
     `status`
-  ) VALUES ('administator', 'quanganh1202@gmail.com', 'admin', '2');
+  ) VALUES ('administator', 'quanganh1202@gmail.com', 'admin', 2);
 
   INSERT INTO `dethithpt`.`tbUser`(
     `name`,
     `email`,
     `role`,
     `status`
-  ) VALUES ('administator', 'tdgalaxycorp@gmail.com', 'admin', '2');
+  ) VALUES ('administator', 'tdgalaxycorp@gmail.com', 'admin', 2);
 
   INSERT INTO `dethithpt`.`tbUser`(
     `name`,
     `email`,
     `role`,
     `status`
-  ) VALUES ('administator', 'phamdung282@gmail.com', 'admin', '2');
+  ) VALUES ('administator', 'phamdung282@gmail.com', 'admin', 2);
 
   INSERT INTO `dethithpt`.`tbUser`(
     `name`,
     `email`,
     `role`,
     `status`
-  ) VALUES ('administator', 'nguoiran2000@gmail.com', 'admin', '2');
+  ) VALUES ('administator', 'nguoiran2000@gmail.com', 'admin', 2);

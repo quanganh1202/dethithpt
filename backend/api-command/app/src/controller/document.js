@@ -532,7 +532,7 @@ async function purchaseDocument(docId, userId) {
         docName: doc[0].name,
         userId,
         userName: user[0].name,
-        money: doc[0].price,
+        money: parseInt(doc[0].price),
         action: action.PURCHASE,
       },
     });
@@ -562,6 +562,8 @@ async function purchaseDocument(docId, userId) {
 
 async function downloadDocument(docId, userId) {
   try {
+    const userValid = await checkUserActivation(userId);
+    if (userValid.error) return user;
     const doc = await docModel.getDocumentById(docId);
     if (!doc || !doc.length) {
       return {

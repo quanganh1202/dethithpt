@@ -119,12 +119,7 @@
           }
         },
         "price": {
-          "type": "text",
-          "fields": {
-            "raw": {
-              "type": "integer"
-            }
-          }
+          "type": "integer"
         },
         "userId": {
           "type": "keyword"
