@@ -45,12 +45,20 @@ export function* getDetailUserHandler({ id }) {
 export function* updateUserHandler({ data, blockUser, id }) {
   const url = `${root}/users/${id}`;
   const urlBlock = `${root}/users/block/${id}`;
+  const urlBonus = `${root}/users/bonus/${id}`;
   const options = {
     headers: {
       'x-access-token': getToken(),
     },
   };
   try {
+    const money = data.bonusMoney
+    if (money) {
+      yield call(axios.post, urlBonus, {
+        money,
+      }, options);
+    }
+    delete data.bonusMoney;
     yield call(axios.put, url, data, options);
     yield call(axios.put, urlBlock, {
       ...blockUser,
