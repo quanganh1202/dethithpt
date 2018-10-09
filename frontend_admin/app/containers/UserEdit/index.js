@@ -315,7 +315,11 @@ export class UserEdit extends React.PureComponent {
       if (!this.props.location.search.split('=')[1]) {
         this.props.updateUser(user, blockUser, this.props.match.params.id);
       } else {
-        this.props.updateUser(this.state.formData, this.props.match.params.id);
+        this.props.updateUser(
+          this.state.formData,
+          undefined,
+          this.props.match.params.id,
+        );
       }
     } else {
       this.setState({ error });

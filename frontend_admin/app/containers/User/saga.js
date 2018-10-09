@@ -4,11 +4,12 @@
 import axios from 'axios';
 import _ from 'lodash';
 import { all, call, put, takeLatest } from 'redux-saga/effects';
-import request from 'utils/request';
-import { GET_USERS, GET_DATA_INIT } from './constants';
+import { getToken } from 'services/auth';
+import { GET_USERS, GET_DATA_INIT, GET_HISTORY } from './constants';
 import {
   getUsersSuccess,
   getDataInitSuccess,
+  getHistorySuccess,
 } from './actions';
 
 const root = '/api';
@@ -55,9 +56,52 @@ export function* getDataInitHandler() {
 }
 
 /**
+ * Request get user history
+ */
+export function* getHistoryHandler({ historyType, id }) {
+  let url = '';
+  const options = {
+    headers: {
+      'x-access-token': getToken(),
+    },
+    params: {
+      sort: 'createdAt.desc',
+    },
+  };
+  switch (historyType) {
+    case '1':
+      url = `${root}/purchase?action=PURCHASE&userId=${id}`;
+      break;
+    case '2':
+      url = `${root}/documents?approved=all&userId=${id}`;
+      break;
+    case '3':
+      url = `${root}/purchase?action=RECHARGE&userId=${id}`;
+      break;
+    case '4':
+      url = `${root}/purchase?action=BONUS&userId=${id}`;
+      break;
+    case '5':
+      url = `${root}/comments?userId=${id}`;
+      break;
+    default:
+      break;
+  }
+  console.log(url);
+  try {
+    const resp = yield call(axios.get, url, options);
+    yield put(getHistorySuccess(resp.data.data));
+  } catch (err) {
+    console.log(err);
+  // yield put(editDocFailure(_.get(err, 'response.data.error', 'Unknown error from server')));
+  }
+}
+
+/**
  * Root saga manages watcher lifecycle
  */
 export default function* userSaga() {
   yield takeLatest(GET_USERS.REQUEST, getUsersHandler);
   yield takeLatest(GET_DATA_INIT.REQUEST, getDataInitHandler);
+  yield takeLatest(GET_HISTORY.REQUEST, getHistoryHandler);
 }

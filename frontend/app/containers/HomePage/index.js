@@ -304,7 +304,6 @@ export class HomePage extends React.PureComponent {
   }
 
   render() {
-    console.log(this.props.docPreview);
     const { pathname } = this.props.history.location;
     const dataRight1 = [
       {
