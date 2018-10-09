@@ -63,17 +63,17 @@ const routerDefine =  function defineRouter() {
     const userId = req.app.locals.id.toString();
     const docId = req.params.docId;
     const download = req.query.download;
-    const { error, status, path, type } = await downloadDocument(docId, userId);
+    const { error, status, path, type, message } = await downloadDocument(docId, userId, download);
     if (error) {
       return res.status(status).json({
         statusCode: status,
         error,
       });
     }
-    if (isUndefined(download)) {
+    if (!isUndefined(download)) {
       return res.status(status).json({
         statusCode: status,
-        message: 'OK',
+        message: message || 'File available to download',
       });
     }
     res.set('Content-Type', `application/${type}`);
