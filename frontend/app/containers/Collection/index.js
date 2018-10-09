@@ -155,7 +155,7 @@ export class Collection extends React.PureComponent {
             </GreyTitle>
           }
           content={
-            this.props.load
+            this.props.loading
               ? <LoadingIndicator />
               : (<div>
 
