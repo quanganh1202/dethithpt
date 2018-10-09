@@ -213,7 +213,7 @@ export class UserEdit extends React.PureComponent {
       .set(
         'money',
         `${moneyValidation(this.state.formData.get('money')) +
-          parseInt(this.state.formData.get('deposit'))}`,
+          parseInt(this.state.formData.get('deposit', 0))}`,
       )
       .delete('blockDownloadCategories')
       .delete('blockDownloadCollections')
