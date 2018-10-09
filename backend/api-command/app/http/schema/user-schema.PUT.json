@@ -17,7 +17,6 @@
     },
     "phone": {
       "type": "string",
-      "pattern": "^[0-9()\\-\\.\\s]+$",
       "minLength": 1
     },
     "role": {
