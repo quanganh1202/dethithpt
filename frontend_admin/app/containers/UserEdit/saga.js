@@ -52,7 +52,9 @@ export function* updateUserHandler({ data, blockUser, id }) {
   };
   try {
     yield call(axios.put, url, data, options);
-    yield call(axios.put, urlBlock, blockUser, options);
+    if (blockUser) {
+      yield call(axios.put, urlBlock, blockUser, options);
+    }
     yield put(updateUserSuccess());
     yield put(push('/users'));
     // yield getDetailUserHandler({ id });
