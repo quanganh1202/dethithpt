@@ -41,6 +41,9 @@ import PopUp from 'components/PopUp';
 import SocialButton from 'components/SocialButton';
 import TagList from 'components/TagList';
 import { getUser, setToken } from 'services/auth';
+import { moneyValidation, numberWithCommas } from 'services/helper';
+import moment from 'moment';
+
 import {
   login,
   updateUserInfo,
@@ -115,11 +118,6 @@ const dataRight2 = [
   },
 ];
 
-const numberWithCommas = x => {
-  const parts = x.toString().split('.');
-  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  return parts.join('.');
-};
 const itemsPerLoad = 10;
 const requiredFields = [
   'name',
@@ -353,8 +351,17 @@ export class HomePage extends React.PureComponent {
                 icon={['far', 'file-alt']}
               />
               Số dư :{' '}
-              <span className="red bold">{numberWithCommas(_.get(this.props.userDetail, 'money', 0))}</span>đ (HSD:{' '}
-              <span className="green bold">5</span> ngày)
+              <span className="red bold">{numberWithCommas(moneyValidation(_.get(this.props, 'userDetail.money', 0)))}</span>đ
+              {' '}
+              {
+                _.get(this.props, 'userDetail.blockFrom') &&
+                moment(_.get(this.props, 'userDetail.blockFrom')) >= moment() ? (
+                  <span>(HSD:{' '}
+              <span className="green bold">
+                {moment(_.get(this.props, 'userDetail.blockFrom')).diff(moment(), 'days') + 1}
+              </span> ngày)</span>
+                ) : null
+              }
             </p>
             <p className="user-payment">
               <FontAwesomeIcon className="user-icon" icon={['fas', 'folder']} />
