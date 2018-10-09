@@ -278,7 +278,7 @@ async function updateUser(id, userInfo) {
         error: resValidate.errors,
       };
     }
-    const { email, phone, userId, notifyText, notifyStatus, status } = userInfo;
+    const { email, phone, userId, notifyText, notifyStatus, status, money } = userInfo;
     const actor = await checkUserActivation(userId);
     if (actor.error) return actor;
     const existed = await userModel.getById(id);
@@ -307,7 +307,12 @@ async function updateUser(id, userInfo) {
         error: 'Only role admin can update field notifyText',
       };
     }
-
+    if (money && role !== roles.ADMIN) {
+      return {
+        status: 400,
+        error: 'Only role admin can update field money',
+      };
+    }
     if (notifyText && isUndefined(notifyStatus)) {
       userInfo.notifyStatus = 1;
     }
@@ -465,6 +470,12 @@ async function blockUser(id, userId, body) {
 
 async function recharge(userId, money) {
   try {
+    if (money < 0 ) {
+      return {
+        status: 400,
+        error: 'Money is invalid',
+      };
+    }
     const user = await checkUserActivation(userId);
     if (user.error) return user;
     const moneyAfterRecharge = parseInt(money) + parseInt(user[0].money);

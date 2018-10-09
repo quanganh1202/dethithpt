@@ -570,7 +570,7 @@ async function purchaseDocument(docId, userId) {
   }
 }
 
-async function downloadDocument(docId, userId) {
+async function downloadDocument(docId, userId, download) {
   try {
     const userValid = await checkUserActivation(userId);
     if (userValid.error) return user;
@@ -579,6 +579,12 @@ async function downloadDocument(docId, userId) {
       return {
         status: 400,
         error: 'Document not found',
+      };
+    }
+    if (!isUndefined(download)) {
+      return {
+        status: 200,
+        message: 'File available to download',
       };
     }
     const userModel = new User();
