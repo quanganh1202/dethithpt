@@ -215,6 +215,10 @@ export class UserEdit extends React.PureComponent {
         `${moneyValidation(this.state.formData.get('money')) +
           parseInt(this.state.formData.get('deposit', 0))}`,
       )
+      .set(
+        'bonusMoney',
+        parseInt(this.state.formData.get('deposit', 0)),
+      )
       .delete('blockDownloadCategories')
       .delete('blockDownloadCollections')
       .delete('blockDownloadSubjects')
@@ -303,7 +307,7 @@ export class UserEdit extends React.PureComponent {
     const error = {};
     const { user, blockUser } = this.mappingUserToSave(this.state.formData);
     Object.keys(user).forEach(key => {
-      if (key !== 'money' && !this.state.formData.toJS()[key]) {
+      if (key !== 'money' && key !== 'bonusMoney' && !this.state.formData.toJS()[key]) {
         error[key] = 'Thông tin còn thiếu';
       }
     });

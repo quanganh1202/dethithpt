@@ -521,7 +521,13 @@ async function purchaseDocument(docId, userId) {
     }
     const moneyAfterPurchase =  parseInt(user[0].money) - (parseInt(doc[0].price) || 0);
     const res = await Promise.all([
-      docModel.purchase({ docId, userId, money: doc[0].price, action: action.PURCHASE }),
+      docModel.purchase({
+        docId,
+        userId,
+        money: parseInt(doc[0].price),
+        action: action.PURCHASE,
+        actorId: userId,
+      }),
       userModel.updateUser(userId, { money: moneyAfterPurchase }),
     ]);
 
@@ -532,8 +538,12 @@ async function purchaseDocument(docId, userId) {
         docName: doc[0].name,
         userId,
         userName: user[0].name,
-        money: doc[0].price,
+        money: parseInt(doc[0].price),
         action: action.PURCHASE,
+        actorId: userId,
+        actorName: user[0].name,
+        actorRole: user[0].role,
+        actorMail: user[0].email,
       },
     });
 
@@ -562,6 +572,8 @@ async function purchaseDocument(docId, userId) {
 
 async function downloadDocument(docId, userId) {
   try {
+    const userValid = await checkUserActivation(userId);
+    if (userValid.error) return user;
     const doc = await docModel.getDocumentById(docId);
     if (!doc || !doc.length) {
       return {
