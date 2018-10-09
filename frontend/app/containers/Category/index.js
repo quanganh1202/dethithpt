@@ -273,11 +273,11 @@ export class Category extends React.PureComponent {
     const categories = _.get(this.props, 'categories', []);
     const currentCat = categories.find((c) => c.id ===  this.props.match.params.id);
     const catName = _.get(currentCat, 'name', '');
-    console.log(catName);
+
     return (
       <Wrapper>
         <Helmet>
-          <title>Danh mục: {catName}</title>
+          <title>{catName}</title>
           <meta name="description" content="Description of UploadDocument" />
         </Helmet>
         <Tab
@@ -337,7 +337,7 @@ export class Category extends React.PureComponent {
                   isMulti
                   hideSelectedOptions={false}
                   closeMenuOnSelect={false}
-                  placeholder={'Chọn năm học'}
+                  placeholder={'Năm học'}
                   isSearchable={false}
                   components={{
                     DropdownIndicator: () => (

@@ -51,6 +51,7 @@ import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
 import { getToken } from 'services/auth';
+import { moneyValidation, numberWithCommas } from 'services/helper';
 import { getUsers, getDataInit } from './actions';
 import {
   makeSelectUsers,
@@ -103,12 +104,6 @@ function validateEmail(email) {
   const re = /\S+@\S+\.\S+/;
   return re.test(String(email).toLowerCase());
 }
-
-const numberWithCommas = x => {
-  const parts = x.toString().split('.');
-  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  return parts.join('.');
-};
 
 const mappingRolePosition = {
   admin: 'Admin',
@@ -228,8 +223,8 @@ export class User extends React.PureComponent {
         <td>{item.city}</td>
         <td>{item.numOfDownloaded || 0}</td>
         <td>{item.numOfUploaded || 0}</td>
-        <td>{numberWithCommas(purchase[item.id] || 0)}</td>
-        <td>{numberWithCommas(item.money || 0)}</td>
+        <td>{numberWithCommas(moneyValidation(purchase[item.id]))} đ</td>
+        <td>{numberWithCommas(moneyValidation(item.money))} đ</td>
         <td>{item.group}</td>
         <td>{item.note1}</td>
         <td>{item.note2}</td>

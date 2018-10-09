@@ -128,19 +128,17 @@ export class Collection extends React.PureComponent {
   }
 
   render() {
-    const collections = _.get(this.props, 'collections', []);
-    const currentCol = collections.find((c) => c.id ===  this.props.match.params.id);
-    const colName = _.get(currentCol, 'name', '');
+    const colName = this.props.collection.name;
     return (
       <Wrapper>
         <Helmet>
-          <title>Bộ sưu tập</title>
+          <title>{colName}</title>
           <meta name="description" content="Description of UploadDocument" />
         </Helmet>
         <Tab
           key="bo-loc-danh-muc"
           style={{ background: 'white' }}
-          title={this.props.loading ? <p style={{ minHeight: '19px' }}></p> : this.props.collection.name}
+          title={this.props.loading ? <p style={{ minHeight: '19px' }}></p> : colName}
           className="doc-filters"
           content={
             this.props.loading ? null : (

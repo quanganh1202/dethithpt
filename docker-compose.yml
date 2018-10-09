@@ -4,6 +4,7 @@ services:
   api-query:
     env_file:
       - ./.env
+    restart: always
     build: ./backend/api-query
     ports:
      - "${API_QUERY_PORT}:${API_QUERY_PORT}"
@@ -18,6 +19,7 @@ services:
 
   api-command:
     build: ./backend/api-command
+    restart: always
     env_file:
       - ./.env
     ports:

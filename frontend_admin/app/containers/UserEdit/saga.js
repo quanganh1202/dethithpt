@@ -53,11 +53,18 @@ export function* updateUserHandler({ data, blockUser, id }) {
   try {
     yield call(axios.put, url, data, options);
     if (blockUser) {
-      yield call(axios.put, urlBlock, blockUser, options);
+      yield call(
+        axios.put,
+        urlBlock,
+        {
+          ...blockUser,
+          status: +blockUser.status,
+        },
+        options,
+      );
     }
     yield put(updateUserSuccess());
     yield put(push('/users'));
-    // yield getDetailUserHandler({ id });
   } catch (err) {
     yield put(
       updateUserFailure(
@@ -82,9 +89,11 @@ export function* getDataInitHandler() {
     const subjects = _.get(resp, '[1].data.data');
     const classes = _.get(resp, '[2].data.data');
     const collections = _.get(resp, '[3].data.data');
-    yield put(getDataInitSuccess({ categories, subjects, classes, collections }));
+    yield put(
+      getDataInitSuccess({ categories, subjects, classes, collections }),
+    );
   } catch (err) {
-  // yield put(editDocFailure(_.get(err, 'response.data.error', 'Unknown error from server')));
+    // yield put(editDocFailure(_.get(err, 'response.data.error', 'Unknown error from server')));
   }
 }
 
