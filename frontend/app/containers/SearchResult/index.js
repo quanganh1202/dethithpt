@@ -28,6 +28,7 @@ import List from 'components/List';
 import ListItem from 'components/ListItem';
 import LoadingIndicator from 'components/LoadingIndicator';
 import GreyTitle from 'containers/HomePage/GreyTitle';
+import { makeSelectFile } from 'containers/HomePage/selectors'
 import {
   getPreview,
   previewDoc,
@@ -85,7 +86,6 @@ export class SearchResult extends React.PureComponent {
         true,
       );
     }
-
     if (!this.props.file && nextProps.file) {
       const blob = new Blob([nextProps.file]);
       FileSaver.saveAs(blob, _.get(this.state, 'downloadingFile', 'download'));
@@ -188,6 +188,7 @@ export function mapDispatchToProps(dispatch) {
 const mapStateToProps = createStructuredSelector({
   documents: makeSelectDocuments(),
   loading: makeSelectLoading(),
+  file: makeSelectFile(),
 });
 
 const withConnect = connect(
