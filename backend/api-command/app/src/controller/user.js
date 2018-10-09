@@ -489,6 +489,7 @@ async function recharge(userId, money) {
         actorId: userId,
         actorName: user[0].name,
         actorRole: user[0].role,
+        actorMail: user[0].email,
       },
     });
 
@@ -570,6 +571,7 @@ async function bonus(userId, id, money, email) {
         actorId: userId,
         actorName: actor[0].name,
         actorRole: actor[0].role,
+        actorMail: actor[0].email,
       },
     });
 

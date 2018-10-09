@@ -543,6 +543,7 @@ async function purchaseDocument(docId, userId) {
         actorId: userId,
         actorName: user[0].name,
         actorRole: user[0].role,
+        actorMail: user[0].email,
       },
     });
 
