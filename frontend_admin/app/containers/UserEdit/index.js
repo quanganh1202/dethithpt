@@ -36,6 +36,7 @@ import {
 } from 'reactstrap';
 import LoadingIndicator from 'components/LoadingIndicator';
 
+import { moneyValidation, numberWithCommas } from 'services/helper';
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
 import { fromJS } from 'immutable';
@@ -147,7 +148,6 @@ export class UserEdit extends React.PureComponent {
         name: '',
         email: '',
         status: 1,
-        deposit: 0,
         role: '',
         phone: '',
         city: '',
@@ -212,7 +212,7 @@ export class UserEdit extends React.PureComponent {
     let newData = data
       .set(
         'money',
-        `${parseInt(this.state.formData.get('money', 0)) +
+        `${moneyValidation(this.state.formData.get('money')) +
           parseInt(this.state.formData.get('deposit'))}`,
       )
       .delete('blockDownloadCategories')
@@ -346,6 +346,8 @@ export class UserEdit extends React.PureComponent {
       'schools',
       [],
     );
+    const money = moneyValidation(this.state.formData.get('money'));
+
     return (
       <Wrapper>
         {this.props.loading && (
@@ -746,6 +748,14 @@ export class UserEdit extends React.PureComponent {
                     </Row>
                     <Row>
                       <Col xs="12">
+                        <FormGroup row>
+                          <Label htmlFor="name" sm={3}>
+                            Số dư:
+                          </Label>
+                          <Col sm={5}>
+                            {`${numberWithCommas(money)} đ`}
+                          </Col>
+                        </FormGroup>
                         <FormGroup row>
                           <Label htmlFor="name" sm={3}>
                             Cộng tiền:
