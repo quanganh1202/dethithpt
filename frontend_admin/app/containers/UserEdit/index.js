@@ -212,8 +212,8 @@ export class UserEdit extends React.PureComponent {
     let newData = data
       .set(
         'money',
-        `${moneyValidation(this.state.formData.get('money')) +
-          parseInt(this.state.formData.get('deposit', 0))}`,
+        moneyValidation(this.state.formData.get('money')) +
+          parseInt(this.state.formData.get('deposit', 0)),
       )
       .set(
         'bonusMoney',
