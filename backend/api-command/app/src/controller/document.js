@@ -581,7 +581,7 @@ async function downloadDocument(docId, userId, download) {
         error: 'Document not found',
       };
     }
-    if (!isUndefined(download)) {
+    if (isUndefined(download)) {
       return {
         status: 200,
         message: 'File available to download',
