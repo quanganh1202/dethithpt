@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
-import { Container } from 'reactstrap';
 
 import {
   AppAside,
-  AppBreadcrumb,
   AppFooter,
   AppHeader,
   AppSidebar,
@@ -59,16 +57,7 @@ class DefaultLayout extends Component {
             <AppSidebarMinimizer />
           </AppSidebar>
           <main className="main">
-            {/* <AppBreadcrumb appRoutes={routes}/> */}
             <Switch>
-              {/* {routes.map((route, idx) => {
-                  return route.component ? (<Route key={idx} path={route.path} exact={route.exact} name={route.name} render={props => (
-                      <route.component {...props} />
-                    )} />)
-                    : (null);
-                },
-              )} */}
-              {/* <Route path="/" exact name="Home" component={() => <div>abc</div>} /> */}
               <Route path="/dashboard" exact name="Dashboard" component={() => <div>Dashboard</div>} />
               <Route path="/users" exact name="User" component={User} />
               <Route path="/users/:id" exact name="Edit user" component={UserEdit} />

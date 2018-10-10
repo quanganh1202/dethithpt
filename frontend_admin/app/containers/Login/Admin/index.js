@@ -4,12 +4,13 @@ import { connect } from 'react-redux';
 import { compose } from 'redux';
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
-import { Button, Card, CardBody, CardGroup, Col, Container, Form, Row } from 'reactstrap';
+import { Button, Card, CardBody, CardGroup, Col, Container, Row, Alert } from 'reactstrap';
 import FacebookLogin from 'containers/Login/Facebook';
 import GoogleLogin from 'containers/Login/Google';
 import reducer from './reducer';
 import saga from './saga';
-import { login } from './actions';
+import { login, clearMessage } from './actions';
+import { makeSelectMessage } from './selectors';
 
 class Login extends Component {
   constructor() {
@@ -31,6 +32,9 @@ class Login extends Component {
                   <CardBody style={{ textAlign: 'center' }}>
                     <h1>Login</h1>
                     <p className="text-muted">Sign In to your account</p>
+                    <Alert color="danger" isOpen={!!this.props.message} toggle={this.props.clearMessage}>
+                      {this.props.message}
+                    </Alert>
                     <FacebookLogin onLogin={this.onLogin}>
                       <Button size="sm" className="btn-facebook btn-brand mr-1 mb-1">
                         <i className="fa fa-facebook"></i><span>Facebook</span>
@@ -58,10 +62,12 @@ Login.propTypes = {
 export function mapDispatchToProps(dispatch) {
   return {
     onLogin: (payload) => dispatch(login(payload)),
+    clearMessage: () => dispatch(clearMessage()),
   };
 }
 
 const mapStateToProps = createStructuredSelector({
+  message: makeSelectMessage(),
 });
 
 const withConnect = connect(

@@ -14,3 +14,4 @@ const container = 'thpt/Home'
 export const LOGIN_REQUEST = 'thpt/Home/LOGIN/REQUEST';
 export const LOGIN_SUCCESS = 'thpt/Home/LOGIN/SUCCESS';
 export const LOGIN_FAILURE = 'thpt/Home/LOGIN/FAILURE';
+export const CLEAR_MESSAGE = 'thpt/Home/CLEAR_MESSAGE';

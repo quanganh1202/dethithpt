@@ -8,7 +8,6 @@
 
 import React from 'react';
 import { Helmet } from 'react-helmet';
-import styled from 'styled-components';
 import { Switch, Route, withRouter } from 'react-router-dom';
 import { getUser } from 'services/auth';
 import DefaultLayout from 'containers/DefaultLayout';
@@ -27,20 +26,13 @@ import 'assets/scss/style.css';
 
 import Login from 'containers/Login/Admin';
 
-const AppWrapper = styled.div`
-  margin: 0 auto;
-  display: flex;
-  min-height: 100%;
-  flex-direction: column;
-`;
-
-const theme = {
-  headerMenu: '#6668a9',
-  linkColor: '#295496',
-};
-
 class App extends React.Component {
-  componentDidMount() {
+  constructor() {
+    super();
+    this.state = {};
+    this.loading = true;
+  }
+  componentWillMount() {
     // Facebook init
     window.fbAsyncInit = function () {
       FB.init({
@@ -64,6 +56,15 @@ class App extends React.Component {
       js.src = "https://connect.facebook.net/en_US/sdk.js";
       fjs.parentNode.insertBefore(js, fjs);
     }(document, 'script', 'facebook-jssdk'));
+
+    // Google init
+    gapi.load('auth2', () => {
+      // Retrieve the singleton for the GoogleAuth library and set up the client.
+      this.auth2 = window.gapi.auth2.init({
+        client_id: '33146074840-tdm6djs1ckddpkqktn0k04nabjh0fpde.apps.googleusercontent.com', // TODO: need to replace using const
+        cookiepolicy: 'single_host_origin',
+      });
+    });
   }
 
   render() {
@@ -74,7 +75,7 @@ class App extends React.Component {
     if (!user) {
       return <Login />
     }
-    return user ? (
+    return (
       <div>
         <Helmet>
           <base href={`${result}/admin`} />
@@ -83,9 +84,7 @@ class App extends React.Component {
           <Route path="/" name="Home" component={DefaultLayout} />
         </Switch>
       </div>
-    ) : 
-    null
-    // window.location.replace(result);
+    );
   }
 }
 

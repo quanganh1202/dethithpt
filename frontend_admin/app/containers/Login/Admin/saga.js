@@ -4,7 +4,7 @@
 import axios from 'axios';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import { push } from 'react-router-redux';
-import request from 'utils/request';
+import _ from 'lodash';
 import {
   LOGIN_REQUEST,
 } from './constants';
@@ -19,7 +19,7 @@ const root = '/api';
  * Request to login using social network token
  */
 export function* loginHandler({ payload }) {
-  const url = `${root}/login`;
+  const url = `${root}/login?admin`;
 
   try {
     const resp = yield call(axios.post, url, payload);
@@ -27,7 +27,7 @@ export function* loginHandler({ payload }) {
     yield put(loginSuccess(resp.data));
     yield put(push('/'));
   } catch (err) {
-    yield put(loginFailure(err));
+    yield put(loginFailure(_.get(err, 'response.data.error', 'Unknown error from server, please try again later!')));
   }
 }
 
