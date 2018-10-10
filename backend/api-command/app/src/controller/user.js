@@ -313,6 +313,9 @@ async function updateUser(id, userInfo) {
         error: 'Only role admin can update field money',
       };
     }
+    if (money < 0) {
+      userInfo.money = 0;
+    }
     if (notifyText && isUndefined(notifyStatus)) {
       userInfo.notifyStatus = 1;
     }
