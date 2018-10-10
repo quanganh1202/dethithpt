@@ -225,7 +225,7 @@ export class User extends React.PureComponent {
           />
         </th>
         <td>{moment(item.createdAt).format('DD/MM/YYYY')}</td>
-        <td>{item.name}</td>
+        <td><Link to={`/users/${item.id}`}>{item.name}</Link></td>
         <td>{item.email}</td>
         <td>{mappingRolePosition[item.role === 'admin' ? 'admin' : item.position]}</td>
         <td>{item.phone}</td>

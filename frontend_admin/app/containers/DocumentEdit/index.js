@@ -170,8 +170,8 @@ export class DocumentEdit extends React.PureComponent {
       description: data.description,
       name: data.name,
       price: data.price,
-      fileUpload: data.fileUpload,
     }
+    if (data.fileUpload) mapped.fileUpload = data.fileUpload;
     if (_.get(data, 'cates', []).length) mapped.cateIds = data.cates.map((i) => i.value).join(',');
     if (_.get(data, 'classes', []).length) mapped.classIds = data.classes.map((i) => i.value).join(',');
     if (_.get(data, 'collections', []).length) mapped.collectionIds = data.collections.map((i) => i.value).join(',');
