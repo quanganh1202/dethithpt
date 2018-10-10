@@ -3,6 +3,8 @@ import Dropzone from 'react-dropzone';
 import styled from 'styled-components';
 import Toggle from 'react-toggle';
 import { fromJS } from 'immutable';
+import { post, all } from 'axios';
+import { getToken } from 'services/auth';
 
 import DetailForm from './DetailForm';
 import UploadProgress from './UploadProgress';
@@ -214,8 +216,47 @@ class UploadPost extends React.Component {
 
   onSubmit(form) {
     delete form.name;
-    this.setState({
-      files: this.state.files.map(f => f.set('sendNow', form)),
+    const collectionIds = form.collectionIds.filter(t => t.__isNew__);
+    let promiseCreates = [];
+    if (collectionIds && collectionIds.length > 0) {
+      promiseCreates = collectionIds.map(({ value }) =>
+        post(
+          '/api/collections',
+          {
+            cateIds: form.cateIds.toString(),
+            classIds: form.classIds.toString(),
+            subjectIds: form.subjectIds.toString(),
+            yearSchools: form.yearSchools.toString(),
+            name: value,
+            description: value,
+          },
+          {
+            headers: {
+              'content-type': 'application/json;charset=UTF-8',
+              'x-access-token': getToken(),
+            },
+          },
+        ).then((res) => res, () => ({})),
+      );
+    }
+
+    return all(promiseCreates).then(response => {
+      let listNewCol = [];
+      response.map(t => {
+        if (t.data && t.data.message) {
+          listNewCol.push(t.data.message.split('insertId =')[1].trim());
+        }
+      });
+      const listOld = form.collectionIds.filter(t => !t.__isNew__);
+      
+      form.collectionIds = [
+        ...listNewCol.map(c => ({ value: c })),
+        ...listOld,
+      ];
+
+      this.setState({
+        files: this.state.files.map(f => f.set('sendNow', form)),
+      });
     });
   }
 
