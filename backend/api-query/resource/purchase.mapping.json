@@ -16,6 +16,13 @@
             "lowercase",
             "autocomplete_filter"
           ]
+        },
+        "textKeyword": {
+          "type": "custom",
+          "tokenizer": "keyword",
+          "filter": [
+            "lowercase"
+          ]
         }
       }
     }
@@ -33,7 +40,9 @@
           "search_analyzer": "standard",
           "fields": {
             "raw": {
-              "type": "keyword"
+              "type": "text",
+              "fielddata": true,
+              "analyzer": "textKeyword"
             }
           }
         },
@@ -46,7 +55,9 @@
           "search_analyzer": "standard",
           "fields": {
             "raw": {
-              "type": "keyword"
+              "type": "text",
+              "fielddata": true,
+              "analyzer": "textKeyword"
             }
           }
         },
@@ -65,7 +76,9 @@
           "search_analyzer": "standard",
           "fields": {
             "raw": {
-              "type": "keyword"
+              "type": "text",
+              "fielddata": true,
+              "analyzer": "textKeyword"
             }
           }
         },
@@ -75,7 +88,9 @@
           "search_analyzer": "standard",
           "fields": {
             "raw": {
-              "type": "keyword"
+              "type": "text",
+              "fielddata": true,
+              "analyzer": "textKeyword"
             }
           }
         },
@@ -85,7 +100,9 @@
           "search_analyzer": "standard",
           "fields": {
             "raw": {
-              "type": "keyword"
+              "type": "text",
+              "fielddata": true,
+              "analyzer": "textKeyword"
             }
           }
         },
