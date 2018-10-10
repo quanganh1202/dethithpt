@@ -152,6 +152,9 @@ const pdf2Image = (pdf, image) => {
   });
 };
 
+const myQueue = [];
+let count = 0;
+
 const office2Pdf = (word, pdf) => {
   return new Promise((resolve, reject) => {
     let file = new tmp.File();
@@ -159,7 +162,10 @@ const office2Pdf = (word, pdf) => {
     file.writeFile(wordBuffer, (err) => {
       if(err) reject(err);
       let cmd = `libreoffice6.1 --headless --convert-to pdf:writer_pdf_Export ${file.path} --outdir ${pdf}`;
-      childProcess.exec(cmd, (error) => {
+      const childCallback = (error) => {
+        console.log('Next can start');
+        myQueue.shift();
+
         if(error) {
           reject(error);
         } else {
@@ -168,12 +174,31 @@ const office2Pdf = (word, pdf) => {
           const interval = setInterval(() => {
             if (fs.pathExistsSync(fileConverted)) {
               clearInterval(interval);
+              console.log(`Resolved: ${count}`);
 
               return resolve(fileConverted);
             }
           }, 1000);
         }
-      });
+      };
+
+      count += 1;
+      if (myQueue.length === 0) {
+        console.log(`Start: ${count}`);
+        myQueue.push(cmd);
+        childProcess.exec(cmd, childCallback);
+      } else {
+        console.log(`Waiting: ${count}`);
+        myQueue.push(cmd);
+        const intervalQueue = setInterval(() => {
+          if (myQueue[0] === cmd) {
+            console.log(`Start: ${count}`);
+            clearInterval(intervalQueue);
+
+            childProcess.exec(cmd, childCallback);
+          }
+        }, 1000);
+      }
     });
   });
 };
