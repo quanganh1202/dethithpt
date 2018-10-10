@@ -69,8 +69,21 @@ const sortParamsHandler = (sort) => {
       if (!['asc', 'desc'].includes(extractString[1])) {
         throw new Error('Sort type can only be asc or desc');
       }
+      const noRaw = [
+        'price',
+        'numOfDownloaded',
+        'numOfUploaded',
+        'money',
+        'createdAt',
+        'updatedAt',
+        'priority',
+        'priorityCate',
+        'totalPages',
+        'view',
+        'downloaded',
+      ];
       pre[
-        ['createdAt', 'updatedAt', 'priority', 'priorityCate'].includes(extractString[0]) ? extractString[0] : `${extractString[0]}.raw`
+        noRaw.includes(extractString[0]) ? extractString[0] : `${extractString[0]}.raw`
       ] = extractString[1];
 
       return pre;

@@ -61,14 +61,7 @@ async function createCollection(body) {
         error: resValidate.errors,
       };
     }
-    const { name, cateIds, userId, subjectIds, classIds } = body;
-    const collection = await collectionModel.getListCollection([{ 'name': name }]);
-    if (collection && collection.length) {
-      return {
-        error: `Collection ${body.name} already existed`,
-        status: 400,
-      };
-    }
+    const { cateIds, userId, subjectIds, classIds } = body;
     const user = await checkUserActivation(userId);
     if (user.error) return user;
     if (!isUndefined(body.priority)) {
@@ -201,15 +194,7 @@ async function updateCollection(id, body) {
       };
     }
 
-    const { name, userId, cateIds, classIds, subjectIds } = body;
-    const collection = await collectionModel.getListCollection([{ name }]);
-    if (collection && collection.length && name !== existed[0].name) {
-      return {
-        error: `Collection ${body.name} already existed`,
-        status: 400,
-      };
-    }
-
+    const { userId, cateIds, classIds, subjectIds } = body;
     const user = await checkUserActivation(userId);
     if (user.error) return user;
     if (existed[0].userId.toString() !== userId && user[0].role !== roles.ADMIN) {
