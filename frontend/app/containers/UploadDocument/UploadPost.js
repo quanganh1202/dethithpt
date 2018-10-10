@@ -182,6 +182,7 @@ class UploadPost extends React.Component {
 
   onDrop(listFiles) {
     const { files } = this.state;
+    console.log(listFiles);
     let newFiles;
     if (files.count()) {
       newFiles = files.concat(
@@ -268,6 +269,7 @@ class UploadPost extends React.Component {
             <ButtonUpload>
               {this.state.files.count() > 0 ? 'Chọn thêm' : 'Chọn tệp'}
             </ButtonUpload>
+            <p>(Các tệp được chấp nhận: Doc, Docx, Rar, Zip, pdf)</p>
             <p>
               Chọn nút tải lên để chọn nhiều file từ máy tính của bạn hoặc kéo
               file thả vào đây
