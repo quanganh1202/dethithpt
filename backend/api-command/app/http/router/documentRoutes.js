@@ -70,7 +70,7 @@ const routerDefine =  function defineRouter() {
         error,
       });
     }
-    if (!isUndefined(download)) {
+    if (isUndefined(download)) {
       return res.status(status).json({
         statusCode: status,
         message: message || 'File available to download',
