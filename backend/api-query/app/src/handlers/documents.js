@@ -95,9 +95,8 @@ export default {
       const dirname = path.dirname(file);
       const ext = path.extname(file);
       const filename = path.basename(file, ext);
-      const filePreview = fs.readdirSync(dirname)
-        .filter(i => i.includes(filename) && !i.includes(ext))
-        .map(i => path.join(dirname, i));
+      let filePreview = await fs.readdir(dirname);
+      filePreview = filePreview.filter(i => i.includes(filename) && !i.includes(ext)).sort().map(i => path.join(dirname, i));
 
       return {
         statusCode: 200,
