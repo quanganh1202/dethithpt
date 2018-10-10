@@ -69,7 +69,7 @@ const storeFile = async function store(files, fileName, preview) {
 const removeFile = async function removeFile(pathOld) {
   const pathFolderStore = process.env.PATH_FOLDER_STORE || path.resolve(__dirname, '../../../storage');
   const fileName = path.basename(pathOld, path.basename(path.extname(pathOld)));
-  const arrFiles = fs.readdirSync(pathFolderStore).filter((file => file.includes(fileName)));
+  const arrFiles = await fs.readdir(pathFolderStore).filter((file => file.includes(fileName)));
   const existed = await fs.pathExists(pathOld);
   if (existed) {
     const promises = arrFiles.map(file => fs.unlink(`${pathFolderStore}/${file}`));
@@ -153,9 +153,9 @@ const pdf2Image = (pdf, image) => {
 };
 
 const office2Pdf = (word, pdf) => {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     let file = new tmp.File();
-    const wordBuffer = fs.readFileSync(word);
+    const wordBuffer = await fs.readFile(word);
     file.writeFile(wordBuffer, (err) => {
       if(err) reject(err);
       let cmd = `soffice --headless --convert-to pdf:writer_pdf_Export ${file.path} --outdir ${pdf}`;
@@ -165,8 +165,9 @@ const office2Pdf = (word, pdf) => {
         } else {
           const fileConverted = path.join(pdf, `${path.basename(file.path, path.extname(file.path))}.pdf`);
           // Wait to file was created by system, delay 500 to sure file is created
-          const interval = setInterval(() => {
-            if (fs.pathExistsSync(fileConverted)) {
+          const interval = setInterval(async () => {
+            const existed = await fs.pathExists(fileConverted);
+            if (existed) {
               clearInterval(interval);
 
               return resolve(fileConverted);
