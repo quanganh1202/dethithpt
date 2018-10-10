@@ -180,9 +180,14 @@ class UploadPost extends React.Component {
     this.onSubmit = this.onSubmit.bind(this);
   }
 
-  onDrop(listFiles) {
+  onDrop(e) {
     const { files } = this.state;
-    console.log(listFiles);
+    let listFiles;
+    if (e.target) {
+      listFiles = Object.values(e.target.files);
+    } else {
+      listFiles = e;
+    }
     let newFiles;
     if (files.count()) {
       newFiles = files.concat(
@@ -276,6 +281,7 @@ class UploadPost extends React.Component {
             </p>
             <em>Ấn nút Shift hoặc Ctrl để chọn nhiều file</em>
           </Dropzone>
+          <input type="file" onChange={this.onDrop.bind(this)} multiple />
         </div>
         {this.state.files.count() > 0 ? (
           <aside>
