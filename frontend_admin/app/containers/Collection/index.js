@@ -26,11 +26,17 @@ import {
 } from 'reactstrap';
 import moment from 'moment';
 import styled from 'styled-components';
+import { PaginationTable } from 'components/Table';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
 import { getCollections, deleteCollections, clearProcessStatus, updateCollections } from './actions';
-import { makeSelectCollections, makeSelectLoading, makeSelectProcessStatus } from './selectors';
+import {
+  makeSelectCollections,
+  makeSelectTotalCollection,
+  makeSelectLoading,
+  makeSelectProcessStatus,
+} from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 
@@ -52,26 +58,39 @@ export class Collection extends React.PureComponent {
   constructor() {
     super();
     this.state = {
+      currentPage: 1,
       selectedCollections: [],
       collections: [],
       changedCollections: [],
     };
+    this.size = 10;
+    this.maxPages = 11;
     this.handleSelectCollections = this.handleSelectCollections.bind(this);
     this.handleSavePosition = this.handleSavePosition.bind(this);
     this.handleChangePosition = this.handleChangePosition.bind(this);
+    this.onSelectPage = this.onSelectPage.bind(this);
   }
 
   componentWillMount() {
     // get collections
-    this.props.getCollections();
+    this.props.getCollections({
+      sort: 'position.desc',
+      offset: 0,
+      size: this.size,
+    });
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.processStatus && !this.props.processStatus) {
       this.setState({
         selectedCollections: [],
+        currentPage: 1,
       });
-      this.props.getCollections();
+      this.props.getCollections({
+        sort: 'position.desc',
+        offset: 0,
+        size: this.size,
+      });
       this.props.clearProcessStatus();
     }
     if (!_.isEqual(nextProps.collections, this.props.collections)) {
@@ -83,6 +102,19 @@ export class Collection extends React.PureComponent {
 
   componentWillUnmount() {
     this.props.clearProcessStatus(true);
+  }
+
+  onSelectPage(page) {
+    if (this.state.currentPage !== page) {
+      this.setState({
+        currentPage: page,
+      });
+      this.props.getCollections({
+        sort: 'position.desc',
+        offset: this.size * (page - 1),
+        size: this.size,
+      });
+    }
   }
 
   renderCollectionRow(collections) {
@@ -259,6 +291,13 @@ export class Collection extends React.PureComponent {
                       {this.renderCollectionRow(this.state.collections)}
                     </tbody>
                   </Table>
+                  <PaginationTable
+                    maxPages={this.maxPages}
+                    total={this.props.total}
+                    currentPage={this.state.currentPage}
+                    size={this.size}
+                    onClick={this.onSelectPage}
+                  />
                 </CardBody>
               </Card>
             </Col>
@@ -275,7 +314,7 @@ Collection.propTypes = {
 
 export function mapDispatchToProps(dispatch) {
   return {
-    getCollections: () => dispatch(getCollections()),
+    getCollections: (queries) => dispatch(getCollections(queries)),
     deleteCollections: (id) => dispatch(deleteCollections(id)),
     clearProcessStatus: (all) => dispatch(clearProcessStatus(all)),
     updateCollections: (collections) => dispatch(updateCollections(collections)),
@@ -284,6 +323,7 @@ export function mapDispatchToProps(dispatch) {
 
 const mapStateToProps = createStructuredSelector({
   collections: makeSelectCollections(),
+  total: makeSelectTotalCollection(),
   loading: makeSelectLoading(),
   processStatus: makeSelectProcessStatus(),
 });

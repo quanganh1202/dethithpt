@@ -20,6 +20,7 @@ import {
 // The initial state of the App
 export const initialState = fromJS({
   subjects: [],
+  total: 0,
   processDone: false,
 });
 
@@ -30,6 +31,7 @@ function subjectReducer(state = initialState, action) {
     case GET_SUBJECTS.SUCCESS:
       return state
         .set('loading', false)
+        .set('total', action.total)
         .set('subjects', fromJS(action.subjects));
     case DELETE_SUBJECTS.REQUEST:
       return state.set('loading', true);

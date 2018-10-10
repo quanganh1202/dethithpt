@@ -26,6 +26,7 @@ import {
 } from 'reactstrap';
 import moment from 'moment';
 import styled from 'styled-components';
+import { PaginationTable } from 'components/Table';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
@@ -34,6 +35,7 @@ import {
   makeSelectCategories,
   makeSelectLoading,
   makeSelectProcessStatus,
+  makeSelectTotalCate,
 } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
@@ -49,26 +51,39 @@ export class Category extends React.PureComponent {
   constructor() {
     super();
     this.state = {
+      currentPage: 1,
       selectedCates: [],
       categories: [],
       changedCategories: [],
     };
+    this.size = 10;
+    this.maxPages = 11;
     this.handleSelectCate = this.handleSelectCate.bind(this);
     this.handleSavePosition = this.handleSavePosition.bind(this);
     this.handleChangePosition = this.handleChangePosition.bind(this);
+    this.onSelectPage = this.onSelectPage.bind(this);
   }
 
   componentWillMount() {
     // get categories
-    this.props.getCategories();
+    this.props.getCategories({
+      sort: 'position.desc',
+      offset: 0,
+      size: this.size,
+    });
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.processStatus && !this.props.processStatus) {
       this.setState({
         selectedCates: [],
+        currentPage: 1,
       });
-      this.props.getCategories();
+      this.props.getCategories({
+        sort: 'position.desc',
+        offset: 0,
+        size: this.size,
+      });
       this.props.clearProcessStatus();
     }
     if (!_.isEqual(nextProps.categories, this.props.categories)) {
@@ -80,6 +95,19 @@ export class Category extends React.PureComponent {
 
   componentWillUnmount() {
     this.props.clearProcessStatus(true);
+  }
+
+  onSelectPage(page) {
+    if (this.state.currentPage !== page) {
+      this.setState({
+        currentPage: page,
+      });
+      this.props.getCategories({
+        sort: 'position.desc',
+        offset: this.size * (page - 1),
+        size: this.size,
+      });
+    }
   }
 
   renderCategoryRow(categories) {
@@ -223,6 +251,13 @@ export class Category extends React.PureComponent {
                       {this.renderCategoryRow(this.state.categories)}
                     </tbody>
                   </Table>
+                  <PaginationTable
+                    maxPages={this.maxPages}
+                    total={this.props.total}
+                    currentPage={this.state.currentPage}
+                    size={this.size}
+                    onClick={this.onSelectPage}
+                  />
                 </CardBody>
               </Card>
             </Col>
@@ -239,7 +274,7 @@ Category.propTypes = {
 
 export function mapDispatchToProps(dispatch) {
   return {
-    getCategories: () => dispatch(getCategories()),
+    getCategories: (queries) => dispatch(getCategories(queries)),
     deleteCates: (id) => dispatch(deleteCates(id)),
     clearProcessStatus: (all) => dispatch(clearProcessStatus(all)),
     updateCategories: (cates) => dispatch(updateCategories(cates)),
@@ -248,6 +283,7 @@ export function mapDispatchToProps(dispatch) {
 
 const mapStateToProps = createStructuredSelector({
   categories: makeSelectCategories(),
+  total: makeSelectTotalCate(),
   loading: makeSelectLoading(),
   processStatus: makeSelectProcessStatus(),
 });

@@ -21,6 +21,7 @@ import {
 // The initial state of the App
 export const initialState = fromJS({
   categories: [],
+  total: 0,
   processDone: false,
 });
 
@@ -31,6 +32,7 @@ function categoryReducer(state = initialState, action) {
     case GET_CATEGORIES_SUCCESS:
       return state
         .set('loading', false)
+        .set('total', action.total)
         .set('categories', fromJS(action.categories));
     case DELETE_CATES.REQUEST:
       return state.set('loading', true);

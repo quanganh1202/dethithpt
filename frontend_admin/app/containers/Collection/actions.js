@@ -12,9 +12,10 @@ import {
  *
  * @return {object}    An action object with a type of GET_COLLECTIONS.REQUEST
  */
-export function getCollections() {
+export function getCollections(queries) {
   return {
     type: GET_COLLECTIONS.REQUEST,
+    queries,
   };
 }
 
@@ -25,10 +26,11 @@ export function getCollections() {
  *
  * @return {object}    An action object with a type of GET_COLLECTIONS.SUCCESS
  */
-export function getCollectionsSuccess(collections) {
+export function getCollectionsSuccess(collections, total) {
   return {
     type: GET_COLLECTIONS.SUCCESS,
     collections,
+    total,
   };
 }
 

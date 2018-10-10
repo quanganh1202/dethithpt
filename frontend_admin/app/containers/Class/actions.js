@@ -12,9 +12,10 @@ import {
  *
  * @return {object}    An action object with a type of GET_CLASSES.REQUEST
  */
-export function getClasses() {
+export function getClasses(queries) {
   return {
     type: GET_CLASSES.REQUEST,
+    queries,
   };
 }
 
@@ -25,10 +26,11 @@ export function getClasses() {
  *
  * @return {object}    An action object with a type of GET_CLASSES.SUCCESS
  */
-export function getClassesSuccess(classes) {
+export function getClassesSuccess(classes, total) {
   return {
     type: GET_CLASSES.SUCCESS,
     classes,
+    total,
   };
 }
 

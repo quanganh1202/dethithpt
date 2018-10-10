@@ -20,6 +20,7 @@ import {
 // The initial state of the App
 export const initialState = fromJS({
   collections: [],
+  total: 0,
   processDone: false,
 });
 
@@ -30,6 +31,7 @@ function collectionReducer(state = initialState, action) {
     case GET_COLLECTIONS.SUCCESS:
       return state
         .set('loading', false)
+        .set('total', action.total)
         .set('collections', fromJS(action.collections));
     case DELETE_COLLECTIONS.REQUEST:
       return state.set('loading', true);

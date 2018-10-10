@@ -26,11 +26,17 @@ import {
 } from 'reactstrap';
 import moment from 'moment';
 import styled from 'styled-components';
+import { PaginationTable } from 'components/Table';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
 import { getSubjects, deleteSubjects, clearProcessStatus, updateSubjects } from './actions';
-import { makeSelectSubjects, makeSelectLoading, makeSelectProcessStatus } from './selectors';
+import {
+  makeSelectSubjects,
+  makeSelectTotalSubject,
+  makeSelectLoading,
+  makeSelectProcessStatus,
+} from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 
@@ -45,26 +51,39 @@ export class Subject extends React.PureComponent {
   constructor() {
     super();
     this.state = {
+      currentPage: 1,
       selectedSubjects: [],
       subjects: [],
       changedSubjects: [],
     };
+    this.size = 10;
+    this.maxPages = 11;
     this.handleSelectSubject = this.handleSelectSubject.bind(this);
     this.handleSavePosition = this.handleSavePosition.bind(this);
     this.handleChangePosition = this.handleChangePosition.bind(this);
+    this.onSelectPage = this.onSelectPage.bind(this);
   }
 
   componentWillMount() {
     // get subjects
-    this.props.getSubjects();
+    this.props.getSubjects({
+      sort: 'position.desc',
+      offset: 0,
+      size: this.size,
+    });
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.processStatus && !this.props.processStatus) {
       this.setState({
         selectedSubjects: [],
+        currentPage: 1,
       });
-      this.props.getSubjects();
+      this.props.getSubjects({
+        sort: 'position.desc',
+        offset: 0,
+        size: this.size,
+      });
       this.props.clearProcessStatus();
     }
     if (!_.isEqual(nextProps.subjects, this.props.subjects)) {
@@ -76,6 +95,19 @@ export class Subject extends React.PureComponent {
 
   componentWillUnmount() {
     this.props.clearProcessStatus(true);
+  }
+
+  onSelectPage(page) {
+    if (this.state.currentPage !== page) {
+      this.setState({
+        currentPage: page,
+      });
+      this.props.getSubjects({
+        sort: 'position.desc',
+        offset: this.size * (page - 1),
+        size: this.size,
+      });
+    }
   }
 
   renderSubjectRow(subjects) {
@@ -223,6 +255,13 @@ export class Subject extends React.PureComponent {
                     </thead>
                     <tbody>{this.renderSubjectRow(this.state.subjects)}</tbody>
                   </Table>
+                  <PaginationTable
+                    maxPages={this.maxPages}
+                    total={this.props.total}
+                    currentPage={this.state.currentPage}
+                    size={this.size}
+                    onClick={this.onSelectPage}
+                  />
                 </CardBody>
               </Card>
             </Col>
@@ -239,7 +278,7 @@ Subject.propTypes = {
 
 export function mapDispatchToProps(dispatch) {
   return {
-    getSubjects: () => dispatch(getSubjects()),
+    getSubjects: (queries) => dispatch(getSubjects(queries)),
     deleteSubjects: (id) => dispatch(deleteSubjects(id)),
     clearProcessStatus: (all) => dispatch(clearProcessStatus(all)),
     updateSubjects: (subjects) => dispatch(updateSubjects(subjects)),
@@ -248,6 +287,7 @@ export function mapDispatchToProps(dispatch) {
 
 const mapStateToProps = createStructuredSelector({
   subjects: makeSelectSubjects(),
+  total: makeSelectTotalSubject(),
   loading: makeSelectLoading(),
   processStatus: makeSelectProcessStatus(),
 });

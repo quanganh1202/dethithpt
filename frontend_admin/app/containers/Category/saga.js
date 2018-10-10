@@ -17,13 +17,16 @@ const root = '/api';
 /**
  * Request get document list
  */
-export function* getCategoriesHandler() {
+export function* getCategoriesHandler({ queries }) {
+  const url = `${root}/categories`;
   const options = {
     headers: {
       ['x-access-token']: getToken(),
+    },
+    params: {
+      ...queries,
     }
   }
-  const url = `${root}/categories`;
 
   try {
     const resp = yield call(axios.get, url, options);
@@ -41,7 +44,7 @@ export function* getCategoriesHandler() {
       return newAcc;
     }, {});
     const mappedCates = resp.data.data.map((i) => ({ ...i, numOfCollections: collectionsByCate[i.id] || 0 }));
-    yield put(getCategoriesSuccess(mappedCates));
+    yield put(getCategoriesSuccess(mappedCates, resp.data.total));
   } catch (err) {
     // yield put(loginFailure(err));
   }
