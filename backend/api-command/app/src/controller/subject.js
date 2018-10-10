@@ -65,14 +65,6 @@ async function createSubject(body) {
         status: 400,
       };
     }
-    const { name } = body;
-    const cate = await subModel.getListSubject([{ name }]);
-    if (cate && cate.length) {
-      return {
-        error: `Subject ${body.name} already existed`,
-        status: 400,
-      };
-    }
     if (!isUndefined(body.priority)) {
       body.priority = user[0].role === roles.ADMIN ? body.priority : 0;
     }
@@ -124,16 +116,7 @@ async function updateSubject(id, body) {
       };
     }
 
-    const { name, userId } = body;
-    if (name) {
-      const subjects = await subModel.getListSubject([{ name }]);
-      if (subjects && subjects.length && name !== existed[0].name) {
-        return {
-          error: `Subject ${body.name} already existed`,
-          status: 400,
-        };
-      }
-    }
+    const { userId } = body;
     const user = await checkUserActivation(userId);
     if (user.error) return user;
     if (existed[0].userId.toString() !== userId && user[0].role !== roles.ADMIN) {

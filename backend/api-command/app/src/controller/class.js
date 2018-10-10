@@ -57,16 +57,9 @@ async function createClass(body) {
         error: resValidate.errors,
       };
     }
-    const { name, userId } = body;
+    const { userId } = body;
     const user = await checkUserActivation(userId);
     if (user.error) return user;
-    const cate = await classModel.getListClass([{ name }]);
-    if (cate && cate.length) {
-      return {
-        error: `Class ${body.name} already existed`,
-        status: 400,
-      };
-    }
     if (!isUndefined(body.priority)) {
       body.priority = user[0].role === roles.ADMIN ? body.priority : 0;
     }
@@ -118,18 +111,7 @@ async function updateClass(id, body) {
       };
     }
 
-    const { name, userId } = body;
-
-    if (name) {
-      const classes = await classModel.getListClass([{ name }]);
-      if (classes && classes.length && name !== existed[0].name) {
-        return {
-          error: `Class ${body.name} already existed`,
-          status: 400,
-        };
-      }
-    }
-
+    const { userId } = body;
     const user = await checkUserActivation(userId);
     if (user.error) return user;
     if (existed[0].userId.toString() !== userId && user[0].role !== roles.ADMIN) {
