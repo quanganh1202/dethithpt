@@ -115,11 +115,11 @@ class UploadProgress extends React.Component {
       this.fileUpload({
         name: this.state.name,
         ...nextProps.sendNow,
-      });
+      }, true);
     }
   }
 
-  fileUpload(form) {
+  fileUpload(form, ignore = false) {
     const { file } = this.props;
     const url = '/api/documents';
     const formData = new FormData();
@@ -155,7 +155,7 @@ class UploadProgress extends React.Component {
 
     const collectionIds = form.collectionIds.filter(t => t.__isNew__);
     let promiseCreates = [];
-    if (collectionIds && collectionIds.length > 0) {
+    if (!ignore && collectionIds && collectionIds.length > 0) {
       promiseCreates = collectionIds.map(({ value }) =>
         post(
           '/api/collections',
@@ -173,13 +173,16 @@ class UploadProgress extends React.Component {
               'x-access-token': getToken(),
             },
           },
-        ),
+        ).then((res) => res, () => ({})),
       );
     }
     return all(promiseCreates).then(response => {
-      const listNewCol = response.map(t =>
-        t.data.message.split('insertId =')[1].trim(),
-      );
+      let listNewCol = [];
+      response.map(t => {
+        if (t.data && t.data.message) {
+          listNewCol.push(t.data.message.split('insertId =')[1].trim());
+        }
+      });
       formData.set('collectionIds', [
         ...listNewCol,
         ...form.collectionIds.filter(t => !t.__isNew__).map(c => c.value),
