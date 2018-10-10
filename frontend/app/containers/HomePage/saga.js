@@ -95,7 +95,7 @@ export function* getDocumentsListHandler({ query }) {
  * Request get categories list
  */
 export function* getCategoriesHandler() {
-  const url = `${root}/categories`;
+  const url = `${root}/categories?sort=position.desc`;
 
   try {
     const resp = yield call(axios.get, url);
