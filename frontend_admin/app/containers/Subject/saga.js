@@ -17,12 +17,20 @@ const root = '/api';
 /**
  * Request get document list
  */
-export function* getSubjectsHandler() {
+export function* getSubjectsHandler({ queries }) {
   const url = `${root}/subjects`;
+  const options = {
+    headers: {
+      ['x-access-token']: getToken(),
+    },
+    params: {
+      ...queries,
+    }
+  }
 
   try {
-    const resp = yield call(axios.get, url);
-    yield put(getSubjectsSuccess(resp.data.data));
+    const resp = yield call(axios.get, url, options);
+    yield put(getSubjectsSuccess(resp.data.data, resp.data.total));
   } catch (err) {
     // yield put(loginFailure(err));
   }

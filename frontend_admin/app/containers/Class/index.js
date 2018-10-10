@@ -26,11 +26,17 @@ import {
 } from 'reactstrap';
 import moment from 'moment';
 import styled from 'styled-components';
+import { PaginationTable } from 'components/Table';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
 import { getClasses, deleteClasses, clearProcessStatus, updateClasses } from './actions';
-import { makeSelectClasses, makeSelectLoading, makeSelectProcessStatus } from './selectors';
+import {
+  makeSelectClasses,
+  makeSelectTotalClass,
+  makeSelectLoading,
+  makeSelectProcessStatus,
+} from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 
@@ -45,26 +51,39 @@ export class Classes extends React.PureComponent {
   constructor() {
     super();
     this.state = {
+      currentPage: 1,
       selectedClasses: [],
       classes: [],
       changedClasses: [],
     };
+    this.size = 10;
+    this.maxPages = 11;
     this.handleSelectClasses = this.handleSelectClasses.bind(this);
     this.handleSavePosition = this.handleSavePosition.bind(this);
     this.handleChangePosition = this.handleChangePosition.bind(this);
+    this.onSelectPage = this.onSelectPage.bind(this);
   }
 
   componentWillMount() {
     // get classes
-    this.props.getClasses();
+    this.props.getClasses({
+      sort: 'position.desc',
+      offset: 0,
+      size: this.size,
+    });
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.processStatus && !this.props.processStatus) {
       this.setState({
         selectedClasses: [],
+        currentPage: 1,
       });
-      this.props.getClasses();
+      this.props.getClasses({
+        sort: 'position.desc',
+        offset: 0,
+        size: this.size,
+      });
       this.props.clearProcessStatus();
     }
     if (!_.isEqual(nextProps.classes, this.props.classes)) {
@@ -78,10 +97,23 @@ export class Classes extends React.PureComponent {
     this.props.clearProcessStatus(true);
   }
 
+  onSelectPage(page) {
+    if (this.state.currentPage !== page) {
+      this.setState({
+        currentPage: page,
+      });
+      this.props.getClasses({
+        sort: 'position.desc',
+        offset: this.size * (page - 1),
+        size: this.size,
+      });
+    }
+  }
+
   renderClassRow(classes) {
     return classes.map((item, idx) => (
       <tr key={item.id}>
-        <th scope="row">{idx + 1}</th>
+        <th scope="row">{((this.state.currentPage - 1) * this.size) + idx + 1}</th>
         <td>
           <input
             type="checkbox"
@@ -219,8 +251,19 @@ export class Classes extends React.PureComponent {
                         <th scope="col">Vị trí</th>
                       </tr>
                     </thead>
-                    <tbody>{this.renderClassRow(this.state.classes)}</tbody>
+                    <tbody>
+                      {this.props.loading
+                        ? (<tr><td colSpan="9" style={{ textAlign: 'center' }}>Loading...</td></tr>)
+                        : this.renderClassRow(this.state.classes)}
+                    </tbody>
                   </Table>
+                  <PaginationTable
+                    maxPages={this.maxPages}
+                    total={this.props.total}
+                    currentPage={this.state.currentPage}
+                    size={this.size}
+                    onClick={this.onSelectPage}
+                  />
                 </CardBody>
               </Card>
             </Col>
@@ -237,7 +280,7 @@ Classes.propTypes = {
 
 export function mapDispatchToProps(dispatch) {
   return {
-    getClasses: () => dispatch(getClasses()),
+    getClasses: (queries) => dispatch(getClasses(queries)),
     deleteClasses: (id) => dispatch(deleteClasses(id)),
     clearProcessStatus: (all) => dispatch(clearProcessStatus(all)),
     updateClasses: (classes) => dispatch(updateClasses(classes)),
@@ -246,6 +289,7 @@ export function mapDispatchToProps(dispatch) {
 
 const mapStateToProps = createStructuredSelector({
   classes: makeSelectClasses(),
+  total: makeSelectTotalClass(),
   loading: makeSelectLoading(),
   processStatus: makeSelectProcessStatus(),
 });

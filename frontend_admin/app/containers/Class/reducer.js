@@ -20,6 +20,7 @@ import {
 // The initial state of the App
 export const initialState = fromJS({
   classes: [],
+  total: 0,
   processDone: false,
 });
 
@@ -30,6 +31,7 @@ function classReducer(state = initialState, action) {
     case GET_CLASSES.SUCCESS:
       return state
         .set('loading', false)
+        .set('total', action.total)
         .set('classes', fromJS(action.classes));
     case DELETE_CLASSES.REQUEST:
       return state.set('loading', true);

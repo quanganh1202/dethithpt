@@ -12,7 +12,7 @@ import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { get } from 'lodash';
 import FileSaver from 'file-saver';
 import {
   faCog,
@@ -28,7 +28,7 @@ import List from 'components/List';
 import ListItem from 'components/ListItem';
 import LoadingIndicator from 'components/LoadingIndicator';
 import GreyTitle from 'containers/HomePage/GreyTitle';
-import { makeSelectFile } from 'containers/HomePage/selectors'
+import { makeSelectFile } from 'containers/HomePage/selectors';
 import {
   getPreview,
   previewDoc,
@@ -88,7 +88,7 @@ export class SearchResult extends React.PureComponent {
     }
     if (!this.props.file && nextProps.file) {
       const blob = new Blob([nextProps.file]);
-      FileSaver.saveAs(blob, _.get(this.state, 'downloadingFile', 'download'));
+      FileSaver.saveAs(blob, get(this.state, 'downloadingFile', 'download'));
       this.setState({ downloadingFile: '' });
       this.props.removeFileSave();
     }
@@ -134,7 +134,7 @@ export class SearchResult extends React.PureComponent {
             </GreyTitle>
           }
           content={
-            this.props.load ? (
+            this.props.loading ? (
               <LoadingIndicator />
             ) : (
               <div>

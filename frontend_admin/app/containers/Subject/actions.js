@@ -12,9 +12,10 @@ import {
  *
  * @return {object}    An action object with a type of GET_SUBJECTS.REQUEST
  */
-export function getSubjects() {
+export function getSubjects(queries) {
   return {
     type: GET_SUBJECTS.REQUEST,
+    queries,
   };
 }
 
@@ -25,10 +26,11 @@ export function getSubjects() {
  *
  * @return {object}    An action object with a type of GET_CLASSES.SUCCESS
  */
-export function getSubjectsSuccess(subjects) {
+export function getSubjectsSuccess(subjects, total) {
   return {
     type: GET_SUBJECTS.SUCCESS,
     subjects,
+    total,
   };
 }
 

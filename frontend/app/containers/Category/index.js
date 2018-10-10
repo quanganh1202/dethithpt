@@ -379,7 +379,7 @@ export class Category extends React.PureComponent {
             </GreyTitle>
           }
           content={
-            this.props.load
+            this.props.loading
               ? <LoadingIndicator />
               : (<div>
                 {this.state.downloadingFile

@@ -22,6 +22,13 @@ import { Link } from 'react-router-dom';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
+import {
+  requestDownload,
+  removeFileSave,
+  removeMessage,
+  getPreview,
+  previewDoc,
+} from 'containers/HomePage/actions';
 import Tab from 'components/Tab';
 import List from 'components/List';
 import ListItem from 'components/ListItem';
@@ -29,7 +36,6 @@ import PopUp from 'components/PopUp';
 import LoadingIndicator from 'components/LoadingIndicator';
 import downloading from 'images/download.gif';
 import { getDocumentDetails, getDocumentsList } from './actions';
-import { requestDownload, removeFileSave, removeMessage } from 'containers/HomePage/actions';
 import {
   makeSelectDocument,
   makeSelectLoading,
@@ -212,14 +218,26 @@ export class DocumentDetails extends React.PureComponent {
             </GreyTitle>
           }
           content={
-            <div>
-              <List
-                items={this.props.documents.data}
-                component={ListItem}
-                loadMore={this.props.documents.data.length < this.props.documents.total}
-                onLoadMore={this.loadMoreDocs}
-              />
-            </div>
+            this.props.loading
+              ? <LoadingIndicator />
+              : (<div>
+                {this.state.downloadingFile
+              ? <div className="data-loading">Vui lòng chờ xử lý...<LoadingIndicator /></div> : null}
+                <List
+                  items={this.props.documents.data}
+                  component={ListItem}
+                  loadMore={this.props.documents.data.length < this.props.documents.total}
+                  onLoadMore={this.loadMoreDocs}
+                  onDownload={(id, name) => {
+                    this.setState({ downloadingFile: name });
+                    this.props.requestDownload(id);
+                  }}
+                  onPreview={doc => {
+                    this.props.previewDoc(doc);
+                    this.props.getPreview(doc.id);
+                  }}
+                />
+              </div>)
           }
         />
         <PopUp
@@ -264,6 +282,9 @@ export function mapDispatchToProps(dispatch) {
     requestDownload: (id) => dispatch(requestDownload(id)),
     removeFileSave: () => dispatch(removeFileSave()),
     removeMessage: () => dispatch(removeMessage()),
+    updateQuery: query => dispatch(updateQuery(query)),
+    previewDoc: doc => dispatch(previewDoc(doc)),
+    getPreview: id => dispatch(getPreview(id)),
   };
 }
 

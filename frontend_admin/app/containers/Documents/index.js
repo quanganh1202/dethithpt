@@ -129,11 +129,11 @@ const Wrapper = styled.div`
     }
   }
   span.download-file-text {
-    color: blue;
-    text-decoration: underline;
+    color: #20a8d8;
     cursor: pointer;
     &:hover {
-      color: red;
+      color: #167495;
+      text-decoration: underline;
     }
   }
 
@@ -277,7 +277,7 @@ export class Documents extends React.PureComponent {
         <td>{item.approved === 1
             ? <Badge style={{ fontSize: '11px' }} color="success">Đã duyệt</Badge>
             : <Badge style={{ fontSize: '11px' }} color="warning">Chưa duyệt</Badge>}</td>
-        <td>{item.description}</td>
+        <td>{item.note}</td>
         <td className="actions-col">
           <div>
             <button

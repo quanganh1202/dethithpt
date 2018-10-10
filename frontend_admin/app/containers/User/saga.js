@@ -87,7 +87,6 @@ export function* getHistoryHandler({ historyType, id }) {
     default:
       break;
   }
-  console.log(url);
   try {
     const resp = yield call(axios.get, url, options);
     yield put(getHistorySuccess(resp.data.data));

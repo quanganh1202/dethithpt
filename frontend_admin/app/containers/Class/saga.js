@@ -17,12 +17,20 @@ const root = '/api';
 /**
  * Request get document list
  */
-export function* getClassesHandler() {
+export function* getClassesHandler({ queries }) {
   const url = `${root}/classes`;
+  const options = {
+    headers: {
+      ['x-access-token']: getToken(),
+    },
+    params: {
+      ...queries,
+    }
+  }
 
   try {
-    const resp = yield call(axios.get, url);
-    yield put(getClassesSuccess(resp.data.data));
+    const resp = yield call(axios.get, url, options);
+    yield put(getClassesSuccess(resp.data.data, resp.data.total));
   } catch (err) {
     // yield put(loginFailure(err));
   }

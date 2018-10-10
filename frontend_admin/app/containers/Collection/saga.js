@@ -17,12 +17,20 @@ const root = '/api';
 /**
  * Request get document list
  */
-export function* getCollectionsHandler() {
+export function* getCollectionsHandler({ queries }) {
   const url = `${root}/collections`;
+  const options = {
+    headers: {
+      ['x-access-token']: getToken(),
+    },
+    params: {
+      ...queries,
+    }
+  }
 
   try {
-    const resp = yield call(axios.get, url);
-    yield put(getCollectionsSuccess(resp.data.data));
+    const resp = yield call(axios.get, url, options);
+    yield put(getCollectionsSuccess(resp.data.data, resp.data.total));
   } catch (err) {
     // yield put(loginFailure(err));
   }
