@@ -153,7 +153,7 @@ const pdf2Image = (pdf, image) => {
 };
 
 const myQueue = [];
-let count = 0;
+let count = 1;
 
 const office2Pdf = (word, pdf) => {
   return new Promise((resolve, reject) => {
@@ -174,7 +174,7 @@ const office2Pdf = (word, pdf) => {
           const interval = setInterval(() => {
             if (fs.pathExistsSync(fileConverted)) {
               clearInterval(interval);
-              console.log(`Resolved: ${count}`);
+              console.log(`Resolved: ${count++}`);
 
               return resolve(fileConverted);
             }
@@ -182,17 +182,16 @@ const office2Pdf = (word, pdf) => {
         }
       };
 
-      count += 1;
       if (myQueue.length === 0) {
-        console.log(`Start: ${count}`);
+        console.log('Begin');
         myQueue.push(cmd);
         childProcess.exec(cmd, childCallback);
       } else {
-        console.log(`Waiting: ${count}`);
+        console.log('Waiting...');
         myQueue.push(cmd);
         const intervalQueue = setInterval(() => {
           if (myQueue[0] === cmd) {
-            console.log(`Start: ${count}`);
+            console.log('Next start');
             clearInterval(intervalQueue);
 
             childProcess.exec(cmd, childCallback);
