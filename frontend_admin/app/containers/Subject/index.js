@@ -113,7 +113,7 @@ export class Subject extends React.PureComponent {
   renderSubjectRow(subjects) {
     return subjects.map((item, idx) => (
       <tr key={item.id}>
-        <th scope="row">{idx + 1}</th>
+        <th scope="row">{((this.state.currentPage - 1) * this.size) + idx + 1}</th>
         <td>
           <input
             type="checkbox"
@@ -253,7 +253,11 @@ export class Subject extends React.PureComponent {
                         <th scope="col">Vị trí</th>
                       </tr>
                     </thead>
-                    <tbody>{this.renderSubjectRow(this.state.subjects)}</tbody>
+                    <tbody>
+                      {this.props.loading
+                        ? (<tr><td colSpan="9" style={{ textAlign: 'center' }}>Loading...</td></tr>)
+                        : this.renderSubjectRow(this.state.subjects)}
+                    </tbody>
                   </Table>
                   <PaginationTable
                     maxPages={this.maxPages}

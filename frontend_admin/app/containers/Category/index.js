@@ -113,7 +113,7 @@ export class Category extends React.PureComponent {
   renderCategoryRow(categories) {
     return categories.map((cate, idx) => (
       <tr key={cate.id}>
-        <th scope="row">{idx + 1}</th>
+        <th scope="row">{((this.state.currentPage - 1) * this.size) + idx + 1}</th>
         <td>
           <input
             type="checkbox"
@@ -248,7 +248,9 @@ export class Category extends React.PureComponent {
                       </tr>
                     </thead>
                     <tbody>
-                      {this.renderCategoryRow(this.state.categories)}
+                      {this.props.loading
+                        ? (<tr><td colSpan="10" style={{ textAlign: 'center' }}>Loading...</td></tr>)
+                        : this.renderCategoryRow(this.state.categories)}
                     </tbody>
                   </Table>
                   <PaginationTable

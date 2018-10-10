@@ -46,7 +46,9 @@ function docEditReducer(state = initialState, action) {
     case EDIT_DOC.FAILURE:
       return state
         .set('loading', false)
-        .set('error', action.error);
+        .set('error', typeof action.error === 'string' || action.error instanceof String
+          ? action.error
+          : 'Unknown error from server. Please try it later');
     case GET_DATA_INIT.REQUEST:
       return state.set('loading', true);
     case GET_DATA_INIT.SUCCESS:

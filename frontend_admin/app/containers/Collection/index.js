@@ -120,7 +120,7 @@ export class Collection extends React.PureComponent {
   renderCollectionRow(collections) {
     return collections.map((item, idx) => (
       <tr key={item.id}>
-        <th scope="row">{idx + 1}</th>
+        <th scope="row">{((this.state.currentPage - 1) * this.size) + idx + 1}</th>
         <td>
           <input
             type="checkbox"
@@ -288,7 +288,9 @@ export class Collection extends React.PureComponent {
                       </tr>
                     </thead>
                     <tbody>
-                      {this.renderCollectionRow(this.state.collections)}
+                      {this.props.loading
+                        ? (<tr><td colSpan="15" style={{ textAlign: 'center' }}>Loading...</td></tr>)
+                        : this.renderCollectionRow(this.state.collections)}
                     </tbody>
                   </Table>
                   <PaginationTable

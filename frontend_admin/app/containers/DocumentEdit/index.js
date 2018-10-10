@@ -94,6 +94,9 @@ export class DocumentEdit extends React.PureComponent {
         formData,
       });
     }
+    if (!this.props.error && nextProps.error) {
+      window.scrollTo(0, 0);
+    }
   }
 
   componentWillUnmount() {
@@ -236,7 +239,7 @@ export class DocumentEdit extends React.PureComponent {
     const AlertComponent = (
       <Alert
         color={this.props.message ? "info" : "danger"}
-        isOpen={message}
+        isOpen={!!message}
         toggle={() => this.props.clearMessage()}
       >
         {message}
@@ -275,15 +278,15 @@ export class DocumentEdit extends React.PureComponent {
                               rows={6}
                               type="textarea"
                               id="note"
-                              name="description"
+                              name="note"
                               onChange={this.onChange}
-                              value={this.state.formData.description || ''}
+                              value={this.state.formData.note || ''}
                               className={
-                                this.state.error.description && 'is-invalid'
+                                this.state.error.note && 'is-invalid'
                               }
                             />
                             <div className="invalid-feedback">
-                              {this.state.error.description}
+                              {this.state.error.note}
                             </div>
                           </Col>
                         </FormGroup>
