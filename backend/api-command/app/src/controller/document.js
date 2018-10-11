@@ -195,14 +195,16 @@ async function uploadDocument(body, file) {
       let numPages = 0;
       if (filePreview) {
         // For zip, rar
-        fileHelpers.storeFile(file, filePreview, true);
+        // fileHelpers.storeFile(file, filePreview, true);
+        const previewFile = file.filter(i => i.fieldname === 'filePreview');
+        await fileHelpers.preview(fileName, previewFile);
       } else {
         // For docx, doc, pdf
         const result = await fileHelpers.preview(fileName);
         numPages = result.numPages;
       }
-      body.totalPages = numPages;
-      queryBody.totalPages = numPages;
+      body.totalPages = numPages ? numPages : body.totalPages || 0;
+      queryBody.totalPages = numPages ? numPages : body.totalPages || 0;
       const res = await docModel.addNewDocument(body);
       // Append data and send to query api
       queryBody.userName = user[0].name;
@@ -382,14 +384,15 @@ async function updateDocumentById(id, body, file) {
         let numPages = 0;
         if (filePreview) {
           // For zip, rar
-          await fileHelpers.storeFile(file, filePreview, true);
+          const previewFile = file.filter(i => i.fieldname === 'filePreview');
+          await fileHelpers.preview(fileName, previewFile);
         } else {
           // For docx, doc, pdf
           const result = await fileHelpers.preview(fileName);
           numPages = result.numPages;
         }
-        body.totalPages = numPages;
-        queryBody.totalPages = numPages;
+        body.totalPages = numPages ? numPages : body.totalPages || 0;
+        queryBody.totalPages = numPages ? numPages : body.totalPages || 0;
         await fileHelpers.removeFile(doc[0].path);
       }
       delete body.userId;

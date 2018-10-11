@@ -39,14 +39,14 @@ const validateExtension = function validate(files, userId) {
         error: 'Should be provide a file preview for zip, rar file',
       };
     }
-    response.filePreview = `${pathFolderStore}/${userId}_${Date.now()}.png`;
+    response.filePreview = true;
   }
   response.fileName = `${pathFolderStore}/${userId}_${Date.now()}.${extension}`;
 
   return response;
 };
 
-const storeFile = async function store(files, fileName, preview) {
+const storeFile = async function store(files, fileName) {
   try {
     const file = files.filter(i => i.fieldname === 'fileUpload');
     if (!file.length) {
@@ -55,9 +55,8 @@ const storeFile = async function store(files, fileName, preview) {
         error: 'Should be provided fileUpload',
       };
     }
-    const previewFile = files.filter(i => i.fieldname === 'filePreview');
     await fs.move(
-      preview ? previewFile[0].path : file[0].path,
+      file[0].path,
       path.resolve(__dirname, fileName)
     );
   } catch(ex) {
@@ -79,13 +78,81 @@ const removeFile = async function removeFile(pathOld) {
   }
 };
 
-const preview = function getPreview(fileName) {
+const preview = function getPreview(fileName, filePreview) {
   return new Promise((resolve, reject) => {
     const dirname = path.dirname(fileName);
     const filename = path.basename(fileName, path.extname(fileName));
     const previewFile = `${dirname}/${filename}`;
     const extension = path.extname(fileName);
     const limitTimeToLoop = process.env.LIMIT_THUMB_FILE || 30;
+
+    if (extension === '.zip' || extension === '.rar') {
+      const pathPreview = filePreview[0].path;
+      const extensionFilePreview = path.extname(filePreview[0].originalname);
+      if (extensionFilePreview === '.docx' || extensionFilePreview === '.doc') {
+        office2Pdf(pathPreview, dirname).then(async (pdfName) => {
+          const { numPages } = await pdfjs.getDocument(pdfName);
+          resolve({
+            statusCode: 200,
+            message: 'Thumb file is created',
+          });
+          const timeToLoop = numPages < limitTimeToLoop ? numPages : limitTimeToLoop;
+          const promises = [];
+          for (let i = 0; i < timeToLoop; i += 1) {
+            promises.push(pdf2Image(`${pdfName}[${i}]`, `${previewFile}${i < 10 ? `0${i}`: i}.png`));
+          }
+          Promise.all(promises).then(() => {
+            fs.unlink(pdfName);
+          }).catch(err => {
+            logger.error(`[DOCUMENT] ${err.message || 'Generate preview file has error'}`);
+            fs.unlink(pdfName);
+          });
+        }).catch((err) => {
+          logger.error(`[DOCUMENT] ${err.message || 'Generate preview file has error'}`);
+          reject({
+            statusCode: 500,
+            error: err.message || 'Create thumb file failed',
+          });
+        });
+      }
+
+      if (extensionFilePreview === '.pdf') {
+        pdfjs.getDocument(pathPreview).then(result => {
+          const { numPages } = result;
+          resolve({
+            statusCode: 200,
+            message: 'Thumb file is created',
+          });
+          const timeToLoop = numPages < limitTimeToLoop ? numPages : limitTimeToLoop;
+          const promises = [];
+          for (let i = 0; i < timeToLoop; i += 1) {
+            promises.push(pdf2Image(`${pathPreview}[${i}]`, `${previewFile}${i < 10 ? `0${i}`: i}.png`));
+          }
+          Promise.all(promises).catch(err => {
+            logger.error(`[DOCUMENT] ${err.message || 'Generate preview file has error'}`);
+          });
+        }).catch(err => {
+          logger.error(`[DOCUMENT] ${err.message || 'Generate preview file has error'}`);
+          reject({
+            statusCode: 500,
+            error: err.message || 'Create thumb file failed',
+          });
+        });
+      }
+
+      if (extensionFilePreview === '.png' || extensionFilePreview === '.jpg' || extensionFilePreview === '.jpeg') {
+        fs.move(
+          pathPreview,
+          `${dirname}/${filename}.png`
+        ).then(() => {
+          resolve({
+            statusCode: 200,
+            message: 'Thumb file is created',
+          });
+        });
+      }
+    }
+
     if (extension === '.docx' || extension === '.doc') {
       office2Pdf(fileName, dirname).then(async (pdfName) => {
         const { numPages } = await pdfjs.getDocument(pdfName);
@@ -125,7 +192,7 @@ const preview = function getPreview(fileName) {
         const timeToLoop = numPages < limitTimeToLoop ? numPages : limitTimeToLoop;
         const promises = [];
         for (let i = 0; i < timeToLoop; i += 1) {
-          promises.push(pdf2Image(`${fileName}[${i}]`, `${previewFile}0${i}.png`));
+          promises.push(pdf2Image(`${fileName}[${i}]`, `${previewFile}${i < 10 ? `0${i}`: i}.png`));
         }
         Promise.all(promises).catch(err => {
           logger.error(`[DOCUMENT] ${err.message || 'Generate preview file has error'}`);
