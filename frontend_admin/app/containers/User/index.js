@@ -91,6 +91,13 @@ const Wrapper = styled.div`
   .actions-col {
     min-width: 80px;
   }
+
+  .input-note {
+    background: rgb(255, 255, 255);
+    margin-right: 20px;
+    width: 200px;
+    height: 100px;
+  }
 `;
 
 const NewLoadingIndicator = styled.div`
@@ -130,6 +137,8 @@ export class User extends React.PureComponent {
       quickDate: '',
       activeTab: '1',
       showHistory: false,
+      quickNote1: '',
+      quickNote2: '',
     };
     this.size = 10;
     this.maxPages = 11;
@@ -400,6 +409,8 @@ export class User extends React.PureComponent {
       quickMoney,
       quickBlock,
       quickDate,
+      quickNote1,
+      quickNote2,
     } = this.state;
     if (quickActive && quickList) {
       const options = {
@@ -435,7 +446,10 @@ export class User extends React.PureComponent {
           content.notifyText = quickContent;
           break;
         case '5':
-          content.note1 = quickContent;
+          content.note1 = ' ';
+          content.note2 = ' ';
+          if (quickNote1) content.note1 = quickNote1;
+          if (quickNote2) content.note2 = quickNote2;
           break;
         default:
           break;
@@ -463,6 +477,11 @@ export class User extends React.PureComponent {
         axios.all(requests).then(res => {
           const result = res.filter(r => r && r.data.statusCode === 200);
           document.getElementById('exampleFile').value = '';
+          this.props.getUsers({
+            sort: 'createdAt.desc',
+            offset: 0,
+            size: this.size,
+          });
           this.setState({
             quickActive: false,
             quickList: [],
@@ -747,7 +766,7 @@ export class User extends React.PureComponent {
                               value: 4,
                             },
                             {
-                              text: 'Ghi chú 1',
+                              text: 'Ghi chú',
                               value: 5,
                             },
                           ].map(opt => (
@@ -783,7 +802,6 @@ export class User extends React.PureComponent {
                                   />
                                 );
                               case '4':
-                              case '5':
                                 return (
                                   <Editor
                                     editorState={this.state.editorState}
@@ -792,6 +810,33 @@ export class User extends React.PureComponent {
                                       this.onEditorStateChange
                                     }
                                   />
+                                );
+                              case '5':
+                                return (
+                                  <div>
+                                    <textarea
+                                      onChange={e =>
+                                        this.setState({
+                                          quickNote1: e.target.value,
+                                        })
+                                      }
+                                      value={this.state.quickNote1}
+                                      name="note1"
+                                      placeholder="Ghi chú 1"
+                                      className="input-note"
+                                    />
+                                    <textarea
+                                      onChange={e =>
+                                        this.setState({
+                                          quickNote2: e.target.value,
+                                        })
+                                      }
+                                      value={this.state.quickNote2}
+                                      name="note2"
+                                      placeholder="Ghi chú 2"
+                                      className="input-note"
+                                    />
+                                  </div>
                                 );
                               case '3':
                                 return (
@@ -822,7 +867,6 @@ export class User extends React.PureComponent {
                                         />{' '}
                                         Khóa / Mở khóa
                                       </Label>
-                                      
                                       <FormText color="muted">
                                         Chọn ngày tài khoản sẽ bị khóa ( Xóa
                                         trắng để Khóa ngay tài khoản )
