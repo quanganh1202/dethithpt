@@ -68,10 +68,10 @@ const storeFile = async function store(files, fileName) {
 const removeFile = async function removeFile(pathOld) {
   const pathFolderStore = process.env.PATH_FOLDER_STORE || path.resolve(__dirname, '../../../storage');
   const fileName = path.basename(pathOld, path.basename(path.extname(pathOld)));
-  const arrFiles = await fs.readdir(pathFolderStore).filter((file => file.includes(fileName)));
+  const arrFiles = await fs.readdir(pathFolderStore);
   const existed = await fs.pathExists(pathOld);
   if (existed) {
-    const promises = arrFiles.map(file => fs.unlink(`${pathFolderStore}/${file}`));
+    const promises = arrFiles.filter((file => file.includes(fileName))).map(file => fs.unlink(`${pathFolderStore}/${file}`));
     await Promise.all(promises);
   } else {
     logger.error('Unexpect error when delete file');
