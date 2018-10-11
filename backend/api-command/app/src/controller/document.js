@@ -690,7 +690,7 @@ async function downloadDocument(docId, userId, download) {
   }
 }
 
-async function approveDocument(docId, userId) {
+async function approveDocument(docId, userId, approvedStatus) {
   try {
     const doc = await docModel.getDocumentById(docId);
     if (!doc || !doc.length) {
@@ -700,12 +700,20 @@ async function approveDocument(docId, userId) {
       };
     }
 
-    if(doc[0].approved === 1) {
+    if(doc[0].approved === 1 && parseInt(approvedStatus) === 1) {
       return {
         status: 400,
         error: 'Document has approved',
       };
     }
+
+    if(doc[0].approved === 0 && parseInt(approvedStatus) === 0) {
+      return {
+        status: 400,
+        error: 'Document has unapproved',
+      };
+    }
+
     const userModel = new User();
     const user = await userModel.getById(userId);
     if (!user || !user.length) {
@@ -721,7 +729,7 @@ async function approveDocument(docId, userId) {
       };
     }
     const body = {
-      approved: 1,
+      approved: parseInt(approvedStatus),
       approverId: userId,
     };
 
