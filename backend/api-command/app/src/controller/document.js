@@ -700,6 +700,13 @@ async function approveDocument(docId, userId, approvedStatus) {
       };
     }
 
+    if (!['0', '1'].includes(approvedStatus)) {
+      return {
+        status: 400,
+        error: 'Invalid approve status. Enum [0, 1]',
+      };
+    }
+
     if(doc[0].approved === 1 && parseInt(approvedStatus) === 1) {
       return {
         status: 400,
