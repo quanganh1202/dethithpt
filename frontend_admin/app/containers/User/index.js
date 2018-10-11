@@ -450,10 +450,10 @@ export class User extends React.PureComponent {
 
         const requests = [];
         quickList.forEach(email => {
-          if (listUsers[email]) {
+          if (listUsers[email.trim()]) {
             requests.push(
               method(
-                `/api/users${url}/${listUsers[email]}`,
+                `/api/users${url}/${listUsers[email.trim()]}`,
                 content,
                 options,
               ).catch(() => {}),
