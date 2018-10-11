@@ -405,6 +405,7 @@ export class Documents extends React.PureComponent {
         name: this.state.keyword || '',
         size: this.size,
         offset: this.size * (page - 1),
+        sort: 'createdAt.desc',
       };
       if (sortField) {
         query.sort = `${sortField}.${sortBy}`;
