@@ -182,7 +182,13 @@ class DetailForm extends React.Component {
       }
     });
 
-    const err = _.pullAll(list, Object.keys(newData));
+    const listCheck = [...list, 'collectionIds'];
+    if (this.props.name &&
+      (this.props.name.split('.').slice(-1)[0] === 'zip' ||
+        this.props.name.split('.').slice(-1)[0] === 'rar')) {
+          listCheck.push('filePreview');
+        }
+    const err = _.pullAll(listCheck, Object.keys(newData));
     if (err.length > 0) {
       this.setState({
         message: {
