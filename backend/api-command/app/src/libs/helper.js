@@ -97,7 +97,7 @@ const preview = function getPreview(fileName) {
         const timeToLoop = numPages < limitTimeToLoop ? numPages : limitTimeToLoop;
         const promises = [];
         for (let i = 0; i < timeToLoop; i += 1) {
-          promises.push(pdf2Image(`${pdfName}[${i}]`, `${previewFile}0${i}.png`));
+          promises.push(pdf2Image(`${pdfName}[${i}]`, `${previewFile}${i < 10 ? `0${i}`: i}.png`));
         }
         Promise.all(promises).then(() => {
           fs.unlink(pdfName);
