@@ -99,7 +99,7 @@ export class UploadDocument extends React.PureComponent {
     get(`${url}/tags?size=10000`).then((res) => {
       this.initData('tags', res.data.data);
     });
-    get(`${url}/collections?size=10000sort=position.asc`).then((res) => {
+    get(`${url}/collections?size=10000&sort=position.asc`).then((res) => {
       this.initData('collections', res.data.data);
     });
     get(`${url}/news?type=general`).then((res) => {
