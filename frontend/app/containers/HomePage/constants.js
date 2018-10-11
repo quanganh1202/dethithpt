@@ -39,6 +39,7 @@ export const REQUEST_PURCHASE = defineAction(
 );
 export const REMOVE_FILE_SAVE = defineAction('REMOVE_FILE_SAVE', container);
 export const REMOVE_MESSAGE = defineAction('REMOVE_MESSAGE', container);
+export const CLOSE_POPUP_COLLECTION = defineAction('CLOSE_POPUP_COLLECTION', container);
 export const GET_PREVIEW = defineAction(
   'GET_PREVIEW',
   ['REQUEST', 'SUCCESS', 'FAILURE'],

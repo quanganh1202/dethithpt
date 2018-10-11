@@ -31,7 +31,7 @@ export function* getCategoriesHandler({ queries }) {
   try {
     const resp = yield call(axios.get, url, options);
     const cateIds = resp.data.data.map((i) => i.id);
-    const collections = yield call(axios.get, `${root}/collections?cateId=${cateIds.join()}`, options);
+    const collections = yield call(axios.get, `${root}/collections?size=10000&cateId=${cateIds.join()}`);
     const collectionsByCate = collections.data.data.reduce((acc, i) => {
       const newAcc = { ...acc };
       i.cates.forEach((cate) => {

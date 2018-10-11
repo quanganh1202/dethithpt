@@ -67,7 +67,7 @@ export class Subject extends React.PureComponent {
   componentWillMount() {
     // get subjects
     this.props.getSubjects({
-      sort: 'position.desc',
+      sort: 'position.asc',
       offset: 0,
       size: this.size,
     });
@@ -80,7 +80,7 @@ export class Subject extends React.PureComponent {
         currentPage: 1,
       });
       this.props.getSubjects({
-        sort: 'position.desc',
+        sort: 'position.asc',
         offset: 0,
         size: this.size,
       });
@@ -103,7 +103,7 @@ export class Subject extends React.PureComponent {
         currentPage: page,
       });
       this.props.getSubjects({
-        sort: 'position.desc',
+        sort: 'position.asc',
         offset: this.size * (page - 1),
         size: this.size,
       });
@@ -111,6 +111,13 @@ export class Subject extends React.PureComponent {
   }
 
   renderSubjectRow(subjects) {
+    if (!subjects || !_.get(subjects, 'length', 0)) {
+      return (
+        <tr>
+          <td colSpan="9" style={{ textAlign: 'center' }}>Không tìm thấy bản ghi nào!</td>
+        </tr>
+      )
+    }
     return subjects.map((item, idx) => (
       <tr key={item.id}>
         <th scope="row">{((this.state.currentPage - 1) * this.size) + idx + 1}</th>

@@ -74,7 +74,7 @@ export class Collection extends React.PureComponent {
   componentWillMount() {
     // get collections
     this.props.getCollections({
-      sort: 'position.desc',
+      sort: 'position.asc',
       offset: 0,
       size: this.size,
     });
@@ -87,7 +87,7 @@ export class Collection extends React.PureComponent {
         currentPage: 1,
       });
       this.props.getCollections({
-        sort: 'position.desc',
+        sort: 'position.asc',
         offset: 0,
         size: this.size,
       });
@@ -110,7 +110,7 @@ export class Collection extends React.PureComponent {
         currentPage: page,
       });
       this.props.getCollections({
-        sort: 'position.desc',
+        sort: 'position.asc',
         offset: this.size * (page - 1),
         size: this.size,
       });
@@ -118,6 +118,13 @@ export class Collection extends React.PureComponent {
   }
 
   renderCollectionRow(collections) {
+    if (!collections || !_.get(collections, 'length', 0)) {
+      return (
+        <tr>
+          <td colSpan="15" style={{ textAlign: 'center' }}>Không tìm thấy bản ghi nào!</td>
+        </tr>
+      )
+    }
     return collections.map((item, idx) => (
       <tr key={item.id}>
         <th scope="row">{((this.state.currentPage - 1) * this.size) + idx + 1}</th>

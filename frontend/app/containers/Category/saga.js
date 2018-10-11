@@ -19,8 +19,8 @@ const root = '/api';
 export function* getFilterDataHandler() {
   try {
     const resp = yield all([
-      call(axios.get, `${root}/subjects`),
-      call(axios.get, `${root}/classes`),
+      call(axios.get, `${root}/subjects?size=10000&sort=position.asc`),
+      call(axios.get, `${root}/classes?size=10000&sort=position.asc`),
     ]);
     const subjects = _.get(resp, '[0].data.data');
     const classes = _.get(resp, '[1].data.data');

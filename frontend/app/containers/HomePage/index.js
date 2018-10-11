@@ -59,6 +59,7 @@ import {
   closePreview,
   previewDoc,
   getPreview,
+  closePopUpCollection,
 } from './actions';
 import {
   makeSelectUser,
@@ -75,6 +76,8 @@ import {
   makeSelectInfoDocPreview,
   makeSelectIsShowPreview,
   makeSelectImagesPreview,
+  makeSelectTotalCollections,
+  makeSelectAllCollections,
 } from './selectors';
 import styled from 'styled-components';
 import { makeSelectCurrentUser, makeSelectPopout } from 'containers/App/selectors';
@@ -434,22 +437,38 @@ export class HomePage extends React.PureComponent {
           style={{ background: 'white' }}
           title="Bộ sưu tập nổi bật"
           content={
-            <List
-              items={this.props.collections}
-              component={({ item }) => (
-                this.props.loading ? null : (
-                  <TabList
-                    item={{
-                      link: `/bo-suu-tap/${item.id}`,
-                      title: item.name,
-                      quantity: item.numDocRefs || 0,
-                      priority: pathname.includes('danh-muc') ? (item.priorityCate || 0) : (item.priority || 0),
-                      active: pathname.includes('bo-suu-tap') && pathname.split('/').pop() === item.id ? true : false,
-                    }}
-                  />
-                )
+            <React.Fragment>
+              <List
+                items={this.props.collections}
+                component={({ item }) => (
+                  this.props.loading ? null : (
+                      <TabList
+                        item={{
+                          link: `/bo-suu-tap/${item.id}`,
+                          title: item.name,
+                          quantity: item.numDocRefs || 0,
+                          priority: pathname.includes('danh-muc') ? (item.priorityCate || 0) : (item.priority || 0),
+                          active: pathname.includes('bo-suu-tap') && pathname.split('/').pop() === item.id ? true : false,
+                        }}
+                      />
+                  )
+                )}
+              />
+              { this.props.totalCollection > 10 && (
+                <button
+                  className="get-collection-btn"
+                  style={{
+                    fontSize: '0.85em',
+                    float: 'right',
+                    textDecoration: 'underline',
+                    cursor: 'pointer'
+
+                  }}
+                  onClick={() => this.props.getCollections(this.props.queryCollection, true)}
+                >Xem thêm</button>
               )}
-            />
+              <div style={{ clear: 'both' }}></div>
+            </React.Fragment>
           }
         />
         <Tab
@@ -686,6 +705,37 @@ export class HomePage extends React.PureComponent {
               />
             }
           />)}
+          {this.props.allCollections && (<PopUp
+            show={!!this.props.allCollections}
+            close
+            width="300px"
+            onClose={() => this.props.closePopUpCollection()}
+            content={
+              <Tab
+                key="bo-suu-tap"
+                style={{ background: 'white' }}
+                title="Bộ sưu tập nổi bật"
+                content={
+                  <List
+                    items={this.props.allCollections.toJS()}
+                    component={({ item }) => (
+                      this.props.loading ? null : (
+                          <TabList
+                            item={{
+                              link: `/bo-suu-tap/${item.id}`,
+                              title: item.name,
+                              quantity: item.numDocRefs || 0,
+                              priority: pathname.includes('danh-muc') ? (item.priorityCate || 0) : (item.priority || 0),
+                              active: pathname.includes('bo-suu-tap') && pathname.split('/').pop() === item.id ? true : false,
+                            }}
+                          />
+                      )
+                    )}
+                  />
+                }
+              />
+            }
+          />)}
         </Wrapper>
       </article>
     );
@@ -709,8 +759,8 @@ export function mapDispatchToProps(dispatch) {
     onSubmitUserInfo: (payload, token) => dispatch(updateUserInfo(payload, token)),
     getDocumentsList: query => dispatch(getDocumentsList(query)),
     getCategories: () => dispatch(getCategories()),
-    getCollections: queryCollection =>
-      dispatch(getCollections(queryCollection)),
+    getCollections: (queryCollection, getAll) =>
+      dispatch(getCollections(queryCollection, getAll)),
     getTags: () => dispatch(getTags()),
     getNews: () => dispatch(getNews()),
     requestDownload: id => dispatch(requestDownload(id)),
@@ -722,6 +772,7 @@ export function mapDispatchToProps(dispatch) {
     closePreview: () => dispatch(closePreview()),
     previewDoc: doc => dispatch(previewDoc(doc)),
     getPreview: id => dispatch(getPreview(id)),
+    closePopUpCollection: () => dispatch(closePopUpCollection()),
   };
 }
 
@@ -731,6 +782,8 @@ const mapStateToProps = createStructuredSelector({
   documents: makeSelectDocuments(),
   categories: makeSelectCategories(),
   collections: makeSelectCollections(),
+  allCollections: makeSelectAllCollections(),
+  totalCollection: makeSelectTotalCollections(),
   tags: makeSelectTags(),
   news: makeSelectNews(),
   file: makeSelectFile(),

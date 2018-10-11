@@ -48,10 +48,11 @@ export function getDocsSuccess({ data, total }) {
  *
  * @return {object}    An action object with a type of APPROVE_DOCS.REQUEST
  */
-export function approveDocs(ids) {
+export function approveDocs(toApprove, toUnApprove) {
   return {
     type: APPROVE_DOCS.REQUEST,
-    ids,
+    toApprove,
+    toUnApprove,
   };
 }
 
