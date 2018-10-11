@@ -87,7 +87,7 @@ function ListItem(props) {
           </p>
           <p>
             <FontAwesomeIcon className={'info-icon'} icon={['fas', 'eye']} />
-            {numberWithCommas((props.item.views || 0).toString())}
+            {props.item.view || 0}
           </p>
         </div>
         <div className="right-info">
