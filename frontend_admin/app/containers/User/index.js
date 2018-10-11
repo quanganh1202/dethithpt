@@ -212,6 +212,13 @@ export class User extends React.PureComponent {
   }
 
   renderUserRow(users, purchase) {
+    if (!users || !_.get(users, 'length', 0)) {
+      return (
+        <tr>
+          <td colSpan="21" style={{ textAlign: 'center' }}>Không tìm thấy bản ghi nào!</td>
+        </tr>
+      )
+    }
     return users.map((item, idx) => (
       <tr key={item.id}>
         <th scope="row">{idx + 1}</th>
@@ -916,8 +923,8 @@ export class User extends React.PureComponent {
                           multiple
                           scope="col"
                           options={[
-                            { value: 'admin', label: 'admin' },
-                            { value: 'student', label: 'student' },
+                            { value: 'admin', label: 'Admin' },
+                            { value: 'student', label: 'Thành viên' },
                           ]}
                           onSelect={this.onSelectFilter}
                           value={this.state.filters.role || []}
@@ -978,10 +985,28 @@ export class User extends React.PureComponent {
                         >
                           Thành phố
                         </HeadFilter>
-                        <th scope="col">Đã tải</th>
-                        <th scope="col">Đã đăng</th>
+                        <HeadSort
+                          scope="col"
+                          onClick={this.sort}
+                          data-field="numOfDownloaded"
+                          sortField={this.state.sortField}
+                          sortBy={this.state.sortBy}
+                        >Đã tải</HeadSort>
+                        <HeadSort
+                          scope="col"
+                          onClick={this.sort}
+                          data-field="numOfUploaded"
+                          sortField={this.state.sortField}
+                          sortBy={this.state.sortBy}
+                        >Đã đăng</HeadSort>
                         <th scope="col">Đã nạp</th>
-                        <th scope="col">Số dư</th>
+                        <HeadSort
+                          scope="col"
+                          onClick={this.sort}
+                          data-field="money"
+                          sortField={this.state.sortField}
+                          sortBy={this.state.sortBy}
+                        >Số dư</HeadSort>
                         <HeadFilter
                           selectName="group"
                           multiple
@@ -1024,7 +1049,11 @@ export class User extends React.PureComponent {
                         <th scope="col">Hoạt động gần đây</th>
                       </tr>
                     </thead>
-                    <tbody>{this.renderUserRow(this.props.users, this.props.dataInit.purchaseHistory)}</tbody>
+                    <tbody>
+                      {this.props.loading
+                        ? (<tr><td colSpan="21" style={{ textAlign: 'center' }}>Loading...</td></tr>)
+                        : this.renderUserRow(this.props.users, this.props.dataInit.purchaseHistory)}
+                    </tbody>
                   </Table>
                   <PaginationTable
                     maxPages={this.maxPages}

@@ -67,7 +67,7 @@ export class Category extends React.PureComponent {
   componentWillMount() {
     // get categories
     this.props.getCategories({
-      sort: 'position.desc',
+      sort: 'position.asc',
       offset: 0,
       size: this.size,
     });
@@ -80,7 +80,7 @@ export class Category extends React.PureComponent {
         currentPage: 1,
       });
       this.props.getCategories({
-        sort: 'position.desc',
+        sort: 'position.asc',
         offset: 0,
         size: this.size,
       });
@@ -103,7 +103,7 @@ export class Category extends React.PureComponent {
         currentPage: page,
       });
       this.props.getCategories({
-        sort: 'position.desc',
+        sort: 'position.asc',
         offset: this.size * (page - 1),
         size: this.size,
       });
@@ -111,6 +111,13 @@ export class Category extends React.PureComponent {
   }
 
   renderCategoryRow(categories) {
+    if (!categories || !_.get(categories, 'length', 0)) {
+      return (
+        <tr>
+          <td colSpan="10" style={{ textAlign: 'center' }}>Không tìm thấy bản ghi nào!</td>
+        </tr>
+      )
+    }
     return categories.map((cate, idx) => (
       <tr key={cate.id}>
         <th scope="row">{((this.state.currentPage - 1) * this.size) + idx + 1}</th>

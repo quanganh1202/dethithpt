@@ -58,20 +58,28 @@ export function* getDocsHandler({ query }) {
 /**
  * Request approve document
  */
-export function* approveDocsHandler({ ids }) {
+export function* approveDocsHandler({ toApprove, toUnApprove }) {
   const options = {
     headers: {
       ['x-access-token']: getToken(),
     }
   }
-
   try {
-    yield all(ids.map((i) => {
-      const url = `${root}/documents/${i}/approve`;
-      return call(axios.post, url, {}, options);
-    }));
+    if (toApprove && toApprove.length) {
+      yield all(toApprove.map((i) => {
+        const url = `${root}/documents/${i}/approve/1`;
+        return call(axios.post, url, {}, options);
+      }));
+    }
+    if (toUnApprove && toUnApprove.length) {
+      yield all(toUnApprove.map((i) => {
+        const url = `${root}/documents/${i}/approve/0`;
+        return call(axios.post, url, {}, options);
+      }));
+    }
     yield put(approveDocsSuccess());
   } catch (err) {
+    console.log(err);
     // yield put(loginFailure(err));
   }
 }
