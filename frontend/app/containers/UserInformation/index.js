@@ -281,10 +281,10 @@ export class UserInformation extends React.PureComponent {
     return (
       <article>
         <Helmet>
-          <title>Home Page</title>
+          <title>Trang chủ</title>
           <meta
             name="description"
-            content="DethiTHPT"
+            content="Tailieudoc.vn"
           />
         </Helmet>
         <div style={{ marginTop: '20px' }}>

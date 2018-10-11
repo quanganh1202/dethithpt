@@ -519,8 +519,8 @@ export class HomePage extends React.PureComponent {
     return (
       <article>
         <Helmet>
-          <title>Home Page</title>
-          <meta name="description" content="DethiTHPT" />
+          <title>Trang chủ</title>
+          <meta name="description" content="Tailieudoc.vn" />
         </Helmet>
         <Wrapper>
           <Layout

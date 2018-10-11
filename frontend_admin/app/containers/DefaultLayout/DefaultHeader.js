@@ -4,8 +4,7 @@ import { Badge, DropdownItem, DropdownMenu, DropdownToggle, Nav, NavItem, NavLin
 import PropTypes from 'prop-types';
 
 import { AppAsideToggler, AppHeaderDropdown, AppNavbarBrand, AppSidebarToggler } from '@coreui/react';
-import logo from 'assets/img/brand/logo.svg'
-import sygnet from 'assets/img/brand/sygnet.svg'
+import logo from 'assets/img/brand/banner.png';
 
 const propTypes = {
   children: PropTypes.node,
@@ -31,8 +30,7 @@ class DefaultHeader extends Component {
       <React.Fragment>
         <AppSidebarToggler className="d-lg-none" display="md" mobile />
         <AppNavbarBrand
-          full={{ src: logo, width: 89, height: 25, alt: 'CoreUI Logo' }}
-          minimized={{ src: sygnet, width: 30, height: 30, alt: 'CoreUI Logo' }}
+          full={{ src: logo, width: 170, alt: 'Tailieudoc.vn Logo' }}
         />
         <AppSidebarToggler className="d-md-down-none" display="lg" />
 
@@ -63,12 +61,12 @@ class DefaultHeader extends Component {
           <NavItem className="d-md-down-none">
             <NavLink href="#"><i className="icon-bell"></i><Badge pill color="danger">5</Badge></NavLink>
           </NavItem>
-          <NavItem className="d-md-down-none">
+          {/* <NavItem className="d-md-down-none">
             <NavLink href="#"><i className="icon-list"></i></NavLink>
           </NavItem>
           <NavItem className="d-md-down-none">
             <NavLink href="#"><i className="icon-location-pin"></i></NavLink>
-          </NavItem>
+          </NavItem> */}
           <AppHeaderDropdown direction="down">
             <DropdownToggle nav>
               {/* <img src={'assets/img/avatars/6.jpg'} className="img-avatar" alt="admin@bootstrapmaster.com" /> */}
@@ -91,7 +89,7 @@ class DefaultHeader extends Component {
             </DropdownMenu>
           </AppHeaderDropdown>
         </Nav>
-        <AppAsideToggler className="d-md-down-none" />
+        {/* <AppAsideToggler className="d-md-down-none" /> */}
         {/*<AppAsideToggler className="d-lg-none" mobile />*/}
       </React.Fragment>
     );
