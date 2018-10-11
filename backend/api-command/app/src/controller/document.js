@@ -69,7 +69,7 @@ async function uploadDocument(body, file) {
         });
       }
 
-      if (!file.length) {
+      if (!file || !file.length) {
         return resolve({
           status: 400,
           error: 'Should be provided a file to upload',
