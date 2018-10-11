@@ -95,7 +95,7 @@ export function* getDocumentsListHandler({ query }) {
  * Request get categories list
  */
 export function* getCategoriesHandler() {
-  const url = `${root}/categories?sort=position.desc`;
+  const url = `${root}/categories?size=10000&sort=position.asc`;
 
   try {
     const resp = yield call(axios.get, url);
@@ -108,18 +108,19 @@ export function* getCategoriesHandler() {
 /**
  * Request get collections list
  */
-export function* getCollectionsHandler({ queryCollection }) {
+export function* getCollectionsHandler({ queryCollection, getAll }) {
   const url = `${root}/collections`;
-  const sort = [ queryCollection.cateId ? 'priorityCate.desc' : 'priority.desc', 'position.desc']
+  const sort = [ queryCollection.cateId ? 'priorityCate.desc' : 'priority.desc', 'position.asc']
   const options = {
     params: {
       ...queryCollection,
       sort,
+      size: getAll ? 10000 : 10,
     },
   };
   try {
     const resp = yield call(axios.get, url, options);
-    yield put(getCollectionsSuccess(resp.data.data));
+    yield put(getCollectionsSuccess(resp.data.data, resp.data.total, getAll));
   } catch (err) {
     // yield put(loginFailure(err));
   }

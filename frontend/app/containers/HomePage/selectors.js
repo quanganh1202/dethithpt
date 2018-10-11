@@ -25,6 +25,12 @@ const makeSelectCategories = () =>
 const makeSelectCollections = () =>
   createSelector(selectHome, homeState => homeState.get('collections').toJS());
 
+const makeSelectAllCollections = () =>
+  createSelector(selectHome, homeState => homeState.get('allCollections'));
+
+const makeSelectTotalCollections = () =>
+  createSelector(selectHome, homeState => homeState.get('totalCollection'));
+
 const makeSelectTags = () =>
   createSelector(selectHome, homeState => homeState.get('tags').toJS());
 
@@ -57,6 +63,8 @@ export {
   makeSelectDocuments,
   makeSelectCategories,
   makeSelectCollections,
+  makeSelectAllCollections,
+  makeSelectTotalCollections,
   makeSelectTags,
   makeSelectNews,
   makeSelectFile,

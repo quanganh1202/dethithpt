@@ -41,9 +41,9 @@ export function* createCollectionHandler({ data }) {
 export function* getInitDataHandler() {
   try {
     const resp = yield all([
-      call(axios.get, `${root}/categories`),
-      call(axios.get, `${root}/subjects`),
-      call(axios.get, `${root}/classes`),
+      call(axios.get, `${root}/categories?size=10000&sort=position.asc`),
+      call(axios.get, `${root}/subjects?size=10000&sort=position.asc`),
+      call(axios.get, `${root}/classes?size=10000&sort=position.asc`),
     ]);
     const categories = _.get(resp, '[0].data.data');
     const subjects = _.get(resp, '[1].data.data');

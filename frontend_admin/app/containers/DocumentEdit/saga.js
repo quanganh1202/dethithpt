@@ -60,11 +60,11 @@ export function* editDocHandler({ data, id }) {
 export function* getDataInitHandler() {
   try {
     const resp = yield all([
-      call(axios.get, `${root}/categories`),
-      call(axios.get, `${root}/subjects`),
-      call(axios.get, `${root}/classes`),
-      call(axios.get, `${root}/collections`),
-      call(axios.get, `${root}/tags`),
+      call(axios.get, `${root}/categories?size=10000&sort=position.asc`),
+      call(axios.get, `${root}/subjects?size=10000&sort=position.asc`),
+      call(axios.get, `${root}/classes?size=10000&sort=position.asc`),
+      call(axios.get, `${root}/collections?size=10000&sort=position.asc`),
+      call(axios.get, `${root}/tags?size=10000&sort=view.desc`),
     ]);
     const categories = _.get(resp, '[0].data.data');
     const subjects = _.get(resp, '[1].data.data');

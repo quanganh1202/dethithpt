@@ -22,6 +22,7 @@ import {
   PREVIEW_DOC,
   PREVIEW_CLOSE,
   GET_PREVIEW,
+  CLOSE_POPUP_COLLECTION,
 } from './constants';
 
 /**
@@ -173,10 +174,11 @@ export function getCategoriesSuccess(categories) {
  *
  * @return {object}    An action object with a type of GET_CATE_LIST_REQUEST
  */
-export function getCollections(queryCollection = {}) {
+export function getCollections(queryCollection = {}, getAll) {
   return {
     type: GET_COLLECTION_LIST_REQUEST,
     queryCollection,
+    getAll,
   };
 }
 
@@ -187,10 +189,12 @@ export function getCollections(queryCollection = {}) {
  *
  * @return {object}    An action object with a type of GET_CATE_LIST_SUCCESS
  */
-export function getCollectionsSuccess(collections) {
+export function getCollectionsSuccess(collections, total, getAll) {
   return {
     type: GET_COLLECTION_LIST_SUCCESS,
     collections,
+    total,
+    getAll,
   };
 }
 
@@ -342,6 +346,19 @@ export function removeFileSave() {
 export function removeMessage() {
   return {
     type: REMOVE_MESSAGE,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} name The new text of the input field
+ *
+ * @return {object}    An action object with a type of CLOSE_POPUP_COLLECTION
+ */
+export function closePopUpCollection() {
+  return {
+    type: CLOSE_POPUP_COLLECTION,
   };
 }
 
