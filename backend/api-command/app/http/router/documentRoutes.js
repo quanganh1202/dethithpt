@@ -96,10 +96,11 @@ const routerDefine =  function defineRouter() {
     });
   });
 
-  route.post('/documents/:id/approve', async (req, res) => {
+  route.post('/documents/:id/approve/:approvedStatus', async (req, res) => {
     const userId = req.app.locals.id.toString();
     const docId = req.params.id;
-    const { error, status, message } = await approveDocument(docId, userId);
+    const approvedStatus = req.params.approvedStatus;
+    const { error, status, message } = await approveDocument(docId, userId, approvedStatus);
     if (error) {
       return res.status(status).json({
         statusCode: status,
