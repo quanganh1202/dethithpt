@@ -91,6 +91,13 @@ const Wrapper = styled.div`
   .actions-col {
     min-width: 80px;
   }
+
+  .input-note {
+    background: rgb(255, 255, 255);
+    margin-right: 20px;
+    width: 200px;
+    height: 100px;
+  }
 `;
 
 const NewLoadingIndicator = styled.div`
@@ -130,6 +137,8 @@ export class User extends React.PureComponent {
       quickDate: '',
       activeTab: '1',
       showHistory: false,
+      quickNote1: '',
+      quickNote2: '',
     };
     this.size = 10;
     this.maxPages = 11;
@@ -407,6 +416,8 @@ export class User extends React.PureComponent {
       quickMoney,
       quickBlock,
       quickDate,
+      quickNote1,
+      quickNote2,
     } = this.state;
     if (quickActive && quickList) {
       const options = {
@@ -414,63 +425,82 @@ export class User extends React.PureComponent {
           'x-access-token': getToken(),
         },
       };
-      const requests = [];
-      quickList.forEach(email => {
-        const content = { email };
-        let url;
-        let method;
-        switch (quickActive) {
-          case '3':
-            content.status = quickBlock ? 3 : 1;
-            if (quickDate) {
-              content.blockFrom = moment(quickDate).format('DD/MM/YYYY');
-            }
-            if (quickMoney) {
-              content.blockMoney = quickMoney;
-            }
-            url = 'block';
-            method = axios.put;
+      const content = {};
+      let url = '';
+      let method = axios.put;
+      switch (quickActive) {
+        case '3':
+          content.status = quickBlock ? 3 : 1;
+          if (quickDate) {
+            content.blockFrom = moment(quickDate).format('YYYY/MM/DD');
+          }
+          // if (quickMoney) {
+          //   content.blockMoney = quickMoney;
+          // }
+          url = '/block';
 
-            break;
-          case '1':
-          case '2':
-            content.money = quickActive === 1 ? 0 : quickMoney || 0;
-            url = 'bonus';
-            method = axios.post;
-            break;
+          break;
+        case '1':
+          content.money = 0;
+          break;
+        case '2':
+          content.money = parseInt(quickMoney, 0);
+          url = '/bonus';
+          method = axios.post;
+          break;
+        case '4':
+          content.notifyStatus = '1';
+          content.notifyText = quickContent;
+          break;
+        case '5':
+          content.note1 = ' ';
+          content.note2 = ' ';
+          if (quickNote1) content.note1 = quickNote1;
+          if (quickNote2) content.note2 = quickNote2;
+          break;
+        default:
+          break;
+      }
 
-          default:
-            break;
-        }
+      axios.get('/api/users?fields=id,email').then(response => {
+        const listUsers = {};
+        response.data.data.map((d, i) => {
+          listUsers[d.email] = d.id;
+          return i;
+        });
 
-        requests.push(
-          method(`/api/users/${url}/1`, content, options).catch(() => {}),
-        );
-      });
-
-      axios.all(requests).then(res => {
-        const response = res.filter(r => r && r.data.statusCode === 200);
-        document.getElementById('exampleFile').value = '';
-        this.setState({
-          quickActive: false,
-          quickList: [],
-          successCount: response ? response.length : 0,
-          inProgress: false,
+        const requests = [];
+        quickList.forEach(email => {
+          if (listUsers[email.trim()]) {
+            requests.push(
+              method(
+                `/api/users${url}/${listUsers[email.trim()]}`,
+                content,
+                options,
+              ).catch(() => {}),
+            );
+          }
+        });
+        axios.all(requests).then(res => {
+          const result = res.filter(r => r && r.data.statusCode === 200);
+          document.getElementById('exampleFile').value = '';
+          this.props.getUsers({
+            sort: 'createdAt.desc',
+            offset: 0,
+            size: this.size,
+          });
+          this.setState({
+            quickActive: false,
+            quickList: [],
+            successCount: result ? result.length : 0,
+            inProgress: false,
+          });
         });
       });
 
       this.setState({
         inProgress: true,
       });
-      // console.log(
-      //   quickActive,
-      //   quickContent,
-      //   quickList,
-      //   quickMoney,
-      //   quickBlock,
-      //   moment(quickDate).format('DD/MM/YYYY'),
-      //   123,
-      // );
     }
   }
 
@@ -743,7 +773,7 @@ export class User extends React.PureComponent {
                               value: 4,
                             },
                             {
-                              text: 'Ghi chú 1',
+                              text: 'Ghi chú',
                               value: 5,
                             },
                           ].map(opt => (
@@ -779,7 +809,6 @@ export class User extends React.PureComponent {
                                   />
                                 );
                               case '4':
-                              case '5':
                                 return (
                                   <Editor
                                     editorState={this.state.editorState}
@@ -788,6 +817,33 @@ export class User extends React.PureComponent {
                                       this.onEditorStateChange
                                     }
                                   />
+                                );
+                              case '5':
+                                return (
+                                  <div>
+                                    <textarea
+                                      onChange={e =>
+                                        this.setState({
+                                          quickNote1: e.target.value,
+                                        })
+                                      }
+                                      value={this.state.quickNote1}
+                                      name="note1"
+                                      placeholder="Ghi chú 1"
+                                      className="input-note"
+                                    />
+                                    <textarea
+                                      onChange={e =>
+                                        this.setState({
+                                          quickNote2: e.target.value,
+                                        })
+                                      }
+                                      value={this.state.quickNote2}
+                                      name="note2"
+                                      placeholder="Ghi chú 2"
+                                      className="input-note"
+                                    />
+                                  </div>
                                 );
                               case '3':
                                 return (
@@ -801,27 +857,11 @@ export class User extends React.PureComponent {
                                         }
                                         dateFormat="DD/MM/YYYY"
                                       />
-                                      <FormText color="muted">
-                                        Chọn ngày tài khoản sẽ bị khóa ( Xóa
-                                        trắng để Khóa ngay tài khoản )
-                                      </FormText>
-                                    </div>
-                                    <div>
-                                      <input
-                                        type="number"
-                                        className="rdw-editor-main"
-                                        placeholder="Số tiền mở khóa"
-                                        onChange={e =>
-                                          this.setState({
-                                            quickMoney: e.target.value,
-                                          })
-                                        }
-                                      />
                                       <Label
                                         check
                                         style={{
-                                          marginLeft: '50px',
-                                          marginBottom: '20px',
+                                          margin: '10px',
+                                          marginLeft: '20px',
                                         }}
                                       >
                                         <Input
@@ -834,6 +874,10 @@ export class User extends React.PureComponent {
                                         />{' '}
                                         Khóa / Mở khóa
                                       </Label>
+                                      <FormText color="muted">
+                                        Chọn ngày tài khoản sẽ bị khóa ( Xóa
+                                        trắng để Khóa ngay tài khoản )
+                                      </FormText>
                                     </div>
                                     <Editor
                                       editorState={this.state.editorState}

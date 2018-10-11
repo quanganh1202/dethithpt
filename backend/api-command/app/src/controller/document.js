@@ -195,14 +195,16 @@ async function uploadDocument(body, file) {
       let numPages = 0;
       if (filePreview) {
         // For zip, rar
-        fileHelpers.storeFile(file, filePreview, true);
+        // fileHelpers.storeFile(file, filePreview, true);
+        const previewFile = file.filter(i => i.fieldname === 'filePreview');
+        await fileHelpers.preview(fileName, previewFile);
       } else {
         // For docx, doc, pdf
         const result = await fileHelpers.preview(fileName);
         numPages = result.numPages;
       }
-      body.totalPages = numPages;
-      queryBody.totalPages = numPages;
+      body.totalPages = numPages ? numPages : body.totalPages || 0;
+      queryBody.totalPages = numPages ? numPages : body.totalPages || 0;
       const res = await docModel.addNewDocument(body);
       // Append data and send to query api
       queryBody.userName = user[0].name;
@@ -382,14 +384,15 @@ async function updateDocumentById(id, body, file) {
         let numPages = 0;
         if (filePreview) {
           // For zip, rar
-          await fileHelpers.storeFile(file, filePreview, true);
+          const previewFile = file.filter(i => i.fieldname === 'filePreview');
+          await fileHelpers.preview(fileName, previewFile);
         } else {
           // For docx, doc, pdf
           const result = await fileHelpers.preview(fileName);
           numPages = result.numPages;
         }
-        body.totalPages = numPages;
-        queryBody.totalPages = numPages;
+        body.totalPages = numPages ? numPages : body.totalPages || 0;
+        queryBody.totalPages = numPages ? numPages : body.totalPages || 0;
         await fileHelpers.removeFile(doc[0].path);
       }
       delete body.userId;
@@ -690,7 +693,7 @@ async function downloadDocument(docId, userId, download) {
   }
 }
 
-async function approveDocument(docId, userId) {
+async function approveDocument(docId, userId, approvedStatus) {
   try {
     const doc = await docModel.getDocumentById(docId);
     if (!doc || !doc.length) {
@@ -700,12 +703,27 @@ async function approveDocument(docId, userId) {
       };
     }
 
-    if(doc[0].approved === 1) {
+    if (!['0', '1'].includes(approvedStatus)) {
+      return {
+        status: 400,
+        error: 'Invalid approve status. Enum [0, 1]',
+      };
+    }
+
+    if(doc[0].approved === 1 && parseInt(approvedStatus) === 1) {
       return {
         status: 400,
         error: 'Document has approved',
       };
     }
+
+    if(doc[0].approved === 0 && parseInt(approvedStatus) === 0) {
+      return {
+        status: 400,
+        error: 'Document has unapproved',
+      };
+    }
+
     const userModel = new User();
     const user = await userModel.getById(userId);
     if (!user || !user.length) {
@@ -721,7 +739,7 @@ async function approveDocument(docId, userId) {
       };
     }
     const body = {
-      approved: 1,
+      approved: parseInt(approvedStatus),
       approverId: userId,
     };
 

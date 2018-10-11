@@ -95,10 +95,23 @@ const sortParamsHandler = (sort) => {
       if (!['asc', 'desc'].includes(sortToArray[1])) {
         throw new Error('Sort type can only be asc or desc');
       }
+      const noRaw = [
+        'price',
+        'numOfDownloaded',
+        'numOfUploaded',
+        'money',
+        'createdAt',
+        'updatedAt',
+        'priority',
+        'priorityCate',
+        'totalPages',
+        'view',
+        'downloaded',
+      ];
 
       return {
         [
-        ['createdAt', 'updatedAt', 'priority', 'priorityCate'].includes(sortToArray[0]) ? sortToArray[0] : `${sortToArray[0]}.raw`
+        noRaw.includes(sortToArray[0]) ? sortToArray[0] : `${sortToArray[0]}.raw`
         ]: sortToArray[1],
       };
     })() : undefined;
