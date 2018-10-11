@@ -407,63 +407,74 @@ export class User extends React.PureComponent {
           'x-access-token': getToken(),
         },
       };
-      const requests = [];
-      quickList.forEach(email => {
-        const content = { email };
-        let url;
-        let method;
-        switch (quickActive) {
-          case '3':
-            content.status = quickBlock ? 3 : 1;
-            if (quickDate) {
-              content.blockFrom = moment(quickDate).format('DD/MM/YYYY');
-            }
-            if (quickMoney) {
-              content.blockMoney = quickMoney;
-            }
-            url = 'block';
-            method = axios.put;
+      const content = {};
+      let url = '';
+      let method = axios.put;
+      switch (quickActive) {
+        case '3':
+          content.status = quickBlock ? 3 : 1;
+          if (quickDate) {
+            content.blockFrom = moment(quickDate).format('YYYY/MM/DD');
+          }
+          // if (quickMoney) {
+          //   content.blockMoney = quickMoney;
+          // }
+          url = '/block';
 
-            break;
-          case '1':
-          case '2':
-            content.money = quickActive === 1 ? 0 : quickMoney || 0;
-            url = 'bonus';
-            method = axios.post;
-            break;
+          break;
+        case '1':
+          content.money = 0;
+          break;
+        case '2':
+          content.money = parseInt(quickMoney, 0);
+          url = '/bonus';
+          method = axios.post;
+          break;
+        case '4':
+          content.notifyStatus = '1';
+          content.notifyText = quickContent;
+          break;
+        case '5':
+          content.note1 = quickContent;
+          break;
+        default:
+          break;
+      }
 
-          default:
-            break;
-        }
+      axios.get('/api/users?fields=id,email').then(response => {
+        const listUsers = {};
+        response.data.data.map((d, i) => {
+          listUsers[d.email] = d.id;
+          return i;
+        });
 
-        requests.push(
-          method(`/api/users/${url}/1`, content, options).catch(() => {}),
-        );
-      });
-
-      axios.all(requests).then(res => {
-        const response = res.filter(r => r && r.data.statusCode === 200);
-        document.getElementById('exampleFile').value = '';
-        this.setState({
-          quickActive: false,
-          quickList: [],
-          successCount: response ? response.length : 0,
-          inProgress: false,
+        const requests = [];
+        quickList.forEach(email => {
+          if (listUsers[email]) {
+            requests.push(
+              method(
+                `/api/users${url}/${listUsers[email]}`,
+                content,
+                options,
+              ).catch(() => {}),
+            );
+          }
+        });
+        axios.all(requests).then(res => {
+          const result = res.filter(r => r && r.data.statusCode === 200);
+          document.getElementById('exampleFile').value = '';
+          this.setState({
+            quickActive: false,
+            quickList: [],
+            successCount: result ? result.length : 0,
+            inProgress: false,
+          });
         });
       });
 
       this.setState({
         inProgress: true,
       });
-      // console.log(
-      //   quickActive,
-      //   quickContent,
-      //   quickList,
-      //   quickMoney,
-      //   quickBlock,
-      //   moment(quickDate).format('DD/MM/YYYY'),
-      //   123,
-      // );
     }
   }
 
@@ -794,27 +805,11 @@ export class User extends React.PureComponent {
                                         }
                                         dateFormat="DD/MM/YYYY"
                                       />
-                                      <FormText color="muted">
-                                        Chọn ngày tài khoản sẽ bị khóa ( Xóa
-                                        trắng để Khóa ngay tài khoản )
-                                      </FormText>
-                                    </div>
-                                    <div>
-                                      <input
-                                        type="number"
-                                        className="rdw-editor-main"
-                                        placeholder="Số tiền mở khóa"
-                                        onChange={e =>
-                                          this.setState({
-                                            quickMoney: e.target.value,
-                                          })
-                                        }
-                                      />
                                       <Label
                                         check
                                         style={{
-                                          marginLeft: '50px',
-                                          marginBottom: '20px',
+                                          margin: '10px',
+                                          marginLeft: '20px',
                                         }}
                                       >
                                         <Input
@@ -827,6 +822,11 @@ export class User extends React.PureComponent {
                                         />{' '}
                                         Khóa / Mở khóa
                                       </Label>
+                                      
+                                      <FormText color="muted">
+                                        Chọn ngày tài khoản sẽ bị khóa ( Xóa
+                                        trắng để Khóa ngay tài khoản )
+                                      </FormText>
                                     </div>
                                     <Editor
                                       editorState={this.state.editorState}
