@@ -225,9 +225,25 @@ export class HomePage extends React.PureComponent {
     }
     // If user get out of category route then get collection by default
     if (this.props.location.pathname.split('/')[1] === 'danh-muc'
-    && this.props.location.pathname.split('/')[1] !== nextProps.location.pathname.split('/')[1]) {
+      && this.props.location.pathname.split('/')[1] !== nextProps.location.pathname.split('/')[1]) {
       this.props.updateQuery({});
     }
+
+    // Re-get news data when change route
+    if (this.props.location.pathname !== nextProps.location.pathname) {
+        // get document's categories
+        this.props.getCategories();
+        // get tags
+        this.props.getTags();
+        // get news
+        this.props.getNews();
+        if (this.props.location.pathname.split('/')[1] !== 'danh-muc'
+          && nextProps.location.pathname.split('/')[1] !== 'danh-muc') {
+          // get document's collections
+          this.props.getCollections(nextProps.queryCollection);
+        }
+    }
+    
   }
 
   onLogin(data) {
