@@ -265,10 +265,10 @@ class DetailForm extends React.Component {
           </div>
         ) : null}
         {this.props.name &&
-        (this.props.name.split('.')[1] === 'zip' ||
-          this.props.name.split('.')[1] === 'rar') ? (
+        (this.props.name.split('.').slice(-1)[0] === 'zip' ||
+          this.props.name.split('.').slice(-1)[0] === 'rar') ? (
           <div className="form-group">
-            <label htmlFor="cateIds">&nbsp;</label>
+            <label htmlFor="cateIds">File xem thử <i className="required">(*)</i></label>
             <input
               className="form-control"
               name="filePreview"
