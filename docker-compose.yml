@@ -6,8 +6,8 @@ services:
       - ./.env
     restart: always
     build: ./backend/api-query
-    ports:
-     - "${API_QUERY_PORT}:${API_QUERY_PORT}"
+    # ports:
+    #  - "${API_QUERY_PORT}:${API_QUERY_PORT}"
     networks:
       - overlay
     depends_on:
@@ -22,8 +22,8 @@ services:
     restart: always
     env_file:
       - ./.env
-    ports:
-      - "${API_COMMAND_PORT}:${API_COMMAND_PORT}"
+    # ports:
+    #   - "${API_COMMAND_PORT}:${API_COMMAND_PORT}"
     networks:
       - overlay
     depends_on:
@@ -38,17 +38,17 @@ services:
     restart: always
     env_file:
       - ./.env
-    ports:
-      - "9300:9300"
-      - "9200:9200"
+    # ports:
+    #   - "9300:9300"
+    #   - "9200:9200"
     networks:
       - overlay
 
   mysql:
     build: ./db/
     restart: always
-    ports:
-      - "3306:3306"
+    # ports:
+    #   - "3306:3306"
     networks:
       - overlay
     env_file:
@@ -69,8 +69,8 @@ services:
   rabbitmq:
     image: rabbitmq
     restart: always
-    ports:
-      - "5672:5672"
+    # ports:
+    #   - "5672:5672"
     networks:
       - overlay
   
