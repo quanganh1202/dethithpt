@@ -4,6 +4,7 @@ import expressServer from './http';
 import MySql from './mysql';
 import logger from './src/libs/logger';
 import { initStoreFolder } from './src/libs/helper';
+import rabbitConnector from './rabbit/receiver';
 
 const DB = new MySql();
 const pathFolderStore = process.env.PATH_FOLDER_STORE || path.resolve(__dirname, '../storage');
@@ -18,6 +19,11 @@ Promise.all([
   return DB.openConnect();
 }).then(() => {
   logger.info('MySql is connected');
+  logger.info('Connecting to RabbitMQ ...');
+
+  return rabbitConnector();
+}).then(() => {
+  logger.info('RabbitMQ is connected');
 
   return expressServer();
 }).catch(err => {

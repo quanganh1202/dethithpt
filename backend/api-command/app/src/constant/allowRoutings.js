@@ -2,6 +2,7 @@ export default [
   'document.create',
   'document.update',
   'document.delete',
+  'document.convert',
   'user.create',
   'user.update',
   'user.delete',

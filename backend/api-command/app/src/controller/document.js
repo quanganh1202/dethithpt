@@ -183,46 +183,31 @@ async function uploadDocument(body, file) {
           status,
         });
       }
-      // Resolve if everything is valid. Insert data and store run background
-      resolve({
-        status: 201,
-        message: 'Document created. But available after serveral minute',
-      });
+
       body.path = fileName;
       queryBody.path = fileName;
       queryBody.view = 1;
       await fileHelpers.storeFile(file, fileName);
-      let numPages = 0;
-      if (filePreview) {
-        // For zip, rar
-        // fileHelpers.storeFile(file, filePreview, true);
-        const previewFile = file.filter(i => i.fieldname === 'filePreview');
-        await fileHelpers.preview(fileName, previewFile);
-      } else {
-        // For docx, doc, pdf
-        const result = await fileHelpers.preview(fileName);
-        numPages = result.numPages;
-      }
-      body.totalPages = numPages ? numPages : body.totalPages || 0;
-      queryBody.totalPages = numPages ? numPages : body.totalPages || 0;
+      body.totalPages = body.totalPages || 0;
+      queryBody.totalPages = body.totalPages || 0;
       const res = await docModel.addNewDocument(body);
+
       // Append data and send to query api
       queryBody.userName = user[0].name;
       queryBody.userEmail = user[0].email;
       if (body.tags) queryBody.tags = body.tags.split(',');
-      const serverNotify = await rabbitSender('document.create', { body: queryBody, id: res.insertId });
-      if (serverNotify.statusCode === 200) {
-        logger.info('[DOCUMENT]: Upload successful');
-      } else {
-        // HERE IS CASE API QUERY iS NOT RESOLVED
-        // TODO: ROLLBACK HERE
-        logger.error(`[DOCUMENT]: ${serverNotify.error}`);
 
-        return resolve({
-          status: serverNotify.statusCode,
-          message: serverNotify.error,
-        });
-      }
+      rabbitSender('document.convert', { body: {
+        filePreview,
+        fileName,
+        file,
+      }, queryBody, id: res.insertId });
+
+      // Resolve if everything is valid. Insert data and store run background
+      return resolve({
+        status: 201,
+        message: 'Document created. But available after serveral minute',
+      });
     } catch (ex) {
       logger.error(ex.message || ex.error || ex || 'Unexpected error when upload file');
 

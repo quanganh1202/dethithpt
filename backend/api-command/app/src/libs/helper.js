@@ -219,24 +219,6 @@ const pdf2Image = (pdf, image) => {
   });
 };
 
-const myQueue = [];
-let count = 1;
-
-const checkExisted = (file, resolve) => {
-  const myInterval = setInterval(async () => {
-    const existed = await fs.pathExists(file);
-    // Always clearIntervel
-    clearInterval(myInterval);
-    if (existed) {
-      console.log(`Resolved: ${count++}`);
-
-      return resolve(file);
-    } else {
-      checkExisted(file, resolve);
-    }
-  }, 1000);
-};
-
 const office2Pdf = (word, pdf) => {
   return new Promise(async (resolve, reject) => {
     let file = new tmp.File();
@@ -245,37 +227,15 @@ const office2Pdf = (word, pdf) => {
       if(err) reject(err);
       let cmd = `libreoffice6.1 --headless --convert-to pdf:writer_pdf_Export ${file.path} --outdir ${pdf}`;
       const childCallback = (error) => {
-        console.log('Next can start');
-        myQueue.shift();
-
         if(error) {
           reject(error);
         } else {
           const fileConverted = path.join(pdf, `${path.basename(file.path, path.extname(file.path))}.pdf`);
-          // Wait to file was created by system, delay 500 to sure file is created
-          checkExisted(fileConverted, resolve);
+
+          return resolve(fileConverted);
         }
       };
-
-      if (myQueue.length === 0) {
-        console.log('Begin');
-        myQueue.push(cmd);
-        childProcess.exec(cmd, childCallback);
-      } else {
-        console.log('Waiting...');
-        myQueue.push(cmd);
-        const tmp = () => {
-          const intervalQueue = setInterval(() => {
-            if (myQueue[0] === cmd) {
-              console.log('Next start');
-              childProcess.exec(cmd, childCallback);
-            }
-            clearInterval(intervalQueue);
-            tmp();
-          }, 1000);
-        };
-        tmp();
-      }
+      childProcess.exec(cmd, childCallback);
     });
   });
 };
