@@ -243,7 +243,7 @@ const office2Pdf = (word, pdf) => {
     const wordBuffer = await fs.readFile(word);
     file.writeFile(wordBuffer, (err) => {
       if(err) reject(err);
-      let cmd = `soffice --headless --convert-to pdf:writer_pdf_Export ${file.path} --outdir ${pdf}`;
+      let cmd = `libreoffice6.1 --headless --convert-to pdf:writer_pdf_Export ${file.path} --outdir ${pdf}`;
       const childCallback = (error) => {
         console.log('Next can start');
         myQueue.shift();
