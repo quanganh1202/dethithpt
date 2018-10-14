@@ -220,10 +220,10 @@ const pdf2Image = (pdf, image) => {
 };
 
 const checkExisted = (file, resolve) => {
-  const myInterval = setImmediate(async () => {
+  const myInterval = setTimeout(async () => {
     const existed = await fs.pathExists(file);
     // Always clearIntervel
-    clearInterval(myInterval);
+    clearTimeout(myInterval);
     if (existed) {
       return resolve(file);
     } else {
