@@ -32,16 +32,18 @@ import {
   Label,
   FormGroup,
   FormText,
+  Nav,
+  NavItem,
+  NavLink,
+  TabContent,
+  TabPane,
 } from 'reactstrap';
+import classnames from 'classnames';
 import moment from 'moment';
 import styled from 'styled-components';
 import { HeadSort, PaginationTable, HeadFilter } from 'components/Table';
+import PopUp from 'components/PopUp';
 import LoadingIndicator from 'components/LoadingIndicator';
-import deleteIcon from 'assets/img/icons/delete.png';
-import editIcon from 'assets/img/icons/edit.png';
-import checkIcon from 'assets/img/icons/check.png';
-import noteIcon from 'assets/img/icons/icon.png';
-import tranIcon from 'assets/img/icons/tran.png';
 
 import { EditorState, convertToRaw } from 'draft-js';
 import { Editor } from 'react-draft-wysiwyg';
@@ -51,12 +53,14 @@ import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
 import { getToken } from 'services/auth';
-import { getUsers, getDataInit } from './actions';
+import { getUsers, getDataInit, getHistory, clearData } from './actions';
+import { moneyValidation, numberWithCommas } from 'services/helper';
 import {
   makeSelectUsers,
   makeSelectLoading,
   makeSelectTotalUser,
   makeSelectDataInit,
+  makeSelectHistory,
 } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
@@ -65,6 +69,8 @@ import local from './newLocal.json';
 const Wrapper = styled.div`
   table {
     font-size: 11px;
+  }
+  table.user-list-table {
     tr > td,
     tr > th {
       white-space: nowrap;
@@ -85,6 +91,13 @@ const Wrapper = styled.div`
   .actions-col {
     min-width: 80px;
   }
+
+  .input-note {
+    background: rgb(255, 255, 255);
+    margin-right: 20px;
+    width: 200px;
+    height: 100px;
+  }
 `;
 
 const NewLoadingIndicator = styled.div`
@@ -104,12 +117,12 @@ function validateEmail(email) {
   return re.test(String(email).toLowerCase());
 }
 
-const numberWithCommas = x => {
-  const parts = x.toString().split('.');
-  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  return parts.join('.');
+const mappingRolePosition = {
+  admin: 'Admin',
+  student: 'Học sinh',
+  teacher: 'Giáo viên',
+  other: 'Khác',
 };
-
 /* eslint-disable react/prefer-stateless-function */
 export class User extends React.PureComponent {
   constructor() {
@@ -122,6 +135,10 @@ export class User extends React.PureComponent {
         level: [],
       },
       quickDate: '',
+      activeTab: '1',
+      showHistory: false,
+      quickNote1: '',
+      quickNote2: '',
     };
     this.size = 10;
     this.maxPages = 11;
@@ -136,6 +153,7 @@ export class User extends React.PureComponent {
     this.handleSelectUsers = this.handleSelectUsers.bind(this);
     this.onSelectFilter = this.onSelectFilter.bind(this);
     this.scrollTable = this.scrollTable.bind(this);
+    this.toggle = this.toggle.bind(this);
   }
 
   componentWillMount() {
@@ -160,6 +178,10 @@ export class User extends React.PureComponent {
       }
     }
     window.addEventListener('scroll', this.scrollTable);
+  }
+
+  componentWillUnmount() {
+    this.props.clearData(true);
   }
 
   scrollTable() {
@@ -199,6 +221,13 @@ export class User extends React.PureComponent {
   }
 
   renderUserRow(users, purchase) {
+    if (!users || !_.get(users, 'length', 0)) {
+      return (
+        <tr>
+          <td colSpan="21" style={{ textAlign: 'center' }}>Không tìm thấy bản ghi nào!</td>
+        </tr>
+      )
+    }
     return users.map((item, idx) => (
       <tr key={item.id}>
         <th scope="row">{idx + 1}</th>
@@ -212,9 +241,9 @@ export class User extends React.PureComponent {
           />
         </th>
         <td>{moment(item.createdAt).format('DD/MM/YYYY')}</td>
-        <td>{item.name}</td>
+        <td><Link to={`/users/${item.id}`}>{item.name}</Link></td>
         <td>{item.email}</td>
-        <td>{item.role}</td>
+        <td>{mappingRolePosition[item.role === 'admin' ? 'admin' : item.position]}</td>
         <td>{item.phone}</td>
         <td>{item.bod}</td>
         <td>{item.level}</td>
@@ -222,8 +251,8 @@ export class User extends React.PureComponent {
         <td>{item.city}</td>
         <td>{item.numOfDownloaded || 0}</td>
         <td>{item.numOfUploaded || 0}</td>
-        <td>{numberWithCommas(purchase[item.id] || 0)}</td>
-        <td>{numberWithCommas(item.money || 0)}</td>
+        <td>{numberWithCommas(moneyValidation(purchase[item.id]))} đ</td>
+        <td>{numberWithCommas(moneyValidation(item.money))} đ</td>
         <td>{item.group}</td>
         <td>{item.note1}</td>
         <td>{item.note2}</td>
@@ -280,7 +309,10 @@ export class User extends React.PureComponent {
             </button>
             <button
               style={{ float: 'left', padding: '0' }}
-              onClick={() => {}}
+              onClick={() => {
+                this.setState({ showHistory: item.id });
+                this.props.getHistory(item.id, this.state.activeTab);
+              }}
               title="Lịch sử hoạt động thành viên"
             >
               <i className="fa fa-history fa-lg" aria-hidden="true"></i>
@@ -384,6 +416,8 @@ export class User extends React.PureComponent {
       quickMoney,
       quickBlock,
       quickDate,
+      quickNote1,
+      quickNote2,
     } = this.state;
     if (quickActive && quickList) {
       const options = {
@@ -391,63 +425,82 @@ export class User extends React.PureComponent {
           'x-access-token': getToken(),
         },
       };
-      const requests = [];
-      quickList.forEach(email => {
-        const content = { email };
-        let url;
-        let method;
-        switch (quickActive) {
-          case '3':
-            content.status = quickBlock ? '3' : '1';
-            if (quickDate) {
-              content.blockFrom = moment(quickDate).format('DD/MM/YYYY');
-            }
-            if (quickMoney) {
-              content.blockMoney = quickMoney;
-            }
-            url = 'block';
-            method = axios.put;
+      const content = {};
+      let url = '';
+      let method = axios.put;
+      switch (quickActive) {
+        case '3':
+          content.status = quickBlock ? 3 : 1;
+          if (quickDate) {
+            content.blockFrom = moment(quickDate).format('YYYY/MM/DD');
+          }
+          // if (quickMoney) {
+          //   content.blockMoney = quickMoney;
+          // }
+          url = '/block';
 
-            break;
-          case '1':
-          case '2':
-            content.money = quickActive === 1 ? 0 : quickMoney || 0;
-            url = 'bonus';
-            method = axios.post;
-            break;
+          break;
+        case '1':
+          content.money = 0;
+          break;
+        case '2':
+          content.money = parseInt(quickMoney, 0);
+          url = '/bonus';
+          method = axios.post;
+          break;
+        case '4':
+          content.notifyStatus = '1';
+          content.notifyText = quickContent;
+          break;
+        case '5':
+          content.note1 = ' ';
+          content.note2 = ' ';
+          if (quickNote1) content.note1 = quickNote1;
+          if (quickNote2) content.note2 = quickNote2;
+          break;
+        default:
+          break;
+      }
 
-          default:
-            break;
-        }
+      axios.get('/api/users?fields=id,email').then(response => {
+        const listUsers = {};
+        response.data.data.map((d, i) => {
+          listUsers[d.email] = d.id;
+          return i;
+        });
 
-        requests.push(
-          method(`/api/users/${url}/1`, content, options).catch(() => {}),
-        );
-      });
-
-      axios.all(requests).then(res => {
-        const response = res.filter(r => r && r.data.statusCode === 200);
-        document.getElementById('exampleFile').value = '';
-        this.setState({
-          quickActive: false,
-          quickList: [],
-          successCount: response ? response.length : 0,
-          inProgress: false,
+        const requests = [];
+        quickList.forEach(email => {
+          if (listUsers[email.trim()]) {
+            requests.push(
+              method(
+                `/api/users${url}/${listUsers[email.trim()]}`,
+                content,
+                options,
+              ).catch(() => {}),
+            );
+          }
+        });
+        axios.all(requests).then(res => {
+          const result = res.filter(r => r && r.data.statusCode === 200);
+          document.getElementById('exampleFile').value = '';
+          this.props.getUsers({
+            sort: 'createdAt.desc',
+            offset: 0,
+            size: this.size,
+          });
+          this.setState({
+            quickActive: false,
+            quickList: [],
+            successCount: result ? result.length : 0,
+            inProgress: false,
+          });
         });
       });
 
       this.setState({
         inProgress: true,
       });
-      // console.log(
-      //   quickActive,
-      //   quickContent,
-      //   quickList,
-      //   quickMoney,
-      //   quickBlock,
-      //   moment(quickDate).format('DD/MM/YYYY'),
-      //   123,
-      // );
     }
   }
 
@@ -474,6 +527,161 @@ export class User extends React.PureComponent {
       query[k] = newFilter[k].join();
     });
     this.props.getUsers(query);
+  }
+
+  toggle(tabId) {
+    this.setState({ activeTab: tabId });
+    this.props.getHistory(this.state.showHistory, tabId);
+  }
+
+  renderTabContent(tabId, data, loading) {
+    switch (tabId) {
+      case '1':
+        return (
+          <TabPane tabId={tabId}>
+            {loading ? null : (
+              <Table responsive hover striped>
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Mã tài liệu</th>
+                    <th scope="col">Tài liệu</th>
+                    <th scope="col">Thời gian</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.count() ? data.map((i, idx) => (
+                    <tr key={i.get('id')}>
+                      <td>{idx + 1}</td>
+                      <td><Link to={`/documents/${i.get('id')}`}>{i.get('docId')}</Link></td>
+                      <td><Link to={`/documents/${i.get('id')}`}>{i.get('docName')}</Link></td>
+                      <td>{moment(i.get('createdAt')).format('DD/MM/YYYY hh:mm:ss')}</td>
+                    </tr>
+                  )) : (
+                    <tr><td colSpan="4" style={{ textAlign: 'center' }}>Không tìm thấy lượt tải nào</td></tr>
+                  )}
+                </tbody>
+              </Table>
+            )}
+          </TabPane>
+        );
+      case '2': 
+        return (
+          <TabPane tabId={tabId}>
+            {loading ? null : (
+              <Table responsive hover striped>
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Mã tài liệu</th>
+                    <th scope="col">Tài liệu</th>
+                    <th scope="col">Thời gian</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.count() ? data.map((i, idx) => (
+                    <tr key={i.get('id')}>
+                      <td>{idx + 1}</td>
+                      <td><Link to={`/documents/${i.get('id')}`}>{i.get('id')}</Link></td>
+                      <td><Link to={`/documents/${i.get('id')}`}>{i.get('name')}</Link></td>
+                      <td>{moment(i.get('createdAt')).format('DD/MM/YYYY hh:mm:ss')}</td>
+                    </tr>
+                  )) : (
+                    <tr><td colSpan="4" style={{ textAlign: 'center' }}>Không tìm thấy bài đăng nào</td></tr>
+                  )}
+                </tbody>
+              </Table>
+            )}
+          </TabPane>
+        );
+      case '3':
+        return (
+          <TabPane tabId={tabId}>
+            {loading ? null : (
+              <Table responsive hover striped>
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Số tiền nạp</th>
+                    <th scope="col">Thời gian</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.count() ? data.map((i, idx) => (
+                    <tr key={i.get('id')}>
+                      <td>{idx + 1}</td>
+                      <td>{numberWithCommas(i.get('money'))}đ</td>
+                      <td>{moment(i.get('createdAt')).format('DD/MM/YYYY hh:mm:ss')}</td>
+                    </tr>
+                  )) : (
+                    <tr><td colSpan="4" style={{ textAlign: 'center' }}>Không tìm thấy giao dịch nào</td></tr>
+                  )}
+                </tbody>
+              </Table>
+            )}
+          </TabPane>
+        );
+      case '4':
+        return (
+          <TabPane tabId={tabId}>
+            {loading ? null : (
+              <Table responsive hover striped>
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Số tiền nạp</th>
+                    <th scope="col">Admin nạp</th>
+                    <th scope="col">Thời gian</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.count() ? data.map((i, idx) => (
+                    <tr key={i.get('id')}>
+                      <td>{idx + 1}</td>
+                      <td>{numberWithCommas(i.get('money'))}đ</td>
+                      <td>{i.get('actorMail')}</td>
+                      <td>{moment(i.get('createdAt')).format('DD/MM/YYYY hh:mm:ss')}</td>
+                    </tr>
+                  )) : (
+                    <tr><td colSpan="4" style={{ textAlign: 'center' }}>Không tìm thấy giao dịch nào</td></tr>
+                  )}
+                </tbody>
+              </Table>
+            )}
+          </TabPane>
+        );
+      case '5':
+        return (
+          <TabPane tabId={tabId}>
+            {loading ? null : (
+              <Table responsive hover striped>
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Mã tài liệu</th>
+                    <th scope="col">Tài liệu</th>
+                    <th scope="col">Thời gian</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.count() ? data.map((i, idx) => (
+                    <tr key={i.get('id')}>
+                      <td>{idx + 1}</td>
+                      <td><Link to={`/documents/${i.get('id')}`}>{i.get('docId')}</Link></td>
+                      <td><Link to={`/documents/${i.get('id')}`}>{i.get('docName')}</Link></td>
+                      <td>{moment(i.get('createdAt')).format('DD/MM/YYYY hh:mm:ss')}</td>
+                    </tr>
+                  )) : (
+                    <tr><td colSpan="4" style={{ textAlign: 'center' }}>Không tìm thấy bình luận nào</td></tr>
+                  )}
+                </tbody>
+              </Table>
+            )}
+          </TabPane>
+        );
+      default:
+        return null;
+    }
   }
 
   render() {
@@ -565,7 +773,7 @@ export class User extends React.PureComponent {
                               value: 4,
                             },
                             {
-                              text: 'Ghi chú 1',
+                              text: 'Ghi chú',
                               value: 5,
                             },
                           ].map(opt => (
@@ -601,7 +809,6 @@ export class User extends React.PureComponent {
                                   />
                                 );
                               case '4':
-                              case '5':
                                 return (
                                   <Editor
                                     editorState={this.state.editorState}
@@ -610,6 +817,33 @@ export class User extends React.PureComponent {
                                       this.onEditorStateChange
                                     }
                                   />
+                                );
+                              case '5':
+                                return (
+                                  <div>
+                                    <textarea
+                                      onChange={e =>
+                                        this.setState({
+                                          quickNote1: e.target.value,
+                                        })
+                                      }
+                                      value={this.state.quickNote1}
+                                      name="note1"
+                                      placeholder="Ghi chú 1"
+                                      className="input-note"
+                                    />
+                                    <textarea
+                                      onChange={e =>
+                                        this.setState({
+                                          quickNote2: e.target.value,
+                                        })
+                                      }
+                                      value={this.state.quickNote2}
+                                      name="note2"
+                                      placeholder="Ghi chú 2"
+                                      className="input-note"
+                                    />
+                                  </div>
                                 );
                               case '3':
                                 return (
@@ -623,27 +857,11 @@ export class User extends React.PureComponent {
                                         }
                                         dateFormat="DD/MM/YYYY"
                                       />
-                                      <FormText color="muted">
-                                        Chọn ngày tài khoản sẽ bị khóa ( Xóa
-                                        trắng để Khóa ngay tài khoản )
-                                      </FormText>
-                                    </div>
-                                    <div>
-                                      <input
-                                        type="number"
-                                        className="rdw-editor-main"
-                                        placeholder="Số tiền mở khóa"
-                                        onChange={e =>
-                                          this.setState({
-                                            quickMoney: e.target.value,
-                                          })
-                                        }
-                                      />
                                       <Label
                                         check
                                         style={{
-                                          marginLeft: '50px',
-                                          marginBottom: '20px',
+                                          margin: '10px',
+                                          marginLeft: '20px',
                                         }}
                                       >
                                         <Input
@@ -656,6 +874,10 @@ export class User extends React.PureComponent {
                                         />{' '}
                                         Khóa / Mở khóa
                                       </Label>
+                                      <FormText color="muted">
+                                        Chọn ngày tài khoản sẽ bị khóa ( Xóa
+                                        trắng để Khóa ngay tài khoản )
+                                      </FormText>
                                     </div>
                                     <Editor
                                       editorState={this.state.editorState}
@@ -697,7 +919,7 @@ export class User extends React.PureComponent {
                   ) : null}
                 </CardHeader>
                 <CardBody>
-                  <Table responsive hover striped>
+                  <Table responsive hover striped className="user-list-table">
                     <thead>
                       <tr>
                         <th scope="col">#</th>
@@ -745,8 +967,8 @@ export class User extends React.PureComponent {
                           multiple
                           scope="col"
                           options={[
-                            { value: 'admin', label: 'admin' },
-                            { value: 'student', label: 'student' },
+                            { value: 'admin', label: 'Admin' },
+                            { value: 'student', label: 'Thành viên' },
                           ]}
                           onSelect={this.onSelectFilter}
                           value={this.state.filters.role || []}
@@ -807,10 +1029,28 @@ export class User extends React.PureComponent {
                         >
                           Thành phố
                         </HeadFilter>
-                        <th scope="col">Đã tải</th>
-                        <th scope="col">Đã đăng</th>
+                        <HeadSort
+                          scope="col"
+                          onClick={this.sort}
+                          data-field="numOfDownloaded"
+                          sortField={this.state.sortField}
+                          sortBy={this.state.sortBy}
+                        >Đã tải</HeadSort>
+                        <HeadSort
+                          scope="col"
+                          onClick={this.sort}
+                          data-field="numOfUploaded"
+                          sortField={this.state.sortField}
+                          sortBy={this.state.sortBy}
+                        >Đã đăng</HeadSort>
                         <th scope="col">Đã nạp</th>
-                        <th scope="col">Số dư</th>
+                        <HeadSort
+                          scope="col"
+                          onClick={this.sort}
+                          data-field="money"
+                          sortField={this.state.sortField}
+                          sortBy={this.state.sortBy}
+                        >Số dư</HeadSort>
                         <HeadFilter
                           selectName="group"
                           multiple
@@ -853,7 +1093,11 @@ export class User extends React.PureComponent {
                         <th scope="col">Hoạt động gần đây</th>
                       </tr>
                     </thead>
-                    <tbody>{this.renderUserRow(this.props.users, this.props.dataInit.purchaseHistory)}</tbody>
+                    <tbody>
+                      {this.props.loading
+                        ? (<tr><td colSpan="21" style={{ textAlign: 'center' }}>Loading...</td></tr>)
+                        : this.renderUserRow(this.props.users, this.props.dataInit.purchaseHistory)}
+                    </tbody>
                   </Table>
                   <PaginationTable
                     maxPages={this.maxPages}
@@ -866,6 +1110,94 @@ export class User extends React.PureComponent {
               </Card>
             </Col>
           </Row>
+          {this.state.showHistory && (
+            <PopUp
+              show={!!this.state.showHistory}
+              onClose={() => {
+                this.props.clearData();
+                this.setState({ showHistory: false, activeTab: '1' });
+              }}
+              className="user-history-popup"
+              content={
+                <Card style={{ maxHeight: 'calc(100vh - 200px)'}}>
+                  <CardHeader>
+                    <p className="float-left"
+                      style={{
+                        wordBreak: 'break-all',
+                        maxWidth: '90%',
+                      }}
+                    >
+                      <i className="fa fa-history"></i> Lịch sử người dùng
+                    </p>
+                    <span
+                      className="float-right btn-close-popup"
+                      title="Đóng cửa sổ"
+                      style={{
+                        fontSize: '15px',
+                        cursor: 'pointer'
+                      }}
+                      onClick={() => {
+                        this.props.clearData();
+                        this.setState({ showHistory: false, activeTab: '1' });
+                      }}
+                    ><i className="fa fa-close"></i></span>
+                  </CardHeader>
+                  <CardBody style={{ overflow: 'auto' }}>
+                  <Nav tabs>
+                    <NavItem>
+                      <NavLink
+                        className={classnames({ active: this.state.activeTab === '1' })}
+                        onClick={() => { this.toggle('1'); }}
+                      >
+                        <i className="fa fa-download"></i> <span className={this.state.activeTab === '1' ? '' : 'd-none'}> Tải tài liệu</span>
+                      </NavLink>
+                    </NavItem>
+                    <NavItem>
+                      <NavLink
+                        className={classnames({ active: this.state.activeTab === '2' })}
+                        onClick={() => { this.toggle('2'); }}
+                      >
+                        <i className="fa fa-upload"></i> <span
+                        className={this.state.activeTab === '2' ? '' : 'd-none'}> Đăng tài liệu</span>
+                      </NavLink>
+                    </NavItem>
+                    <NavItem>
+                      <NavLink
+                        className={classnames({ active: this.state.activeTab === '3' })}
+                        onClick={() => { this.toggle('3'); }}
+                      >
+                        <i className="fa fa-money"></i> <span className={this.state.activeTab === '3' ? '' : 'd-none'}> Nạp tiền</span>
+                      </NavLink>
+                    </NavItem>
+                    <NavItem>
+                      <NavLink
+                        className={classnames({ active: this.state.activeTab === '4' })}
+                        onClick={() => { this.toggle('4'); }}
+                      >
+                        <i className="fa fa-gift"></i> <span className={this.state.activeTab === '4' ? '' : 'd-none'}> Admin cộng tiền</span>
+                      </NavLink>
+                    </NavItem>
+                    <NavItem>
+                      <NavLink
+                        className={classnames({ active: this.state.activeTab === '5' })}
+                        onClick={() => { this.toggle('5'); }}
+                      >
+                        <i className="fa fa-comments"></i> <span className={this.state.activeTab === '5' ? '' : 'd-none'}> Bình luận</span>
+                      </NavLink>
+                    </NavItem>
+                  </Nav>
+                  <TabContent activeTab={this.state.activeTab}>
+                    {this.renderTabContent(
+                      this.state.activeTab,
+                      this.props.userHistory.get('data'),
+                      this.props.loading
+                    )}
+                  </TabContent>
+                  </CardBody>
+                </Card>
+              }
+            />
+          )}
         </Container>
       </Wrapper>
     );
@@ -886,6 +1218,8 @@ export function mapDispatchToProps(dispatch) {
   return {
     getUsers: query => dispatch(getUsers(query)),
     getDataInit: () => dispatch(getDataInit()),
+    getHistory: (id, type) => dispatch(getHistory(id, type)),
+    clearData: () => dispatch(clearData()),
   };
 }
 
@@ -894,6 +1228,7 @@ const mapStateToProps = createStructuredSelector({
   total: makeSelectTotalUser(),
   loading: makeSelectLoading(),
   dataInit: makeSelectDataInit(),
+  userHistory: makeSelectHistory(),
 });
 
 const withConnect = connect(

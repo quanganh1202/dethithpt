@@ -3,6 +3,7 @@ import {
   GET_CATEGORIES_SUCCESS,
   DELETE_CATES,
   CLEAR_PROCESS_STATUS,
+  UPDATE_CATES,
 } from './constants';
 
 /**
@@ -12,9 +13,10 @@ import {
  *
  * @return {object}    An action object with a type of GET_CATEGORIES_REQUEST
  */
-export function getCategories() {
+export function getCategories(queries) {
   return {
     type: GET_CATEGORIES_REQUEST,
+    queries,
   };
 }
 
@@ -25,10 +27,11 @@ export function getCategories() {
  *
  * @return {object}    An action object with a type of GET_CATEGORIES_SUCCESS
  */
-export function getCategoriesSuccess(categories) {
+export function getCategoriesSuccess(categories, total) {
   return {
     type: GET_CATEGORIES_SUCCESS,
     categories,
+    total,
   };
 }
 
@@ -66,8 +69,36 @@ export function deleteCatesSuccess() {
  *
  * @return {object}    An action object with a type of CLEAR_PROCESS_STATUS
  */
-export function clearProcessStatus() {
+export function clearProcessStatus(all) {
   return {
     type: CLEAR_PROCESS_STATUS,
+    all,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} name The new text of the input field
+ *
+ * @return {object}    An action object with a type of UPDATE_CATES.REQUEST
+ */
+export function updateCategories(cates) {
+  return {
+    type: UPDATE_CATES.REQUEST,
+    cates,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} name The new text of the input field
+ *
+ * @return {object}    An action object with a type of UPDATE_CATES.SUCCESS
+ */
+export function updateCategoriesSuccess() {
+  return {
+    type: UPDATE_CATES.SUCCESS,
   };
 }

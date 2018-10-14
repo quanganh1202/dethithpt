@@ -13,6 +13,7 @@ import {
   REQUEST_DOWNLOAD,
   REQUEST_PURCHASE,
   GET_NEWS,
+  GET_PREVIEW,
 } from './constants';
 import {
   loginSuccess,
@@ -28,6 +29,7 @@ import {
   requestDownloadFailure,
   requestPurchase,
   requestPurchaseFailure,
+  getPreviewSuccess,
 } from './actions';
 import { getUserDetail } from 'containers/App/actions';
 import { getToken, mappingUser } from 'services/auth';
@@ -93,7 +95,7 @@ export function* getDocumentsListHandler({ query }) {
  * Request get categories list
  */
 export function* getCategoriesHandler() {
-  const url = `${root}/categories`;
+  const url = `${root}/categories?size=10000&sort=position.asc`;
 
   try {
     const resp = yield call(axios.get, url);
@@ -106,14 +108,19 @@ export function* getCategoriesHandler() {
 /**
  * Request get collections list
  */
-export function* getCollectionsHandler({ queryCollection }) {
+export function* getCollectionsHandler({ queryCollection, getAll }) {
   const url = `${root}/collections`;
-
+  const sort = [ queryCollection.cateId ? 'priorityCate.desc' : 'priority.desc', 'position.asc']
+  const options = {
+    params: {
+      ...queryCollection,
+      sort,
+      size: getAll ? 10000 : 10,
+    },
+  };
   try {
-    const resp = yield call(axios.get, url, {
-      params: queryCollection,
-    });
-    yield put(getCollectionsSuccess(resp.data.data));
+    const resp = yield call(axios.get, url, options);
+    yield put(getCollectionsSuccess(resp.data.data, resp.data.total, getAll));
   } catch (err) {
     // yield put(loginFailure(err));
   }
@@ -198,6 +205,20 @@ export function* purchaseDocumentHandler({ id, download }) {
 }
 
 /**
+ * Request to get preview document by id
+ */
+export function* getPreviewHandler({ id }) {
+  const url = `${root}/documents/${id}`;
+
+  try {
+    const resImages = yield call(axios.get, `${url}/preview`);
+    yield put(getPreviewSuccess(Array.isArray(resImages.data) ? resImages.data : []));
+  } catch (err) {
+    // yield put(loginFailure(err));
+  }
+}
+
+/**
  * Root saga manages watcher lifecycle
  */
 export default function* homeSaga() {
@@ -210,4 +231,5 @@ export default function* homeSaga() {
   yield takeLatest(GET_NEWS.REQUEST, getNewsHandler);
   yield takeLatest(REQUEST_DOWNLOAD.REQUEST, requestDownloadHandler);
   yield takeLatest(REQUEST_PURCHASE.REQUEST, purchaseDocumentHandler);
+  yield takeLatest(GET_PREVIEW.REQUEST, getPreviewHandler);
 }

@@ -14,11 +14,13 @@ import {
   GET_CLASSES,
   DELETE_CLASSES,
   CLEAR_PROCESS_STATUS,
+  UPDATE_CLASSES,
 } from './constants';
 
 // The initial state of the App
 export const initialState = fromJS({
   classes: [],
+  total: 0,
   processDone: false,
 });
 
@@ -29,6 +31,7 @@ function classReducer(state = initialState, action) {
     case GET_CLASSES.SUCCESS:
       return state
         .set('loading', false)
+        .set('total', action.total)
         .set('classes', fromJS(action.classes));
     case DELETE_CLASSES.REQUEST:
       return state.set('loading', true);
@@ -37,7 +40,14 @@ function classReducer(state = initialState, action) {
         .set('loading', false)
         .set('processDone', true);
     case CLEAR_PROCESS_STATUS:
-      return state.set('processDone', false);
+      const newState = action.all ? state.set('classes', fromJS([])) : state; 
+      return newState.set('processDone', false);
+    case UPDATE_CLASSES.REQUEST:
+      return state.set('loading', true);
+    case UPDATE_CLASSES.SUCCESS:
+      return state
+        .set('loading', false)
+        .set('processDone', true);
     default:
       return state;
   }

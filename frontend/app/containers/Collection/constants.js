@@ -8,8 +8,7 @@
  * Follow this format:
  * export const YOUR_ACTION_CONSTANT = 'yourproject/YourContainer/YOUR_ACTION_CONSTANT';
  */
-import { defineAction } from 'redux-define';
 
-const container = 'thpt/subjectCreate';
-export const CREATE_SUBJECT = defineAction('createSubject', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
-export const CLEAR_MESSAGE = defineAction('CLEAR_MESSAGE', container);
+const container = 'thpt/collection';
+export const GET_DOC_LIST_REQUEST = `${container}/GET_DOC_LIST/REQUEST`;
+export const GET_DOC_LIST_SUCCESS = `${container}/GET_DOC_LIST/SUCCESS`;

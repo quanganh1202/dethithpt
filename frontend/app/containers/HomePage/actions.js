@@ -19,6 +19,10 @@ import {
   REMOVE_MESSAGE,
   GET_NEWS,
   QUERY_DATA,
+  PREVIEW_DOC,
+  PREVIEW_CLOSE,
+  GET_PREVIEW,
+  CLOSE_POPUP_COLLECTION,
 } from './constants';
 
 /**
@@ -91,7 +95,6 @@ export function updateUserInfoSuccess(payload) {
     payload,
   };
 }
-
 
 /**
  * Changes the input field of the form
@@ -171,10 +174,11 @@ export function getCategoriesSuccess(categories) {
  *
  * @return {object}    An action object with a type of GET_CATE_LIST_REQUEST
  */
-export function getCollections(queryCollection = {}) {
+export function getCollections(queryCollection = {}, getAll) {
   return {
     type: GET_COLLECTION_LIST_REQUEST,
     queryCollection,
+    getAll,
   };
 }
 
@@ -185,10 +189,12 @@ export function getCollections(queryCollection = {}) {
  *
  * @return {object}    An action object with a type of GET_CATE_LIST_SUCCESS
  */
-export function getCollectionsSuccess(collections) {
+export function getCollectionsSuccess(collections, total, getAll) {
   return {
     type: GET_COLLECTION_LIST_SUCCESS,
     collections,
+    total,
+    getAll,
   };
 }
 
@@ -343,9 +349,56 @@ export function removeMessage() {
   };
 }
 
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} name The new text of the input field
+ *
+ * @return {object}    An action object with a type of CLOSE_POPUP_COLLECTION
+ */
+export function closePopUpCollection() {
+  return {
+    type: CLOSE_POPUP_COLLECTION,
+  };
+}
+
 export function updateQuery(queryCollection) {
   return {
     type: QUERY_DATA,
     queryCollection,
+  };
+}
+
+export function previewDoc(doc) {
+  return {
+    type: PREVIEW_DOC,
+    doc,
+  };
+}
+
+export function closePreview() {
+  return {
+    type: PREVIEW_CLOSE
+  };
+}
+
+export function getPreview(id) {
+  return {
+    type: GET_PREVIEW.REQUEST,
+    id,
+  };
+}
+
+export function getPreviewSuccess(images) {
+  return {
+    type: GET_PREVIEW.SUCCESS,
+    images,
+  };
+}
+
+export function getPreviewFailure(error) {
+  return {
+    type: GET_PREVIEW.FAILURE,
+    error,
   };
 }

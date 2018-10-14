@@ -219,12 +219,17 @@ const pdf2Image = (pdf, image) => {
   });
 };
 
+const myQueue = [];
+let count = 1;
+
 const checkExisted = (file, resolve) => {
   const myInterval = setInterval(async () => {
     const existed = await fs.pathExists(file);
     // Always clearIntervel
     clearInterval(myInterval);
     if (existed) {
+      console.log(`Resolved: ${count++}`);
+
       return resolve(file);
     } else {
       checkExisted(file, resolve);
@@ -239,7 +244,10 @@ const office2Pdf = (word, pdf) => {
     file.writeFile(wordBuffer, (err) => {
       if(err) reject(err);
       let cmd = `soffice --headless --convert-to pdf:writer_pdf_Export ${file.path} --outdir ${pdf}`;
-      childProcess.exec(cmd, (error) => {
+      const childCallback = (error) => {
+        console.log('Next can start');
+        myQueue.shift();
+
         if(error) {
           reject(error);
         } else {
@@ -247,7 +255,27 @@ const office2Pdf = (word, pdf) => {
           // Wait to file was created by system, delay 500 to sure file is created
           checkExisted(fileConverted, resolve);
         }
-      });
+      };
+
+      if (myQueue.length === 0) {
+        console.log('Begin');
+        myQueue.push(cmd);
+        childProcess.exec(cmd, childCallback);
+      } else {
+        console.log('Waiting...');
+        myQueue.push(cmd);
+        const tmp = () => {
+          const intervalQueue = setInterval(() => {
+            if (myQueue[0] === cmd) {
+              console.log('Next start');
+              childProcess.exec(cmd, childCallback);
+            }
+            clearInterval(intervalQueue);
+            tmp();
+          }, 1000);
+        };
+        tmp();
+      }
     });
   });
 };

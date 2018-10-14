@@ -25,6 +25,12 @@ const makeSelectCategories = () =>
 const makeSelectCollections = () =>
   createSelector(selectHome, homeState => homeState.get('collections').toJS());
 
+const makeSelectAllCollections = () =>
+  createSelector(selectHome, homeState => homeState.get('allCollections'));
+
+const makeSelectTotalCollections = () =>
+  createSelector(selectHome, homeState => homeState.get('totalCollection'));
+
 const makeSelectTags = () =>
   createSelector(selectHome, homeState => homeState.get('tags').toJS());
 
@@ -40,6 +46,15 @@ const makeSelectMessage = () =>
 const makeSelectQueryCollection = () =>
   createSelector(selectHome, homeState => homeState.get('queryCollection'));
 
+const makeSelectInfoDocPreview = () =>
+  createSelector(selectHome, homeState => homeState.get('docPreview'));
+
+const makeSelectIsShowPreview = () =>
+  createSelector(selectHome, homeState => homeState.get('isPreview'));
+
+const makeSelectImagesPreview = () =>
+  createSelector(selectHome, homeState => homeState.get('images'));
+
 export {
   selectHome,
   makeSelectUser,
@@ -48,9 +63,14 @@ export {
   makeSelectDocuments,
   makeSelectCategories,
   makeSelectCollections,
+  makeSelectAllCollections,
+  makeSelectTotalCollections,
   makeSelectTags,
   makeSelectNews,
   makeSelectFile,
   makeSelectMessage,
   makeSelectQueryCollection,
+  makeSelectIsShowPreview,
+  makeSelectInfoDocPreview,
+  makeSelectImagesPreview,
 };

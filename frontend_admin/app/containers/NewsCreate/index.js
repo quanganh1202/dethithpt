@@ -31,10 +31,11 @@ import {
 import CKEditor from 'components/CKEditor';
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
-import { createNews, clearMessage } from './actions';
+import { createNews, clearMessage, getNews } from './actions';
 import {
   makeSelectMessage,
   makeSelectLoading,
+  makeSelectNews,
 } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
@@ -44,6 +45,10 @@ const dataInit = {
   name: '',
   text: '',
 };
+
+const acceptedPosition = [
+  'Nội quy',
+];
 
 /* eslint-disable react/prefer-stateless-function */
 export class NewsCreate extends React.PureComponent {
@@ -56,6 +61,7 @@ export class NewsCreate extends React.PureComponent {
         text: '',
         type: this.module,
         active: '1',
+        position: 0,
       },
       error: {},
       content: '',
@@ -64,6 +70,18 @@ export class NewsCreate extends React.PureComponent {
     this.onChange = this.onChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
     this.onChangeEditor = this.onChangeEditor.bind(this);
+  }
+
+  componentWillMount() {
+    const query = {
+      type: this.module,
+    }
+    // get news
+    this.props.getNews(query);
+  }
+
+  componentWillUnmount() {
+    this.props.clearMessage();
   }
 
   resetForm() {
@@ -101,8 +119,11 @@ export class NewsCreate extends React.PureComponent {
         error[key] = 'Thông tin còn thiếu';
       }
     });
+    if (this.module !== 'general') {
+      delete error.position;
+    }
     if (!Object.keys(error).length) {
-      this.props.createNews(this.state.formData, this.module);
+      this.props.createNews({ ...this.state.formData, position: parseInt(this.state.formData.position) }, this.module);
     } else {
       this.setState({ error });
     }
@@ -113,6 +134,7 @@ export class NewsCreate extends React.PureComponent {
   }
 
   render() {
+    const existedPosition = this.props.news.map((i) => i.position);
     return (
       <Wrapper className="animated fadeIn">
         <Row>
@@ -152,12 +174,39 @@ export class NewsCreate extends React.PureComponent {
                       </FormGroup>
                     </Col>
                   </Row>
+                  {this.module === 'general' && (
+                    <Row>
+                      <Col xs="12">
+                        <FormGroup>
+                          <Label htmlFor="name">Vị trí</Label>
+                          <Input
+                            type="select"
+                            id="position"
+                            name="position"
+                            required
+                            onChange={this.onChange}
+                            value={this.state.formData.position}
+                            className={this.state.error.position && 'is-invalid'}
+                          >
+                            <option value="0">Chọn vị trí</option>
+                            {acceptedPosition.map((i, idx) => {
+                              if (!existedPosition.includes(idx + 1)) {
+                                return <option key={idx} value="1">{i}</option>;
+                              }
+                              return null;
+                            })}
+                          </Input>
+                          <div className="invalid-feedback">{this.state.error.position}</div>
+                        </FormGroup>
+                      </Col>
+                    </Row>
+                  )}
                   <Row>
                     <Col xs="12">
                       <FormGroup>
                         <Label htmlFor="name">Chi tiết</Label>
                         <CKEditor
-                          activeClass="news-text"
+                          activeClass={`news-text ${this.state.error.text && 'is-invalid'}`}
                           name="news"
                           content={this.state.formData.text} 
                           events={{
@@ -204,12 +253,14 @@ export function mapDispatchToProps(dispatch) {
   return {
     createNews: (data, module) => dispatch(createNews(data, module)),
     clearMessage: () => dispatch(clearMessage()),
+    getNews: (query) => dispatch(getNews(query)),
   };
 }
 
 const mapStateToProps = createStructuredSelector({
   loading: makeSelectLoading(),
   message: makeSelectMessage(),
+  news: makeSelectNews(),
 });
 
 const withConnect = connect(

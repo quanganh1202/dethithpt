@@ -60,6 +60,10 @@ export class ClassCreate extends React.PureComponent {
     this.onSubmit = this.onSubmit.bind(this);
   }
 
+  componentWillUnmount() {
+    this.props.clearMessage();
+  }
+
   resetForm() {
     this.setState({ formData: dataInit, error: {} });
     this.props.clearMessage();

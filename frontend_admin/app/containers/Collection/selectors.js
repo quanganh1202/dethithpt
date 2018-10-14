@@ -10,6 +10,9 @@ const selectHome = state => state.get('collection', initialState);
 const makeSelectCollections = () =>
   createSelector(selectHome, collectionState => collectionState.get('collections').toJS());
 
+const makeSelectTotalCollection = () =>
+  createSelector(selectHome, userState => userState.get('total'));
+
 const makeSelectLoading = () =>
   createSelector(selectHome, collectionState => collectionState.get('loading'));
   
@@ -19,6 +22,7 @@ const makeSelectProcessStatus = () =>
 export {
   selectHome,
   makeSelectCollections,
+  makeSelectTotalCollection,
   makeSelectLoading,
   makeSelectProcessStatus
 };

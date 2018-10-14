@@ -12,6 +12,7 @@ function TabList({ item, type }) {
         {type !== LIST_COLOR ? <img style={{ width: '15px' }} src={folderOpen} alt={`thư mục ${item.title}`} /> : null} {item.title}
       </Link>
       {item.hasOwnProperty('quantity') && <i className="list-quantity">{item.quantity}</i>}
+      {item.hasOwnProperty('priority') && item.priority !== 0 && <i> <span className="red bold">HOT</span></i>}
     </li>
   );
 }

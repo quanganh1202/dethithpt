@@ -19,11 +19,13 @@ import { faMoneyBillAlt } from '@fortawesome/free-regular-svg-icons';
 import UploadDocument from 'containers/UploadDocument/Loadable';
 import DocumentDetails from 'containers/DocumentDetails/Loadable';
 import NewsDetails from 'containers/NewsDetails/Loadable';
+import Collection from 'containers/Collection/Loadable';
 import Category from 'containers/Category/Loadable';
 import Payment from 'containers/Payment/Loadable';
 import SearchResult from 'containers/SearchResult/Loadable';
 import _ from 'lodash';
 import FileSaver from 'file-saver';
+import LoadingIndicator from 'components/LoadingIndicator';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
@@ -39,6 +41,9 @@ import PopUp from 'components/PopUp';
 import SocialButton from 'components/SocialButton';
 import TagList from 'components/TagList';
 import { getUser, setToken } from 'services/auth';
+import { moneyValidation, numberWithCommas } from 'services/helper';
+import moment from 'moment';
+
 import {
   login,
   updateUserInfo,
@@ -50,6 +55,11 @@ import {
   requestDownload,
   removeFileSave,
   removeMessage,
+  updateQuery,
+  closePreview,
+  previewDoc,
+  getPreview,
+  closePopUpCollection,
 } from './actions';
 import {
   makeSelectUser,
@@ -63,7 +73,13 @@ import {
   makeSelectFile,
   makeSelectMessage,
   makeSelectQueryCollection,
+  makeSelectInfoDocPreview,
+  makeSelectIsShowPreview,
+  makeSelectImagesPreview,
+  makeSelectTotalCollections,
+  makeSelectAllCollections,
 } from './selectors';
+import styled from 'styled-components';
 import { makeSelectCurrentUser, makeSelectPopout } from 'containers/App/selectors';
 import { clearData, getUserDetail } from 'containers/App/actions';
 import reducer from './reducer';
@@ -73,6 +89,26 @@ import GreyTitle from './GreyTitle';
 import HomeWrapper from './Wrapper';
 import UserDashboard from './UserDashboard';
 import Button from './Button';
+
+const Wrapper = styled.div`
+  margin-top: 20px;
+
+  .document-title {
+    text-align: left;
+    font-size: 0.9em;
+    font-weight: bold;
+    padding: 5px 10px;
+    color: #3f48cc;
+    background-color: #e5e5e5;
+    > span.bold {
+      color: black;
+    }
+  }
+  .popup-content {
+    min-width: 100px;
+    min-height: 100px;
+  }
+`;
 
 library.add(faMoneyBillAlt, faFolder, faCog);
 
@@ -85,11 +121,6 @@ const dataRight2 = [
   },
 ];
 
-const numberWithCommas = x => {
-  const parts = x.toString().split('.');
-  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  return parts.join('.');
-};
 const itemsPerLoad = 10;
 const requiredFields = [
   'name',
@@ -118,6 +149,7 @@ export class HomePage extends React.PureComponent {
       user: null,
       error: '',
       downloadingFile: '',
+      preview: false,
     };
     this.onLogin = this.onLogin.bind(this);
     this.onLogout = this.onLogout.bind(this);
@@ -183,6 +215,7 @@ export class HomePage extends React.PureComponent {
         return;
       }
       alert(errorMapping[nextProps.message] || 'Có lỗi xảy ra, vui lòng báo lại cho admin!');
+      this.setState({ downloadingFile: '' });
       this.props.removeMessage();
     }
 
@@ -193,6 +226,27 @@ export class HomePage extends React.PureComponent {
       // get document's collections
       this.props.getCollections(nextProps.queryCollection);
     }
+    // If user get out of category route then get collection by default
+    if (this.props.location.pathname.split('/')[1] === 'danh-muc'
+      && this.props.location.pathname.split('/')[1] !== nextProps.location.pathname.split('/')[1]) {
+      this.props.updateQuery({});
+    }
+
+    // Re-get news data when change route
+    if (this.props.location.pathname !== nextProps.location.pathname) {
+        // get document's categories
+        this.props.getCategories();
+        // get tags
+        this.props.getTags();
+        // get news
+        this.props.getNews();
+        if (this.props.location.pathname.split('/')[1] !== 'danh-muc'
+          && nextProps.location.pathname.split('/')[1] !== 'danh-muc') {
+          // get document's collections
+          this.props.getCollections(nextProps.queryCollection);
+        }
+    }
+    
   }
 
   onLogin(data) {
@@ -226,7 +280,7 @@ export class HomePage extends React.PureComponent {
         [name]: value,
       };
     }
-    
+
     if (updateUser.facebook === null) {
       updateUser.facebook = '';
     }
@@ -316,8 +370,17 @@ export class HomePage extends React.PureComponent {
                 icon={['far', 'file-alt']}
               />
               Số dư :{' '}
-              <span className="red bold">{numberWithCommas(_.get(this.props.userDetail, 'money', 0))}</span>đ (HSD:{' '}
-              <span className="green bold">5</span> ngày)
+              <span className="red bold">{numberWithCommas(moneyValidation(_.get(this.props, 'userDetail.money', 0)))}</span>đ
+              {' '}
+              {
+                _.get(this.props, 'userDetail.blockFrom') &&
+                moment(_.get(this.props, 'userDetail.blockFrom')) >= moment() ? (
+                  <span>(HSD:{' '}
+              <span className="green bold">
+                {moment(_.get(this.props, 'userDetail.blockFrom')).diff(moment(), 'days') + 1}
+              </span> ngày)</span>
+                ) : null
+              }
             </p>
             <p className="user-payment">
               <FontAwesomeIcon className="user-icon" icon={['fas', 'folder']} />
@@ -374,18 +437,38 @@ export class HomePage extends React.PureComponent {
           style={{ background: 'white' }}
           title="Bộ sưu tập nổi bật"
           content={
-            <List
-              items={this.props.collections.sort((a, b) => b.numDocRefs - a.numDocRefs)}
-              component={({ item }) => (
-                <TabList
-                  item={{
-                    link: `/bo-suu-tap/${item.id}`,
-                    title: item.name,
-                    quantity: item.numDocRefs || 0,
+            <React.Fragment>
+              <List
+                items={this.props.collections}
+                component={({ item }) => (
+                  this.props.loading ? null : (
+                      <TabList
+                        item={{
+                          link: `/bo-suu-tap/${item.id}`,
+                          title: item.name,
+                          quantity: item.numDocRefs || 0,
+                          priority: pathname.includes('danh-muc') ? (item.priorityCate || 0) : (item.priority || 0),
+                          active: pathname.includes('bo-suu-tap') && pathname.split('/').pop() === item.id ? true : false,
+                        }}
+                      />
+                  )
+                )}
+              />
+              { this.props.totalCollection > 10 && (
+                <button
+                  className="get-collection-btn"
+                  style={{
+                    fontSize: '0.85em',
+                    float: 'right',
+                    textDecoration: 'underline',
+                    cursor: 'pointer'
+
                   }}
-                />
+                  onClick={() => this.props.getCollections(this.props.queryCollection, true)}
+                >Xem thêm</button>
               )}
-            />
+              <div style={{ clear: 'both' }}></div>
+            </React.Fragment>
           }
         />
         <Tab
@@ -455,10 +538,10 @@ export class HomePage extends React.PureComponent {
     return (
       <article>
         <Helmet>
-          <title>Home Page</title>
-          <meta name="description" content="DethiTHPT" />
+          <title>Trang chủ</title>
+          <meta name="description" content="Tailieudoc.vn" />
         </Helmet>
-        <div style={{ marginTop: '20px' }}>
+        <Wrapper>
           <Layout
             content={[
               {
@@ -514,6 +597,8 @@ export class HomePage extends React.PureComponent {
                                     </span>{' '}
                                     tài liệu
                                   </div>
+                                  {this.state.downloadingFile
+              ? <div className="data-loading">Vui lòng chờ xử lý...<LoadingIndicator /></div> : null}
                                   <List
                                     items={this.props.documents.data}
                                     component={ListItem}
@@ -525,6 +610,10 @@ export class HomePage extends React.PureComponent {
                                     onDownload={(id, name) => {
                                       this.setState({ downloadingFile: name });
                                       this.props.requestDownload(id);
+                                    }}
+                                    onPreview={doc => {
+                                      this.props.previewDoc(doc);
+                                      this.props.getPreview(doc.id);
                                     }}
                                   />
                                 </div>
@@ -548,6 +637,11 @@ export class HomePage extends React.PureComponent {
                         path="/tin-tuc/:id"
                         component={NewsDetails}
                       />
+                      <Route
+                        exact
+                        path="/bo-suu-tap/:id"
+                        component={Collection}
+                      />
                       <Route exact path="/danh-muc/:id" component={Category} />
                       <Route exact path="/tim-kiem" component={SearchResult} />
                       {/* <Route exact path="/thanh-toan/:id" component={Payment} /> */}
@@ -565,6 +659,28 @@ export class HomePage extends React.PureComponent {
                 className: 'sm-column',
               },
             ]}
+          />
+          <PopUp
+            show={this.props.preview}
+            close
+            width="auto"
+            onClose={() => this.props.closePreview()}
+            content={
+              this.props.loading ? <LoadingIndicator /> : (
+                <div style={{ textAlign: 'center' }}>
+                  <div className="document-title">
+                    <span className="bold">Đọc thử:</span>{this.props.docPreview.name}
+                  </div>
+                  {_.get(this.props, 'images', []).map((imgData, index) => (
+                    <div key={`preview-${index}`}>
+                      <img
+                        src={`data:image/png;base64,${imgData}`}
+                        alt="preview"
+                      />
+                    </div>
+                  ))}
+                </div>)
+            }
           />
           <PopUp
             show={this.state.user}
@@ -589,7 +705,38 @@ export class HomePage extends React.PureComponent {
               />
             }
           />)}
-        </div>
+          {this.props.allCollections && (<PopUp
+            show={!!this.props.allCollections}
+            close
+            width="300px"
+            onClose={() => this.props.closePopUpCollection()}
+            content={
+              <Tab
+                key="bo-suu-tap"
+                style={{ background: 'white' }}
+                title="Bộ sưu tập nổi bật"
+                content={
+                  <List
+                    items={this.props.allCollections.toJS()}
+                    component={({ item }) => (
+                      this.props.loading ? null : (
+                          <TabList
+                            item={{
+                              link: `/bo-suu-tap/${item.id}`,
+                              title: item.name,
+                              quantity: item.numDocRefs || 0,
+                              priority: pathname.includes('danh-muc') ? (item.priorityCate || 0) : (item.priority || 0),
+                              active: pathname.includes('bo-suu-tap') && pathname.split('/').pop() === item.id ? true : false,
+                            }}
+                          />
+                      )
+                    )}
+                  />
+                }
+              />
+            }
+          />)}
+        </Wrapper>
       </article>
     );
   }
@@ -612,8 +759,8 @@ export function mapDispatchToProps(dispatch) {
     onSubmitUserInfo: (payload, token) => dispatch(updateUserInfo(payload, token)),
     getDocumentsList: query => dispatch(getDocumentsList(query)),
     getCategories: () => dispatch(getCategories()),
-    getCollections: queryCollection =>
-      dispatch(getCollections(queryCollection)),
+    getCollections: (queryCollection, getAll) =>
+      dispatch(getCollections(queryCollection, getAll)),
     getTags: () => dispatch(getTags()),
     getNews: () => dispatch(getNews()),
     requestDownload: id => dispatch(requestDownload(id)),
@@ -621,6 +768,11 @@ export function mapDispatchToProps(dispatch) {
     removeMessage: () => dispatch(removeMessage()),
     clearData: () => dispatch(clearData()),
     getUserDetail: (id) => dispatch(getUserDetail(id)),
+    updateQuery: (query) => dispatch(updateQuery(query)),
+    closePreview: () => dispatch(closePreview()),
+    previewDoc: doc => dispatch(previewDoc(doc)),
+    getPreview: id => dispatch(getPreview(id)),
+    closePopUpCollection: () => dispatch(closePopUpCollection()),
   };
 }
 
@@ -630,6 +782,8 @@ const mapStateToProps = createStructuredSelector({
   documents: makeSelectDocuments(),
   categories: makeSelectCategories(),
   collections: makeSelectCollections(),
+  allCollections: makeSelectAllCollections(),
+  totalCollection: makeSelectTotalCollections(),
   tags: makeSelectTags(),
   news: makeSelectNews(),
   file: makeSelectFile(),
@@ -638,6 +792,9 @@ const mapStateToProps = createStructuredSelector({
   userDetail: makeSelectCurrentUser(),
   popout: makeSelectPopout(),
   queryCollection: makeSelectQueryCollection(),
+  preview: makeSelectIsShowPreview(),
+  docPreview: makeSelectInfoDocPreview(),
+  images: makeSelectImagesPreview(),
 });
 
 const withConnect = connect(

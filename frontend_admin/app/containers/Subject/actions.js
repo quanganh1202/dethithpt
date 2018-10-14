@@ -2,6 +2,7 @@ import {
   GET_SUBJECTS,
   DELETE_SUBJECTS,
   CLEAR_PROCESS_STATUS,
+  UPDATE_SUBJECTS,
 } from './constants';
 
 /**
@@ -11,9 +12,10 @@ import {
  *
  * @return {object}    An action object with a type of GET_SUBJECTS.REQUEST
  */
-export function getSubjects() {
+export function getSubjects(queries) {
   return {
     type: GET_SUBJECTS.REQUEST,
+    queries,
   };
 }
 
@@ -24,10 +26,11 @@ export function getSubjects() {
  *
  * @return {object}    An action object with a type of GET_CLASSES.SUCCESS
  */
-export function getSubjectsSuccess(subjects) {
+export function getSubjectsSuccess(subjects, total) {
   return {
     type: GET_SUBJECTS.SUCCESS,
     subjects,
+    total,
   };
 }
 
@@ -65,8 +68,36 @@ export function deleteSubjectsSuccess() {
  *
  * @return {object}    An action object with a type of CLEAR_PROCESS_STATUS
  */
-export function clearProcessStatus() {
+export function clearProcessStatus(all) {
   return {
     type: CLEAR_PROCESS_STATUS,
+    all,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} name The new text of the input field
+ *
+ * @return {object}    An action object with a type of UPDATE_SUBJECTS.REQUEST
+ */
+export function updateSubjects(subjects) {
+  return {
+    type: UPDATE_SUBJECTS.REQUEST,
+    subjects,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} name The new text of the input field
+ *
+ * @return {object}    An action object with a type of UPDATE_SUBJECTS.SUCCESS
+ */
+export function updateSubjectsSuccess() {
+  return {
+    type: UPDATE_SUBJECTS.SUCCESS,
   };
 }

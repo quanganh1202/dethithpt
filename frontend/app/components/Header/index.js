@@ -63,7 +63,7 @@ class Header extends React.Component {
         <HeaderBar>
           <div>
             <A href="/">
-              <img src={Banner} alt="DethiTHPT" />
+              <img src={Banner} alt="Tailieudoc.vn" />
             </A>
           </div>
           <div className="header-search-box">

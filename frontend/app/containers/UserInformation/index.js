@@ -8,14 +8,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 // import { FormattedMessage } from 'react-intl';
+import moment from 'moment';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
-import { Redirect } from 'react-router-dom';
+import { Redirect, Link } from 'react-router-dom';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTv, faChartLine, faFileInvoiceDollar } from '@fortawesome/free-solid-svg-icons';
-import { faCopy, faUserCircle } from '@fortawesome/free-regular-svg-icons';
+import { faCopy, faUserCircle, faClock } from '@fortawesome/free-regular-svg-icons';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
@@ -26,6 +27,9 @@ import {
 } from './actions';
 import {
   makeSelectUser,
+  makeSelectHistory,
+  makeSelectUpload,
+  makeSelectDownload,
   makeSelectLoading,
 } from './selectors';
 import reducer from './reducer';
@@ -36,24 +40,34 @@ import Wrapper from './Wrapper';
 import Button from './Button';
 import SideNav from './SideNav';
 import GeneralInformation from './GeneralInformation';
+import HistoryList from './HistoryList';
 import UserBoard from './UserBoard';
+import documentIcon from 'images/document.png';
+import wordIcon from 'images/word.png';
+import pdfIcon from 'images/pdf.png';
+import winrarIcon from 'images/winrar.png';
 
-library.add(faTv, faCopy, faUserCircle, faChartLine, faFileInvoiceDollar);
+library.add(faTv, faCopy, faUserCircle, faChartLine, faFileInvoiceDollar, faClock);
 
-const dataRight1 = [
-  {
-    title: 'Tin tức nổi bật',
-  },
-  {
-    title: 'Xu hướng từ khóa',
-  },
-  {
-    title: 'Thống kê',
-  },
-  {
-    title: 'Thông tin website',
-  },
-];
+const numberWithCommas = x => {
+  const parts = x.toString().split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return parts.join('.');
+};
+
+const mappingIconType = (type) => {
+  switch (type) {
+    case 'doc':
+    case 'docx':
+      return wordIcon;
+    case 'pdf':
+      return pdfIcon;
+    case 'rar':
+      return winrarIcon;
+    default: 
+      return documentIcon;
+  }
+}
 
 const dataRight2 = [
   {
@@ -63,6 +77,11 @@ const dataRight2 = [
     title: 'Quảng cáo',
   },
 ];
+
+const mappingTransactionType = {
+  RECHARGE: 'Nạp tiền',
+  PURCHASE: 'Mua tài liệu',
+};
 
 /* eslint-disable react/prefer-stateless-function */
 export class UserInformation extends React.PureComponent {
@@ -85,13 +104,117 @@ export class UserInformation extends React.PureComponent {
       case 1:
         return <GeneralInformation user={this.props.user} />;
       case 2:
-        return <div>Tài liệu đã tải</div>;
+        return (
+          <HistoryList
+            name="download-history"
+            renderHeader={() => (
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Tài liệu</th>
+                  <th>Ngày tải</th>
+                </tr>
+              </thead>
+            )}
+            renderData={() => (
+              <tbody>
+                {this.props.download.map((i, idx) => (
+                  <tr key={i.get('id')}>
+                    <td>{idx + 1}</td>
+                    <td className="list-item-name">
+                      <span>
+                        <img src={mappingIconType(i.get('docName').split('.').pop())} width="15px" alt="document-type-icon" />
+                      </span>
+                      <span>
+                        <Link to={`/tai-lieu/${i.get('docId')}`}>{i.get('docName')}</Link>
+                      </span>
+                    </td>
+                    <td className="list-item-created-at">
+                      <FontAwesomeIcon className={'info-icon'} icon={['far', 'clock']} style={{ marginRight: '5px' }} />
+                      {moment(i.get('createdAt', '')).format('DD/MM/YYYY')}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            )}
+          />
+        );
       case 3:
-        return <div>Tài liệu đã đăng</div>;
+        return (
+          <HistoryList
+            name="upload-history"
+            renderHeader={() => (
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Tài liệu</th>
+                  <th>Ngày đăng</th>
+                </tr>
+              </thead>
+            )}
+            renderData={() => (
+              <tbody>
+                {this.props.upload.map((i, idx) => (
+                  <tr key={i.get('id')}>
+                    <td>{idx + 1}</td>
+                    <td className="list-item-name">
+                      <span>
+                        <img src={mappingIconType(i.get('name').split('.').pop())} width="15px" alt="document-type-icon" />
+                      </span>
+                      <span>
+                        <Link to={`/tai-lieu/${i.get('id')}`}>{i.get('name')}</Link>
+                      </span>
+                    </td>
+                    <td className="list-item-created-at">
+                      <FontAwesomeIcon className={'info-icon'} icon={['far', 'clock']} style={{ marginRight: '5px' }} />
+                      {moment(i.get('createdAt', '')).format('DD/MM/YYYY')}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            )}
+          />
+        );
       case 4:
         return <div>Tài liệu đã lưu</div>;
       case 5:
-        return <div>Lịch sử giao dịch</div>;
+        return (
+          <HistoryList
+            name="transaction-history"
+            renderHeader={() => (
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Loại giao dịch</th>
+                  <th>Tài liệu</th>
+                  <th>Số tiền</th>
+                  <th>Ngày giao dịch</th>
+                </tr>
+              </thead>
+            )}
+            renderData={() => (
+              <tbody>
+                {this.props.history.map((i, idx) => (
+                  <tr key={i.get('id')}>
+                    <td>{idx + 1}</td>
+                    <td>{mappingTransactionType[i.get('action')]}</td>
+                    <td>
+                      {i.get('action') === 'PURCHASE'
+                        && <Link to={`/tai-lieu/${i.get('docId')}`}>{i.get('docName')}</Link>}
+                    </td>
+                    <td>
+                      {numberWithCommas(i.get('money', 0))}
+                    </td>
+                    <td className="list-item-created-at">
+                      <FontAwesomeIcon className={'info-icon'} icon={['far', 'clock']} style={{ marginRight: '5px' }} />
+                      {moment(i.get('createdAt', '')).format('DD/MM/YYYY')}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            )}
+          />
+        );
       default:
         return null;
     }
@@ -158,10 +281,10 @@ export class UserInformation extends React.PureComponent {
     return (
       <article>
         <Helmet>
-          <title>Home Page</title>
+          <title>Trang chủ</title>
           <meta
             name="description"
-            content="DethiTHPT"
+            content="Tailieudoc.vn"
           />
         </Helmet>
         <div style={{ marginTop: '20px' }}>
@@ -222,6 +345,9 @@ export function mapDispatchToProps(dispatch) {
 
 const mapStateToProps = createStructuredSelector({
   user: makeSelectUser(),
+  history: makeSelectHistory(),
+  download: makeSelectDownload(),
+  upload: makeSelectUpload(),
   loading: makeSelectLoading(),
 });
 

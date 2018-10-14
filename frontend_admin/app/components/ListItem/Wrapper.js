@@ -31,7 +31,7 @@ const Wrapper = styled.li`
       width: 100%;
     }
     > ul > li {
-      font-size: 0.8em;
+      font-size: 0.9em;
       float: left;
       padding: 0 5px;
       border-right: 1px solid black;

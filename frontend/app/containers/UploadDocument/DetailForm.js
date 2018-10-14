@@ -99,6 +99,12 @@ const Wrapper = styled.section`
   }
 `;
 
+const findOne = function(haystack, arr) {
+  return arr.some(v => {
+    return haystack.indexOf(v) >= 0;
+  });
+};
+
 class DetailForm extends React.Component {
   constructor(props) {
     super(props);
@@ -167,14 +173,7 @@ class DetailForm extends React.Component {
   onSubmit() {
     const { formData } = this.state;
     const newData = _.cloneDeep(formData.toJS());
-    const list = [
-      'subjectIds',
-      'classIds',
-      'cateIds',
-      // 'collectionIds',
-      'yearSchools',
-      'tags',
-    ];
+    const list = ['subjectIds', 'classIds', 'cateIds', 'yearSchools', 'tags'];
     list.forEach(field => {
       if (newData[field] && newData[field].length > 0) {
         newData[field] = newData[field].map(i => i.value);
@@ -183,7 +182,13 @@ class DetailForm extends React.Component {
       }
     });
 
-    const err = _.pullAll(list, Object.keys(newData));
+    const listCheck = [...list, 'collectionIds'];
+    if (this.props.name &&
+      (this.props.name.split('.').slice(-1)[0] === 'zip' ||
+        this.props.name.split('.').slice(-1)[0] === 'rar')) {
+          listCheck.push('filePreview');
+        }
+    const err = _.pullAll(listCheck, Object.keys(newData));
     if (err.length > 0) {
       this.setState({
         message: {
@@ -212,9 +217,45 @@ class DetailForm extends React.Component {
   render() {
     const { formData } = this.state;
     const { subjects, classes, categories, tags, collections } = this.props;
+    let dataCollections = collections;
+    if (collections) {
+      if (formData.get('subjectIds', []).length > 0) {
+        dataCollections = dataCollections.filter(e =>
+          findOne(
+            e.subjects.map(t => t.subjectId),
+            formData.get('subjectIds').map(t => +t.value),
+          ),
+        );
+      }
+      if (formData.get('classIds', []).length > 0) {
+        dataCollections = dataCollections.filter(e =>
+          findOne(
+            e.classes.map(t => t.classId),
+            formData.get('classIds').map(t => +t.value),
+          ),
+        );
+      }
+      if (formData.get('cateIds', []).length > 0) {
+        dataCollections = dataCollections.filter(e =>
+          findOne(
+            e.cates.map(t => t.cateId),
+            formData.get('cateIds').map(t => +t.value),
+          ),
+        );
+      }
+      if (formData.get('yearSchools', []).length > 0) {
+        dataCollections = dataCollections.filter(e =>
+          findOne(
+            e.yearSchools.split(','),
+            formData.get('yearSchools').map(t => `${t.value}`),
+          ),
+        );
+      }
+    }
+
     return (
       <Wrapper>
-        {formData.get('name') ? (
+        {this.props.name ? (
           <div className="form-group">
             <label htmlFor="name">
               Tên tài liệu <i className="required">(*)</i>
@@ -230,10 +271,10 @@ class DetailForm extends React.Component {
           </div>
         ) : null}
         {this.props.name &&
-        (this.props.name.split('.')[1] === 'zip' ||
-          this.props.name.split('.')[1] === 'rar') ? (
+        (this.props.name.split('.').slice(-1)[0] === 'zip' ||
+          this.props.name.split('.').slice(-1)[0] === 'rar') ? (
           <div className="form-group">
-            <label htmlFor="cateIds">&nbsp;</label>
+            <label htmlFor="cateIds">File xem thử <i className="required">(*)</i></label>
             <input
               className="form-control"
               name="filePreview"
@@ -356,7 +397,7 @@ class DetailForm extends React.Component {
           <div className="form-control">
             <Creatable
               name="collectionIds"
-              options={collections.map(sj => ({
+              options={dataCollections.map(sj => ({
                 value: sj.id,
                 label: sj.name,
               }))}
@@ -366,8 +407,13 @@ class DetailForm extends React.Component {
               }
               hideSelectedOptions={false}
               closeMenuOnSelect={false}
-              placeholder="-- Chọn bộ sưu tập --"
+              placeholder="-- Chọn bộ sưu tập / Hoặc tạo mới --"
               isMulti
+              formatCreateLabel={inputValue => (
+                <span>
+                  Enter để tạo mới <b>{` ${inputValue}`}</b>
+                </span>
+              )}
               components={{
                 DropdownIndicator: () => (
                   <FontAwesomeIcon
@@ -398,8 +444,13 @@ class DetailForm extends React.Component {
               }
               hideSelectedOptions={false}
               closeMenuOnSelect={false}
-              placeholder="-- Enter để thêm tags --"
+              placeholder="-- Chọn tags / Hoặc tạo mới --"
               isMulti
+              formatCreateLabel={inputValue => (
+                <span>
+                  Enter để tạo mới <b>{` ${inputValue}`}</b>
+                </span>
+              )}
               components={{
                 DropdownIndicator: () => (
                   <FontAwesomeIcon

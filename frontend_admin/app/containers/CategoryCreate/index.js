@@ -57,6 +57,10 @@ export class CategoryCreate extends React.PureComponent {
     this.onSubmit = this.onSubmit.bind(this);
   }
 
+  componentWillUnmount() {
+    this.props.clearMessage();
+  }
+
   resetForm() {
     this.setState({ formData: dataInit, error: {} });
     this.props.clearMessage();
@@ -75,7 +79,7 @@ export class CategoryCreate extends React.PureComponent {
       }
     });
     if (!Object.keys(error).length) {
-      this.props.createCategory(this.state.formData);
+      this.props.createCategory({ ...this.state.formData, position: 0 });
     } else {
       this.setState({ error });
     }

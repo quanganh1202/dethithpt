@@ -15,6 +15,8 @@ import UploadPost from './UploadPost';
 import Button from './Button';
 import ErrorMessage from './ErrorMessage';
 
+import { getUser } from 'services/auth';
+
 const Wrapper = styled.div`
   & .continue-button, & div.input-button {
     margin: 0 auto;
@@ -45,10 +47,14 @@ export class UploadDocument extends React.PureComponent {
     super(props);
     this.state = {
       step: 0,
+      policy: null,
       stepDefinitions: [
         { id: "step1", title: "", component: (props) => <div>
           <label>Nội quy:</label>
-          <div style={{ width: '100%', height: '200px' }}></div>
+          <div
+            style={{ width: '100%', minHeight: '200px' }}
+            dangerouslySetInnerHTML={{ __html: this.state.policy  }}
+          />
           <label>
             <input
               type="checkbox"
@@ -81,20 +87,24 @@ export class UploadDocument extends React.PureComponent {
   componentWillMount() {
     // get filter data
     const url = '/api';
-    get(`${url}/subjects`).then((res) => {
+    get(`${url}/subjects?size=10000&sort=position.asc`).then((res) => {
       this.initData('subjects', res.data.data);
     });
-    get(`${url}/classes`).then((res) => {
+    get(`${url}/classes?size=10000&sort=position.asc`).then((res) => {
       this.initData('classes', res.data.data);
     });
-    get(`${url}/categories`).then((res) => {
+    get(`${url}/categories?size=10000&sort=position.asc`).then((res) => {
       this.initData('categories', res.data.data);
     });
-    get(`${url}/tags`).then((res) => {
+    get(`${url}/tags?size=10000`).then((res) => {
       this.initData('tags', res.data.data);
     });
-    get(`${url}/collections`).then((res) => {
+    get(`${url}/collections?size=10000&sort=position.asc`).then((res) => {
       this.initData('collections', res.data.data);
+    });
+    get(`${url}/news?type=general`).then((res) => {
+      const policy = res.data.data.find((i) => i.position === 1);
+      this.setState({ policy: policy ? policy.text : null });
     });
   }
 
@@ -106,12 +116,18 @@ export class UploadDocument extends React.PureComponent {
 
   nextStep(step) {
     if (step !== 'step2' || (step === 'step2' && this.state.confirm)) {
-      let i;
-      const x = document.getElementsByClassName("tab-content");
-      for (i = 0; i < x.length; i++) {
-          x[i].style.display = "none"; 
+      if (getUser()) {
+        let i;
+        const x = document.getElementsByClassName("tab-content");
+        for (i = 0; i < x.length; i++) {
+            x[i].style.display = "none"; 
+        }
+        document.getElementById(step).style.display = "block"; 
+      } else {
+        this.setState({
+          error: 'Bạn cần đăng nhập để tiếp tục',
+        });
       }
-      document.getElementById(step).style.display = "block"; 
     } else {
       this.setState({
         error: 'Bạn cần đồng ý với điều khoản của website',

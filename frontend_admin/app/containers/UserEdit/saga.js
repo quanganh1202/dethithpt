@@ -42,18 +42,37 @@ export function* getDetailUserHandler({ id }) {
 /**
  * Request update user
  */
-export function* updateUserHandler({ data, id }) {
+export function* updateUserHandler({ data, blockUser, id }) {
   const url = `${root}/users/${id}`;
+  const urlBlock = `${root}/users/block/${id}`;
+  const urlBonus = `${root}/users/bonus/${id}`;
   const options = {
     headers: {
       'x-access-token': getToken(),
     },
   };
   try {
+    const money = data.bonusMoney
+    if (money) {
+      yield call(axios.post, urlBonus, {
+        money,
+      }, options);
+    }
+    delete data.bonusMoney;
     yield call(axios.put, url, data, options);
+    if (blockUser) {
+      yield call(
+        axios.put,
+        urlBlock,
+        {
+          ...blockUser,
+          status: +blockUser.status,
+        },
+        options,
+      );
+    }
     yield put(updateUserSuccess());
     yield put(push('/users'));
-    // yield getDetailUserHandler({ id });
   } catch (err) {
     yield put(
       updateUserFailure(
@@ -69,18 +88,20 @@ export function* updateUserHandler({ data, id }) {
 export function* getDataInitHandler() {
   try {
     const resp = yield all([
-      call(axios.get, `${root}/categories`),
-      call(axios.get, `${root}/subjects`),
-      call(axios.get, `${root}/classes`),
-      call(axios.get, `${root}/collections`),
+      call(axios.get, `${root}/categories?size=10000&sort=position.asc`),
+      call(axios.get, `${root}/subjects?size=10000&sort=position.asc`),
+      call(axios.get, `${root}/classes?size=10000&sort=position.asc`),
+      call(axios.get, `${root}/collections?size=10000&sort=position.asc`),
     ]);
     const categories = _.get(resp, '[0].data.data');
     const subjects = _.get(resp, '[1].data.data');
     const classes = _.get(resp, '[2].data.data');
     const collections = _.get(resp, '[3].data.data');
-    yield put(getDataInitSuccess({ categories, subjects, classes, collections }));
+    yield put(
+      getDataInitSuccess({ categories, subjects, classes, collections }),
+    );
   } catch (err) {
-  // yield put(editDocFailure(_.get(err, 'response.data.error', 'Unknown error from server')));
+    // yield put(editDocFailure(_.get(err, 'response.data.error', 'Unknown error from server')));
   }
 }
 

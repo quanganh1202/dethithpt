@@ -129,11 +129,11 @@ const Wrapper = styled.div`
     }
   }
   span.download-file-text {
-    color: blue;
-    text-decoration: underline;
+    color: #20a8d8;
     cursor: pointer;
     &:hover {
-      color: red;
+      color: #167495;
+      text-decoration: underline;
     }
   }
 
@@ -143,6 +143,12 @@ const Wrapper = styled.div`
   }
 }
 `;
+
+const numberWithCommas = (x) => {
+  var parts = x.toString().split(".");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return parts.join(".");
+}
 
 /* eslint-disable react/prefer-stateless-function */
 export class Documents extends React.PureComponent {
@@ -251,6 +257,13 @@ export class Documents extends React.PureComponent {
   }
 
   renderDocumentRow(docs) {
+    if (!docs || !_.get(docs, 'length', 0)) {
+      return (
+        <tr>
+          <td colSpan="18" style={{ textAlign: 'center' }}>Không tìm thấy bản ghi nào!</td>
+        </tr>
+      )
+    }
     return docs.map((item, idx) => (
       <tr key={item.id} className={this.state.selectedDocs.includes(item.id) ? 'select' : ''}>
         <th scope="row">{((this.state.currentPage - 1) * this.size) + idx + 1}</th>
@@ -268,16 +281,16 @@ export class Documents extends React.PureComponent {
         <td>{item.subjects && item.subjects.map((i) => <p key={i.subjectId}>{i.subjectName}</p>)}</td>
         <td>{item.classes && item.classes.map((i) => <p key={i.classId}>{i.className}</p>)}</td>
         <td>{item.yearSchools && item.yearSchools.map((i) => <p key={i}>{i}</p>)}</td>
-        <td>{item.price}</td>
-        <td>{item.totalPages}</td>
-        <td>{item.view}</td>
+        <td>{numberWithCommas(item.price || 0)}</td>
+        <td>{numberWithCommas(item.totalPages || 0)}</td>
+        <td>{numberWithCommas(item.downloaded || 0)}</td>
         <td>{item.comment}</td>
         <td>{moment(item.createdAt).format('DD/MM/YYYY')}</td>
         <td>{item.userEmail}</td>
         <td>{item.approved === 1
             ? <Badge style={{ fontSize: '11px' }} color="success">Đã duyệt</Badge>
             : <Badge style={{ fontSize: '11px' }} color="warning">Chưa duyệt</Badge>}</td>
-        <td>{item.description}</td>
+        <td>{item.note}</td>
         <td className="actions-col">
           <div>
             <button
@@ -305,7 +318,13 @@ export class Documents extends React.PureComponent {
           <div>
             <button
               style={{ float: 'left', padding: '0', marginRight: '5px' }}
-              onClick={() => this.props.approve([item.id])}
+              onClick={() => {
+                if (item.approved === 0) {
+                  this.props.approve([item.id])
+                } else {
+                  this.props.approve([], [item.id])
+                }
+              }}
               title="Xuất bản"
             >
               <i className="fa fa-newspaper-o fa-lg" aria-hidden="true"></i>
@@ -386,6 +405,7 @@ export class Documents extends React.PureComponent {
         name: this.state.keyword || '',
         size: this.size,
         offset: this.size * (page - 1),
+        sort: 'createdAt.desc',
       };
       if (sortField) {
         query.sort = `${sortField}.${sortBy}`;
@@ -441,10 +461,19 @@ export class Documents extends React.PureComponent {
   }
 
   handleMultiApprove() {
-    const valid = this.state.selectedDocs.filter((i) => {
-      return this.props.documents.find((d) => d.id === i).approved === 0;
+    const toApprove = [];
+    const toUnApprove = [];
+    this.state.selectedDocs.forEach((i) => {
+      const status = this.props.documents.find((d) => d.id === i).approved;
+      if (status === 1) {
+        toApprove.push(i);
+      } else {
+        toUnApprove.push(i);
+      }
     });
-    this.props.approve(valid);
+    if (toApprove.length || toUnApprove.length) {
+      this.props.approve(toApprove, toUnApprove);
+    }
   }
 
   onSelectFilter(e) {
@@ -799,8 +828,20 @@ export class Documents extends React.PureComponent {
                           sortField={this.state.sortField}
                           sortBy={this.state.sortBy}
                         >Giá</HeadSort>
-                        <th scope="col">Trang</th>
-                        <th scope="col">Lượt tải</th>
+                        <HeadSort
+                          scope="col"
+                          onClick={this.sort}
+                          data-field="totalPages"
+                          sortField={this.state.sortField}
+                          sortBy={this.state.sortBy}
+                        >Trang</HeadSort>
+                        <HeadSort
+                          scope="col"
+                          onClick={this.sort}
+                          data-field="downloaded"
+                          sortField={this.state.sortField}
+                          sortBy={this.state.sortBy}
+                        >Lượt tải</HeadSort>
                         <th scope="col">Bình luận</th>
                         <HeadSort
                           scope="col"
@@ -824,11 +865,9 @@ export class Documents extends React.PureComponent {
                       </tr>
                     </thead>
                     <tbody>
-                      {(this.props.documents.length)
-                        ? this.renderDocumentRow(this.props.documents)
-                        : (<tr style={{ textAlign: 'center' }}>
-                            <td colSpan="18">Không tìm thấy bản ghi nào!</td>
-                          </tr>)}
+                      {this.props.loading
+                        ? (<tr><td colSpan="18" style={{ textAlign: 'center' }}>Loading...</td></tr>)
+                        : this.renderDocumentRow(this.props.documents)}
                     </tbody>
                   </Table>
                   <PaginationTable
@@ -884,7 +923,7 @@ export class Documents extends React.PureComponent {
                         </tr>
                       )) : (
                         this.props.loading
-                          ? <tr><td colSpan="3">loading</td></tr>
+                          ? <tr><td colSpan="3">Loading...</td></tr>
                           : <tr><td colSpan="3">Không tìm thấy lượt tải nào</td></tr>
                       )}
                     </tbody>
@@ -906,7 +945,7 @@ Documents.propTypes = {
 export function mapDispatchToProps(dispatch) {
   return {
     getDocs: (query, additionalQuery) => dispatch(getDocs(query, additionalQuery)),
-    approve: (id) => dispatch(approveDocs(id)),
+    approve: (toApprove, toUnApprove) => dispatch(approveDocs(toApprove, toUnApprove)),
     deleteDoc: (id) => dispatch(deleteDoc(id)),
     updateDocs: (ids, data) => dispatch(updateDocs(ids, data)),
     clearDeleteStatus: () => dispatch(clearDeleteStatus()),

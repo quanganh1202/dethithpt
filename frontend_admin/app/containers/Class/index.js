@@ -26,11 +26,17 @@ import {
 } from 'reactstrap';
 import moment from 'moment';
 import styled from 'styled-components';
+import { PaginationTable } from 'components/Table';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
-import { getClasses, deleteClasses, clearProcessStatus } from './actions';
-import { makeSelectClasses, makeSelectLoading, makeSelectProcessStatus } from './selectors';
+import { getClasses, deleteClasses, clearProcessStatus, updateClasses } from './actions';
+import {
+  makeSelectClasses,
+  makeSelectTotalClass,
+  makeSelectLoading,
+  makeSelectProcessStatus,
+} from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 
@@ -45,30 +51,76 @@ export class Classes extends React.PureComponent {
   constructor() {
     super();
     this.state = {
+      currentPage: 1,
       selectedClasses: [],
+      classes: [],
+      changedClasses: [],
     };
+    this.size = 10;
+    this.maxPages = 11;
     this.handleSelectClasses = this.handleSelectClasses.bind(this);
+    this.handleSavePosition = this.handleSavePosition.bind(this);
+    this.handleChangePosition = this.handleChangePosition.bind(this);
+    this.onSelectPage = this.onSelectPage.bind(this);
   }
 
   componentWillMount() {
     // get classes
-    this.props.getClasses();
+    this.props.getClasses({
+      sort: 'position.asc',
+      offset: 0,
+      size: this.size,
+    });
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.processStatus && !this.props.processStatus) {
       this.setState({
         selectedClasses: [],
+        currentPage: 1,
       });
-      this.props.getClasses();
+      this.props.getClasses({
+        sort: 'position.asc',
+        offset: 0,
+        size: this.size,
+      });
       this.props.clearProcessStatus();
+    }
+    if (!_.isEqual(nextProps.classes, this.props.classes)) {
+      this.setState({
+        classes: nextProps.classes,
+      });
+    }
+  }
+
+  componentWillUnmount() {
+    this.props.clearProcessStatus(true);
+  }
+
+  onSelectPage(page) {
+    if (this.state.currentPage !== page) {
+      this.setState({
+        currentPage: page,
+      });
+      this.props.getClasses({
+        sort: 'position.asc',
+        offset: this.size * (page - 1),
+        size: this.size,
+      });
     }
   }
 
   renderClassRow(classes) {
+    if (!classes || !_.get(classes, 'length', 0)) {
+      return (
+        <tr>
+          <td colSpan="9" style={{ textAlign: 'center' }}>Không tìm thấy bản ghi nào!</td>
+        </tr>
+      )
+    }
     return classes.map((item, idx) => (
       <tr key={item.id}>
-        <th scope="row">{idx + 1}</th>
+        <th scope="row">{((this.state.currentPage - 1) * this.size) + idx + 1}</th>
         <td>
           <input
             type="checkbox"
@@ -85,8 +137,16 @@ export class Classes extends React.PureComponent {
         <td>{item.userEmail}</td>
         <td>{moment(item.createdAt).format('DD/MM/YYYY')}</td>
         <td>{item.view}</td>
-        <td>{}</td>
-        <td>{}</td>
+        <td>{item.numDocRefs}</td>
+        <td>
+          <input
+            style={{ border: '1px solid #ccc', maxWidth: '50px'}}
+            type="number"
+            name={`position-item-${item.id}-${idx}`}
+            value={item.position}
+            onChange={this.handleChangePosition}
+          />
+        </td>
       </tr>
     ));
   }
@@ -104,6 +164,28 @@ export class Classes extends React.PureComponent {
           : this.state.selectedClasses.filter((i) => i !== value),
       });
     }
+  }
+
+  handleSavePosition() {
+    if (this.state.changedClasses.length) {
+      const updatedClasses = this.state.classes
+        .filter((item) => this.state.changedClasses.includes(item.id))
+        .map((item) => ({ id: item.id, position: parseInt(item.position) }))
+      this.props.updateClasses(updatedClasses);
+    }
+  }
+
+  handleChangePosition(e) {
+    const { name, value } = e.currentTarget;
+    const field = name.split('-')[0];
+    const item = name.split('-')[2];
+    const index = name.split('-')[3];
+    const classes = _.cloneDeep(this.state.classes);
+    classes[index] = { ...this.state.classes[index], [field]: value };
+    this.setState({
+      classes,
+      changedClasses: _.uniq([ ...this.state.changedClasses, item ]),
+    })
   }
 
   render() {
@@ -140,7 +222,7 @@ export class Classes extends React.PureComponent {
                       block
                       color="warning"
                       size="sm"
-                      onClick={() => {}}
+                      onClick={this.handleSavePosition}
                       style={{ color: 'white' }}
                     >Sắp xếp</Button>
                   </div>
@@ -176,8 +258,19 @@ export class Classes extends React.PureComponent {
                         <th scope="col">Vị trí</th>
                       </tr>
                     </thead>
-                    <tbody>{this.renderClassRow(this.props.classes)}</tbody>
+                    <tbody>
+                      {this.props.loading
+                        ? (<tr><td colSpan="9" style={{ textAlign: 'center' }}>Loading...</td></tr>)
+                        : this.renderClassRow(this.state.classes)}
+                    </tbody>
                   </Table>
+                  <PaginationTable
+                    maxPages={this.maxPages}
+                    total={this.props.total}
+                    currentPage={this.state.currentPage}
+                    size={this.size}
+                    onClick={this.onSelectPage}
+                  />
                 </CardBody>
               </Card>
             </Col>
@@ -194,14 +287,16 @@ Classes.propTypes = {
 
 export function mapDispatchToProps(dispatch) {
   return {
-    getClasses: () => dispatch(getClasses()),
+    getClasses: (queries) => dispatch(getClasses(queries)),
     deleteClasses: (id) => dispatch(deleteClasses(id)),
-    clearProcessStatus: () => dispatch(clearProcessStatus()),
+    clearProcessStatus: (all) => dispatch(clearProcessStatus(all)),
+    updateClasses: (classes) => dispatch(updateClasses(classes)),
   };
 }
 
 const mapStateToProps = createStructuredSelector({
   classes: makeSelectClasses(),
+  total: makeSelectTotalClass(),
   loading: makeSelectLoading(),
   processStatus: makeSelectProcessStatus(),
 });

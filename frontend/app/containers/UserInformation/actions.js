@@ -23,10 +23,13 @@ export function getUserDetails(id) {
  *
  * @return {object}    An action object with a type of GET_USER_DETAILS.SUCCESS
  */
-export function getUserDetailsSuccess(user) {
+export function getUserDetailsSuccess({ user, history, upload, download }) {
   return {
     type: GET_USER_DETAILS.SUCCESS,
     user,
+    history,
+    upload,
+    download,
   };
 }
 

@@ -76,10 +76,10 @@ class App extends React.Component {
       <ThemeProvider theme={theme}>
         <AppWrapper>
           <Helmet
-            titleTemplate="%s - DethiTHPT"
-            defaultTitle="DethiTHPT"
+            titleTemplate="%s - Tailieudoc.vn"
+            defaultTitle="Tailieudoc.vn"
           >
-            <meta name="description" content="DethiTHPT" />
+            <meta name="description" content="Tailieudoc.vn" />
           </Helmet>
           <Header push={this.props.history.push} user={user} />
           <Switch>

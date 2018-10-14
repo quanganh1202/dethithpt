@@ -65,6 +65,10 @@ export class SubjectCreate extends React.PureComponent {
     this.props.clearMessage();
   }
 
+  componentWillUnmount() {
+    this.props.clearMessage();
+  }
+
   onChange(e) {
     const { name, value } = e.currentTarget
     this.setState({ formData: { ...this.state.formData, [name]: value } })

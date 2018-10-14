@@ -18,9 +18,17 @@ import { faMoneyBillAlt } from '@fortawesome/free-regular-svg-icons';
 import _ from 'lodash';
 import moment from 'moment';
 import FileSaver from 'file-saver';
+import { Link } from 'react-router-dom';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
+import {
+  requestDownload,
+  removeFileSave,
+  removeMessage,
+  getPreview,
+  previewDoc,
+} from 'containers/HomePage/actions';
 import Tab from 'components/Tab';
 import List from 'components/List';
 import ListItem from 'components/ListItem';
@@ -28,7 +36,6 @@ import PopUp from 'components/PopUp';
 import LoadingIndicator from 'components/LoadingIndicator';
 import downloading from 'images/download.gif';
 import { getDocumentDetails, getDocumentsList } from './actions';
-import { requestDownload, removeFileSave, removeMessage } from 'containers/HomePage/actions';
 import {
   makeSelectDocument,
   makeSelectLoading,
@@ -96,8 +103,14 @@ export class DocumentDetails extends React.PureComponent {
     }
     if (!this.props.file && nextProps.file) {
       const blob = new Blob([nextProps.file]);
-      FileSaver.saveAs(blob, _.get(this.props, 'document.name', 'download'));
+      FileSaver.saveAs(
+        blob,
+        `${_.get(this.props, 'document.name', 'download')}.${
+          _.get(this.props, 'document.path', 'name.doc').split('.')[1]
+        }`,
+      );
       this.props.removeFileSave();
+      this.setState({ loading: false });
     }
   }
 
@@ -114,10 +127,6 @@ export class DocumentDetails extends React.PureComponent {
   }
 
   handleDownloadFile() {
-    setTimeout(() => {
-      this.setState({ loading: false });
-    }, 5000);
-
     this.setState({ loading: true });
     this.props.requestDownload(this.props.match.params.id);
   }
@@ -131,17 +140,20 @@ export class DocumentDetails extends React.PureComponent {
     return (
       <Wrapper>
         <Helmet>
-          <title>Tài liệu</title>
+          <title>Tài liệu {` ${_.get(document, 'name')}`}</title>
           <meta name="description" content="Description of UploadDocument" />
         </Helmet>
         <Tab
           key="chi-tiet-tai-lieu"
           style={{ background: 'white' }}
-          title={'Đề thi thử THPT Quốc Gia'}
+          title={`Tài liệu: ${_.get(document, 'name')}`}
           className="doc-details"
           content={
-            this.props.loading ? (
-              <LoadingIndicator />
+            this.props.loading || this.state.loading ? (
+              <div className="data-loading">
+                Vui lòng chờ xử lý...
+                <LoadingIndicator />
+              </div>
             ) : (
             !_.isEmpty(document) ? (
             <div style={{ padding: "0px 20px 10px" }}>
@@ -154,7 +166,7 @@ export class DocumentDetails extends React.PureComponent {
               <div className="doc-category">
                 <ul>
                 {_.get(document, 'cates', []).map((i) => <li key={i.cateId}>
-                  {i.cateName}
+                  <Link to={`/danh-muc/${i.cateId}`}>{i.cateName}</Link>
                 </li>)}
                 {_.get(document, 'subjects', []).map((i) => <li key={i.subjectId}>
                   {i.subjectName.includes('Môn') ? i.subjectName : `Môn ${i.subjectName}`}
@@ -165,7 +177,7 @@ export class DocumentDetails extends React.PureComponent {
                 {_.get(document, 'yearSchools', []).map((i) => <li key={i}>{i}</li>)}
                 {_.get(document, 'collections', []).map((i) => <li key={i.collectionId}>
                   <FontAwesomeIcon className={'specific-icon'} icon={['far', 'folder-open']} />
-                  {i.collectionName}
+                  <Link to={`/bo-suu-tap/${i.collectionId}`}>{i.collectionName}</Link>
                 </li>)}
                 </ul>
               </div>
@@ -206,14 +218,26 @@ export class DocumentDetails extends React.PureComponent {
             </GreyTitle>
           }
           content={
-            <div>
-              <List
-                items={this.props.documents.data}
-                component={ListItem}
-                loadMore={this.props.documents.data.length < this.props.documents.total}
-                onLoadMore={this.loadMoreDocs}
-              />
-            </div>
+            this.props.loading
+              ? <LoadingIndicator />
+              : (<div>
+                {this.state.downloadingFile
+              ? <div className="data-loading">Vui lòng chờ xử lý...<LoadingIndicator /></div> : null}
+                <List
+                  items={this.props.documents.data}
+                  component={ListItem}
+                  loadMore={this.props.documents.data.length < this.props.documents.total}
+                  onLoadMore={this.loadMoreDocs}
+                  onDownload={(id, name) => {
+                    this.setState({ downloadingFile: name });
+                    this.props.requestDownload(id);
+                  }}
+                  onPreview={doc => {
+                    this.props.previewDoc(doc);
+                    this.props.getPreview(doc.id);
+                  }}
+                />
+              </div>)
           }
         />
         <PopUp
@@ -228,16 +252,16 @@ export class DocumentDetails extends React.PureComponent {
               </div>
               {
                 _.get(document, 'images', [])
-                  .map((imgData, index) => 
+                  .map((imgData, index) =>
                     <div key={`preview-${index}`} ><img
-                      src={`data:image/png;base64,${imgData}`} 
+                      src={`data:image/png;base64,${imgData}`}
                       alt="preview"
                     /></div>)
               }
             </div>
           }
         />
-      </Wrapper> 
+      </Wrapper>
     );
   }
 }
@@ -258,6 +282,9 @@ export function mapDispatchToProps(dispatch) {
     requestDownload: (id) => dispatch(requestDownload(id)),
     removeFileSave: () => dispatch(removeFileSave()),
     removeMessage: () => dispatch(removeMessage()),
+    updateQuery: query => dispatch(updateQuery(query)),
+    previewDoc: doc => dispatch(previewDoc(doc)),
+    getPreview: id => dispatch(getPreview(id)),
   };
 }
 

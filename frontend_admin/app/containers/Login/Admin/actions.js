@@ -2,14 +2,7 @@ import {
   LOGIN_REQUEST,
   LOGIN_SUCCESS,
   LOGIN_FAILURE,
-  UPDATE_USER_INFO_REQUEST,
-  UPDATE_USER_INFO_SUCCESS,
-  GET_DOC_LIST_REQUEST,
-  GET_DOC_LIST_SUCCESS,
-  GET_CATE_LIST_REQUEST,
-  GET_CATE_LIST_SUCCESS,
-  GET_COLLECTION_LIST_REQUEST,
-  GET_COLLECTION_LIST_SUCCESS,
+  CLEAR_MESSAGE,
 } from './constants';
 
 /**
@@ -51,5 +44,18 @@ export function loginFailure(err) {
   return {
     type: LOGIN_FAILURE,
     err,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} err from login
+ *
+ * @return {object}    An action object with a type of CLEAR_MESSAGE
+ */
+export function clearMessage() {
+  return {
+    type: CLEAR_MESSAGE,
   };
 }

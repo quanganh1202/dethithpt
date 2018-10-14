@@ -6,11 +6,11 @@ import _ from 'lodash';
 import { push } from 'react-router-redux';
 import { getToken } from 'services/auth';
 import { call, put, takeLatest } from 'redux-saga/effects';
-import request from 'utils/request';
-import { CREATE_NEWS } from './constants';
+import { CREATE_NEWS, GET_NEWS } from './constants';
 import {
   createNewsSuccess,
   createNewsFailure,
+  getNewsSuccess,
 } from './actions';
 
 const root = '/api';
@@ -35,8 +35,31 @@ export function* createNewsHandler({ data, module }) {
 }
 
 /**
+ * Request get news list
+ */
+export function* getNewsHandler({ query }) {
+  const url = `${root}/news`;
+  const options = {
+    params: {
+      ...query,
+    },
+    headers: {
+      ['x-access-token']: getToken(),
+    },
+  };
+
+  try {
+    const resp = yield call(axios.get, url, options);
+    yield put(getNewsSuccess(resp.data.data));
+  } catch (err) {
+    // yield put(loginFailure(err));
+  }
+}
+
+/**
  * Root saga manages watcher lifecycle
  */
 export default function* subjectCreateSaga() {
   yield takeLatest(CREATE_NEWS.REQUEST, createNewsHandler);
+  yield takeLatest(GET_NEWS.REQUEST, getNewsHandler);
 }

@@ -26,14 +26,16 @@ import {
 } from 'reactstrap';
 import moment from 'moment';
 import styled from 'styled-components';
+import { PaginationTable } from 'components/Table';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
-import { getCategories, deleteCates, clearProcessStatus } from './actions';
+import { getCategories, deleteCates, clearProcessStatus, updateCategories } from './actions';
 import {
   makeSelectCategories,
   makeSelectLoading,
   makeSelectProcessStatus,
+  makeSelectTotalCate,
 } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
@@ -49,30 +51,76 @@ export class Category extends React.PureComponent {
   constructor() {
     super();
     this.state = {
+      currentPage: 1,
       selectedCates: [],
+      categories: [],
+      changedCategories: [],
     };
+    this.size = 10;
+    this.maxPages = 11;
     this.handleSelectCate = this.handleSelectCate.bind(this);
+    this.handleSavePosition = this.handleSavePosition.bind(this);
+    this.handleChangePosition = this.handleChangePosition.bind(this);
+    this.onSelectPage = this.onSelectPage.bind(this);
   }
 
   componentWillMount() {
     // get categories
-    this.props.getCategories();
+    this.props.getCategories({
+      sort: 'position.asc',
+      offset: 0,
+      size: this.size,
+    });
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.processStatus && !this.props.processStatus) {
       this.setState({
         selectedCates: [],
+        currentPage: 1,
       });
-      this.props.getCategories();
+      this.props.getCategories({
+        sort: 'position.asc',
+        offset: 0,
+        size: this.size,
+      });
       this.props.clearProcessStatus();
+    }
+    if (!_.isEqual(nextProps.categories, this.props.categories)) {
+      this.setState({
+        categories: nextProps.categories,
+      });
+    }
+  }
+
+  componentWillUnmount() {
+    this.props.clearProcessStatus(true);
+  }
+
+  onSelectPage(page) {
+    if (this.state.currentPage !== page) {
+      this.setState({
+        currentPage: page,
+      });
+      this.props.getCategories({
+        sort: 'position.asc',
+        offset: this.size * (page - 1),
+        size: this.size,
+      });
     }
   }
 
   renderCategoryRow(categories) {
+    if (!categories || !_.get(categories, 'length', 0)) {
+      return (
+        <tr>
+          <td colSpan="10" style={{ textAlign: 'center' }}>Không tìm thấy bản ghi nào!</td>
+        </tr>
+      )
+    }
     return categories.map((cate, idx) => (
       <tr key={cate.id}>
-        <th scope="row">{idx + 1}</th>
+        <th scope="row">{((this.state.currentPage - 1) * this.size) + idx + 1}</th>
         <td>
           <input
             type="checkbox"
@@ -88,7 +136,15 @@ export class Category extends React.PureComponent {
         <td>{cate.numOfCollections}</td>
         <td>{cate.numDocRefs}</td>
         <td>{cate.view}</td>
-        <td></td>
+        <td>
+          <input
+            style={{ border: '1px solid #ccc', maxWidth: '50px'}}
+            type="number"
+            name={`position-item-${cate.id}-${idx}`}
+            value={cate.position}
+            onChange={this.handleChangePosition}
+          />
+        </td>
         <td>{moment(cate.createdAt).format('DD/MM/YYYY')}</td>
       </tr>
     ));
@@ -107,6 +163,28 @@ export class Category extends React.PureComponent {
           : this.state.selectedCates.filter((i) => i !== value),
       });
     }
+  }
+
+  handleSavePosition() {
+    if (this.state.changedCategories.length) {
+      const updatedCates = this.state.categories
+        .filter((item) => this.state.changedCategories.includes(item.id))
+        .map((item) => ({ id: item.id, position: parseInt(item.position) }))
+      this.props.updateCategories(updatedCates);
+    }
+  }
+
+  handleChangePosition(e) {
+    const { name, value } = e.currentTarget;
+    const field = name.split('-')[0];
+    const item = name.split('-')[2];
+    const index = name.split('-')[3];
+    const categories = _.cloneDeep(this.state.categories);
+    categories[index] = { ...this.state.categories[index], [field]: value };
+    this.setState({
+      categories,
+      changedCategories: _.uniq([ ...this.state.changedCategories, item ]),
+    })
   }
 
   render() {
@@ -139,7 +217,7 @@ export class Category extends React.PureComponent {
                       block
                       color="warning"
                       size="sm"
-                      onClick={() => {}}
+                      onClick={this.handleSavePosition}
                       style={{ color: 'white' }}
                     >Sắp xếp</Button>
                   </div>
@@ -177,9 +255,18 @@ export class Category extends React.PureComponent {
                       </tr>
                     </thead>
                     <tbody>
-                      {this.renderCategoryRow(this.props.categories)}
+                      {this.props.loading
+                        ? (<tr><td colSpan="10" style={{ textAlign: 'center' }}>Loading...</td></tr>)
+                        : this.renderCategoryRow(this.state.categories)}
                     </tbody>
                   </Table>
+                  <PaginationTable
+                    maxPages={this.maxPages}
+                    total={this.props.total}
+                    currentPage={this.state.currentPage}
+                    size={this.size}
+                    onClick={this.onSelectPage}
+                  />
                 </CardBody>
               </Card>
             </Col>
@@ -196,14 +283,16 @@ Category.propTypes = {
 
 export function mapDispatchToProps(dispatch) {
   return {
-    getCategories: () => dispatch(getCategories()),
+    getCategories: (queries) => dispatch(getCategories(queries)),
     deleteCates: (id) => dispatch(deleteCates(id)),
-    clearProcessStatus: () => dispatch(clearProcessStatus()),
+    clearProcessStatus: (all) => dispatch(clearProcessStatus(all)),
+    updateCategories: (cates) => dispatch(updateCategories(cates)),
   };
 }
 
 const mapStateToProps = createStructuredSelector({
   categories: makeSelectCategories(),
+  total: makeSelectTotalCate(),
   loading: makeSelectLoading(),
   processStatus: makeSelectProcessStatus(),
 });

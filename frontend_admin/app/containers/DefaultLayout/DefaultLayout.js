@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
-import { Container } from 'reactstrap';
 
 import {
   AppAside,
-  AppBreadcrumb,
   AppFooter,
   AppHeader,
   AppSidebar,
@@ -35,8 +33,6 @@ import ClassEdit from 'containers/ClassEdit/Loadable';
 import Subject from 'containers/Subject/Loadable';
 import SubjectCreate from 'containers/SubjectCreate/Loadable';
 import SubjectEdit from 'containers/SubjectEdit/Loadable';
-// import School from 'containers/School/Loadable';
-// import SchoolCreate from 'containers/SchoolCreate/Loadable';
 import Collection from 'containers/Collection/Loadable';
 import CollectionCreate from 'containers/CollectionCreate/Loadable';
 import CollectionEdit from 'containers/CollectionEdit/Loadable';
@@ -61,16 +57,7 @@ class DefaultLayout extends Component {
             <AppSidebarMinimizer />
           </AppSidebar>
           <main className="main">
-            {/* <AppBreadcrumb appRoutes={routes}/> */}
             <Switch>
-              {/* {routes.map((route, idx) => {
-                  return route.component ? (<Route key={idx} path={route.path} exact={route.exact} name={route.name} render={props => (
-                      <route.component {...props} />
-                    )} />)
-                    : (null);
-                },
-              )} */}
-              {/* <Route path="/" exact name="Home" component={() => <div>abc</div>} /> */}
               <Route path="/dashboard" exact name="Dashboard" component={() => <div>Dashboard</div>} />
               <Route path="/users" exact name="User" component={User} />
               <Route path="/users/:id" exact name="Edit user" component={UserEdit} />
@@ -85,14 +72,15 @@ class DefaultLayout extends Component {
               <Route path="/subjects" exact name="Subject" component={Subject} />
               <Route path="/subjects/create" exact name="Create subject" component={SubjectCreate} />
               <Route path="/subjects/:id" exact name="Edit subject" component={SubjectEdit} />
-              {/* <Route path="/schools" exact name="School" component={School} />
-              <Route path="/schools/create" exact name="Create school" component={SchoolCreate} /> */}
               <Route path="/collections" exact name="Collection" component={Collection} />
               <Route path="/collections/create" exact name="Create collection" component={CollectionCreate} />
               <Route path="/collections/:id" exact name="Edit collection" component={CollectionEdit} />
               <Route path="/modules/news" exact name="News" component={News} />
               <Route path="/modules/news/create" exact name="Create news" component={NewsCreate} />
               <Route path="/modules/news/:id" exact name="Edit news" component={NewsEdit} />
+              <Route path="/modules/general" exact name="General" component={News} />
+              <Route path="/modules/general/create" exact name="Create general" component={NewsCreate} />
+              <Route path="/modules/general/:id" exact name="Edit general" component={NewsEdit} />
               <Redirect from="/" to="/dashboard" />
             </Switch>
           </main>

@@ -33,7 +33,7 @@ import LoadingIndicator from 'components/LoadingIndicator';
 import _ from 'lodash';
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
-import { updateNews, clearMessage, getNewsDetail } from './actions';
+import { updateNews, clearMessage, clearData, getNewsDetail } from './actions';
 import {
   makeSelectMessage,
   makeSelectLoading,
@@ -42,6 +42,10 @@ import {
 import reducer from './reducer';
 import saga from './saga';
 import Wrapper from './Wrapper';
+
+const acceptedPosition = [
+  'Nội quy',
+];
 
 /* eslint-disable react/prefer-stateless-function */
 export class NewsEdit extends React.PureComponent {
@@ -86,6 +90,11 @@ export class NewsEdit extends React.PureComponent {
         originData: newData,
       });
     }
+  }
+
+  componentWillUnmount() {
+    this.props.clearMessage();
+    this.props.clearData();
   }
 
   resetForm() {
@@ -172,6 +181,29 @@ export class NewsEdit extends React.PureComponent {
                           </FormGroup>
                         </Col>
                       </Row>
+                      {this.module === 'general' && (
+                        <Row>
+                          <Col xs="12">
+                            <FormGroup>
+                              <Label htmlFor="name">Vị trí</Label>
+                              <Input
+                                type="select"
+                                id="position"
+                                name="position"
+                                required
+                                onChange={this.onChange}
+                                value={this.state.formData.position}
+                                className={this.state.error.position && 'is-invalid'}
+                                disabled
+                              >
+                                <option value="0">Chọn vị trí</option>
+                                {acceptedPosition.map((i, idx) => <option key={idx} value="1">{i}</option>)}
+                              </Input>
+                              <div className="invalid-feedback">{this.state.error.position}</div>
+                            </FormGroup>
+                          </Col>
+                        </Row>
+                      )}
                       <Row>
                         <Col xs="12">
                           <FormGroup>
@@ -226,6 +258,7 @@ export function mapDispatchToProps(dispatch) {
   return {
     updateNews: (id, data, module) => dispatch(updateNews(id, data, module)),
     clearMessage: () => dispatch(clearMessage()),
+    clearData: () => dispatch(clearData()),
     getNewsDetail: (id) => dispatch(getNewsDetail(id)),
   };
 }

@@ -32,6 +32,10 @@ import {
   REMOVE_MESSAGE,
   GET_NEWS,
   QUERY_DATA,
+  PREVIEW_DOC,
+  PREVIEW_CLOSE,
+  GET_PREVIEW,
+  CLOSE_POPUP_COLLECTION,
 } from './constants';
 
 // The initial state of the App
@@ -45,11 +49,15 @@ export const initialState = fromJS({
   },
   categories: [],
   collections: [],
+  allCollections: null,
+  totalCollection: 0,
   tags: [],
   file: null,
   message: '',
   news: [],
   token: '',
+  docPreview: {},
+  isPreview: false,
 });
 
 function homeReducer(state = initialState, action) {
@@ -115,10 +123,18 @@ function homeReducer(state = initialState, action) {
         .set('categories', fromJS(action.categories));
     case GET_COLLECTION_LIST_REQUEST:
       return state.set('loading', true).set('queryCollection', action.queryCollection);
-    case GET_COLLECTION_LIST_SUCCESS:
+    case GET_COLLECTION_LIST_SUCCESS: {
+      if (action.getAll) {
+        return state
+          .set('loading', false)
+          .set('totalCollection', action.total)
+          .set('allCollections', fromJS(action.collections));
+      }
       return state
         .set('loading', false)
+        .set('totalCollection', action.total)
         .set('collections', fromJS(action.collections));
+    }
     case GET_TAGS_REQUEST:
       return state.set('loading', true);
     case GET_TAGS_SUCCESS:
@@ -145,6 +161,18 @@ function homeReducer(state = initialState, action) {
       return state.set('message', '');
     case QUERY_DATA:
       return state.set('queryCollection', action.queryCollection);
+    case PREVIEW_DOC:
+      return state.set('docPreview', action.doc).set('isPreview', true);
+    case PREVIEW_CLOSE:
+      return state.set('isPreview', false);
+    case GET_PREVIEW.REQUEST:
+      return state.set('loading', true);
+    case GET_PREVIEW.SUCCESS:
+      return state.set('loading', false).set('images', action.images);
+    case GET_PREVIEW.FAILURE:
+      return state.set('loading', false).set('message', action.error);
+    case CLOSE_POPUP_COLLECTION:
+      return state.set('allCollections', null)
     default:
       return state;
   }

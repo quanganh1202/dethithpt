@@ -31,15 +31,13 @@ const mappingIconType = (type) => {
       return wordIcon;
     case 'pdf':
       return pdfIcon;
-    case 'rar':
+    default:
       return winrarIcon;
-    default: 
-      return documentIcon;
   }
 }
 
 function ListItem(props) {
-  const documentType = props.item.name.split('.').pop();
+  const documentType = props.item.path.split('.').pop();
   return (
     <Wrapper>
       <div className="doc-title">
@@ -49,17 +47,20 @@ function ListItem(props) {
         <span>
           <Link to={`/tai-lieu/${props.item.id}`}>{props.item.name || 'Đề thi THPT quốc gia chính thức - 2016 - Môn Địa lí - Bộ Giáo dục'}</Link>
         </span>
-        <span className="document-action-icon" onClick={() => props.onPreview(props.item.id)} title="Xem thử tài liệu">
+        <span className="document-action-icon" onClick={() => props.onPreview(props.item)} title="Xem thử tài liệu">
           <FontAwesomeIcon className={'title-icon'} icon={['far', 'eye']} />
         </span>
-        <span className="document-action-icon" onClick={() => props.onDownload(props.item.id, props.item.name)} title="Tải tài liệu">
+        <span className="document-action-icon" onClick={() => props.onDownload(props.item.id,
+          `${_.get(props, 'item.name', 'download')}.${
+          _.get(props, 'item.path', 'name.doc').split('.')[1]
+        }`)} title="Tải tài liệu">
           <FontAwesomeIcon className={'title-icon'} icon={['fas', 'download']} />
         </span>
       </div>
       <div className="doc-category">
         <ul>
           {_.get(props.item, 'cates', []).map((i) => <li key={i.cateId}>
-            {i.cateName}
+            <Link to={`/danh-muc/${i.cateId}`}>{i.cateName}</Link>
           </li>)}
           {_.get(props.item, 'subjects', []).map((i) => <li key={i.subjectId}>
             {i.subjectName.includes('Môn') ? i.subjectName : `Môn ${i.subjectName}`}
@@ -70,7 +71,7 @@ function ListItem(props) {
           {_.get(props.item, 'yearSchools', []).map((i) => <li key={i}>{i}</li>)}
           {_.get(props.item, 'collections', []).map((i) => <li key={i.collectionId}>
             <FontAwesomeIcon className={'specific-icon'} icon={['far', 'folder-open']} />
-            {i.collectionName}
+            <Link to={`/bo-suu-tap/${i.collectionId}`}>{i.collectionName}</Link>
           </li>)}
         </ul>
       </div>
@@ -86,7 +87,7 @@ function ListItem(props) {
           </p>
           <p>
             <FontAwesomeIcon className={'info-icon'} icon={['fas', 'eye']} />
-            {numberWithCommas((props.item.views || 0).toString())}
+            {props.item.view || 0}
           </p>
         </div>
         <div className="right-info">

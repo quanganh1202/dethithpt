@@ -55,7 +55,7 @@ function collectionCreateReducer(state = initialState, action) {
     case CLEAR_MESSAGE:
       return state.set('message', '');
     case CLEAR_DATA:
-      return state.set('collection', {});
+      return state.set('collection', fromJS({}));
     default:
       return state;
   }

@@ -3,6 +3,8 @@ import Dropzone from 'react-dropzone';
 import styled from 'styled-components';
 import Toggle from 'react-toggle';
 import { fromJS } from 'immutable';
+import { post, all } from 'axios';
+import { getToken } from 'services/auth';
 
 import DetailForm from './DetailForm';
 import UploadProgress from './UploadProgress';
@@ -214,8 +216,47 @@ class UploadPost extends React.Component {
 
   onSubmit(form) {
     delete form.name;
-    this.setState({
-      files: this.state.files.map(f => f.set('sendNow', form)),
+    const collectionIds = form.collectionIds.filter(t => t.__isNew__);
+    let promiseCreates = [];
+    if (collectionIds && collectionIds.length > 0) {
+      promiseCreates = collectionIds.map(({ value }) =>
+        post(
+          '/api/collections',
+          {
+            cateIds: form.cateIds.toString(),
+            classIds: form.classIds.toString(),
+            subjectIds: form.subjectIds.toString(),
+            yearSchools: form.yearSchools.toString(),
+            name: value,
+            description: value,
+          },
+          {
+            headers: {
+              'content-type': 'application/json;charset=UTF-8',
+              'x-access-token': getToken(),
+            },
+          },
+        ).then((res) => res, () => ({})),
+      );
+    }
+
+    return all(promiseCreates).then(response => {
+      let listNewCol = [];
+      response.map(t => {
+        if (t.data && t.data.message) {
+          listNewCol.push(t.data.message.split('insertId =')[1].trim());
+        }
+      });
+      const listOld = form.collectionIds.filter(t => !t.__isNew__);
+      
+      form.collectionIds = [
+        ...listNewCol.map(c => ({ value: c })),
+        ...listOld,
+      ];
+
+      this.setState({
+        files: this.state.files.map(f => f.set('sendNow', form)),
+      });
     });
   }
 
@@ -223,10 +264,11 @@ class UploadPost extends React.Component {
     return (
       <Wrapper>
         <div className="dropzone">
-          <Dropzone accept="image/jpeg, image/png, application/pdf, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/x-rar-compressed, application/zip" onDrop={this.onDrop.bind(this)}>
+          <Dropzone onDrop={this.onDrop.bind(this)}>
             <ButtonUpload>
               {this.state.files.count() > 0 ? 'Chọn thêm' : 'Chọn tệp'}
             </ButtonUpload>
+            <p>(Các tệp được chấp nhận: Doc, Docx, Rar, Zip, pdf)</p>
             <p>
               Chọn nút tải lên để chọn nhiều file từ máy tính của bạn hoặc kéo
               file thả vào đây

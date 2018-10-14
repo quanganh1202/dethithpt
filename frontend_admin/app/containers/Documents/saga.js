@@ -58,20 +58,28 @@ export function* getDocsHandler({ query }) {
 /**
  * Request approve document
  */
-export function* approveDocsHandler({ ids }) {
+export function* approveDocsHandler({ toApprove, toUnApprove }) {
   const options = {
     headers: {
       ['x-access-token']: getToken(),
     }
   }
-
   try {
-    yield all(ids.map((i) => {
-      const url = `${root}/documents/${i}/approve`;
-      return call(axios.post, url, {}, options);
-    }));
+    if (toApprove && toApprove.length) {
+      yield all(toApprove.map((i) => {
+        const url = `${root}/documents/${i}/approve/1`;
+        return call(axios.post, url, {}, options);
+      }));
+    }
+    if (toUnApprove && toUnApprove.length) {
+      yield all(toUnApprove.map((i) => {
+        const url = `${root}/documents/${i}/approve/0`;
+        return call(axios.post, url, {}, options);
+      }));
+    }
     yield put(approveDocsSuccess());
   } catch (err) {
+    console.log(err);
     // yield put(loginFailure(err));
   }
 }
@@ -128,10 +136,10 @@ export function* updateDocsHandler({ ids, data }) {
 export function* getDataInitHandler() {
   try {
     const resp = yield all([
-      call(axios.get, `${root}/categories`),
-      call(axios.get, `${root}/subjects`),
-      call(axios.get, `${root}/classes`),
-      call(axios.get, `${root}/collections`),
+      call(axios.get, `${root}/categories?size=10000&sort=position.asc`),
+      call(axios.get, `${root}/subjects?size=10000&sort=position.asc`),
+      call(axios.get, `${root}/classes?size=10000&sort=position.asc`),
+      call(axios.get, `${root}/collections?size=10000&sort=position.asc`),
     ]);
     const categories = _.get(resp, '[0].data.data');
     const subjects = _.get(resp, '[1].data.data');

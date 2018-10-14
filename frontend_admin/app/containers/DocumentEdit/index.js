@@ -44,7 +44,7 @@ import { faMoneyBillAlt } from '@fortawesome/free-regular-svg-icons';
 import Autosuggest from 'react-autosuggest';
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
-import { getDocDetail, clearMessage, editDoc, getDataInit } from './actions';
+import { getDocDetail, clearMessage, clearData, editDoc, getDataInit } from './actions';
 import {
   makeSelectMessage,
   makeSelectLoading,
@@ -57,8 +57,6 @@ import saga from './saga';
 import Wrapper from './Wrapper';
 
 library.add(faMoneyBillAlt, faFolder, faCog, faCloudDownloadAlt, faCaretDown);
-
-const dataInit = {};
 
 /* eslint-disable react/prefer-stateless-function */
 export class DocumentEdit extends React.PureComponent {
@@ -96,14 +94,18 @@ export class DocumentEdit extends React.PureComponent {
         formData,
       });
     }
+    if (!this.props.error && nextProps.error) {
+      window.scrollTo(0, 0);
+    }
   }
 
   componentWillUnmount() {
     this.props.clearMessage();
+    this.props.clearData();
   }
 
   resetForm() {
-    this.setState({ formData: dataInit, error: {} });
+    this.setState({ formData: this.state.originData, error: {} });
     this.props.clearMessage();
   }
 
@@ -168,8 +170,8 @@ export class DocumentEdit extends React.PureComponent {
       description: data.description,
       name: data.name,
       price: data.price,
-      fileUpload: data.fileUpload,
     }
+    if (data.fileUpload) mapped.fileUpload = data.fileUpload;
     if (_.get(data, 'cates', []).length) mapped.cateIds = data.cates.map((i) => i.value).join(',');
     if (_.get(data, 'classes', []).length) mapped.classIds = data.classes.map((i) => i.value).join(',');
     if (_.get(data, 'collections', []).length) mapped.collectionIds = data.collections.map((i) => i.value).join(',');
@@ -237,7 +239,7 @@ export class DocumentEdit extends React.PureComponent {
     const AlertComponent = (
       <Alert
         color={this.props.message ? "info" : "danger"}
-        isOpen={message}
+        isOpen={!!message}
         toggle={() => this.props.clearMessage()}
       >
         {message}
@@ -276,15 +278,15 @@ export class DocumentEdit extends React.PureComponent {
                               rows={6}
                               type="textarea"
                               id="note"
-                              name="description"
+                              name="note"
                               onChange={this.onChange}
-                              value={this.state.formData.description || ''}
+                              value={this.state.formData.note || ''}
                               className={
-                                this.state.error.description && 'is-invalid'
+                                this.state.error.note && 'is-invalid'
                               }
                             />
                             <div className="invalid-feedback">
-                              {this.state.error.description}
+                              {this.state.error.note}
                             </div>
                           </Col>
                         </FormGroup>
@@ -574,6 +576,7 @@ export function mapDispatchToProps(dispatch) {
     getDocDetail: (id) => dispatch(getDocDetail(id)),
     editDoc: (data, id) => dispatch(editDoc(data, id)),
     clearMessage: () => dispatch(clearMessage()),
+    clearData: () => dispatch(clearData()),
     getDataInit: () => dispatch(getDataInit()),
   };
 }

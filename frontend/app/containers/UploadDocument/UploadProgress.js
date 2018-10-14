@@ -75,6 +75,13 @@ const Wrapper = styled.li`
   & .file-type-icon {
     height: 20px;
   }
+
+  & .input-name {
+    height: 30px;
+    padding: 0 10px;
+    width: 70%;
+    background: rgb(255, 255, 255);
+  }
 `;
 
 const DocType = props => {
@@ -95,23 +102,24 @@ const DocType = props => {
 };
 
 class UploadProgress extends React.Component {
-  constructor() {
+  constructor(props) {
     super();
-    this.state = { percent: 0 };
+    this.state = { percent: 0, name: props.file.name };
 
     this.fileUpload = this.fileUpload.bind(this);
+    this.handleChangeName = this.handleChangeName.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
     if (!this.props.sendNow && nextProps.sendNow && !this.state.successId) {
       this.fileUpload({
-        name: this.props.file.name,
+        name: this.state.name,
         ...nextProps.sendNow,
-      });
+      }, true);
     }
   }
 
-  fileUpload(form) {
+  fileUpload(form, ignore = false) {
     const { file } = this.props;
     const url = '/api/documents';
     const formData = new FormData();
@@ -144,13 +152,10 @@ class UploadProgress extends React.Component {
           });
         });
     }
-    const listCollectionCreate = _.pullAll(
-      form.collectionIds,
-      this.props.collections.map(c => c.id),
-    );
+
     const collectionIds = form.collectionIds.filter(t => t.__isNew__);
     let promiseCreates = [];
-    if (collectionIds && collectionIds.length > 0) {
+    if (!ignore && collectionIds && collectionIds.length > 0) {
       promiseCreates = collectionIds.map(({ value }) =>
         post(
           '/api/collections',
@@ -168,13 +173,16 @@ class UploadProgress extends React.Component {
               'x-access-token': getToken(),
             },
           },
-        ),
+        ).then((res) => res, () => ({})),
       );
     }
     return all(promiseCreates).then(response => {
-      const listNewCol = response.map(t =>
-        t.data.message.split('insertId =')[1].trim(),
-      );
+      let listNewCol = [];
+      response.map(t => {
+        if (t.data && t.data.message) {
+          listNewCol.push(t.data.message.split('insertId =')[1].trim());
+        }
+      });
       formData.set('collectionIds', [
         ...listNewCol,
         ...form.collectionIds.filter(t => !t.__isNew__).map(c => c.value),
@@ -193,6 +201,11 @@ class UploadProgress extends React.Component {
           });
         });
     });
+  }
+
+  handleChangeName(event) {
+    const { value } = event.target;
+    this.setState({ name: value });
   }
 
   handleCancel() {}
@@ -234,7 +247,19 @@ class UploadProgress extends React.Component {
             </label>
           ) : null}
           <span>
-            <DocType type={file.type} /> {file.name} -{' '}
+            <DocType type={file.type} />{' '}
+            {add2All && !successId && showSelected ? (
+              <input
+                className="form-control input-name"
+                name="name"
+                value={this.state.name}
+                onChange={this.handleChangeName}
+                required
+              />
+            ) : (
+              file.name
+            )}
+            {' - '}
             {(file.size / 1048576).toFixed(3)} MB
           </span>
           {successId ? (

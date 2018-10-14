@@ -14,6 +14,7 @@ import {
   LOGIN_SUCCESS,
   LOGIN_REQUEST,
   LOGIN_FAILURE,
+  CLEAR_MESSAGE,
 } from './constants';
 
 // The initial state of the App
@@ -29,7 +30,9 @@ function homeReducer(state = initialState, action) {
     case LOGIN_SUCCESS:
       return state.set('loading', false);
     case LOGIN_FAILURE:
-      return state.set('message', 'Error');
+      return state.set('message', action.err);
+    case CLEAR_MESSAGE:
+      return state.set('message', '');
     default:
       return state;
   }
