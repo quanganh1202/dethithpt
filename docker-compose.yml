@@ -6,8 +6,6 @@ services:
       - ./.env
     restart: always
     build: ./backend/api-query
-    # ports:
-    #  - "${API_QUERY_PORT}:${API_QUERY_PORT}"
     networks:
       - overlay
     depends_on:
@@ -22,8 +20,6 @@ services:
     restart: always
     env_file:
       - ./.env
-    # ports:
-    #   - "${API_COMMAND_PORT}:${API_COMMAND_PORT}"
     networks:
       - overlay
     depends_on:
@@ -38,21 +34,20 @@ services:
     restart: always
     env_file:
       - ./.env
-    # ports:
-    #   - "9300:9300"
-    #   - "9200:9200"
     networks:
       - overlay
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
 
   mysql:
     build: ./db/
     restart: always
-    # ports:
-    #   - "3306:3306"
     networks:
       - overlay
     env_file:
       - ./.env
+    volumes:
+      - sqldata:/var/lib/mysql
 
   adminer:
     image: adminer
@@ -69,10 +64,10 @@ services:
   rabbitmq:
     image: rabbitmq
     restart: always
-    # ports:
-    #   - "5672:5672"
     networks:
       - overlay
+    volumes:
+      - rabbitmqdata:/var/lib/rabbitmq
   
   frontend:
     build: .
@@ -93,3 +88,6 @@ networks:
 volumes:
   app-volume:
   tmp-volume:
+  esdata:
+  sqldata:
+  rabbitmqdata:
