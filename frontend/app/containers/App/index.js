@@ -17,6 +17,7 @@ import injectSaga from 'utils/injectSaga';
 import HomePage from 'containers/HomePage/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import UserInformation from 'containers/UserInformation/Loadable';
+import DocumentTest from 'containers/DocumentTest/Loadable';
 import Header from 'components/Header';
 import Footer from 'components/Footer';
 import { getUser } from 'services/auth';
@@ -85,6 +86,7 @@ class App extends React.Component {
           <Switch>
             <Route exact path="/404" component={NotFoundPage} />
             <Route exact path="/trang-ca-nhan" component={UserInformation} />
+            <Route exact path="/tai-lieu/:id/thi-thu/:testId" component={DocumentTest} />
             <Route path="/" component={HomePage} />
           </Switch>
           {/* <Footer /> */}

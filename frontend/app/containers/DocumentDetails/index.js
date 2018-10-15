@@ -189,6 +189,9 @@ export class DocumentDetails extends React.PureComponent {
                 <button className="btn-view" onClick={this.showPreview}>
                   <FontAwesomeIcon className={'title-icon'} icon={['far', 'eye']} /> Xem thử ({numberWithCommas((document.totalPages || 0).toString())} trang)
                 </button>
+                <button className="btn-view" onClick={() => this.props.history.push(`/tai-lieu/${this.props.match.params.id}/thi-thu/1000`)}>
+                  <FontAwesomeIcon className={'title-icon'} icon={['far', 'eye']} /> Thi thử
+                </button>
               </div>
               <div className="doc-action">
                 <button className="btn-report">Báo lỗi tài liệu</button>
