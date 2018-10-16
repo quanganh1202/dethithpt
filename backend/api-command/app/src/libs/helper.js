@@ -211,11 +211,21 @@ const preview = function getPreview(fileName, filePreview) {
 const pdf2Image = (pdf, image) => {
   return new Promise((resolve, reject) => {
     // gm('img.png').command('convert').in('+adjoin').quality(100).in(pdf).write(image, function(err) {
-    gm().command('convert').in('+adjoin').quality(100).flatten().density(96, 96).in(pdf).write(image, function(err) {
-      if(err) return reject(err);
+    gm()
+      .command('convert')
+      .in('+adjoin')
+      .quality(100)
+      .flatten()
+      .density(96, 96)
+      .in(pdf)
+      .fill('red')
+      .draw(['rotate 40 text 200,200 "TAILIEUDOC.VN"'])
+      .font('tahoma', 95)
+      .write(image, function(err) {
+        if(err) return reject(err);
 
-      return resolve();
-    });
+        return resolve();
+      });
   });
 };
 
