@@ -2,7 +2,7 @@ import { isUndefined } from 'util';
 import moment from 'moment';
 import ES from '../../elastic';
 import logger from '../libs/logger';
-import { filterParamsHandler, sortParamsHandler } from '../libs/esHelper';
+import { filterParamsHandler, sortParamsHandler, removeDocsRefToClass, updateDocsRefToClass } from '../libs/esHelper';
 const type = process.env.ES_TYPE_CLASS || 'class';
 const index = process.env.ES_INDEX_CLASS || 'classes';
 const elasticsearch = new ES(index, type);
@@ -107,6 +107,20 @@ export default {
       }
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.updatedAt = now;
+      if (body.name) {
+        // Update all docs ref to this collection
+        const filterBuilt = filterParamsHandler({
+          'classes.classId': classId,
+        });
+        const docES = new ES('documents', 'document');
+        const lsDoc = await docES.getList(filterBuilt.data);
+        // Process if have doc ref to this collection
+        if (lsDoc.total) {
+          const promise = [].concat(...updateDocsRefToClass(lsDoc.data, classId, body.name));
+          Promise.all(promise)
+            .catch(e => logger.error(`[QUERY][CLASS]: Update class at document fail ${e}`));
+        }
+      }
       const result = await elasticsearch.update(body, classId);
 
       return result;
@@ -124,6 +138,16 @@ export default {
         };
       }
       const result = await elasticsearch.remove(classId);
+      const docES = new ES('documents', 'document');
+      const filterBuilt = filterParamsHandler({
+        'classes.classId': classId,
+      });
+      const lsDoc = await docES.getList(filterBuilt.data);
+      if (lsDoc.total) {
+        const promise = [].concat(...removeDocsRefToClass(lsDoc.data, classId));
+        Promise.all(promise)
+          .catch(e => logger.error(`[QUERY][CLASS]: Remove class at document fail ${e}`));
+      }
 
       return result;
     } catch (error) {

@@ -209,7 +209,7 @@ async function uploadDocument(body, file) {
         message: 'Document created. But available after serveral minute',
       });
     } catch (ex) {
-      logger.error(ex.message || ex.error || ex || 'Unexpected error when upload file');
+      logger.error(`[DOCUMENT][UPLOAD] ${JSON.stringify(ex)}`);
 
       return resolve({
         status: ex.status || ex.statusCode || 500,
@@ -410,7 +410,7 @@ async function updateDocumentById(id, body, file) {
         });
       }
     } catch (ex) {
-      logger.error(ex);
+      logger.error(`[DOCUMENT][UPDATE] ${JSON.stringify(ex)}`);
 
       return resolve({
         status: ex.status || ex.statusCode || 500,
@@ -462,7 +462,7 @@ async function deleteDocument(id, userId) {
       };
     }
   } catch (ex) {
-    logger.error(ex.error || ex.message || 'Unexpect error when delete file');
+    logger.error(`[DOCUMENT] ${JSON.stringify(ex)}`);
 
     return ex.error ? ex : exception;
   }
@@ -552,7 +552,7 @@ async function purchaseDocument(docId, userId) {
     }
   }
   catch (ex) {
-    logger.error(ex.error || ex.message || `Unexpected error when purchase document ${docId}`);
+    logger.error(`[DOCUMENT][PURCHASE] ${JSON.stringify(ex)}`);
 
     return ex.error ? ex : exception;
   }
@@ -672,7 +672,7 @@ async function downloadDocument(docId, userId, download) {
       type: header[ext],
     };
   } catch (ex) {
-    logger(ex.error || ex.message || `Unexpected error when download file document ${docId}`);
+    logger.error(`[DOCUMENT][DOWNLOAD] ${JSON.stringify(ex)}`);
 
     return ex.error ? ex : exception;
   }
@@ -745,7 +745,7 @@ async function approveDocument(docId, userId, approvedStatus) {
       message: 'Approved success',
     };
   } catch (ex) {
-    logger(ex.error || ex.message || `Unexpected error when approve file document ${docId}`);
+    logger.error(`[DOCUMENT][APPROVE] ${JSON.stringify(ex)}`);
 
     return ex.error ? ex : exception;
   }

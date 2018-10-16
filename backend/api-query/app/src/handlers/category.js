@@ -2,7 +2,7 @@ import { isUndefined } from 'util';
 import moment from 'moment';
 import ES from '../../elastic';
 import logger from '../libs/logger';
-import { filterParamsHandler, sortParamsHandler } from '../libs/esHelper';
+import { filterParamsHandler, sortParamsHandler, updateDocsRefToCate, removeDocsRefToCate } from '../libs/esHelper';
 const type = process.env.ES_TYPE_CATEGORY || 'category';
 const index = process.env.ES_INDEX_CATEGORY || 'categories';
 const elasticsearch = new ES(index, type);
@@ -107,6 +107,20 @@ export default {
       }
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.updatedAt = now;
+      if (body.name) {
+        // Update all docs ref to this collection
+        const filterBuilt = filterParamsHandler({
+          'cates.cateId': cateId,
+        });
+        const docES = new ES('documents', 'document');
+        const lsDoc = await docES.getList(filterBuilt.data);
+        // Process if have doc ref to this collection
+        if (lsDoc.total) {
+          const promise = [].concat(...updateDocsRefToCate(lsDoc.data, cateId, body.name));
+          Promise.all(promise)
+            .catch(e => logger.error(`[QUERY][CATE]: Update category at document fail ${e}`));
+        }
+      }
       const result = await elasticsearch.update(body, cateId);
 
       return result;
@@ -125,6 +139,16 @@ export default {
       }
 
       const result = await elasticsearch.remove(cateId);
+      const docES = new ES('documents', 'document');
+      const filterBuilt = filterParamsHandler({
+        'cates.cateId': cateId,
+      });
+      const lsDoc = await docES.getList(filterBuilt.data);
+      if (lsDoc.total) {
+        const promise = [].concat(...removeDocsRefToCate(lsDoc.data, cateId));
+        Promise.all(promise)
+          .catch(e => logger.error(`[QUERY][CATE]: Remove category at document fail ${e}`));
+      }
 
       return result;
     } catch (error) {

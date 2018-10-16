@@ -2,7 +2,7 @@ import { isUndefined } from 'util';
 import moment from 'moment';
 import ES from '../../elastic';
 import logger from '../libs/logger';
-import { filterParamsHandler, sortParamsHandler } from '../libs/esHelper';
+import { filterParamsHandler, sortParamsHandler, updateDocsRefToCollection, removeDocsRefToCollection } from '../libs/esHelper';
 const type = process.env.ES_TYPE_COLLECTION || 'collection';
 const index = process.env.ES_INDEX_COLLECTION || 'collections';
 const elasticsearch = new ES(index, type);
@@ -133,6 +133,20 @@ export default {
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.updatedAt = now;
       const result = await elasticsearch.update(body, collectionId);
+      if (body.name) {
+        // Update all docs ref to this collection
+        const filterBuilt = filterParamsHandler({
+          'collections.collectionId': collectionId,
+        });
+        const docES = new ES('documents', 'document');
+        const lsDoc = await docES.getList(filterBuilt.data);
+        // Process if have doc ref to this collection
+        if (lsDoc.total) {
+          const promise = [].concat(...updateDocsRefToCollection(lsDoc.data, collectionId, body.name));
+          Promise.all(promise)
+            .catch(e => logger.error(`[QUERY][COLLECTION]: Update collection at document fail ${e}`));
+        }
+      }
 
       return result;
     } catch (error) {
@@ -149,6 +163,16 @@ export default {
         };
       }
       const result = await elasticsearch.remove(collectionId);
+      const docES = new ES('documents', 'document');
+      const filterBuilt = filterParamsHandler({
+        'collections.collectionId': collectionId,
+      });
+      const lsDoc = await docES.getList(filterBuilt.data);
+      if (lsDoc.total) {
+        const promise = [].concat(...removeDocsRefToCollection(lsDoc.data, collectionId));
+        Promise.all(promise)
+          .catch(e => logger.error(`[QUERY][COLLECTION]: Remove collection at document fail ${e}`));
+      }
 
       return result;
     } catch (error) {

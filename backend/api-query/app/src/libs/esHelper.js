@@ -387,7 +387,166 @@ const insertTag = async (tags, createdAt) => {
   });
 };
 
+const updateDocsRefToCollection = async (docs, collectionId, collectionName) => {
+  const docModel =new ES('documents', 'document');
+
+  const promises = docs.map(doc => {
+    return docModel.updateByScript(
+      doc.id,
+      {
+        source: `for(int i = 0; i < ctx._source.collections.size(); i++) { if (ctx._source.collections[i].collectionId == ${
+          collectionId
+        }){ ctx._source.collections[i].collectionName = '${
+          collectionName
+        }' } }`,
+        lang: 'painless',
+      }
+    );
+  });
+
+  return promises;
+};
+
+const updateDocsRefToCate = async (docs, cateId, cateName) => {
+  const docModel =new ES('documents', 'document');
+
+  const promises = docs.map(doc => {
+    return docModel.updateByScript(
+      doc.id,
+      {
+        source: `for(int i = 0; i < ctx._source.cates.size(); i++) { if (ctx._source.cates[i].cateId == ${
+          cateId
+        }){ ctx._source.cates[i].cateName = '${
+          cateName
+        }' } }`,
+        lang: 'painless',
+      }
+    );
+  });
+
+  return promises;
+};
+
+const updateDocsRefToClass = async (docs, classId, className) => {
+  const docModel =new ES('documents', 'document');
+
+  const promises = docs.map(doc => {
+    return docModel.updateByScript(
+      doc.id,
+      {
+        source: `for(int i = 0; i < ctx._source.classes.size(); i++) { if (ctx._source.classes[i].classId == ${
+          classId
+        }){ ctx._source.classes[i].className = '${
+          className
+        }' } }`,
+        lang: 'painless',
+      }
+    );
+  });
+
+  return promises;
+};
+
+const updateDocsRefToSubject = async (docs, subjectId, subjectName) => {
+  const docModel =new ES('documents', 'document');
+
+  const promises = docs.map(doc => {
+    return docModel.updateByScript(
+      doc.id,
+      {
+        source: `for(int i = 0; i < ctx._source.subjects.size(); i++) { if (ctx._source.subjects[i].subjectId == ${
+          subjectId
+        }){ ctx._source.subjects[i].subjectName = '${
+          subjectName
+        }' } }`,
+        lang: 'painless',
+      }
+    );
+  });
+
+  return promises;
+};
+
+const removeDocsRefToCollection = async (docs, collectionId) => {
+  const docModel =new ES('documents', 'document');
+
+  const promises = docs.map(doc => {
+    return docModel.updateByScript(
+      doc.id,
+      {
+        source: `for(int i = 0; i < ctx._source.collections.size(); i++) { if (ctx._source.collections[i].collectionId == ${
+          collectionId
+        }){ ctx._source.collections.remove(i) } }`,
+        lang: 'painless',
+      }
+    );
+  });
+
+  return promises;
+};
+
+const removeDocsRefToCate = async (docs, cateId) => {
+  const docModel =new ES('documents', 'document');
+
+  const promises = docs.map(doc => {
+    return docModel.updateByScript(
+      doc.id,
+      {
+        source: `for(int i = 0; i < ctx._source.cates.size(); i++) { if (ctx._source.cates[i].cateId == ${
+          cateId
+        }){ ctx._source.cates.remove(i) } }`,
+        lang: 'painless',
+      }
+    );
+  });
+
+  return promises;
+};
+
+const removeDocsRefToClass = async (docs, classId) => {
+  const docModel =new ES('documents', 'document');
+
+  const promises = docs.map(doc => {
+    return docModel.updateByScript(
+      doc.id,
+      {
+        source: `for(int i = 0; i < ctx._source.classes.size(); i++) { if (ctx._source.classes[i].classId == ${
+          classId
+        }){ ctx._source.classes.remove(i) } }`,
+        lang: 'painless',
+      }
+    );
+  });
+
+  return promises;
+};
+
+const removeDocsRefToSubject = async (docs, subjectId) => {
+  const docModel =new ES('documents', 'document');
+
+  const promises = docs.map(doc => {
+    return docModel.updateByScript(
+      doc.id,
+      {
+        source: `for(int i = 0; i < ctx._source.subjects.size(); i++) { if (ctx._source.subjects[i].subjectId == ${
+          subjectId
+        }){ ctx._source.subjects.remove(i) } }`,
+        lang: 'painless',
+      }
+    );
+  });
+
+  return promises;
+};
+
 export {
+  removeDocsRefToSubject,
+  removeDocsRefToCate,
+  removeDocsRefToCollection,
+  removeDocsRefToClass,
+  updateDocsRefToCate,
+  updateDocsRefToClass,
+  updateDocsRefToSubject,
   updateNumDocRefToClass,
   updateNumDocRefToSubject,
   updateUserDownload,
@@ -406,4 +565,5 @@ export {
   updateSubjectView,
   updateDocumentDownload,
   updateUserUpload,
+  updateDocsRefToCollection,
 };
