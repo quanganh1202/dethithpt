@@ -20,7 +20,7 @@ const rabbitMQConnector = () => {
           process.exit(1);
         }
         const ex = process.env.RABBIT_EXCHANGE || 'topic_dethithpt';
-        ch.assertExchange(ex, 'topic', { durable: false });
+        ch.assertExchange(ex, 'topic', { durable: true });
 
         ch.assertQueue('', { exclusive: true }, (errQ, q) => {
           ch.prefetch(1); // Process one by one

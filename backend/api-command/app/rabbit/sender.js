@@ -44,7 +44,7 @@ const rabbitProducer = (key, msg) => {
             });
           }
           let ex = process.env.RABBIT_TOPIC || 'topic_dethithpt';
-          ch.assertExchange(ex, 'topic', { durable: false });
+          ch.assertExchange(ex, 'topic', { durable: true });
           ch.consume(q.queue, (msg) => {
             const content = JSON.parse(msg.content);
             resolve(content);
