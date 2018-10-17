@@ -606,7 +606,7 @@ async function downloadDocument(docId, userId, download) {
 
       if (subjectIds && blockDownloadSubjects) {
         const subjectToArray = subjectIds.split(',');
-        const blockToArray = blockDownloadCollections.split(',');
+        const blockToArray = blockDownloadSubjects.split(',');
         const arrBlock = blockToArray.filter(i => subjectToArray.includes(i));
         if (arrBlock.length) {
           return {
@@ -630,7 +630,7 @@ async function downloadDocument(docId, userId, download) {
 
       if (cateIds && blockDownloadCategories) {
         const cateToArray = cateIds.split(',');
-        const blockToArray = blockDownloadCollections.split(',');
+        const blockToArray = blockDownloadCategories.split(',');
         const arrBlock = blockToArray.filter(i => cateToArray.includes(i));
         if (arrBlock.length) {
           return {
