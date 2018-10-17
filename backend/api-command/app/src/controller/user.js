@@ -172,7 +172,7 @@ async function addUser(userInfo, userId) {
     let id;
     let action = 'create';
     if (user && user.length) {
-      if (user[0].status !== 2) {
+      if (user[0].status !== 2 || user.length === 2) {
         return {
           error: 'User email or phone number has registed',
           status: 400,
