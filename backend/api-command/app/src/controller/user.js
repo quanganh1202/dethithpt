@@ -530,7 +530,7 @@ async function recharge(userId, money) {
   }
 }
 
-async function bonus(userId, id, money, email) {
+async function bonus(userId, id, money, email, isBonusDownload) {
   try {
     const resValidate = dataValidator({ money }, 'http://dethithpt.com/bonus-schema#');
     if (!resValidate.valid) {
@@ -541,10 +541,13 @@ async function bonus(userId, id, money, email) {
     }
     const actor = await checkUserActivation(userId);
     if (actor.error) return actor;
-    if (actor[0].role !== roles.ADMIN) return {
-      status: 403,
-      error: '[Forbidden] Bonus feature only available for admin',
-    };
+    if (!isBonusDownload) {
+      if (actor[0].role !== roles.ADMIN) return {
+        status: 403,
+        error: '[Forbidden] Bonus feature only available for admin',
+      };
+    }
+
     let uid;
     let user;
     if (email) {

@@ -14,6 +14,7 @@ import rabbitSender from '../../rabbit/sender';
 import action from '../constant/action';
 import header from '../constant/typeHeader';
 import * as roles from '../constant/roles';
+import { bonus } from './user';
 import { isUndefined } from 'util';
 
 const checkUserActivation = async (userId) => {
@@ -518,6 +519,14 @@ async function purchaseDocument(docId, userId) {
       }),
       userModel.updateUser(userId, { money: moneyAfterPurchase }),
     ]);
+    // Bonus
+    if (parseInt(userId) !== parseInt(doc[0].userId) && user[0].role !== roles.ADMIN) {
+      bonus(userId, doc[0].userId, doc[0].price * 10 / 100, null, true).then(r => {
+        logger.info(`[PURCHASE][BONUS] ${JSON.stringify(r)}`);
+      }).catch(e => {
+        logger.error(`[PURCHASE][BONUS] ${JSON.stringify(e)}`);
+      });
+    }
 
     const serverNotify = await rabbitSender('purchase.create', {
       id: res[0].insertId,
