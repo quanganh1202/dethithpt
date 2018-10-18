@@ -44,12 +44,12 @@ const rabbitProducer = (key, msg) => {
             });
           }
           let ex = process.env.RABBIT_TOPIC || 'topic_dethithpt';
-          ch.assertExchange(ex, 'topic', { durable: false });
+          ch.assertExchange(ex, 'topic', { durable: true });
           ch.consume(q.queue, (msg) => {
             const content = JSON.parse(msg.content);
             resolve(content);
             conn.close();
-          }, { noAck: true });
+          }, { noAck: false });
           const message = typeof msg === 'string' ? msg : JSON.stringify(msg);
           ch.publish(ex, key, new Buffer(message), { replyTo: q.queue });
         });

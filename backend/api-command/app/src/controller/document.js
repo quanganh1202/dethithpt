@@ -14,6 +14,7 @@ import rabbitSender from '../../rabbit/sender';
 import action from '../constant/action';
 import header from '../constant/typeHeader';
 import * as roles from '../constant/roles';
+import { bonus } from './user';
 import { isUndefined } from 'util';
 
 const checkUserActivation = async (userId) => {
@@ -209,7 +210,7 @@ async function uploadDocument(body, file) {
         message: 'Document created. But available after serveral minute',
       });
     } catch (ex) {
-      logger.error(ex.message || ex.error || ex || 'Unexpected error when upload file');
+      logger.error(`[DOCUMENT][UPLOAD] ${JSON.stringify(ex)}`);
 
       return resolve({
         status: ex.status || ex.statusCode || 500,
@@ -410,7 +411,7 @@ async function updateDocumentById(id, body, file) {
         });
       }
     } catch (ex) {
-      logger.error(ex);
+      logger.error(`[DOCUMENT][UPDATE] ${JSON.stringify(ex)}`);
 
       return resolve({
         status: ex.status || ex.statusCode || 500,
@@ -462,7 +463,7 @@ async function deleteDocument(id, userId) {
       };
     }
   } catch (ex) {
-    logger.error(ex.error || ex.message || 'Unexpect error when delete file');
+    logger.error(`[DOCUMENT] ${JSON.stringify(ex)}`);
 
     return ex.error ? ex : exception;
   }
@@ -518,6 +519,14 @@ async function purchaseDocument(docId, userId) {
       }),
       userModel.updateUser(userId, { money: moneyAfterPurchase }),
     ]);
+    // Bonus
+    if (parseInt(userId) !== parseInt(doc[0].userId) && user[0].role !== roles.ADMIN) {
+      bonus(userId, doc[0].userId, doc[0].price * 10 / 100, null, true).then(r => {
+        logger.info(`[PURCHASE][BONUS] ${JSON.stringify(r)}`);
+      }).catch(e => {
+        logger.error(`[PURCHASE][BONUS] ${JSON.stringify(e)}`);
+      });
+    }
 
     const serverNotify = await rabbitSender('purchase.create', {
       id: res[0].insertId,
@@ -552,7 +561,7 @@ async function purchaseDocument(docId, userId) {
     }
   }
   catch (ex) {
-    logger.error(ex.error || ex.message || `Unexpected error when purchase document ${docId}`);
+    logger.error(`[DOCUMENT][PURCHASE] ${JSON.stringify(ex)}`);
 
     return ex.error ? ex : exception;
   }
@@ -597,7 +606,7 @@ async function downloadDocument(docId, userId, download) {
 
       if (subjectIds && blockDownloadSubjects) {
         const subjectToArray = subjectIds.split(',');
-        const blockToArray = blockDownloadCollections.split(',');
+        const blockToArray = blockDownloadSubjects.split(',');
         const arrBlock = blockToArray.filter(i => subjectToArray.includes(i));
         if (arrBlock.length) {
           return {
@@ -621,7 +630,7 @@ async function downloadDocument(docId, userId, download) {
 
       if (cateIds && blockDownloadCategories) {
         const cateToArray = cateIds.split(',');
-        const blockToArray = blockDownloadCollections.split(',');
+        const blockToArray = blockDownloadCategories.split(',');
         const arrBlock = blockToArray.filter(i => cateToArray.includes(i));
         if (arrBlock.length) {
           return {
@@ -672,7 +681,7 @@ async function downloadDocument(docId, userId, download) {
       type: header[ext],
     };
   } catch (ex) {
-    logger(ex.error || ex.message || `Unexpected error when download file document ${docId}`);
+    logger.error(`[DOCUMENT][DOWNLOAD] ${JSON.stringify(ex)}`);
 
     return ex.error ? ex : exception;
   }
@@ -745,7 +754,7 @@ async function approveDocument(docId, userId, approvedStatus) {
       message: 'Approved success',
     };
   } catch (ex) {
-    logger(ex.error || ex.message || `Unexpected error when approve file document ${docId}`);
+    logger.error(`[DOCUMENT][APPROVE] ${JSON.stringify(ex)}`);
 
     return ex.error ? ex : exception;
   }

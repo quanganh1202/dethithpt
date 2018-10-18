@@ -2,7 +2,7 @@ import { isUndefined } from 'util';
 import moment from 'moment';
 import ES from '../../elastic';
 import logger from '../libs/logger';
-import { filterParamsHandler, sortParamsHandler } from '../libs/esHelper';
+import { filterParamsHandler, sortParamsHandler, updateDocsRefToSubject, removeDocsRefToSubject } from '../libs/esHelper';
 const type = process.env.ES_TYPE_SUBJECT || 'subject';
 const index = process.env.ES_INDEX_SUBJECT || 'subjects';
 const elasticsearch = new ES(index, type);
@@ -116,6 +116,20 @@ export default {
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.updatedAt = now;
       const result = await elasticsearch.update(body, subjectId);
+      if (body.name) {
+        // Update all docs ref to this collection
+        const filterBuilt = filterParamsHandler({
+          'subjects.subjectId': subjectId,
+        });
+        const docES = new ES('documents', 'document');
+        const lsDoc = await docES.getList(filterBuilt.data);
+        // Process if have doc ref to this collection
+        if (lsDoc.total) {
+          const promise = [].concat(...updateDocsRefToSubject(lsDoc.data, subjectId, body.name));
+          Promise.all(promise)
+            .catch(e => logger.error(`[QUERY][SUBJECT]: Update subject at document fail ${e}`));
+        }
+      }
 
       return result;
     } catch (error) {
@@ -132,6 +146,16 @@ export default {
         };
       }
       const result = await elasticsearch.remove(subjectId);
+      const docES = new ES('documents', 'document');
+      const filterBuilt = filterParamsHandler({
+        'subjects.subjectId': subjectId,
+      });
+      const lsDoc = await docES.getList(filterBuilt.data);
+      if (lsDoc.total) {
+        const promise = [].concat(...removeDocsRefToSubject(lsDoc.data, subjectId));
+        Promise.all(promise)
+          .catch(e => logger.error(`[QUERY][SUBJECT]: Remove subject at document fail ${e}`));
+      }
 
       return result;
     } catch (error) {

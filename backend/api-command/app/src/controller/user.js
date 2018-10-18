@@ -172,7 +172,7 @@ async function addUser(userInfo, userId) {
     let id;
     let action = 'create';
     if (user && user.length) {
-      if (user[0].status !== 2) {
+      if (user[0].status !== 2 || user.length === 2) {
         return {
           error: 'User email or phone number has registed',
           status: 400,
@@ -530,7 +530,7 @@ async function recharge(userId, money) {
   }
 }
 
-async function bonus(userId, id, money, email) {
+async function bonus(userId, id, money, email, isBonusDownload) {
   try {
     const resValidate = dataValidator({ money }, 'http://dethithpt.com/bonus-schema#');
     if (!resValidate.valid) {
@@ -541,10 +541,13 @@ async function bonus(userId, id, money, email) {
     }
     const actor = await checkUserActivation(userId);
     if (actor.error) return actor;
-    if (actor[0].role !== roles.ADMIN) return {
-      status: 403,
-      error: '[Forbidden] Bonus feature only available for admin',
-    };
+    if (!isBonusDownload) {
+      if (actor[0].role !== roles.ADMIN) return {
+        status: 403,
+        error: '[Forbidden] Bonus feature only available for admin',
+      };
+    }
+
     let uid;
     let user;
     if (email) {
