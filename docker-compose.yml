@@ -68,6 +68,9 @@ services:
       - overlay
     volumes:
       - rabbitmqdata:/var/lib/rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
   
   frontend:
     build: .
