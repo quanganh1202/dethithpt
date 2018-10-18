@@ -62,7 +62,7 @@ services:
       - overlay
 
   rabbitmq:
-    image: rabbitmq
+    image: rabbitmq:3-management
     restart: always
     networks:
       - overlay
