@@ -494,6 +494,7 @@ async function purchaseDocument(docId, userId) {
         error: 'Document not found',
       };
     }
+
     const userModel = new User();
     const user = await userModel.getById(userId);
     if (!user || !user.length) {
@@ -501,6 +502,54 @@ async function purchaseDocument(docId, userId) {
         status: 400,
         error: 'User not found',
       };
+    }
+    if (user[0].status === 4) {
+      const {
+        collectionIds,
+        subjectIds,
+        cateIds,
+      } = doc[0];
+      const {
+        blockDownloadCollections,
+        blockDownloadSubjects,
+        blockDownloadCategories,
+      } = user[0];
+
+      if (subjectIds && blockDownloadSubjects) {
+        const subjectToArray = subjectIds.split(',');
+        const blockToArray = blockDownloadSubjects.split(',');
+        const arrBlock = blockToArray.filter(i => subjectToArray.includes(i));
+        if (arrBlock.length) {
+          return {
+            status: 400,
+            error: 'Account has been blocked download feature with this subject',
+          };
+        }
+      }
+
+      if (collectionIds && blockDownloadCollections) {
+        const collectionToArray = collectionIds.split(',');
+        const blockToArray = blockDownloadCollections.split(',');
+        const arrBlock = blockToArray.filter(i => collectionToArray.includes(i));
+        if (arrBlock.length) {
+          return {
+            status: 400,
+            error: 'Account has been blocked download feature with this collection',
+          };
+        }
+      }
+
+      if (cateIds && blockDownloadCategories) {
+        const cateToArray = cateIds.split(',');
+        const blockToArray = blockDownloadCategories.split(',');
+        const arrBlock = blockToArray.filter(i => cateToArray.includes(i));
+        if (arrBlock.length) {
+          return {
+            status: 400,
+            error: 'Account has been blocked download feature with this category',
+          };
+        }
+      }
     }
     if (parseInt(doc[0].price) > parseInt(user[0].money)) {
       return {
