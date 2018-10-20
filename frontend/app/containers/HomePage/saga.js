@@ -14,6 +14,7 @@ import {
   REQUEST_PURCHASE,
   GET_NEWS,
   GET_PREVIEW,
+  GET_GENERAL_INFO,
 } from './constants';
 import {
   loginSuccess,
@@ -30,6 +31,7 @@ import {
   requestPurchase,
   requestPurchaseFailure,
   getPreviewSuccess,
+  getGeneralInformationSuccess,
 } from './actions';
 import { getUserDetail } from 'containers/App/actions';
 import { getToken, mappingUser } from 'services/auth';
@@ -145,11 +147,25 @@ export function* getTagsHandler() {
  * Request get news list
  */
 export function* getNewsHandler() {
-  const url = `${root}/news?sort=createdAt.desc&size=5`;
+  const url = `${root}/news?sort=priority.desc&type=news&size=5`;
 
   try {
     const resp = yield call(axios.get, url);
     yield put(getNewsSuccess(resp.data.data));
+  } catch (err) {
+    // yield put(loginFailure(err));
+  }
+}
+
+/**
+ * Request get news list
+ */
+export function* getGeneralInformationHandler() {
+  const url = `${root}/news?type=general`;
+
+  try {
+    const resp = yield call(axios.get, url);
+    yield put(getGeneralInformationSuccess(resp.data.data));
   } catch (err) {
     // yield put(loginFailure(err));
   }
@@ -229,6 +245,7 @@ export default function* homeSaga() {
   yield takeLatest(GET_COLLECTION_LIST_REQUEST, getCollectionsHandler);
   yield takeLatest(GET_TAGS_REQUEST, getTagsHandler);
   yield takeLatest(GET_NEWS.REQUEST, getNewsHandler);
+  yield takeLatest(GET_GENERAL_INFO.REQUEST, getGeneralInformationHandler);
   yield takeLatest(REQUEST_DOWNLOAD.REQUEST, requestDownloadHandler);
   yield takeLatest(REQUEST_PURCHASE.REQUEST, purchaseDocumentHandler);
   yield takeLatest(GET_PREVIEW.REQUEST, getPreviewHandler);

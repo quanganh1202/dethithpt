@@ -36,6 +36,7 @@ import {
   PREVIEW_CLOSE,
   GET_PREVIEW,
   CLOSE_POPUP_COLLECTION,
+  GET_GENERAL_INFO,
 } from './constants';
 
 // The initial state of the App
@@ -58,6 +59,7 @@ export const initialState = fromJS({
   token: '',
   docPreview: {},
   isPreview: false,
+  info: [],
 });
 
 function homeReducer(state = initialState, action) {
@@ -143,6 +145,10 @@ function homeReducer(state = initialState, action) {
       return state.set('loading', true);
     case GET_NEWS.SUCCESS:
       return state.set('loading', false).set('news', fromJS(action.news));
+    case GET_GENERAL_INFO.REQUEST:
+      return state.set('loading', true);
+    case GET_GENERAL_INFO.SUCCESS:
+      return state.set('loading', false).set('info', fromJS(action.news));
     case REQUEST_DOWNLOAD.REQUEST:
       return state.set('loading', true);
     case REQUEST_DOWNLOAD.SUCCESS:

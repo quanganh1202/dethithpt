@@ -23,6 +23,7 @@ import {
   PREVIEW_CLOSE,
   GET_PREVIEW,
   CLOSE_POPUP_COLLECTION,
+  GET_GENERAL_INFO,
 } from './constants';
 
 /**
@@ -221,6 +222,33 @@ export function getNews() {
 export function getNewsSuccess(news) {
   return {
     type: GET_NEWS.SUCCESS,
+    news,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} name The new text of the input field
+ *
+ * @return {object}    An action object with a type of GET_GENERAL_INFO.REQUEST
+ */
+export function getGeneralInformation() {
+  return {
+    type: GET_GENERAL_INFO.REQUEST,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} name The new text of the input field
+ *
+ * @return {object}    An action object with a type of GET_GENERAL_INFO.SUCCESS
+ */
+export function getGeneralInformationSuccess(news) {
+  return {
+    type: GET_GENERAL_INFO.SUCCESS,
     news,
   };
 }

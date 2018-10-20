@@ -2,6 +2,7 @@ import {
   GET_NEWS,
   DELETE_NEWS,
   CLEAR_PROCESS_STATUS,
+  UPDATE_NEWS,
 } from './constants';
 
 /**
@@ -70,5 +71,33 @@ export function clearProcessStatus(all) {
   return {
     type: CLEAR_PROCESS_STATUS,
     all,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} name The new text of the input field
+ *
+ * @return {object}    An action object with a type of UPDATE_NEWS.REQUEST
+ */
+export function updateNews(data, module) {
+  return {
+    type: UPDATE_NEWS.REQUEST,
+    data,
+    module,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} name The new text of the input field
+ *
+ * @return {object}    An action object with a type of UPDATE_NEWS.SUCCESS
+ */
+export function updateNewsSuccess() {
+  return {
+    type: UPDATE_NEWS.SUCCESS,
   };
 }

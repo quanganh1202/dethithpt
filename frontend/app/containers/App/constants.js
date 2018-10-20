@@ -11,4 +11,9 @@
 import { defineAction } from 'redux-define';
 const container = 'thpt/App';
 export const GET_USER_DETAILS = defineAction('GET_USER_DETAILS', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
+export const GET_MENU = defineAction(
+	'GET_MENU',
+	['REQUEST', 'SUCCESS', 'FAILURE'],
+	container,
+);
 export const CLEAR_DATA = defineAction('CLEAR_DATA', container);

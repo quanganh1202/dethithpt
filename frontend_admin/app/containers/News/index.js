@@ -29,7 +29,7 @@ import styled from 'styled-components';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
-import { getNews, deleteNews, clearProcessStatus } from './actions';
+import { getNews, deleteNews, clearProcessStatus, updateNews } from './actions';
 import { makeSelectNews, makeSelectLoading, makeSelectProcessStatus } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
@@ -42,6 +42,9 @@ const Wrapper = styled.div`
 
 const acceptedPosition = [
   'Nội quy',
+  'Thông báo trang chủ',
+  'Nội quy cột phải',
+  'Admin hỗ trợ',
 ];
 
 /* eslint-disable react/prefer-stateless-function */
@@ -50,10 +53,16 @@ export class News extends React.PureComponent {
     super(props);
     this.state = {
       selectedNews: [],
+      changedNews: [],
+      news: [],
     };
-    this.module = props.location.pathname.split('/')[2];
+    this.module = props.location.pathname.split('/')[2]
+      ? props.location.pathname.split('/')[2]
+      : props.location.pathname.split('/')[1];
     this.renderNewsRow = this.renderNewsRow.bind(this);
     this.handleSelectNews = this.handleSelectNews.bind(this);
+    this.handleSavePosition = this.handleSavePosition.bind(this);
+    this.handleChangePosition = this.handleChangePosition.bind(this);
   }
 
   componentWillMount() {
@@ -68,8 +77,11 @@ export class News extends React.PureComponent {
     if (nextProps.processStatus && !this.props.processStatus) {
       this.setState({
         selectedNews: [],
+        changedNews: [],
       });
-      this.module = nextProps.location.pathname.split('/')[2];
+      this.module = nextProps.location.pathname.split('/')[2]
+        ? nextProps.location.pathname.split('/')[2]
+        : nextProps.location.pathname.split('/')[1];
       const query = {
         type: this.module,
       };
@@ -78,12 +90,19 @@ export class News extends React.PureComponent {
       this.props.clearProcessStatus();
     }
     if (this.props.location.pathname !== nextProps.location.pathname) {
-      this.module = nextProps.location.pathname.split('/')[2];
+      this.module = nextProps.location.pathname.split('/')[2]
+        ? nextProps.location.pathname.split('/')[2]
+        : nextProps.location.pathname.split('/')[1];
       const query = {
         type: this.module,
       };
       // get news
       this.props.getNews(query);
+    }
+    if (!_.isEqual(nextProps.news, this.props.news)) {
+      this.setState({
+        news: nextProps.news,
+      });
     }
   }
 
@@ -105,10 +124,27 @@ export class News extends React.PureComponent {
           />
         </td>
         <td>
-          <Link to={`/modules/${this.module}/${item.id}`}>{item.name}</Link>
+          <Link to={`/${this.module === 'news' ? 'news' : `modules/${this.module}`}/${item.id}`}>{item.name}</Link>
         </td>
         <td>{item.userEmail}</td>
         {this.module === 'general' && <td>{acceptedPosition[item.position - 1]}</td>}
+        {this.module === 'menu' && (<td>
+          <input
+            style={{ border: '1px solid #ccc', maxWidth: '50px'}}
+            type="number"
+            name={`position-item-${item.id}-${idx}`}
+            value={item.position}
+            onChange={this.handleChangePosition}
+          />
+        </td>)}
+        {this.module === 'news' && <td>
+          <button
+            onClick={() => this.props.updateNews([{ id: item.id, priority: item.priority === '0' ? '1' : '0' }], this.module)}
+            title="Nổi bật"
+          >
+            <i className={`fa ${item.priority === '1' ? 'fa-check' : 'fa-close'} fa-lg`} aria-hidden="true"></i>
+          </button>
+        </td>}
         <td>{moment(item.createdAt).format('DD/MM/YYYY')}</td>
       </tr>
     ));
@@ -127,6 +163,28 @@ export class News extends React.PureComponent {
           : this.state.selectedNews.filter((i) => i !== value),
       });
     }
+  }
+
+  handleSavePosition() {
+    if (this.state.changedNews.length) {
+      const updatedNews = this.state.news
+        .filter((item) => this.state.changedNews.includes(item.id))
+        .map((item) => ({ id: item.id, position: parseInt(item.position) }))
+      this.props.updateNews(updatedNews, this.module);
+    }
+  }
+
+  handleChangePosition(e) {
+    const { name, value } = e.currentTarget;
+    const field = name.split('-')[0];
+    const item = name.split('-')[2];
+    const index = name.split('-')[3];
+    const news = _.cloneDeep(this.state.news);
+    news[index] = { ...this.state.news[index], [field]: value };
+    this.setState({
+      news,
+      changedNews: _.uniq([ ...this.state.changedNews, item ]),
+    })
   }
 
   render() {
@@ -148,13 +206,25 @@ export class News extends React.PureComponent {
               <Card>
                 <CardHeader>
                   <i className="fa fa-align-justify" /> Tin tức
+                  {this.module === 'menu' && (
+                    <div className="float-right" style={{ marginLeft: '10px' }}>
+                      <Button
+                        block
+                        color="warning"
+                        size="sm"
+                        onClick={this.handleSavePosition}
+                      >
+                        Sắp xếp
+                      </Button>
+                    </div>
+                  )}
                   <div className="float-right" style={{ marginLeft: '10px' }}>
                     <Button
                       block
                       color="primary"
                       size="sm"
                       onClick={() =>
-                        this.props.history.push(`/modules/${this.module}/create`)
+                        this.props.history.push(`/${this.module === 'news' ? 'news' : `modules/${this.module}`}/create`)
                       }
                     >
                       Tạo mới
@@ -185,11 +255,14 @@ export class News extends React.PureComponent {
                         </th>
                         <th scope="col">Tên</th>
                         <th scope="col">Người tạo</th>
-                        {this.module === 'general' && <th scope="col">Vị trí</th>}
+                        {(this.module === 'general' || this.module === 'menu') && <th scope="col">Vị trí</th>}
+                        {this.module === 'news' && <th scope="col">Nổi bật</th>}
                         <th scope="col">Ngày tạo</th>
                       </tr>
                     </thead>
-                    <tbody>{this.renderNewsRow(this.props.news)}</tbody>
+                    <tbody>{this.props.loading ? (
+                      <tr><td colSpan="6" style={{ textAlign: 'center' }}>Loading...</td></tr>
+                    ) : this.renderNewsRow(this.state.news)}</tbody>
                   </Table>
                 </CardBody>
               </Card>
@@ -210,6 +283,7 @@ export function mapDispatchToProps(dispatch) {
     getNews: (query) => dispatch(getNews(query)),
     deleteNews: (id) => dispatch(deleteNews(id)),
     clearProcessStatus: (all) => dispatch(clearProcessStatus(all)),
+    updateNews: (data, module) => dispatch(updateNews(data, module)),
   };
 }
 

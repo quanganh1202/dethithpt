@@ -69,17 +69,9 @@ class HeadFilter extends React.PureComponent {
             defaultValue={this.props.value}
             style={{ width: 'auto', height: '60px' }}
           >
-          {/* <select
-            name={this.props.selectName}
-            style={{ minWidth: '100px' }}
-            multiple
-            onChange={this.props.onSelect}
-            defaultValue={this.props.value}
-          > */}
             {this.props.options.map((i) => (
               <option key={i.value} value={i.value} title={i.label}>{i.label}</option>
             ))}
-          {/* </select> */}
           </Input>
         </div>
       </th>

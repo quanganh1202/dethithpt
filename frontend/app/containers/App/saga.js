@@ -4,15 +4,15 @@
 import axios from 'axios';
 import { call, put, takeLatest } from 'redux-saga/effects';
 import { getToken } from 'services/auth';
-import { GET_USER_DETAILS } from './constants';
-import { getUserDetailSuccess, getUserDetailFailure } from './actions';
+import { GET_USER_DETAILS, GET_MENU } from './constants';
+import { getUserDetailSuccess, getUserDetailFailure, getMenuSuccess } from './actions';
 
-const rootCommand = '/api';
+const root = '/api';
 /**
  * Request to login using social network token
  */
 export function* getUserDetailsHandler({ id }) {
-  const url = `${rootCommand}/users/${id}`;
+  const url = `${root}/users/${id}`;
   const options = {
     headers: {
       'x-access-token': getToken(),
@@ -39,8 +39,23 @@ export function* getUserDetailsHandler({ id }) {
 }
 
 /**
+ * Request get menu list
+ */
+export function* getMenuHandler() {
+  const url = `${root}/news?type=menu&sort=position.desc`;
+
+  try {
+    const resp = yield call(axios.get, url);
+    yield put(getMenuSuccess(resp.data.data));
+  } catch (err) {
+    // yield put(loginFailure(err));
+  }
+}
+
+/**
  * Root saga manages watcher lifecycle
  */
 export default function* homeSaga() {
   yield takeLatest(GET_USER_DETAILS.REQUEST, getUserDetailsHandler);
+  yield takeLatest(GET_MENU.REQUEST, getMenuHandler);
 }

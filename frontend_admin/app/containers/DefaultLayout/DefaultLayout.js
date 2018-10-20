@@ -75,12 +75,15 @@ class DefaultLayout extends Component {
               <Route path="/collections" exact name="Collection" component={Collection} />
               <Route path="/collections/create" exact name="Create collection" component={CollectionCreate} />
               <Route path="/collections/:id" exact name="Edit collection" component={CollectionEdit} />
-              <Route path="/modules/news" exact name="News" component={News} />
-              <Route path="/modules/news/create" exact name="Create news" component={NewsCreate} />
-              <Route path="/modules/news/:id" exact name="Edit news" component={NewsEdit} />
+              <Route path="/news" exact name="News" component={News} />
+              <Route path="/news/create" exact name="Create news" component={NewsCreate} />
+              <Route path="/news/:id" exact name="Edit news" component={NewsEdit} />
               <Route path="/modules/general" exact name="General" component={News} />
               <Route path="/modules/general/create" exact name="Create general" component={NewsCreate} />
               <Route path="/modules/general/:id" exact name="Edit general" component={NewsEdit} />
+              <Route path="/modules/menu" exact name="Menu" component={News} />
+              <Route path="/modules/menu/create" exact name="Create menu" component={NewsCreate} />
+              <Route path="/modules/menu/:id" exact name="Edit menu" component={NewsEdit} />
               <Redirect from="/" to="/dashboard" />
             </Switch>
           </main>

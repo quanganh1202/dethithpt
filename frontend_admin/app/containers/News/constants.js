@@ -11,5 +11,6 @@
 import { defineAction } from 'redux-define';
 const container = 'thpt/news';
 export const GET_NEWS = defineAction('GET_NEWS', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
+export const UPDATE_NEWS = defineAction('UPDATE_NEWS', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
 export const DELETE_NEWS = defineAction('DELETE_NEWS', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
 export const CLEAR_PROCESS_STATUS = defineAction('CLEAR_PROCESS_STATUS', container);

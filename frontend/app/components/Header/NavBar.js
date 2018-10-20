@@ -11,6 +11,7 @@ export default styled.div`
   */
   @media (min-width: 320px) and (max-width: 480px) {
     .bm-item-list .mobile-nav-menu a {
+      text-align: center;
       display: inline-block;
       width: 100%;
     }

@@ -15,7 +15,7 @@
  *    }
  */
 
-import { GET_USER_DETAILS, CLEAR_DATA } from './constants';
+import { GET_USER_DETAILS, CLEAR_DATA, GET_MENU } from './constants';
 
 /**
  * Load the repositories, this action starts the request saga
@@ -70,5 +70,32 @@ export function getUserDetailFailure(error) {
 export function clearData() {
   return {
     type: CLEAR_DATA,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} name The new text of the input field
+ *
+ * @return {object}    An action object with a type of GET_MENU.REQUEST
+ */
+export function getMenu() {
+  return {
+    type: GET_MENU.REQUEST,
+  };
+}
+
+/**
+ * Changes the input field of the form
+ *
+ * @param  {name} name The new text of the input field
+ *
+ * @return {object}    An action object with a type of GET_MENU.SUCCESS
+ */
+export function getMenuSuccess(menu) {
+  return {
+    type: GET_MENU.SUCCESS,
+    menu,
   };
 }
