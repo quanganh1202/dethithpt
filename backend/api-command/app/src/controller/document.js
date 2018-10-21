@@ -648,7 +648,7 @@ async function purchaseDocument(docId, userId) {
 async function downloadDocument(docId, userId, download) {
   try {
     const userValid = await checkUserActivation(userId);
-    if (userValid.error) return user;
+    if (userValid.error) return userValid;
     const doc = await docModel.getDocumentById(docId);
     if (!doc || !doc.length) {
       return {
@@ -656,31 +656,22 @@ async function downloadDocument(docId, userId, download) {
         error: 'Document not found',
       };
     }
-    if (isUndefined(download)) {
-      return {
-        status: 200,
-        message: 'File available to download',
-      };
-    }
-    const userModel = new User();
-    const user = await userModel.getById(userId);
-    if (!user || !user.length) {
-      return {
-        status: 400,
-        error: 'User not found',
-      };
-    }
-    if (user[0].status === 4) {
+
+    if (userValid[0].status === 4) {
       const {
         collectionIds,
         subjectIds,
         cateIds,
+        yearSchools,
+        classIds,
       } = doc[0];
       const {
         blockDownloadCollections,
         blockDownloadSubjects,
         blockDownloadCategories,
-      } = user[0];
+        blockDownloadClasses,
+        blockDownloadYearSchools,
+      } = userValid[0];
 
       if (subjectIds && blockDownloadSubjects && subjectIds.length && blockDownloadSubjects.length) {
         const subjectToArray = subjectIds.split(',');
@@ -717,8 +708,33 @@ async function downloadDocument(docId, userId, download) {
           };
         }
       }
+
+      if (classIds && blockDownloadClasses && classIds.length && blockDownloadClasses.length) {
+        const classToArray = classIds.split(',');
+        const blockToArray = blockDownloadClasses.split(',');
+        const arrAccept = blockToArray.filter(i => classToArray.includes(i));
+        if (!arrAccept.length) {
+          return {
+            status: 400,
+            error: 'Account has been blocked download feature with this class',
+          };
+        }
+      }
+
+      if (yearSchools && blockDownloadYearSchools && yearSchools.length && blockDownloadYearSchools.length) {
+        const yschoolToArray = yearSchools.split(',');
+        const blockToArray = blockDownloadYearSchools.split(',');
+        const arrAccept = blockToArray.filter(i => yschoolToArray.includes(i));
+        if (!arrAccept.length) {
+          return {
+            status: 400,
+            error: 'Account has been blocked download feature with this yearschool',
+          };
+        }
+      }
     }
-    if (user[0].role !== roles.ADMIN) {
+
+    if (userValid[0].role !== roles.ADMIN) {
       const filter = [
         {
           docId,
@@ -737,13 +753,21 @@ async function downloadDocument(docId, userId, download) {
         };
       }
     }
+
+    if (isUndefined(download)) {
+      return {
+        status: 200,
+        message: 'File available to download',
+      };
+    }
+
     const ext = path.extname(doc[0].path);
     const queryBody = {
       docName: doc[0].name,
       docId,
-      userName: user[0].name,
+      userName: userValid[0].name,
       userId,
-      userEmail: user[0].email,
+      userEmail: userValid[0].email,
     };
     const serverNotify = await rabbitSender('download.create', { body: queryBody });
     if (serverNotify.error) {
