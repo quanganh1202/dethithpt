@@ -69,19 +69,19 @@
     },
     "blockFrom": {
       "type": "string",
-      "minLength": 1
+      "minLength": 0
     },
     "blockDownloadCollections": {
       "type": "string",
-      "minLength": 1
+      "minLength": 0
     },
     "blockDownloadCategories": {
       "type": "string",
-      "minLength": 1
+      "minLength": 0
     },
     "blockDownloadSubjects": {
       "type": "string",
-      "minLength": 1
+      "minLength": 0
     },
     "money": {
       "type": "integer"
