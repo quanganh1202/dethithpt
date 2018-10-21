@@ -30,6 +30,14 @@
       "type": "string",
       "minLength": 0
     },
+    "blockDownloadClasses": {
+      "type": "string",
+      "minLength": 0
+    },
+    "blockDownloadYearSchools": {
+      "type": "string",
+      "minLength": 0
+    },
     "userId": {
       "type": "string",
       "minLength": 1
