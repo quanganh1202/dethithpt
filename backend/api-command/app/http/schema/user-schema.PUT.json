@@ -83,6 +83,14 @@
       "type": "string",
       "minLength": 0
     },
+    "blockDownloadClasses": {
+      "type": "string",
+      "minLength": 0
+    },
+    "blockDownloadYearSchools": {
+      "type": "string",
+      "minLength": 0
+    },
     "money": {
       "type": "integer"
     },
