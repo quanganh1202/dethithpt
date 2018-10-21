@@ -1,0 +1,1 @@
+curl -X PUT "localhost:9200/users/_mapping/user" -H 'Content-Type: application/json' -d @'./resource/user.newMapping.json'

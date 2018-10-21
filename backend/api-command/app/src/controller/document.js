@@ -508,18 +508,22 @@ async function purchaseDocument(docId, userId) {
         collectionIds,
         subjectIds,
         cateIds,
+        classIds,
+        yearSchools,
       } = doc[0];
       const {
         blockDownloadCollections,
         blockDownloadSubjects,
         blockDownloadCategories,
+        blockDownloadClasses,
+        blockDownloadYearSchools,
       } = user[0];
 
-      if (subjectIds && blockDownloadSubjects) {
+      if (subjectIds && blockDownloadSubjects && subjectIds.length && blockDownloadSubjects.length) {
         const subjectToArray = subjectIds.split(',');
         const blockToArray = blockDownloadSubjects.split(',');
-        const arrBlock = blockToArray.filter(i => subjectToArray.includes(i));
-        if (arrBlock.length) {
+        const arrAccept = blockToArray.filter(i => subjectToArray.includes(i));
+        if (!arrAccept.length) {
           return {
             status: 400,
             error: 'Account has been blocked download feature with this subject',
@@ -527,11 +531,11 @@ async function purchaseDocument(docId, userId) {
         }
       }
 
-      if (collectionIds && blockDownloadCollections) {
+      if (collectionIds && blockDownloadCollections && collectionIds.length && blockDownloadCollections.length) {
         const collectionToArray = collectionIds.split(',');
         const blockToArray = blockDownloadCollections.split(',');
-        const arrBlock = blockToArray.filter(i => collectionToArray.includes(i));
-        if (arrBlock.length) {
+        const arAccept = blockToArray.filter(i => collectionToArray.includes(i));
+        if (!arAccept.length) {
           return {
             status: 400,
             error: 'Account has been blocked download feature with this collection',
@@ -539,18 +543,43 @@ async function purchaseDocument(docId, userId) {
         }
       }
 
-      if (cateIds && blockDownloadCategories) {
+      if (cateIds && blockDownloadCategories && cateIds.length && blockDownloadCategories.length) {
         const cateToArray = cateIds.split(',');
         const blockToArray = blockDownloadCategories.split(',');
         const arrBlock = blockToArray.filter(i => cateToArray.includes(i));
-        if (arrBlock.length) {
+        if (!arrBlock.length) {
           return {
             status: 400,
             error: 'Account has been blocked download feature with this category',
           };
         }
       }
+
+      if (classIds && blockDownloadClasses && classIds.length && blockDownloadClasses.length) {
+        const classToArray = classIds.split(',');
+        const blockToArray = blockDownloadClasses.split(',');
+        const arrAccept = blockToArray.filter(i => classToArray.includes(i));
+        if (!arrAccept.length) {
+          return {
+            status: 400,
+            error: 'Account has been blocked download feature with this class',
+          };
+        }
+      }
+
+      if (yearSchools && blockDownloadYearSchools && yearSchools.length && blockDownloadYearSchools.length) {
+        const yschoolToArray = yearSchools.split(',');
+        const blockToArray = blockDownloadYearSchools.split(',');
+        const arrAccept = blockToArray.filter(i => yschoolToArray.includes(i));
+        if (!arrAccept.length) {
+          return {
+            status: 400,
+            error: 'Account has been blocked download feature with this yearschool',
+          };
+        }
+      }
     }
+
     if (parseInt(doc[0].price) > parseInt(user[0].money)) {
       return {
         status: 400,
@@ -653,11 +682,11 @@ async function downloadDocument(docId, userId, download) {
         blockDownloadCategories,
       } = user[0];
 
-      if (subjectIds && blockDownloadSubjects) {
+      if (subjectIds && blockDownloadSubjects && subjectIds.length && blockDownloadSubjects.length) {
         const subjectToArray = subjectIds.split(',');
         const blockToArray = blockDownloadSubjects.split(',');
-        const arrBlock = blockToArray.filter(i => subjectToArray.includes(i));
-        if (arrBlock.length) {
+        const arrAccept = blockToArray.filter(i => subjectToArray.includes(i));
+        if (!arrAccept.length) {
           return {
             status: 400,
             error: 'Account has been blocked download feature with this subject',
@@ -665,11 +694,11 @@ async function downloadDocument(docId, userId, download) {
         }
       }
 
-      if (collectionIds && blockDownloadCollections) {
+      if (collectionIds && blockDownloadCollections && collectionIds.length && blockDownloadCollections.length) {
         const collectionToArray = collectionIds.split(',');
         const blockToArray = blockDownloadCollections.split(',');
-        const arrBlock = blockToArray.filter(i => collectionToArray.includes(i));
-        if (arrBlock.length) {
+        const arAccept = blockToArray.filter(i => collectionToArray.includes(i));
+        if (!arAccept.length) {
           return {
             status: 400,
             error: 'Account has been blocked download feature with this collection',
@@ -677,11 +706,11 @@ async function downloadDocument(docId, userId, download) {
         }
       }
 
-      if (cateIds && blockDownloadCategories) {
+      if (cateIds && blockDownloadCategories && cateIds.length && blockDownloadCategories.length) {
         const cateToArray = cateIds.split(',');
         const blockToArray = blockDownloadCategories.split(',');
         const arrBlock = blockToArray.filter(i => cateToArray.includes(i));
-        if (arrBlock.length) {
+        if (!arrBlock.length) {
           return {
             status: 400,
             error: 'Account has been blocked download feature with this category',

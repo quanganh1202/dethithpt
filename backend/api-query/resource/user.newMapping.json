@@ -1,0 +1,30 @@
+{
+  "user": {
+    "properties": {
+      "blockDownloadClasses": {
+        "type": "text",
+        "analyzer": "autocomplete",
+        "search_analyzer": "standard",
+        "fields": {
+          "raw": {
+            "type": "text",
+            "fielddata": true,
+            "analyzer": "textKeyword"
+          }
+        }
+      },
+      "blockDownloadYearSchools": {
+        "type": "text",
+        "analyzer": "autocomplete",
+        "search_analyzer": "standard",
+        "fields": {
+          "raw": {
+            "type": "text",
+            "fielddata": true,
+            "analyzer": "textKeyword"
+          }
+        }
+      }
+    }
+  }
+}
