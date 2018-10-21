@@ -17,7 +17,7 @@ import {
 const root = '/api';
 
 /**
- * Request create class
+ * Request update news
  */
 export function* updateNewsHandler({ id, data, module }) {
   const url = `${root}/news/${id}`;
@@ -29,7 +29,7 @@ export function* updateNewsHandler({ id, data, module }) {
   try {
     yield call(axios.put, url, data, options);
     yield put(updateNewsSuccess());
-    yield put(push(`/modules/${module}`));
+    yield put(push(`/${module === 'news' ? 'news' : `modules/${module}`}`));
   } catch (err) {
     yield put(updateNewsFailure(_.get(err, 'response.data.error', 'Unknown error from server')));
   }
@@ -39,7 +39,7 @@ export function* updateNewsHandler({ id, data, module }) {
  * Request get news detail
  */
 export function* getNewsDetailtHandler({ id }) {
-  const url = `${root}/news?id=${id}`;
+  const url = `${root}/news/${id}`;
   const options = {
     headers: {
       ['x-access-token']: getToken(),
@@ -47,7 +47,7 @@ export function* getNewsDetailtHandler({ id }) {
   }
   try {
     const resp = yield call(axios.get, url, options);
-    yield put(getNewsDetailSuccess(resp.data.data.find((i) => i.id === id)));
+    yield put(getNewsDetailSuccess(resp.data.data));
   } catch (err) {
     yield put(getNewsDetailFailure(_.get(err, 'response.data.error', 'Unknown error from server')));
   }

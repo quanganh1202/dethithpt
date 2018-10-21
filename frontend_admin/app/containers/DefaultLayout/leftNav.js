@@ -7,7 +7,7 @@ export default {
     },
     {
       name: 'Thành viên',
-      url: '/',
+      url: '/users',
       icon: 'fa fa-database',
       children: [
         {
@@ -19,7 +19,7 @@ export default {
     },
     {
       name: 'Đề thi',
-      url: '/',
+      url: '/documents',
       icon: 'fa fa-database',
       children: [
         {
@@ -36,7 +36,7 @@ export default {
     },
     {
       name: 'Tạo mục',
-      url: '/',
+      url: '/filter',
       icon: 'fa fa-database',
       children: [
         {
@@ -63,17 +63,29 @@ export default {
     },
     {
       name: 'Quản lý module',
-      url: '/',
+      url: '/modules',
+      icon: 'fa fa-database',
+      children: [
+        {
+          name: 'Thông tin chung',
+          url: '/modules/general',
+          icon: 'fa fa-table',
+        },
+        {
+          name: 'Tạo menu',
+          url: '/modules/menu',
+          icon: 'fa fa-table',
+        },
+      ],
+    },
+    {
+      name: 'Quản lý tin tức',
+      url: '/news',
       icon: 'fa fa-database',
       children: [
         {
           name: 'Tin tức',
-          url: '/modules/news',
-          icon: 'fa fa-table',
-        },
-        {
-          name: 'Thông tin chung',
-          url: '/modules/general',
+          url: '/news',
           icon: 'fa fa-table',
         },
       ],

@@ -12,12 +12,13 @@
 
 import { fromJS } from 'immutable';
 
-import { GET_USER_DETAILS, CLEAR_DATA } from './constants';
+import { GET_USER_DETAILS, CLEAR_DATA, GET_MENU } from './constants';
 
 // The initial state of the App
 const initialState = fromJS({
   user: null,
   popout: false,
+  menu: [],
 });
 
 function appReducer(state = initialState, action) {
@@ -32,6 +33,10 @@ function appReducer(state = initialState, action) {
         .set('user', action.user);
     case CLEAR_DATA:
       return state.set('popout', false);
+    case GET_MENU.REQUEST:
+      return state.set('loading', true);
+    case GET_MENU.SUCCESS:
+      return state.set('loading', false).set('menu', fromJS(action.menu));
     default:
       return state;
   }

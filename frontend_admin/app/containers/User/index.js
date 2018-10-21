@@ -220,6 +220,41 @@ export class User extends React.PureComponent {
     }
   }
 
+  renderStatus(status) {
+    switch (status) {
+      case 0: 
+        return (
+          <Badge style={{ fontSize: '11px' }} color="danger">
+            Khoá
+          </Badge>
+        );
+      case 1:
+        return (
+          <Badge style={{ fontSize: '11px' }} color="success">
+            Đang hoạt động
+          </Badge>
+        );
+      case 2: 
+        return (
+          <Badge style={{ fontSize: '11px' }} color="warning">
+            Chờ xác nhận
+          </Badge>
+        );
+      case 3:
+        return (
+          <Badge style={{ fontSize: '11px' }} color="danger">
+            Khoá ngày
+          </Badge>
+        );
+      case 4:
+        return (
+          <Badge style={{ fontSize: '11px' }} color="danger">
+            Khoá mục
+          </Badge>
+        )
+    }
+  }
+
   renderUserRow(users, purchase) {
     if (!users || !_.get(users, 'length', 0)) {
       return (
@@ -240,7 +275,7 @@ export class User extends React.PureComponent {
             checked={this.state.selectedUsers.includes(item.id)}
           />
         </th>
-        <td>{moment(item.createdAt).format('DD/MM/YYYY')}</td>
+        <td>{moment(item.createdAt).format('DD/MM/YYYY hh:mm:ss')}</td>
         <td><Link to={`/users/${item.id}`}>{item.name}</Link></td>
         <td>{item.email}</td>
         <td>{mappingRolePosition[item.role === 'admin' ? 'admin' : item.position]}</td>
@@ -257,15 +292,7 @@ export class User extends React.PureComponent {
         <td>{item.note1}</td>
         <td>{item.note2}</td>
         <td>
-          {item.status === 1 ? (
-            <Badge style={{ fontSize: '11px' }} color="success">
-              Active
-            </Badge>
-          ) : (
-            <Badge style={{ fontSize: '11px' }} color="warning">
-              Pending
-            </Badge>
-          )}
+          {this.renderStatus(item.status)}
         </td>
         {/* <td>{item.userName}</td> */}
         <td className="actions-col">

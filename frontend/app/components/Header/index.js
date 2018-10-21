@@ -3,6 +3,9 @@ import { FormattedMessage } from 'react-intl';
 import styled from 'styled-components';
 import MediaQuery from 'react-responsive';
 import { Link } from 'react-router-dom';
+import { createStructuredSelector } from 'reselect';
+import { connect } from 'react-redux';
+import { compose } from 'redux';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faFolder, faCog } from '@fortawesome/free-solid-svg-icons';
@@ -11,11 +14,13 @@ import { slide as Menu } from 'react-burger-menu';
 import SocialButton from 'components/SocialButton';
 import FacebookLogin from 'containers/Login/Facebook';
 import GoogleLogin from 'containers/Login/Google';
+import { makeSelectMenu } from 'containers/App/selectors';
 
 import A from './A';
 import HeaderBar from './HeaderBar';
 import NavBar from './NavBar';
 import HeaderLink from './HeaderLink';
+import HeaderDefault from './HeaderDefault';
 import Banner from './banner.png';
 import messages from './messages';
 
@@ -161,22 +166,39 @@ class Header extends React.Component {
                 className="mobile-nav-menu"
                 onClick={() => this.setState({ mobileShow: false })}
               >
-                <hr />
-                <HeaderLink to="/">
-                  <FormattedMessage {...messages.home} />
-                </HeaderLink>
-                <hr />
-                <HeaderLink to="/dang-ban-tai-lieu">
-                  Đăng bán tài liệu
-                </HeaderLink>
+                {this.props.menu.map((item) => {
+                  if (item.get('text').split('')[0] !== '/') {
+                    return (
+                      <React.Fragment key={item.get('id')}>
+                        <hr />
+                        <HeaderDefault href={item.get('text')}>{item.get('name')}</HeaderDefault>
+                      </React.Fragment>
+                    )
+                  } else {
+                    return (
+                      <React.Fragment key={item.get('id')}>
+                        <hr />
+                        <HeaderLink to={item.get('text')}>{item.get('name')}</HeaderLink>
+                      </React.Fragment>
+                    );
+                  }
+                })}
               </PageLink>
             </Menu>
           </MediaQuery>
           <MediaQuery minDeviceWidth={480}>
-            <HeaderLink to="/">
-              <FormattedMessage {...messages.home} />
-            </HeaderLink>
-            <HeaderLink to="/dang-ban-tai-lieu">Đăng bán tài liệu</HeaderLink>
+            {this.props.menu.count() ? this.props.menu.map((item) => {
+              if (item.get('text').split('')[0] !== '/') {
+                return (
+                  <HeaderDefault key={item.get('id')} href={item.get('text')}>{item.get('name')}</HeaderDefault>
+                )
+              } else {
+                console.log(item.get('text'));
+                return (
+                  <HeaderLink key={item.get('id')} to={item.get('text')}>{item.get('name')}</HeaderLink>
+                );
+              }
+            }) : null}
           </MediaQuery>
         </NavBar>
       </div>
@@ -184,4 +206,14 @@ class Header extends React.Component {
   }
 }
 
-export default Header;
+const mapStateToProps = createStructuredSelector({
+  menu: makeSelectMenu(),
+});
+
+const withConnect = connect(
+  mapStateToProps,
+);
+
+export default compose(
+  withConnect
+)(Header);

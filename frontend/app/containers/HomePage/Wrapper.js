@@ -8,7 +8,6 @@ const HomeWrapper = styled.div`
       padding: 5px 10px;
       background-color: white;
       border: 1px solid lightgrey;
-      text-align: right;
     }
     .content-docs {
       padding: 5px 10px;

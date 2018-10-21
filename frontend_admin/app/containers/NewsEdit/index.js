@@ -45,13 +45,18 @@ import Wrapper from './Wrapper';
 
 const acceptedPosition = [
   'Nội quy',
+  'Thông báo trang chủ',
+  'Nội quy cột phải',
+  'Admin hỗ trợ',
 ];
 
 /* eslint-disable react/prefer-stateless-function */
 export class NewsEdit extends React.PureComponent {
   constructor(props) {
     super(props);
-    this.module = props.history.location.pathname.split('/')[2];
+    this.module = props.history.location.pathname.split('/')[1] === 'news'
+      ? 'news'
+      : props.history.location.pathname.split('/')[2];
     this.state = {
       originData: {
         name: '',
@@ -146,7 +151,9 @@ export class NewsEdit extends React.PureComponent {
           <Col xl={12}>
             <Breadcrumb>
               <BreadcrumbItem><Link to="/">Trang chủ</Link></BreadcrumbItem>
-              <BreadcrumbItem><Link to={`/modules/${this.module}`}>Tin tức</Link></BreadcrumbItem>
+              <BreadcrumbItem>
+                <Link to={`/${this.module === 'news' ? 'news' : `modules/${this.module}`}`}>Tin tức</Link>
+              </BreadcrumbItem>
               <BreadcrumbItem active>Cập nhật</BreadcrumbItem>
             </Breadcrumb>
           </Col>
@@ -197,7 +204,7 @@ export class NewsEdit extends React.PureComponent {
                                 disabled
                               >
                                 <option value="0">Chọn vị trí</option>
-                                {acceptedPosition.map((i, idx) => <option key={idx} value="1">{i}</option>)}
+                                {acceptedPosition.map((i, idx) => <option key={idx} value={idx}>{i}</option>)}
                               </Input>
                               <div className="invalid-feedback">{this.state.error.position}</div>
                             </FormGroup>
@@ -207,15 +214,25 @@ export class NewsEdit extends React.PureComponent {
                       <Row>
                         <Col xs="12">
                           <FormGroup>
-                            <Label htmlFor="name">Chi tiết</Label>
-                            <CKEditor
+                            <Label htmlFor="name">{this.module === 'menu' ? 'Đường dẫn' : 'Chi tiết'}</Label>
+                            {this.module === 'menu' ? (
+                              <Input
+                                type="text"
+                                id="text"
+                                name="text"
+                                required
+                                onChange={this.onChange}
+                                value={this.state.formData.text}
+                                className={this.state.error.text && 'is-invalid'}
+                              />
+                            ) : (<CKEditor
                               activeClass="news-text"
                               name="news"
                               content={this.state.formData.text} 
                               events={{
                                 "change": this.onChangeEditor
                               }}
-                            />
+                            />)}
                             <div className="invalid-feedback">{this.state.error.text}</div>
                           </FormGroup>
                         </Col>

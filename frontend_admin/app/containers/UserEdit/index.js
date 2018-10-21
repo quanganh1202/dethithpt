@@ -1033,7 +1033,7 @@ export class UserEdit extends React.PureComponent {
               </Col>
             </Row>
             <Row className="row-button-control">
-              <CardFooter>
+              <CardFooter style={{ borderTop: 'none' }}>
                 <div style={{ marginLeft: '10px' }}>
                   <Button
                     block

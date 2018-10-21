@@ -37,6 +37,9 @@ const makeSelectTags = () =>
 const makeSelectNews = () =>
   createSelector(selectHome, homeState => homeState.get('news').toJS());
 
+const makeSelectInfo = () =>
+  createSelector(selectHome, homeState => homeState.get('info').toJS());
+
 const makeSelectFile = () =>
   createSelector(selectHome, homeState => homeState.get('file'));
 
@@ -73,4 +76,5 @@ export {
   makeSelectIsShowPreview,
   makeSelectInfoDocPreview,
   makeSelectImagesPreview,
+  makeSelectInfo,
 };

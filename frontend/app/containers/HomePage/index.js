@@ -60,6 +60,7 @@ import {
   previewDoc,
   getPreview,
   closePopUpCollection,
+  getGeneralInformation,
 } from './actions';
 import {
   makeSelectUser,
@@ -78,10 +79,11 @@ import {
   makeSelectImagesPreview,
   makeSelectTotalCollections,
   makeSelectAllCollections,
+  makeSelectInfo,
 } from './selectors';
 import styled from 'styled-components';
 import { makeSelectCurrentUser, makeSelectPopout } from 'containers/App/selectors';
-import { clearData, getUserDetail } from 'containers/App/actions';
+import { clearData, getUserDetail, getMenu } from 'containers/App/actions';
 import reducer from './reducer';
 import saga from './saga';
 import CreateUserForm from '../Login/Form';
@@ -111,15 +113,6 @@ const Wrapper = styled.div`
 `;
 
 library.add(faMoneyBillAlt, faFolder, faCog);
-
-const dataRight2 = [
-  {
-    title: 'Admin hỗ trợ 24/24',
-  },
-  {
-    title: 'Quảng cáo',
-  },
-];
 
 const itemsPerLoad = 10;
 const requiredFields = [
@@ -174,6 +167,10 @@ export class HomePage extends React.PureComponent {
     this.props.getTags();
     // get news
     this.props.getNews();
+    // get general info
+    this.props.getGeneralInfo();
+    // get menu
+    this.props.getMenu();
 
     this.unlisten = this.props.history.listen((location, action) => {
       if (location.pathname === '/') {
@@ -240,6 +237,11 @@ export class HomePage extends React.PureComponent {
         this.props.getTags();
         // get news
         this.props.getNews();
+        // get general info
+        this.props.getGeneralInfo();
+        // get menu
+        this.props.getMenu();
+
         if (this.props.location.pathname.split('/')[1] !== 'danh-muc'
           && nextProps.location.pathname.split('/')[1] !== 'danh-muc') {
           // get document's collections
@@ -323,6 +325,10 @@ export class HomePage extends React.PureComponent {
   }
 
   render() {
+    // general information
+    const homePageNotification = this.props.info.find((i) => i.position === 2);
+    const adminSupport = this.props.info.find((i) => i.position === 4);
+
     const { pathname } = this.props.history.location;
     const dataRight1 = [
       {
@@ -474,6 +480,7 @@ export class HomePage extends React.PureComponent {
         <Tab
           key="tin-tuc"
           title="Tin tức nổi bật"
+          style={{ background: 'white' }}
           content={
             <List
               items={this.props.news}
@@ -516,22 +523,26 @@ export class HomePage extends React.PureComponent {
 
     const contentRight2 = (
       <div>
-        {dataRight2.map((item, index) => {
-          const ComponentRendered = item.component;
-          return (
-            <Tab
-              className="green-tab"
-              key={`right2-${index}`}
-              style={{ background: 'white' }}
-              title={item.title}
-              content={
-                ComponentRendered ? (
-                  <ComponentRendered data={item.data} />
-                ) : null
-              }
-            />
-          );
-        })}
+        <Tab
+          key="admin-ho-tro"
+          title="Admin hỗ trợ 24/24"
+          style={{ background: 'white',  }}
+          content={
+            <React.Fragment>
+            {adminSupport
+              ? (<div style={{ padding: '0 5px' }} dangerouslySetInnerHTML={{ __html: adminSupport.text }} />)
+              : null}
+            </React.Fragment>              
+          }
+        />
+        <Tab
+          key="quang-cao"
+          title="Quảng cáo"
+          style={{ background: 'white' }}
+          content={
+            <div></div>
+          }
+        />
       </div>
     );
 
@@ -562,7 +573,9 @@ export class HomePage extends React.PureComponent {
                               title="Thông báo mới"
                               content={
                                 <div className="content-notification">
-                                  Chúc các bạn ngày mới tốt lành !
+                                  {homePageNotification ? (
+                                    <div dangerouslySetInnerHTML={{ __html: homePageNotification.text }} />
+                                  ) : 'Chúc các bạn ngày mới tốt lành !'}
                                 </div>
                               }
                               className="grey-box"
@@ -773,6 +786,8 @@ export function mapDispatchToProps(dispatch) {
     previewDoc: doc => dispatch(previewDoc(doc)),
     getPreview: id => dispatch(getPreview(id)),
     closePopUpCollection: () => dispatch(closePopUpCollection()),
+    getGeneralInfo: () => dispatch(getGeneralInformation()),
+    getMenu: () => dispatch(getMenu()),
   };
 }
 
@@ -795,6 +810,7 @@ const mapStateToProps = createStructuredSelector({
   preview: makeSelectIsShowPreview(),
   docPreview: makeSelectInfoDocPreview(),
   images: makeSelectImagesPreview(),
+  info: makeSelectInfo(),
 });
 
 const withConnect = connect(

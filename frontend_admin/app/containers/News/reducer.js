@@ -14,6 +14,7 @@ import {
   GET_NEWS,
   DELETE_NEWS,
   CLEAR_PROCESS_STATUS,
+  UPDATE_NEWS,
 } from './constants';
 
 // The initial state of the App
@@ -39,6 +40,12 @@ function newsReducer(state = initialState, action) {
       return state
         .set('loading', false)
         .set('processDone', true);
+    case UPDATE_NEWS.REQUEST:
+      return state.set('loading', true);
+    case UPDATE_NEWS.SUCCESS:
+      return state
+        .set('processDone', true)
+        .set('loading', false);
     default:
       return state;
   }

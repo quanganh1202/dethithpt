@@ -3,12 +3,14 @@
  */
 import axios from 'axios';
 import _ from 'lodash';
+import { push } from 'react-router-redux';
 import { all, call, put, takeLatest } from 'redux-saga/effects';
 import { getToken } from 'services/auth';
-import { GET_NEWS, DELETE_NEWS } from './constants';
+import { GET_NEWS, DELETE_NEWS, UPDATE_NEWS } from './constants';
 import {
   getNewsSuccess,
   deleteNewsSuccess,
+  updateNewsSuccess,
 } from './actions';
 
 const root = '/api';
@@ -26,6 +28,9 @@ export function* getNewsHandler({ query }) {
       ['x-access-token']: getToken(),
     },
   };
+  if (query.type === 'menu') {
+    options.params.sort = 'position.desc';
+  }
 
   try {
     const resp = yield call(axios.get, url, options);
@@ -57,6 +62,28 @@ export function* deleteNewsHandler({ ids }) {
   }
 }
 
+/**
+ * Request update news
+ */
+export function* updateNewsHandler({ data, module }) {
+  const options = {
+    headers: {
+      ['x-access-token']: getToken(),
+    }
+  }
+  try {
+    yield all(data.map((i) => {
+      const item = { ...i };
+      const url = `${root}/news/${i.id}`;
+      delete item.id;
+      return call(axios.put, url, item, options);
+    }));
+    yield put(updateNewsSuccess());
+    yield put(push(`/${module === 'news' ? 'news' : `modules/${module}`}`));
+  } catch (err) {
+    console.log(err);
+  }
+}
 
 /**
  * Root saga manages watcher lifecycle
@@ -64,4 +91,5 @@ export function* deleteNewsHandler({ ids }) {
 export default function* newsSaga() {
   yield takeLatest(GET_NEWS.REQUEST, getNewsHandler);
   yield takeLatest(DELETE_NEWS.REQUEST, deleteNewsHandler);
+  yield takeLatest(UPDATE_NEWS.REQUEST, updateNewsHandler);
 }
