@@ -48,6 +48,7 @@ const rabbitProducer = (key, msg) => {
           ch.consume(q.queue, (msg) => {
             const content = JSON.parse(msg.content);
             resolve(content);
+            ch.ack(msg);
             conn.close();
           }, { noAck: false });
           const message = typeof msg === 'string' ? msg : JSON.stringify(msg);
