@@ -94,7 +94,7 @@ const routerDefine =  function defineRouter() {
   });
 
   route.post('/users/bonus/:id', async (req, res) => {
-    const userId = req.app.locals.id.toString();
+    const userId = req.app.locals.id.toString(); // Actor
     const { money, email } = req.body;
     const { error, status, message } = await bonus(userId, req.params.id, money || 0, email);
     res.status(status);

@@ -591,7 +591,7 @@ async function bonus(userId, id, money, email, isBonusDownload) {
         money: moneyAfterRecharge < 0 ? -parseInt(user[0].money) : parseInt(money),
         actorId: userId,
       }),
-      userModel.updateUser(userId, { money: balance }),
+      userModel.updateUser(user[0].id, { money: balance }),
     ]);
 
     const serverNotify = await rabbitSender('purchase.create', {
