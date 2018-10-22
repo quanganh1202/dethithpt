@@ -37,7 +37,7 @@ mysql -u$ACCOUNT -p$PASSWORD -e "
     blockDownloadCategories VARCHAR(255) NULL,
     blockDownloadSubjects VARCHAR(255) NULL,
     blockDownloadClasses VARCHAR(255) NULL,
-    blockDownloadYearSchools VARCHAR(255) NULL;
+    blockDownloadYearSchools VARCHAR(255) NULL,
     notifyText VARCHAR(255) NULL,
     notifyStatus INT(1) DEFAULT 0,
     PRIMARY KEY (id),
