@@ -1028,10 +1028,29 @@ export class User extends React.PureComponent {
                           Email
                         </HeadSort>
                         <HeadFilter
-                          selectName="role"
+                          selectName="position"
                           multiple
                           scope="col"
                           options={[
+                            { label: 'Giáo viên Toán', value: 'math_teacher' },
+                            { label: 'Giáo viên Vật Lý', value: 'physics_teacher' },
+                            { label: 'Giáo viên Hóa Học', value: 'chemistry_teacher' },
+                            { label: 'Giáo viên Sinh Học', value: 'biology_teacher' },
+                            { label: 'Giáo viên Tiếng Anh', value: 'english_teacher' },
+                            { label: 'Giáo viên Ngữ Văn', value: 'literature_teacher' },
+                            { label: 'Giáo viên Lịch Sử', value: 'hítory_teacher' },
+                            { label: 'Giáo viên Địa Lý', value: 'geography_teacher' },
+                            { label: 'Giáo viên GDCD', value: 'civic_edu_teacher' },
+                            { label: 'Giáo viên Tin Học', value: 'it_teacher' },
+                            { label: 'Giáo viên Công Nghệ', value: 'technology_teacher' },
+                            { label: 'Giáo viên Mỹ Thuật', value: 'fine_art_teacher' },
+                            { label: 'Giáo viên Âm Nhạc', value: 'music_teacher' },
+                            { label: 'Giáo viên Thể Dục', value: 'physical_edu_teacher' },
+                            { label: 'Học Sinh', value: 'pupil' },
+                            { label: 'Sinh viên', value: 'student' },
+                            { label: 'Phụ Huynh', value: 'parent' },
+                            { label: 'Gia Sư', value: 'tutor' },
+                            { label: 'Khác', value: 'other' },
                             { value: 'admin', label: 'Admin' },
                             { value: 'member', label: 'Thành viên' },
                           ]}
