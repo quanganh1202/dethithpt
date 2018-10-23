@@ -53,7 +53,6 @@
     },
     "position": {
       "type": "string",
-      "enum": ["student", "teacher", "other"],
       "minLength": 1
     },
     "money": {
