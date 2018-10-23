@@ -23,6 +23,7 @@ export default {
         sort,
         fields,
         tag,
+        filterType,
       } = options;
       const numberRegex = new RegExp(/^[0-9]*$/);
       const existSizeAndOffsetInvalid = ((size && !numberRegex.test(size)) || ( offset && !numberRegex.test(offset)));
@@ -35,7 +36,7 @@ export default {
       }
       const sortObj = sortParamsHandler(sort);
       if (sortObj.statusCode !== 200) return sortObj; // Return error
-      const filterBuilt = filterParamsHandler({ tag });
+      const filterBuilt = filterParamsHandler({ tag }, filterType);
       if (filterBuilt.statusCode !== 200) return filterBuilt; // Return error
       const fieldsToArray = fields ? fields.split(',') : undefined; // List fields specific by ","
       const from = size && offset ? offset : 0; // Fulfil size and offset to get from value. Default equal 0

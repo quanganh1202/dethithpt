@@ -54,6 +54,7 @@ export default {
         priority,
         priorityCate,
         scroll,
+        filterType,
       } = options;
       const numberRegex = new RegExp(/^[0-9]*$/);
       const isScroll = !isUndefined(scroll);
@@ -81,7 +82,7 @@ export default {
         userId,
         description,
         yearSchools,
-      });
+      }, filterType);
       if (filterBuilt.statusCode !== 200) return filterBuilt; // Return error
       const fieldsToArray = fields ? fields.split(',') : undefined; // List fields specific by ","
       const from = size && offset && !isScroll ? offset : 0; // Fulfil size and offset to get from value. Default equal 0

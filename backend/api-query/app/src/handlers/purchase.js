@@ -31,6 +31,7 @@ export default {
       size,
       offset,
       scroll,
+      filterType,
     } = options;
     try {
       const numberRegex = new RegExp(/^[0-9]*$/);
@@ -54,7 +55,7 @@ export default {
         actorName,
         actorId,
         actorRole,
-      });
+      }, filterType);
       if (filterBuilt.statusCode !== 200) return filterBuilt; // Return error
       const from = size && offset && !isScroll ? offset : 0;
       const result = isScroll ?

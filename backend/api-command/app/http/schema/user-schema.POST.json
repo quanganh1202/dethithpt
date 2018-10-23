@@ -18,7 +18,8 @@
     "phone": {
       "type": "string",
       "minLength": 1,
-      "maxLength": 15
+      "maxLength": 15,
+      "pattern": "^[0-9]*$"
     },
     "role": {
       "type": "string",
