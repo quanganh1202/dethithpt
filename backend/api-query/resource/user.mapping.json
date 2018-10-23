@@ -143,7 +143,7 @@
           "search_analyzer": "standard",
           "fields": {
             "raw": {
-              "type": "integer"
+              "type": "long"
             }
           }
         },
@@ -151,7 +151,7 @@
           "type": "text"
         },
         "money": {
-          "type": "integer"
+          "type": "long"
         },
         "status": {
           "type": "text"
