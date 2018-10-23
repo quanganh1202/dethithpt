@@ -18,7 +18,7 @@
     "phone": {
       "type": "string",
       "minLength": 1,
-      "maxLength": 13
+      "maxLength": 15
     },
     "role": {
       "type": "string",
