@@ -171,7 +171,7 @@ export default {
 
       if (updateRef) {
         const document = new ES('documents', 'document');
-        await document.updateByQuery({
+        document.updateByQuery({
           source: script,
           lang: 'painless',
         },
