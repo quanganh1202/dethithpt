@@ -15,6 +15,7 @@ import {
   DELETE_COLLECTIONS,
   CLEAR_PROCESS_STATUS,
   UPDATE_COLLECTIONS,
+  GET_DATA_INIT,
 } from './constants';
 
 // The initial state of the App
@@ -22,6 +23,11 @@ export const initialState = fromJS({
   collections: [],
   total: 0,
   processDone: false,
+  dataInit: {
+    categories: [],
+    subjects: [],
+    classes: [],
+  },
 });
 
 function collectionReducer(state = initialState, action) {
@@ -48,6 +54,12 @@ function collectionReducer(state = initialState, action) {
       return state
         .set('loading', false)
         .set('processDone', true);
+    case GET_DATA_INIT.REQUEST:
+      return state.set('loading', true);
+    case GET_DATA_INIT.SUCCESS:
+      return state
+        .set('loading', false)
+        .set('dataInit', fromJS(action.data));
     default:
       return state;
   }

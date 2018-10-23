@@ -23,19 +23,23 @@ import {
   Row,
   Table,
   Button,
+  Input,
+  InputGroup,
+  InputGroupAddon,
 } from 'reactstrap';
 import moment from 'moment';
 import styled from 'styled-components';
-import { PaginationTable } from 'components/Table';
+import { PaginationTable, HeadFilter, HeadSort } from 'components/Table';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
-import { getCollections, deleteCollections, clearProcessStatus, updateCollections } from './actions';
+import { getCollections, deleteCollections, clearProcessStatus, updateCollections, getDataInit } from './actions';
 import {
   makeSelectCollections,
   makeSelectTotalCollection,
   makeSelectLoading,
   makeSelectProcessStatus,
+  makeSelectDataInit,
 } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
@@ -48,10 +52,17 @@ const Wrapper = styled.div`
         p {
           margin: 0;
         }
+        &:nth-of-type(6), &:nth-of-type(5) {
+          white-space: nowrap;
+        }
       }
     }
   }
 `;
+
+const optionYear = Array(21)
+  .fill((new Date()).getFullYear() - 20)
+  .map((y, idx) => ({ value: y + idx, label: y + idx }));
 
 /* eslint-disable react/prefer-stateless-function */
 export class Collection extends React.PureComponent {
@@ -62,6 +73,12 @@ export class Collection extends React.PureComponent {
       selectedCollections: [],
       collections: [],
       changedCollections: [],
+      filters: {
+        cateId: [],
+        subjectId: [],
+        classId: [],
+        yearSchools: [],
+      },
     };
     this.size = 10;
     this.maxPages = 11;
@@ -69,6 +86,10 @@ export class Collection extends React.PureComponent {
     this.handleSavePosition = this.handleSavePosition.bind(this);
     this.handleChangePosition = this.handleChangePosition.bind(this);
     this.onSelectPage = this.onSelectPage.bind(this);
+    this.sort = this.sort.bind(this);
+    this.onSelectFilter = this.onSelectFilter.bind(this);
+    this.onSearch = this.onSearch.bind(this);
+    this.search = this.search.bind(this);
   }
 
   componentWillMount() {
@@ -78,6 +99,7 @@ export class Collection extends React.PureComponent {
       offset: 0,
       size: this.size,
     });
+    this.props.getDataInit();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -106,14 +128,21 @@ export class Collection extends React.PureComponent {
 
   onSelectPage(page) {
     if (this.state.currentPage !== page) {
+      const { sortField, sortBy, filters } = this.state;
       this.setState({
         currentPage: page,
+        selectedCollections: [],
       });
-      this.props.getCollections({
+      const query = {
         sort: 'position.asc',
         offset: this.size * (page - 1),
         size: this.size,
-      });
+      };
+      if (sortField) {
+        query.sort = `${sortField}.${sortBy}`;
+      }
+      Object.keys(filters).forEach((k) => (query[k] = filters[k].join()));
+      this.props.getCollections(query);
     }
   }
 
@@ -215,6 +244,64 @@ export class Collection extends React.PureComponent {
     })
   }
 
+  sort(e) {
+    const { field } = e.currentTarget.dataset;
+    const { filters } = this.state;
+    let sortField = field;
+    let sortBy = 'desc';
+    if (this.state.sortField && this.state.sortField === field) {
+      sortBy = this.state.sortBy === 'desc' ? 'asc' : 'desc';
+    }
+    this.setState({ sortField, sortBy });
+    const query = {
+      sort: `${sortField}.${sortBy}`,
+      name: this.state.keyword || '',
+      size: this.size,
+      offset: this.size * (this.state.currentPage - 1),
+    };
+    Object.keys(filters).forEach((k) => (query[k] = filters[k].join()));
+    this.props.getCollections(query);
+  }
+
+  onSelectFilter(e) {
+    const { name } = e.currentTarget;
+    const selected = Array.from(e.currentTarget.selectedOptions).map((o) => o.value);
+    const newFilter = {
+      ...this.state.filters,
+      [name]: selected,
+    }
+    this.setState({
+      filters: newFilter,
+      currentPage: 1,
+    });
+    const query = {
+      name: this.state.keyword,
+      sort: 'position.asc',
+      size: this.size,
+      offset: 0,
+    };
+    Object.keys(newFilter).forEach((k) => (query[k] = newFilter[k].join()));
+    this.props.getCollections(query);
+  }
+
+  onSearch(e) {
+    this.setState({ keyword: e.currentTarget.value });
+  }
+
+  search(e) {
+    e.preventDefault();
+    this.setState({
+      sortField: '',
+      sortBy: '',
+      currentPage: 1,
+    });
+    this.props.getCollections({
+      name: this.state.keyword,
+      sort: 'position.asc',
+      size: this.size,
+      offset: 0,
+    });
+  }
 
   render() {
     return (
@@ -235,35 +322,49 @@ export class Collection extends React.PureComponent {
               <Card>
                 <CardHeader>
                   <i className="fa fa-align-justify" /> Bộ sưu tập
-                  <div className="float-right" style={{ marginLeft: '10px' }}>
-                    <Button
-                      block
-                      color="primary"
-                      size="sm"
-                      onClick={() =>
-                        this.props.history.push('/collections/create')
-                      }
-                    >
-                      Tạo mới
-                    </Button>
-                  </div>
-                  <div className="float-right" style={{ marginLeft: '10px' }}>
-                    <Button
-                      block
-                      color="warning"
-                      size="sm"
-                      onClick={this.handleSavePosition}
-                      style={{ color: 'white' }}
-                    >Sắp xếp</Button>
-                  </div>
-                  <div className="float-right">
-                    <Button
-                      block
-                      color="danger"
-                      size="sm"
-                      onClick={() => this.props.deleteCollections((this.state.selectedCollections))}
-                    >Xoá</Button>
-                  </div>
+                  <Row style={{ marginBottom: '15px' }}>
+                    <Col md="4">
+                      <form id="search-form" onSubmit={this.search}>
+                        <InputGroup>
+                          <Input onChange={this.onSearch} type="text" id="search-table" name="search-table-document" bsSize="sm" />
+                          <InputGroupAddon addonType="append">
+                            <Button type="submit" size="sm">Tìm kiếm</Button>
+                          </InputGroupAddon>
+                        </InputGroup>
+                      </form>
+                    </Col>
+                    <Col md="8">
+                      <div className="float-right" style={{ marginLeft: '10px' }}>
+                        <Button
+                          block
+                          color="primary"
+                          size="sm"
+                          onClick={() =>
+                            this.props.history.push('/collections/create')
+                          }
+                        >
+                          Tạo mới
+                        </Button>
+                      </div>
+                      <div className="float-right" style={{ marginLeft: '10px' }}>
+                        <Button
+                          block
+                          color="warning"
+                          size="sm"
+                          onClick={this.handleSavePosition}
+                          style={{ color: 'white' }}
+                        >Sắp xếp</Button>
+                      </div>
+                      <div className="float-right">
+                        <Button
+                          block
+                          color="danger"
+                          size="sm"
+                          onClick={() => this.props.deleteCollections((this.state.selectedCollections))}
+                        >Xoá</Button>
+                      </div>
+                    </Col>
+                  </Row>
                 </CardHeader>
                 <CardBody>
                   <Table responsive hover striped>
@@ -281,14 +382,66 @@ export class Collection extends React.PureComponent {
                         </th>
                         <th scope="col">Tên</th>
                         <th scope="col">Mô tả</th>
-                        <th scope="col">Danh mục</th>
-                        <th scope="col">Môn</th>
-                        <th scope="col">Lớp</th>
-                        <th scope="col">Năm</th>
-                        <th scope="col">Người tạo</th>
-                        <th scope="col">Ngày tạo</th>
-                        <th scope="col">Lượt xem</th>
-                        <th scope="col">Tài liệu</th>
+                        <HeadFilter
+                          selectName="cateId"
+                          multiple
+                          scope="col"
+                          options={this.props.dataInit.categories.map((i) => ({ value: i.id, label: i.name }))}
+                          onSelect={this.onSelectFilter}
+                          value={this.state.filters.cateId}
+                        >Danh mục</HeadFilter>
+                        <HeadFilter
+                          selectName="subjectId"
+                          multiple
+                          scope="col"
+                          options={this.props.dataInit.subjects.map((i) => ({ value: i.id, label: i.name }))}
+                          onSelect={this.onSelectFilter}
+                          value={this.state.filters.subjectId}
+                        >Môn</HeadFilter>
+                        <HeadFilter
+                          selectName="classId"
+                          multiple
+                          scope="col"
+                          options={this.props.dataInit.classes.map((i) => ({ value: i.id, label: i.name }))}
+                          onSelect={this.onSelectFilter}
+                          value={this.state.filters.classId}
+                        >Lớp</HeadFilter>
+                        <HeadFilter
+                          selectName="yearSchools"
+                          multiple
+                          scope="col"
+                          options={optionYear}
+                          onSelect={this.onSelectFilter}
+                          value={this.state.filters.yearSchools}
+                        >Năm</HeadFilter>
+                        <HeadSort
+                          scope="col"
+                          onClick={this.sort}
+                          data-field="userEmail"
+                          sortField={this.state.sortField}
+                          sortBy={this.state.sortBy}
+                        >Người tạo</HeadSort>
+                        <HeadSort
+                          scope="col"
+                          onClick={this.sort}
+                          data-field="createdAt"
+                          sortField={this.state.sortField}
+                          sortBy={this.state.sortBy}
+                        >Ngày tạo</HeadSort>
+                        <HeadSort 
+                          scope="col"
+                          onClick={this.sort}
+                          data-field="view"
+                          sortField={this.state.sortField}
+                          sortBy={this.state.sortBy}
+                        >Lượt xem</HeadSort>
+                        <HeadSort
+                          scope="col"
+                          onClick={this.sort}
+                          data-field="numDocRefs"
+                          sortField={this.state.sortField}
+                          sortBy={this.state.sortBy}
+                        >Tài liệu</HeadSort>
                         <th scope="col">Nổi bật trang chủ</th>
                         <th scope="col">Nổi bật danh mục</th>
                         <th scope="col">Vị trí</th>
@@ -327,6 +480,7 @@ export function mapDispatchToProps(dispatch) {
     deleteCollections: (id) => dispatch(deleteCollections(id)),
     clearProcessStatus: (all) => dispatch(clearProcessStatus(all)),
     updateCollections: (collections) => dispatch(updateCollections(collections)),
+    getDataInit: () => dispatch(getDataInit()),
   };
 }
 
@@ -335,6 +489,7 @@ const mapStateToProps = createStructuredSelector({
   total: makeSelectTotalCollection(),
   loading: makeSelectLoading(),
   processStatus: makeSelectProcessStatus(),
+  dataInit: makeSelectDataInit(),
 });
 
 const withConnect = connect(

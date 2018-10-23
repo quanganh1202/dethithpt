@@ -304,15 +304,25 @@ export class HomePage extends React.PureComponent {
       const formError = document.querySelector('.form-header');
       formError.scrollIntoView();
     } else {
-      delete update.exp;
-      delete update.iat;
-      delete update.id;
-      delete update.status;
-      update.role = 'member';
-      dataConvert.forEach((key) => {
-        update[key] = update[key].text;
-      })
-      this.props.onSubmitUserInfo(update, this.props.token);
+      const pattern = /^\d+$/;
+      if (update.phone.length > 11 || !pattern.test(update.phone)) {
+        this.setState({
+          error: 'Số điện thoại chỉ bao gồm số và độ dài không quá 11',
+        });
+        const formError = document.querySelector('.form-header');
+        formError.scrollIntoView();
+      } else {
+        delete update.exp;
+        delete update.iat;
+        delete update.id;
+        delete update.status;
+        if (!update.facebook) delete update.facebook;
+        update.role = 'member';
+        dataConvert.forEach((key) => {
+          update[key] = update[key].text;
+        })
+        this.props.onSubmitUserInfo(update, this.props.token);
+      }
     }
   }
 

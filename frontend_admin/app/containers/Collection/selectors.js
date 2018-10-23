@@ -19,10 +19,14 @@ const makeSelectLoading = () =>
 const makeSelectProcessStatus = () =>
   createSelector(selectHome, collectionState => collectionState.get('processDone'));
 
+const makeSelectDataInit = () =>
+  createSelector(selectHome, documentState => documentState.get('dataInit').toJS());
+
 export {
   selectHome,
   makeSelectCollections,
   makeSelectTotalCollection,
   makeSelectLoading,
-  makeSelectProcessStatus
+  makeSelectProcessStatus,
+  makeSelectDataInit,
 };

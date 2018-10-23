@@ -52,8 +52,8 @@ import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
-import { getToken } from 'services/auth';
-import { getUsers, getDataInit, getHistory, clearData } from './actions';
+import { getToken, getUser } from 'services/auth';
+import { getUsers, getDataInit, getHistory, clearData, deleteUsers, clearProcessStatus } from './actions';
 import { moneyValidation, numberWithCommas } from 'services/helper';
 import {
   makeSelectUsers,
@@ -61,6 +61,8 @@ import {
   makeSelectTotalUser,
   makeSelectDataInit,
   makeSelectHistory,
+  makeSelectCurrentQuery,
+  makeSelectProcessStt,
 } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
@@ -118,9 +120,26 @@ function validateEmail(email) {
 }
 
 const mappingRolePosition = {
+  math_teacher: 'Giáo viên Toán',
+  physics_teacher: 'Giáo viên Vật Lý',
+  chemistry_teacher: 'Giáo viên Hóa Học',
+  biology_teacher: 'Giáo viên Sinh Học',
+  english_teacher: 'Giáo viên Tiếng Anh',
+  literature_teacher: 'Giáo viên Ngữ Văn',
+  hítory_teacher: 'Giáo viên Lịch Sử',
+  geography_teacher: 'Giáo viên Địa Lý',
+  civic_edu_teacher: 'Giáo viên GDCD',
+  it_teacher: 'Giáo viên Tin Học',
+  technology_teacher: 'Giáo viên Công Nghệ',
+  fine_art_teacher: 'Giáo viên Mỹ Thuật',
+  music_teacher: 'Giáo viên Âm Nhạc',
+  physical_edu_teacher: 'Giáo viên Thể Dục',
+  pupil: 'Học Sinh',
   admin: 'Admin',
-  student: 'Học sinh',
+  student: 'Sinh viên',
   teacher: 'Giáo viên',
+  parent: 'Phụ Huynh',
+  tutor: 'Gia Sư',
   other: 'Khác',
 };
 /* eslint-disable react/prefer-stateless-function */
@@ -165,6 +184,19 @@ export class User extends React.PureComponent {
       offset: 0,
       size: this.size,
     });
+  }
+  
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.processDone && !this.props.processDone) {
+      this.setState({
+        selectedDocs: [],
+      });
+       // get Classes
+      this.props.getDataInit();
+      // get subjects
+      this.props.getUsers(this.props.query);
+      this.props.clearProcessStatus();
+    }
   }
 
   componentDidUpdate() {
@@ -299,7 +331,9 @@ export class User extends React.PureComponent {
           <div>
             <button
               style={{ float: 'left', padding: '0', marginRight: '5px' }}
-              onClick={() => this.props.deleteUser([item.id])}
+              onClick={() => {
+                if (getUser().email !== item.email) this.props.deleteUser([item.id])
+              }}
               title="Xóa"
             >
               <i className="fa fa-trash-o fa-lg" aria-hidden="true" style={{ color: "#555" }}></i>
@@ -375,7 +409,8 @@ export class User extends React.PureComponent {
     this.setState({ keyword: e.currentTarget.value });
   }
 
-  search() {
+  search(e) {
+    e.preventDefault();
     this.setState({
       sortField: '',
       sortBy: '',
@@ -401,6 +436,7 @@ export class User extends React.PureComponent {
         name: this.state.keyword || '',
         size: this.size,
         offset: this.size * (page - 1),
+        sort: 'createdAt.desc',
       };
       if (sortField) {
         query.sort = `${sortField}.${sortBy}`;
@@ -733,20 +769,22 @@ export class User extends React.PureComponent {
                 <CardHeader>
                   <Row style={{ marginBottom: '15px' }}>
                     <Col md="3">
-                      <InputGroup>
-                        <Input
-                          onChange={this.onSearch}
-                          type="text"
-                          id="search-table"
-                          name="search-table-user"
-                          bsSize="sm"
-                        />
-                        <InputGroupAddon addonType="append">
-                          <Button type="button" onClick={this.search} size="sm">
-                            Tìm kiếm
-                          </Button>
-                        </InputGroupAddon>
-                      </InputGroup>
+                      <form id="search-form" onSubmit={this.search}>
+                        <InputGroup>
+                          <Input
+                            onChange={this.onSearch}
+                            type="text"
+                            id="search-table"
+                            name="search-table-user"
+                            bsSize="sm"
+                          />
+                          <InputGroupAddon addonType="append">
+                            <Button type="submit" size="sm">
+                              Tìm kiếm
+                            </Button>
+                          </InputGroupAddon>
+                        </InputGroup>
+                      </form>
                     </Col>
                   </Row>
                   <Row>
@@ -995,7 +1033,7 @@ export class User extends React.PureComponent {
                           scope="col"
                           options={[
                             { value: 'admin', label: 'Admin' },
-                            { value: 'student', label: 'Thành viên' },
+                            { value: 'member', label: 'Thành viên' },
                           ]}
                           onSelect={this.onSelectFilter}
                           value={this.state.filters.role || []}
@@ -1247,6 +1285,8 @@ export function mapDispatchToProps(dispatch) {
     getDataInit: () => dispatch(getDataInit()),
     getHistory: (id, type) => dispatch(getHistory(id, type)),
     clearData: () => dispatch(clearData()),
+    deleteUser: (ids) => dispatch(deleteUsers(ids)),
+    clearProcessStatus: () => dispatch(clearProcessStatus()),
   };
 }
 
@@ -1256,6 +1296,8 @@ const mapStateToProps = createStructuredSelector({
   loading: makeSelectLoading(),
   dataInit: makeSelectDataInit(),
   userHistory: makeSelectHistory(),
+  query: makeSelectCurrentQuery(),
+  processDone: makeSelectProcessStt(),
 });
 
 const withConnect = connect(

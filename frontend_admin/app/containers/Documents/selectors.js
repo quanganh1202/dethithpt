@@ -31,6 +31,9 @@ const makeSelectFileName = () =>
 const makeSelectDownloadHistory = () =>
   createSelector(selectHome, homeState => homeState.get('historyDownload').toJS());
 
+const makeSelectCurrentQuery = () =>
+  createSelector(selectHome, homeState => homeState.get('query').toJS());
+
 export {
   selectHome,
   makeSelectDocuments,
@@ -41,4 +44,5 @@ export {
   makeSelectFile,
   makeSelectFileName,
   makeSelectDownloadHistory,
+  makeSelectCurrentQuery,
 };

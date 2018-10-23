@@ -37,12 +37,15 @@ export const initialState = fromJS({
   file: null,
   fileName: '',
   historyDownload: [],
+  query: {},
 });
 
 function documentReducer(state = initialState, action) {
   switch (action.type) {
     case GET_DOCS.REQUEST:
-      return state.set('loading', true);
+      return state
+        .set('loading', true)
+        .set('query', fromJS(action.query));
     case GET_DOCS.SUCCESS:
       return state
         .set('loading', false)

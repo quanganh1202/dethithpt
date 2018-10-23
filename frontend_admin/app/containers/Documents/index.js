@@ -66,6 +66,7 @@ import {
   makeSelectFile,
   makeSelectFileName,
   makeSelectDownloadHistory,
+  makeSelectCurrentQuery,
 } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
@@ -163,6 +164,7 @@ export class Documents extends React.PureComponent {
         subjectId: [],
         classId: [],
         yearSchools: [],
+        collectionId: [],
       },
       showHistory: false,
     };
@@ -195,17 +197,14 @@ export class Documents extends React.PureComponent {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.deleteStatus && !this.props.deleteStatus) {
+      console.log(this.props)
       this.setState({
-        currentPage: 1,
-        keyword: '',
+        // currentPage: 1,
+        // keyword: '',
         quickUpdateForm: {},
         selectedDocs: [],
       });
-      this.props.getDocs({
-        sort: 'createdAt.desc',
-        offset: 0,
-        size: this.size,
-      }, this.additionalQuery);
+      this.props.getDocs(this.props.query, this.additionalQuery);
       this.props.clearDeleteStatus();
     }
     if (!this.props.file && nextProps.file) {
@@ -281,11 +280,12 @@ export class Documents extends React.PureComponent {
         <td>{item.subjects && item.subjects.map((i) => <p key={i.subjectId}>{i.subjectName}</p>)}</td>
         <td>{item.classes && item.classes.map((i) => <p key={i.classId}>{i.className}</p>)}</td>
         <td>{item.yearSchools && item.yearSchools.map((i) => <p key={i}>{i}</p>)}</td>
+        <td>{item.collections && item.collections.map((i) => <p key={i.collectionId}>{i.collectionName}</p>)}</td>
         <td>{numberWithCommas(item.price || 0)}</td>
         <td>{numberWithCommas(item.totalPages || 0)}</td>
         <td>{numberWithCommas(item.downloaded || 0)}</td>
         <td>{item.comment}</td>
-        <td>{moment(item.createdAt).format('DD/MM/YYYY')}</td>
+        <td>{moment(item.createdAt).format('DD/MM/YYYY hh:mm:ss')}</td>
         <td>{item.userEmail}</td>
         <td>{item.approved === 1
             ? <Badge style={{ fontSize: '11px' }} color="success">Đã duyệt</Badge>
@@ -377,7 +377,8 @@ export class Documents extends React.PureComponent {
     this.setState({ keyword: e.currentTarget.value });
   }
 
-  search() {
+  search(e) {
+    e.preventDefault();
     this.setState({
       sortField: '',
       sortBy: '',
@@ -388,9 +389,6 @@ export class Documents extends React.PureComponent {
       sort: 'createdAt.desc',
       size: this.size,
       offset: 0,
-      filters: {
-        cateId: [],
-      }
     }, this.additionalQuery);
   }
 
@@ -520,12 +518,14 @@ export class Documents extends React.PureComponent {
                 <CardHeader>
                   <Row style={{ marginBottom: '15px' }}>
                     <Col md="4">
-                      <InputGroup>
-                        <Input onChange={this.onSearch} type="text" id="search-table" name="search-table-document" bsSize="sm" />
-                        <InputGroupAddon addonType="append">
-                          <Button type="button" onClick={this.search} size="sm">Tìm kiếm</Button>
-                        </InputGroupAddon>
-                      </InputGroup>
+                      <form id="search-form" onSubmit={this.search}>
+                        <InputGroup>
+                          <Input onChange={this.onSearch} type="text" id="search-table" name="search-table-document" bsSize="sm" />
+                          <InputGroupAddon addonType="append">
+                            <Button type="submit" size="sm">Tìm kiếm</Button>
+                          </InputGroupAddon>
+                        </InputGroup>
+                      </form>
                     </Col>
                   </Row>
                   <Row>
@@ -821,6 +821,16 @@ export class Documents extends React.PureComponent {
                         >
                           Năm học
                         </HeadFilter>
+                        <HeadFilter
+                          selectName="collectionId"
+                          multiple
+                          scope="col"
+                          options={this.props.dataInit.collections.map((i) => ({ value: i.id, label: i.name }))}
+                          onSelect={this.onSelectFilter}
+                          value={this.state.filters.collectionId}
+                        >
+                          Bộ sưu tập
+                        </HeadFilter>
                         <HeadSort
                           scope="col"
                           onClick={this.sort}
@@ -965,6 +975,7 @@ const mapStateToProps = createStructuredSelector({
   file: makeSelectFile(),
   fileName: makeSelectFileName(),
   historyDownload: makeSelectDownloadHistory(),
+  query: makeSelectCurrentQuery(),
 });
 
 const withConnect = connect(

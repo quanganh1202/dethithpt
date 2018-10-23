@@ -58,8 +58,24 @@ const CreateUser = (props) => {
                   <Select
                     name="position"
                     options={[
+                      { text: 'Giáo viên Toán', value: 'math_teacher' },
+                      { text: 'Giáo viên Vật Lý', value: 'physics_teacher' },
+                      { text: 'Giáo viên Hóa Học', value: 'chemistry_teacher' },
+                      { text: 'Giáo viên Sinh Học', value: 'biology_teacher' },
+                      { text: 'Giáo viên Tiếng Anh', value: 'english_teacher' },
+                      { text: 'Giáo viên Ngữ Văn', value: 'literature_teacher' },
+                      { text: 'Giáo viên Lịch Sử', value: 'hítory_teacher' },
+                      { text: 'Giáo viên Địa Lý', value: 'geography_teacher' },
+                      { text: 'Giáo viên GDCD', value: 'civic_edu_teacher' },
+                      { text: 'Giáo viên Tin Học', value: 'it_teacher' },
+                      { text: 'Giáo viên Công Nghệ', value: 'technology_teacher' },
+                      { text: 'Giáo viên Mỹ Thuật', value: 'fine_art_teacher' },
+                      { text: 'Giáo viên Âm Nhạc', value: 'music_teacher' },
+                      { text: 'Giáo viên Thể Dục', value: 'physical_edu_teacher' },
+                      { text: 'Học Sinh', value: 'pupil' },
                       { text: 'Sinh viên', value: 'student' },
-                      { text: 'Giáo viên', value: 'teacher' },
+                      { text: 'Phụ Huynh', value: 'parent' },
+                      { text: 'Gia Sư', value: 'tutor' },
                       { text: 'Khác', value: 'other' },
                     ]}
                     value={data.position || ''}

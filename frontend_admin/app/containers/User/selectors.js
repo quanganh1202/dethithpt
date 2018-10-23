@@ -22,6 +22,12 @@ const makeSelectDataInit = () =>
 const makeSelectHistory = () =>
   createSelector(selectHome, userState => userState.get('userHistory'));
 
+const makeSelectCurrentQuery = () =>
+  createSelector(selectHome, homeState => homeState.get('query').toJS());
+
+const makeSelectProcessStt = () =>
+  createSelector(selectHome, homeState => homeState.get('processDone'));
+
 export {
   selectHome,
   makeSelectUsers,
@@ -29,4 +35,6 @@ export {
   makeSelectTotalUser,
   makeSelectDataInit,
   makeSelectHistory,
+  makeSelectCurrentQuery,
+  makeSelectProcessStt,
 };

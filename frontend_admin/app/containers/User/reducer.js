@@ -10,7 +10,7 @@
  *   return state.set('yourStateVariable', true);
  */
 import { fromJS } from 'immutable';
-import { GET_USERS, GET_DATA_INIT, GET_HISTORY, CLEAR_DATA } from './constants';
+import { GET_USERS, GET_DATA_INIT, GET_HISTORY, CLEAR_DATA, DELETE_USERS, CLEAR_PROCESS_STATUS } from './constants';
 
 // The initial state of the App
 export const initialState = fromJS({
@@ -24,12 +24,16 @@ export const initialState = fromJS({
     data: [],
     type: 0,
   },
+  query: {},
+  processDone: false,
 });
 
 function userReducer(state = initialState, action) {
   switch (action.type) {
     case GET_USERS.REQUEST:
-      return state.set('loading', true);
+      return state
+        .set('loading', true)
+        .set('query', fromJS(action.query));
     case GET_USERS.SUCCESS:
       return state
         .set('loading', false)
@@ -50,6 +54,14 @@ function userReducer(state = initialState, action) {
     case CLEAR_DATA:
       return action.all
         ? initialState : state.set('userHistory', fromJS({ data: [], type: 0 }));
+    case DELETE_USERS.REQUEST:
+      return state.set('loading', true);
+    case DELETE_USERS.SUCCESS:
+      return state
+        .set('loading', false)
+        .set('processDone', true);
+    case CLEAR_PROCESS_STATUS:
+      return state.set('processDone', false);
     default:
       return state;
   }

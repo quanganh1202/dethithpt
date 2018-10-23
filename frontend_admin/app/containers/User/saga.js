@@ -5,11 +5,12 @@ import axios from 'axios';
 import _ from 'lodash';
 import { all, call, put, takeLatest } from 'redux-saga/effects';
 import { getToken } from 'services/auth';
-import { GET_USERS, GET_DATA_INIT, GET_HISTORY } from './constants';
+import { GET_USERS, GET_DATA_INIT, GET_HISTORY, DELETE_USERS } from './constants';
 import {
   getUsersSuccess,
   getDataInitSuccess,
   getHistorySuccess,
+  deleteUsersSuccess,
 } from './actions';
 
 const root = '/api';
@@ -97,10 +98,31 @@ export function* getHistoryHandler({ historyType, id }) {
 }
 
 /**
+ * Request delete users
+ */
+export function* deleteUsersHandler({ ids }) {
+  const options = {
+    headers: {
+      ['x-access-token']: getToken(),
+    }
+  };
+  try {
+    yield all(ids.map((i) => {
+      const url = `${root}/users/${i}`;
+      return call(axios.delete, url, options);
+    }));
+    yield put(deleteUsersSuccess());
+  } catch (err) {
+    // yield put(loginFailure(err));
+  }
+}
+
+/**
  * Root saga manages watcher lifecycle
  */
 export default function* userSaga() {
   yield takeLatest(GET_USERS.REQUEST, getUsersHandler);
   yield takeLatest(GET_DATA_INIT.REQUEST, getDataInitHandler);
   yield takeLatest(GET_HISTORY.REQUEST, getHistoryHandler);
+  yield takeLatest(DELETE_USERS.REQUEST, deleteUsersHandler);
 }

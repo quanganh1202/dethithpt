@@ -11,6 +11,8 @@
 import { defineAction } from 'redux-define';
 const container = 'thpt/users';
 export const GET_USERS = defineAction('GET_USERS', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
+export const DELETE_USERS = defineAction('DELETE_USERS', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
 export const GET_DATA_INIT = defineAction('GET_DATA_INIT', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
 export const GET_HISTORY = defineAction('GET_HISTORY', ['REQUEST', 'SUCCESS', 'FAILURE'], container);
 export const CLEAR_DATA = defineAction('CLEAR_DATA', container);
+export const CLEAR_PROCESS_STATUS = defineAction('CLEAR_PROCESS_STATUS', container);
