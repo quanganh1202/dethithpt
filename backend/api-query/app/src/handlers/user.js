@@ -49,6 +49,23 @@ export default {
         bod,
         status,
         note2,
+        note1,
+        email,
+        level,
+        facebook,
+        phone,
+        position,
+        createdAt,
+        notifyText,
+        notifyStatus,
+        numOfUploaded,
+        numOfDownloaded,
+        blockDownloadCollections,
+        blockDownloadCategories,
+        blockDownloadSubjects,
+        blockDownloadClasses,
+        blockDownloadYearSchools,
+        money,
       } = options;
       const numberRegex = new RegExp(/^[0-9]*$/);
       const isScroll = !isUndefined(scroll);
@@ -62,7 +79,34 @@ export default {
       }
       const sortObj = sortParamsHandler(sort);
       if (sortObj.statusCode !== 200) return sortObj; // Return error
-      const filterBuilt = filterParamsHandler({ name, school, city, role, district, bod, status, note2, class: options.class });
+      const filterBuilt = filterParamsHandler({
+        name,
+        school,
+        city,
+        role,
+        district,
+        bod,
+        status,
+        note2,
+        class: options.class,
+        note1,
+        email,
+        level,
+        facebook,
+        phone,
+        position,
+        createdAt,
+        notifyText,
+        notifyStatus,
+        numOfUploaded,
+        numOfDownloaded,
+        blockDownloadCollections,
+        blockDownloadCategories,
+        blockDownloadSubjects,
+        blockDownloadClasses,
+        blockDownloadYearSchools,
+        money,
+      });
       if (filterBuilt.statusCode !== 200) return filterBuilt; // Return error
       const fieldsToArray = fields ? fields.split(',') : undefined; // List fields specific by ","
       const from = size && offset && !isScroll ? offset : 0; // Fulfil size and offset to get from value. Default equal 0
