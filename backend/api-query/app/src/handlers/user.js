@@ -49,6 +49,24 @@ export default {
         bod,
         status,
         note2,
+        note1,
+        email,
+        level,
+        facebook,
+        phone,
+        position,
+        createdAt,
+        notifyText,
+        notifyStatus,
+        numOfUploaded,
+        numOfDownloaded,
+        blockDownloadCollections,
+        blockDownloadCategories,
+        blockDownloadSubjects,
+        blockDownloadClasses,
+        blockDownloadYearSchools,
+        money,
+        filterType,
       } = options;
       const numberRegex = new RegExp(/^[0-9]*$/);
       const isScroll = !isUndefined(scroll);
@@ -62,7 +80,34 @@ export default {
       }
       const sortObj = sortParamsHandler(sort);
       if (sortObj.statusCode !== 200) return sortObj; // Return error
-      const filterBuilt = filterParamsHandler({ name, school, city, role, district, bod, status, note2, class: options.class });
+      const filterBuilt = filterParamsHandler({
+        name,
+        school,
+        city,
+        role,
+        district,
+        bod,
+        status,
+        note2,
+        class: options.class,
+        note1,
+        email,
+        level,
+        facebook,
+        phone,
+        position,
+        createdAt,
+        notifyText,
+        notifyStatus,
+        numOfUploaded,
+        numOfDownloaded,
+        blockDownloadCollections,
+        blockDownloadCategories,
+        blockDownloadSubjects,
+        blockDownloadClasses,
+        blockDownloadYearSchools,
+        money,
+      }, filterType);
       if (filterBuilt.statusCode !== 200) return filterBuilt; // Return error
       const fieldsToArray = fields ? fields.split(',') : undefined; // List fields specific by ","
       const from = size && offset && !isScroll ? offset : 0; // Fulfil size and offset to get from value. Default equal 0
@@ -111,6 +156,32 @@ export default {
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.updatedAt = now;
       const result = await elasticsearch.update(body, userId);
+      let updateRef = false;
+      let script = '';
+      if (body.name) {
+        script +=  `ctx._source.userName=${body.name}; `;
+      }
+
+      if (body.email) {
+        script +=  `ctx._source.userEmail=${body.email}; `;
+      }
+
+      if (body.role) {
+        script +=  `ctx._source.userRole=${body.role}; `;
+      }
+
+      if (updateRef) {
+        const document = new ES('documents', 'document');
+        document.updateByQuery({
+          source: script,
+          lang: 'painless',
+        },
+        {
+          match: {
+            userId,
+          },
+        });
+      }
 
       return result;
     } catch (error) {

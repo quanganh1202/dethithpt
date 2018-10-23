@@ -49,7 +49,7 @@ const rabbitProducer = (key, msg) => {
             const content = JSON.parse(msg.content);
             resolve(content);
             conn.close();
-          }, { noAck: false });
+          }, { noAck: true });
           const message = typeof msg === 'string' ? msg : JSON.stringify(msg);
           ch.publish(ex, key, new Buffer(message), { replyTo: q.queue });
         });

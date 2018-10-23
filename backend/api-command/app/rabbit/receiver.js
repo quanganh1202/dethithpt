@@ -34,6 +34,7 @@ const rabbitMQConnector = () => {
             ch.bindQueue(q.queue, ex, r); // Get all message with routing key equal #
           });
           ch.consume(q.queue, async (msg) => {
+            ch.ack(msg);
             const actor = msg.fields.routingKey.split('.');
             const content = JSON.parse(msg.content);
             let replyMessage;
@@ -55,7 +56,6 @@ const rabbitMQConnector = () => {
               new Buffer(replyMessage)
             );
 
-            ch.ack(msg);
             // Tell rabbitmq know the message was proceed
           }, { noAck: false });
         });

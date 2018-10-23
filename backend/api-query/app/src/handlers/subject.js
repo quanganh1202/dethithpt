@@ -46,6 +46,7 @@ export default {
         userEmail,
         priority,
         scroll,
+        filterType,
       } = options;
       const numberRegex = new RegExp(/^[0-9]*$/);
       const isScroll = !isUndefined(scroll);
@@ -65,7 +66,7 @@ export default {
         userName,
         userId,
         userEmail,
-      });
+      }, filterType);
       if (filterBuilt.statusCode !== 200) return filterBuilt; // Return error
       const fieldsToArray = fields ? fields.split(',') : undefined; // List fields specific by ","
       const from = size && offset && !isScroll ? offset : 0; // Fulfil size and offset to get from value. Default equal 0

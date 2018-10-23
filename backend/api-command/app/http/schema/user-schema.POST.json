@@ -17,7 +17,9 @@
     },
     "phone": {
       "type": "string",
-      "minLength": 1
+      "minLength": 1,
+      "maxLength": 15,
+      "pattern": "^[0-9]*$"
     },
     "role": {
       "type": "string",
@@ -52,7 +54,6 @@
     },
     "position": {
       "type": "string",
-      "enum": ["student", "teacher", "other"],
       "minLength": 1
     },
     "money": {
@@ -72,19 +73,27 @@
     },
     "blockFrom": {
       "type": "string",
-      "minLength": 1
+      "minLength": 0
     },
     "blockDownloadCollections": {
       "type": "string",
-      "minLength": 1
+      "minLength": 0
     },
     "blockDownloadCategories": {
       "type": "string",
-      "minLength": 1
+      "minLength": 0
     },
     "blockDownloadSubjects": {
       "type": "string",
-      "minLength": 1
+      "minLength": 0
+    },
+    "blockDownloadClasses": {
+      "type": "string",
+      "minLength": 0
+    },
+    "blockDownloadYearSchools": {
+      "type": "string",
+      "minLength": 0
     },
     "notifyText": {
       "type": "string",

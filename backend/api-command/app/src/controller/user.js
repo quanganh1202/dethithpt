@@ -320,10 +320,10 @@ async function updateUser(id, userInfo) {
       userInfo.notifyStatus = 1;
     }
 
-    if (!isUndefined(status) && role !== roles.ADMIN) {
+    if (!isUndefined(status)) {
       return {
         status: 400,
-        error: 'Only role admin can update field status',
+        error: 'Use api /block to change status',
       };
     }
     const criteria = [ { email }, { phone }];
@@ -340,6 +340,18 @@ async function updateUser(id, userInfo) {
     if (role !== roles.ADMIN) delete userInfo.money;
     delete userInfo.userId;
     await userModel.updateUser(id, userInfo);
+    const {
+      blockDownloadCollections,
+      blockDownloadCategories,
+      blockDownloadSubjects,
+      blockDownloadClasses,
+      blockDownloadYearSchools,
+    } = userInfo;
+    if (blockDownloadCollections || blockDownloadCollections === '') userInfo.blockDownloadCollections = blockDownloadCollections.split(',');
+    if (blockDownloadCategories || blockDownloadCategories === '') userInfo.blockDownloadCategories = blockDownloadCategories.split(',');
+    if (blockDownloadSubjects || blockDownloadSubjects === '') userInfo.blockDownloadSubjects = blockDownloadSubjects.split(',');
+    if (blockDownloadClasses || blockDownloadClasses === '') userInfo.blockDownloadClasses = blockDownloadClasses.split(',');
+    if (blockDownloadYearSchools || blockDownloadYearSchools === '') userInfo.blockDownloadYearSchools = blockDownloadYearSchools.split(',');
     const serverNotify = await rabbitSender('user.update', { id, body: userInfo });
     if (serverNotify.statusCode === 200) {
       return {
@@ -417,6 +429,8 @@ async function blockUser(id, userId, body) {
       blockDownloadCollections,
       blockDownloadCategories,
       blockDownloadSubjects,
+      blockDownloadClasses,
+      blockDownloadYearSchools,
       blockFrom,
       status,
     } = body;
@@ -433,15 +447,17 @@ async function blockUser(id, userId, body) {
       blockFrom ? moment(blockFrom).format('YYYY-MM-DDTHH:mm:ss.SSS') : moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       break;
     case 4:
-      if (!blockDownloadCollections && !blockDownloadCategories && !blockDownloadSubjects) {
+      if (!blockDownloadCollections && !blockDownloadCategories && !blockDownloadSubjects && !blockDownloadYearSchools && !blockDownloadClasses) {
         return {
           status: 400,
           error: 'Should be provided block infomation. Ex: collections, categories ...',
         };
       }
-      if (blockDownloadCollections) queryBody.blockDownloadCollections = blockDownloadCollections.split(',');
-      if (blockDownloadCategories) queryBody.blockDownloadCategories = blockDownloadCategories.split(',');
-      if (blockDownloadSubjects) queryBody.blockDownloadSubjects = blockDownloadSubjects.split(',');
+      if (blockDownloadCollections || blockDownloadCollections === '') queryBody.blockDownloadCollections = blockDownloadCollections.split(',');
+      if (blockDownloadCategories || blockDownloadCategories === '') queryBody.blockDownloadCategories = blockDownloadCategories.split(',');
+      if (blockDownloadSubjects || blockDownloadSubjects === '') queryBody.blockDownloadSubjects = blockDownloadSubjects.split(',');
+      if (blockDownloadClasses || blockDownloadClasses === '') queryBody.blockDownloadClasses = blockDownloadClasses.split(',');
+      if (blockDownloadYearSchools || blockDownloadYearSchools === '') queryBody.blockDownloadYearSchools = blockDownloadYearSchools.split(',');
       break;
     default:
       break;
@@ -575,7 +591,7 @@ async function bonus(userId, id, money, email, isBonusDownload) {
         money: moneyAfterRecharge < 0 ? -parseInt(user[0].money) : parseInt(money),
         actorId: userId,
       }),
-      userModel.updateUser(userId, { money: balance }),
+      userModel.updateUser(user[0].id, { money: balance }),
     ]);
 
     const serverNotify = await rabbitSender('purchase.create', {
