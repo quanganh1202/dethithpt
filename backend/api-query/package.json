@@ -5,7 +5,7 @@
   "main": "app/index.js",
   "scripts": {
     "test": "mocha",
-    "start": "cross-env NODE_ENV=production bash ./resource/init_elasticsearch.sh && babel-node app/index.js",
+    "start": "cross-env NODE_ENV=production bash ./resource/update_elasticsearch.sh && babel-node app/index.js",
     "production": "node ./dist/main.js",
     "build": "./resource/build.sh",
     "dev": "cross-env NODE_ENV=dev ES_HOST=localhost nodemon app/index.js --exec babel-node",
