@@ -155,6 +155,32 @@ export default {
       const now = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
       body.updatedAt = now;
       const result = await elasticsearch.update(body, userId);
+      let updateRef = false;
+      let script = '';
+      if (body.name) {
+        script +=  `ctx._source.userName=${body.name}; `;
+      }
+
+      if (body.email) {
+        script +=  `ctx._source.userEmail=${body.email}; `;
+      }
+
+      if (body.role) {
+        script +=  `ctx._source.userRole=${body.role}; `;
+      }
+
+      if (updateRef) {
+        const document = new ES('documents', 'document');
+        await document.updateByQuery({
+          source: script,
+          lang: 'painless',
+        },
+        {
+          match: {
+            userId,
+          },
+        });
+      }
 
       return result;
     } catch (error) {
